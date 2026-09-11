@@ -214,3 +214,18 @@ def test_blank_distractor_note_fails_loudly_instead_of_an_empty_prompt(units):
     blanked = replace(units["be_001"], problem=replace(problem, distractors=((value, rule, "   "), other)))
     with pytest.raises(TutorError, match="distractor_notes"):
         unit_facts(blanked)
+
+
+def test_resume_refuses_a_different_parameter_arm(tmp_path):
+    """The §7.2 arms are exactly where a careless --resume blends two parameterisations into one
+    episodes.jsonl with nothing to tell the rows apart, so the guard must refuse the knobs that change
+    the physics, not only the ones that change the population."""
+    for folder in ("config", "data/units", "stimuli"):
+        shutil.copytree(ROOT / folder, tmp_path / folder)
+    args = ["--config", str(tmp_path / "config" / "default.yaml"), "--engine", "logistic", "--tutor", "fake",
+            "--learners", "3", "--episodes", "2", "--tag", "arms"]
+    assert simulate.main(args + ["--setting", "medium"]) == 0
+    assert simulate.main(args + ["--setting", "low", "--resume"]) == 2
+    assert simulate.main(args + ["--setting", "high", "--resume"]) == 2
+    assert simulate.main(args + ["--policy", "immediate_withdrawal", "--resume"]) == 2
+    assert simulate.main(args + ["--setting", "medium", "--resume"]) == 0  # the original arm still resumes

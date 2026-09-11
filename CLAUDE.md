@@ -124,10 +124,13 @@ learner from their own state and any outcome difference confounds the condition 
 
 Before starting: both models must be loaded in LM Studio (`lms ps` should list `llama-3.1-centaur-8b` at
 8192 context and `qwen2.5-3b-instruct`). LM Studio has unloaded a model mid-run before, which stops the
-run; `--resume` with the same tag picks it up. **`--resume` must keep the same `--learners`, `--episodes`
-and seed**: `make_population` draws the strata with `rng.choice(size=n)`, so changing n redraws every
-learner (learner 0 of a 40-draw is a different person from learner 0 of a 20-draw). `simulate.py` refuses
-such a resume rather than blending two populations - you cannot start small and extend.
+run; `--resume` with the same tag picks it up. **`--resume` must keep the same `--learners`, `--episodes`,
+seed, `--setting`, `--engine` and `--policy`**: `make_population` draws the strata with `rng.choice(size=n)`,
+so changing n redraws every learner (learner 0 of a 40-draw is a different person from learner 0 of a
+20-draw), and the other three change the physics rather than the population. `simulate.py` refuses such a
+resume rather than blending two parameterisations under one tag - you cannot start small and extend.
+Nothing in `episodes.jsonl` distinguishes the rows, so **one tag per §7.2 arm** (`--tag population_low`
+and so on); the default tag is the engine name and would collide.
 
 ## Commands
 

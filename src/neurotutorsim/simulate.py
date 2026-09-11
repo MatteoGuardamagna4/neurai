@@ -210,17 +210,22 @@ def main(argv=None) -> int:
 
     # A resumed run must keep the population it started with. make_population draws the strata with
     # rng.choice(..., size=n), so changing --learners changes EVERY learner, not only the added ones:
-    # learner 0 of a 40-learner draw is a different person from learner 0 of a 20-learner draw. Resuming
-    # with a different n (or seed, or episode count) would silently blend two populations under one set
-    # of learner_ids, so refuse instead.
+    # learner 0 of a 40-learner draw is a different person from learner 0 of a 20-learner draw. The
+    # same applies to the knobs that change the physics rather than the population: --setting selects
+    # a whole §7.2 arm, --engine decides who chooses, --policy caps the help turns. Resuming with any
+    # of them changed would blend two parameterisations under one tag, with nothing in episodes.jsonl
+    # to tell the rows apart, so refuse instead.
     if args.resume:
         for prior in sorted(logs.glob("run_*.json")):
             before = json.loads(prior.read_text(encoding="utf-8"))
-            for key, now in (("n_learners", n), ("n_episodes", episodes), ("master_seed", master)):
+            for key, now in (("n_learners", n), ("n_episodes", episodes), ("master_seed", master),
+                             ("parameter_setting", cfg["parameter_setting"]),
+                             ("engine", cfg["engine"]["name"]),
+                             ("persistence_policy", cfg["support"]["persistence_policy"])):
                 if before.get(key) is not None and before[key] != now:
-                    print(f"refusing to resume {tag}: it was started with {key}={before[key]} and this run "
-                          f"has {key}={now}. Re-run with the original value, or choose another --tag.",
-                          file=sys.stderr)
+                    print(f"refusing to resume {tag}: it was started with {key}={before[key]!r} and this "
+                          f"run has {key}={now!r}. Re-run with the original value, or choose another "
+                          f"--tag.", file=sys.stderr)
                     return 2
             break
 
@@ -284,6 +289,7 @@ def main(argv=None) -> int:
     log = {"version": __version__, "recorded_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "config_sha256": hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest(),
            "parameter_setting": cfg["parameter_setting"], "master_seed": master, "tag": tag,
+           "persistence_policy": cfg["support"]["persistence_policy"],
            "engine": cfg["engine"]["name"],
            "engine_model": cfg["engine"]["model"] if name in TRANSCRIPT_ENGINES or name == "hybrid" else None,
            "engine_calls": getattr(engine, "calls", 0), "engine_seconds": round(getattr(engine, "seconds", 0.0), 1),
