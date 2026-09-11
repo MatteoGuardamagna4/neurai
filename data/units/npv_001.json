@@ -1,0 +1,96 @@
+{
+  "unit_id": "npv_001",
+  "domain": "corporate_finance",
+  "concept": "net_present_value",
+  "difficulty": 3,
+  "prerequisites": [],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "adding the cash flows of different years together before discounting, so that later money is treated as worth the same as earlier money",
+    "method": "cf1 + cf2 - cost"
+  },
+  "worked_example": {
+    "text": "A machine costs EUR 40,000 today and is expected to generate EUR 30,000 of cash at the end of year 1 and EUR 30,000 at the end of year 2. The company requires a 25% return.",
+    "solution": "Year 1: 30,000 / 1.25 = EUR 24,000. Year 2: 30,000 / 1.25 squared = 30,000 / 1.5625 = EUR 19,200. Present value of the inflows = EUR 43,200, so the NPV is 43,200 - 40,000 = EUR 3,200 and the machine is worth buying."
+  },
+  "problem": {
+    "text": "A project costs EUR 100,000 today and is expected to generate EUR 72,000 of cash at the end of year 1 and EUR 72,000 at the end of year 2. The required return is 20% a year. What is the net present value of the project?",
+    "validator": "expression",
+    "expression": "cf1 / (1 + r) + cf2 / (1 + r) ** 2 - cost",
+    "params": {
+      "cf1": 72000,
+      "cf2": 72000,
+      "r": 0.2,
+      "cost": 100000
+    },
+    "answer": 10000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 44000,
+        "rule": "cf1 + cf2 - cost",
+        "note": "the documented misconception: adding the two years of cash without discounting either of them"
+      },
+      {
+        "value": 20000,
+        "rule": "(cf1 + cf2) / (1 + r) - cost",
+        "note": "discounting the total once instead of discounting each year by its own factor"
+      }
+    ]
+  },
+  "hints": [
+    "Money arriving later is worth less than the same amount today, so the two inflows cannot simply be added together. Deal with each year separately before you compare anything with the cost.",
+    "The cash of year 1 is divided by one plus the rate. The cash of year 2 has waited twice as long, so it is divided by one plus the rate squared.",
+    "Add the two present values you computed and subtract the amount paid today. The difference is the net present value."
+  ],
+  "worked_solution": "Step 1: discount year 1: 72,000 / 1.2 = EUR 60,000. Step 2: discount year 2 by two years of waiting: 72,000 / 1.2 squared = 72,000 / 1.44 = EUR 50,000. Step 3: add the present values: 60,000 + 50,000 = EUR 110,000. Step 4: subtract what is paid today: 110,000 - 100,000 = EUR 10,000. The NPV is positive, so the project earns more than the 20% required and is worth doing. Adding the raw cash flows instead would have given 144,000 - 100,000 = EUR 44,000, which counts money that has not arrived yet at full value.",
+  "near_transfer": {
+    "text": "The same project, costing EUR 100,000 today and paying EUR 72,000 at the end of year 1 and EUR 72,000 at the end of year 2, is reassessed as riskier and the required return is raised to 50% a year. What is its net present value now?",
+    "validator": "expression",
+    "expression": "cf1 / (1 + r) + cf2 / (1 + r) ** 2 - cost",
+    "params": {
+      "cf1": 72000,
+      "cf2": 72000,
+      "r": 0.5,
+      "cost": 100000
+    },
+    "answer": -20000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 44000,
+        "rule": "cf1 + cf2 - cost",
+        "note": "the misconception: no discounting at all, so the rate change makes no difference"
+      },
+      {
+        "value": -4000,
+        "rule": "(cf1 + cf2) / (1 + r) - cost",
+        "note": "discounting the total once rather than each year separately"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A supply contract will pay its holder EUR 25,000 at the end of next year and EUR 25,000 at the end of the year after. An investor requires a 25% annual return. What is the most the investor should pay for the contract today?",
+    "validator": "expression",
+    "expression": "cf1 / (1 + r) + cf2 / (1 + r) ** 2",
+    "params": {
+      "cf1": 25000,
+      "cf2": 25000,
+      "r": 0.25
+    },
+    "answer": 36000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 50000,
+        "rule": "cf1 + cf2",
+        "note": "the misconception: paying the undiscounted total of the future receipts"
+      },
+      {
+        "value": 40000,
+        "rule": "(cf1 + cf2) / (1 + r)",
+        "note": "discounting both receipts by a single year"
+      }
+    ]
+  }
+}

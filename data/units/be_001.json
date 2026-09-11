@@ -1,0 +1,55 @@
+{
+  "unit_id": "be_001",
+  "domain": "managerial_accounting",
+  "concept": "break_even_quantity",
+  "difficulty": 2,
+  "prerequisites": [],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing fixed costs by the selling price instead of by the contribution margin, i.e. ignoring the variable cost of each unit",
+    "method": "fixed_costs / price"
+  },
+  "worked_example": {
+    "text": "A cafe pays EUR 24,000 per month in rent, salaries and insurance. It sells coffee at EUR 5 a cup, and each cup costs EUR 2 in beans, milk and cups.",
+    "solution": "Contribution margin = 5 - 2 = EUR 3 per cup. Break-even quantity = 24,000 / 3 = 8,000 cups per month."
+  },
+  "problem": {
+    "text": "A company has fixed costs of EUR 180,000 per year. Each unit sells for EUR 75 and has a variable cost of EUR 45. How many units must it sell per year to break even?",
+    "validator": "break_even_quantity",
+    "params": {"fixed_costs": 180000, "price": 75, "variable_cost": 45},
+    "answer": 6000,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {"value": 2400, "rule": "fixed_costs / price", "note": "the documented misconception: fixed costs divided by the price, ignoring the variable cost"},
+      {"value": 4000, "rule": "fixed_costs / variable_cost", "note": "fixed costs divided by the variable cost instead of by the contribution margin"}
+    ]
+  },
+  "hints": [
+    "Start by writing down the three numbers the problem gives you: fixed costs, price per unit and variable cost per unit. Decide what role each one plays before doing any arithmetic.",
+    "The divisor is not the price. Compute the contribution margin first: price minus variable cost per unit. That margin is what each sale contributes towards the fixed costs.",
+    "Divide the fixed costs by the contribution margin you just computed. The result is the number of units needed to break even."
+  ],
+  "worked_solution": "Step 1: identify the inputs. Fixed costs are EUR 180,000, the price is EUR 75 and the variable cost is EUR 45 per unit. Step 2: compute the contribution margin: 75 - 45 = EUR 30 per unit. Step 3: divide fixed costs by the margin: 180,000 / 30 = 6,000 units. The company must sell 6,000 units per year to break even. Dividing by the price instead would give 180,000 / 75 = 2,400 units, far too low, because it ignores the EUR 45 that each unit costs to produce.",
+  "near_transfer": {
+    "text": "Same company, same cost structure: fixed costs of EUR 180,000 per year, a price of EUR 75 and a variable cost of EUR 45 per unit. How many units must it sell to earn a profit of EUR 90,000?",
+    "validator": "target_profit_quantity",
+    "params": {"fixed_costs": 180000, "target_profit": 90000, "price": 75, "variable_cost": 45},
+    "answer": 9000,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {"value": 3600, "rule": "(fixed_costs + target_profit) / price", "note": "the misconception applied to the target-profit case"},
+      {"value": 6000, "rule": "fixed_costs / (price - variable_cost)", "note": "forgetting to add the target profit to the fixed costs"}
+    ]
+  },
+  "far_transfer": {
+    "text": "A gym has fixed costs of EUR 120,000 per year and spends EUR 20 per member per year on towels, cleaning and card processing. What annual membership fee lets it break even with 2,000 members?",
+    "validator": "price_for_break_even_quantity",
+    "params": {"fixed_costs": 120000, "quantity": 2000, "variable_cost": 20},
+    "answer": 80,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {"value": 60, "rule": "fixed_costs / quantity", "note": "ignoring the variable cost per member"},
+      {"value": 40, "rule": "fixed_costs / quantity - variable_cost", "note": "subtracting the variable cost instead of adding it"}
+    ]
+  }
+}

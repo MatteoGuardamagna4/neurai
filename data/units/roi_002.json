@@ -1,0 +1,92 @@
+{
+  "unit_id": "roi_002",
+  "domain": "corporate_finance",
+  "concept": "return_on_investment",
+  "difficulty": 2,
+  "prerequisites": [],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing the total received by the amount invested, which reports a money multiple and counts the returned stake as gain",
+    "method": "return_value / investment"
+  },
+  "worked_example": {
+    "text": "A haulier spends EUR 25,000 on a trailer and it earns EUR 30,000 of extra cash before it is scrapped.",
+    "solution": "The gain is 30,000 - 25,000 = EUR 5,000. ROI = 5,000 / 25,000 = 0.2, a return of 20% on the money spent."
+  },
+  "problem": {
+    "text": "A company buys equipment for EUR 100,000 and it generates EUR 160,000 of cash over its working life. What is the return on investment?",
+    "validator": "expression",
+    "expression": "(return_value - investment) / investment",
+    "params": {
+      "investment": 100000,
+      "return_value": 160000
+    },
+    "answer": 0.6,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 1.6,
+        "rule": "return_value / investment",
+        "note": "the documented misconception: a money multiple, with the stake counted as profit"
+      },
+      {
+        "value": 0.375,
+        "rule": "(return_value - investment) / return_value",
+        "note": "the gain divided by the cash generated rather than by the cash committed"
+      }
+    ]
+  },
+  "hints": [
+    "The EUR 160,000 is everything the equipment produced, and part of that is simply the EUR 100,000 coming back. Find the gain first.",
+    "The denominator of a return is always the money that was put at risk, not the money that came out at the end.",
+    "Divide the gain by the EUR 100,000 invested and express it as a percentage."
+  ],
+  "worked_solution": "Step 1: the gain is 160,000 - 100,000 = EUR 60,000, because the first EUR 100,000 of the cash is the company's own money returning. Step 2: divide by what was invested: 60,000 / 100,000 = 0.6, a return of 60% over the life of the equipment. Reporting 160,000 / 100,000 = 160% would count the returned stake as profit and flatter the purchase badly; dividing the gain by the EUR 160,000 generated would give 37.5% and measure it against the wrong base.",
+  "near_transfer": {
+    "text": "The same equipment, returning EUR 160,000 on a EUR 100,000 investment, works for three years. What is the simple average return per year?",
+    "validator": "expression",
+    "expression": "(return_value - investment) / investment / years",
+    "params": {
+      "investment": 100000,
+      "return_value": 160000,
+      "years": 3
+    },
+    "answer": 0.2,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.6,
+        "rule": "(return_value - investment) / investment",
+        "note": "the whole-life return presented as an annual one"
+      },
+      {
+        "value": 1.8,
+        "rule": "(return_value - investment) / investment * years",
+        "note": "multiplying by the years rather than dividing"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A company requires a 40% return on investment and is considering a project costing EUR 250,000. What total amount must the project return for that target to be met?",
+    "validator": "expression",
+    "expression": "investment * (1 + roi)",
+    "params": {
+      "investment": 250000,
+      "roi": 0.4
+    },
+    "answer": 350000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 100000,
+        "rule": "investment * roi",
+        "note": "the gain required, forgetting that the stake must also come back"
+      },
+      {
+        "value": 625000,
+        "rule": "investment / roi",
+        "note": "dividing by the target instead of applying it to the investment"
+      }
+    ]
+  }
+}

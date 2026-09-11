@@ -1,0 +1,16 @@
+# secrets
+.env
+
+# environments / caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# generated data: everything under data/processed except the two corpus index tables
+data/processed/*
+!data/processed/units.csv
+!data/processed/stimuli.csv
+
+# run outputs (call logs, run logs, tables)
+outputs/

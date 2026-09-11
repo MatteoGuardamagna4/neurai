@@ -1,0 +1,99 @@
+{
+  "unit_id": "cac_001",
+  "domain": "marketing_analytics",
+  "concept": "cac_payback",
+  "difficulty": 2,
+  "prerequisites": [
+    "customer_lifetime_value"
+  ],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "measuring how long a customer takes to repay the acquisition cost out of the revenue they pay, instead of out of the gross margin the company actually keeps",
+    "method": "(spend / customers) / arpu"
+  },
+  "worked_example": {
+    "text": "A company spends EUR 48,000 on sales and marketing in a quarter and signs 200 new customers. Each pays EUR 80 a month and the gross margin is 50%.",
+    "solution": "Acquisition cost per customer = 48,000 / 200 = EUR 240. Monthly gross margin per customer = 80 x 0.5 = EUR 40. Payback = 240 / 40 = 6.0 months."
+  },
+  "problem": {
+    "text": "A company spends EUR 81,000 on sales and marketing in a quarter and acquires 300 new customers. Each customer pays EUR 100 per month and the gross margin on that revenue is 60%. How many months does it take to pay back the cost of acquiring a customer?",
+    "validator": "expression",
+    "expression": "(spend / customers) / (arpu * gross_margin)",
+    "params": {
+      "spend": 81000,
+      "customers": 300,
+      "arpu": 100,
+      "gross_margin": 0.6
+    },
+    "answer": 4.5,
+    "format": "{:,.1f} months",
+    "distractors": [
+      {
+        "value": 2.7,
+        "rule": "(spend / customers) / arpu",
+        "note": "the documented misconception: repaying the acquisition cost out of revenue rather than out of gross margin"
+      },
+      {
+        "value": 1.62,
+        "rule": "(spend / customers) * gross_margin / arpu",
+        "note": "applying the margin to the acquisition cost instead of to the monthly revenue"
+      }
+    ]
+  },
+  "hints": [
+    "This is a two-step calculation. First find what acquiring one customer costs, then find what one customer returns in a month.",
+    "The acquisition cost per customer is the whole sales and marketing spend divided by the number of customers it brought in.",
+    "The monthly repayment is the gross margin the customer generates, not the price they pay: multiply the monthly revenue by the margin, then divide the acquisition cost by it."
+  ],
+  "worked_solution": "Step 1: acquisition cost per customer = 81,000 / 300 = EUR 270. Step 2: monthly gross margin per customer = 100 x 0.6 = EUR 60, which is what is actually available to repay that cost. Step 3: divide: 270 / 60 = 4.5 months. Dividing by the EUR 100 of revenue instead would give 2.7 months and would count the 40 cents in every euro that is spent on serving the customer as if it came back to the company.",
+  "near_transfer": {
+    "text": "The same company, with the same EUR 81,000 of quarterly spend, the same 300 new customers and the same EUR 100 monthly price, moves to cheaper infrastructure and its gross margin rises to 75%. What is the payback period on the acquisition cost now?",
+    "validator": "expression",
+    "expression": "(spend / customers) / (arpu * gross_margin)",
+    "params": {
+      "spend": 81000,
+      "customers": 300,
+      "arpu": 100,
+      "gross_margin": 0.75
+    },
+    "answer": 3.6,
+    "format": "{:,.1f} months",
+    "distractors": [
+      {
+        "value": 2.7,
+        "rule": "(spend / customers) / arpu",
+        "note": "the misconception: a revenue-based payback, which cannot respond to a change in margin"
+      },
+      {
+        "value": 2.025,
+        "rule": "(spend / customers) * gross_margin / arpu",
+        "note": "applying the margin to the acquisition cost instead of to the monthly revenue"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A company signed 400 new customers last quarter. 250 of them came through paid advertising, on which it spent EUR 120,000; the other 150 arrived organically at no acquisition cost. What did it cost the company to acquire one customer through paid advertising?",
+    "validator": "expression",
+    "expression": "spend / paid_customers",
+    "params": {
+      "spend": 120000,
+      "paid_customers": 250,
+      "total_customers": 400,
+      "organic_customers": 150
+    },
+    "answer": 480,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 300,
+        "rule": "spend / total_customers",
+        "note": "the blended cost per customer, which credits paid spend with customers it did not bring in"
+      },
+      {
+        "value": 800,
+        "rule": "spend / organic_customers",
+        "note": "dividing the paid spend by the customers who arrived without it"
+      }
+    ]
+  }
+}

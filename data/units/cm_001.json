@@ -1,0 +1,96 @@
+{
+  "unit_id": "cm_001",
+  "domain": "managerial_accounting",
+  "concept": "contribution_margin_ratio",
+  "difficulty": 2,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing the fixed costs by the variable cost ratio instead of by the contribution margin ratio, i.e. using the share of revenue that is consumed rather than the share that is left",
+    "method": "fixed_costs / (variable_cost / price)"
+  },
+  "worked_example": {
+    "text": "A bakery has fixed costs of EUR 96,000 a year. A cake sells for EUR 40 and costs EUR 15 in ingredients, packaging and delivery.",
+    "solution": "Contribution margin = 40 - 15 = EUR 25, so the contribution margin ratio is 25 / 40 = 0.625. Break-even revenue = 96,000 / 0.625 = EUR 153,600 a year."
+  },
+  "problem": {
+    "text": "A subscription business has fixed costs of EUR 252,000 per year. Each subscription sells for EUR 60 and carries variable servicing costs of EUR 24. What annual sales revenue does it need to break even?",
+    "validator": "expression",
+    "expression": "fixed_costs / ((price - variable_cost) / price)",
+    "params": {
+      "fixed_costs": 252000,
+      "price": 60,
+      "variable_cost": 24
+    },
+    "answer": 420000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 630000,
+        "rule": "fixed_costs / (variable_cost / price)",
+        "note": "the documented misconception: dividing by the variable cost ratio instead of the contribution margin ratio"
+      },
+      {
+        "value": 7000,
+        "rule": "fixed_costs / (price - variable_cost)",
+        "note": "answering with the break-even quantity in units rather than the revenue"
+      }
+    ]
+  },
+  "hints": [
+    "The question asks for a revenue, not a number of units, so the divisor has to be a ratio rather than an amount in euros. Write down which two euro amounts that ratio is built from.",
+    "The contribution margin ratio is the contribution margin per unit divided by the selling price. Compute the margin per unit first, then express it as a share of the price.",
+    "Divide the fixed costs by the contribution margin ratio you just computed. The result is the sales revenue at which the business breaks even."
+  ],
+  "worked_solution": "Step 1: compute the contribution margin per subscription: 60 - 24 = EUR 36. Step 2: turn it into a ratio by dividing by the price: 36 / 60 = 0.6, so 60 cents of every euro of revenue is left to cover fixed costs. Step 3: divide the fixed costs by that ratio: 252,000 / 0.6 = EUR 420,000 of annual revenue. Dividing by the variable cost ratio of 0.4 instead would give EUR 630,000, because that ratio measures the share of revenue that is consumed, not the share that is left.",
+  "near_transfer": {
+    "text": "The same subscription business, with the same fixed costs of EUR 252,000, the same price of EUR 60 and the same variable servicing cost of EUR 24, now wants an annual profit of EUR 108,000. What sales revenue does it need?",
+    "validator": "expression",
+    "expression": "(fixed_costs + target_profit) / ((price - variable_cost) / price)",
+    "params": {
+      "fixed_costs": 252000,
+      "target_profit": 108000,
+      "price": 60,
+      "variable_cost": 24
+    },
+    "answer": 600000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 900000,
+        "rule": "(fixed_costs + target_profit) / (variable_cost / price)",
+        "note": "the misconception applied to the target-profit case"
+      },
+      {
+        "value": 10000,
+        "rule": "(fixed_costs + target_profit) / (price - variable_cost)",
+        "note": "answering in units rather than in revenue"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A consultancy prices a project at EUR 80,000 and wants a contribution margin ratio of 0.6 on it. What is the most it can spend on the variable costs of delivering the project?",
+    "validator": "expression",
+    "expression": "price * (1 - ratio)",
+    "params": {
+      "price": 80000,
+      "ratio": 0.6
+    },
+    "answer": 32000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 48000,
+        "rule": "price * ratio",
+        "note": "spending the margin share instead of what is left after it"
+      },
+      {
+        "value": 50000,
+        "rule": "price / (1 + ratio)",
+        "note": "treating the ratio as a markup on cost rather than a share of the price"
+      }
+    ]
+  }
+}

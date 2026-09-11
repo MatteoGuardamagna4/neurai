@@ -1,0 +1,96 @@
+{
+  "unit_id": "dol_002",
+  "domain": "managerial_accounting",
+  "concept": "operating_leverage",
+  "difficulty": 3,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "inverting the ratio and dividing operating profit by contribution, which measures a margin rather than the sensitivity of profit to sales",
+    "method": "(quantity * (price - variable_cost) - fixed_costs) / (quantity * (price - variable_cost))"
+  },
+  "worked_example": {
+    "text": "A consultancy bills 600 days at EUR 900 a day. Each billed day costs EUR 300 in contractor fees, and the firm's fixed costs are EUR 240,000.",
+    "solution": "Contribution = 600 x 600 = EUR 360,000. Operating profit = 360,000 - 240,000 = EUR 120,000. Leverage = 360,000 / 120,000 = 3.00: a 10% swing in billings moves profit by 30%."
+  },
+  "problem": {
+    "text": "A software firm sells 4,000 licences a year at EUR 250 each. Each licence costs EUR 50 in support and hosting, and the firm's fixed costs are EUR 550,000. What is its degree of operating leverage?",
+    "validator": "expression",
+    "expression": "quantity * (price - variable_cost) / (quantity * (price - variable_cost) - fixed_costs)",
+    "params": {
+      "quantity": 4000,
+      "price": 250,
+      "variable_cost": 50,
+      "fixed_costs": 550000
+    },
+    "answer": 3.2,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 0.3125,
+        "rule": "(quantity * (price - variable_cost) - fixed_costs) / (quantity * (price - variable_cost))",
+        "note": "the documented misconception: the ratio inverted"
+      },
+      {
+        "value": 2.2,
+        "rule": "fixed_costs / (quantity * (price - variable_cost) - fixed_costs)",
+        "note": "fixed costs used on top instead of contribution"
+      }
+    ]
+  },
+  "hints": [
+    "Two figures are needed first: what the licences contribute in total, and what survives once the fixed costs are paid.",
+    "Contribution is the number of licences times the margin on one. Operating profit is that figure minus the EUR 550,000 of fixed costs.",
+    "Divide the contribution by the operating profit. A software firm with heavy fixed costs and a thin variable cost will always show a high figure."
+  ],
+  "worked_solution": "Step 1: the margin on a licence is 250 - 50 = EUR 200, so contribution is 4,000 x 200 = EUR 800,000. Step 2: operating profit is 800,000 - 550,000 = EUR 250,000. Step 3: leverage is 800,000 / 250,000 = 3.20. A 10% rise in licence sales would raise operating profit by 32%; a 10% fall would cut it by as much, which is exactly why software firms are so sensitive to a bad quarter. Inverting the ratio would give 0.3125, the share of contribution left after fixed costs, which answers a different question.",
+  "near_transfer": {
+    "text": "The same software firm, with a degree of operating leverage of 3.2, sees licence sales fall by 15%. By what percentage does its operating profit fall?",
+    "validator": "expression",
+    "expression": "dol * sales_change",
+    "params": {
+      "dol": 3.2,
+      "sales_change": 0.15
+    },
+    "answer": 0.48,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.15,
+        "rule": "sales_change",
+        "note": "assuming profit falls in step with sales"
+      },
+      {
+        "value": 0.046875,
+        "rule": "sales_change / dol",
+        "note": "dividing by the leverage instead of multiplying"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "Two firms each earn EUR 100,000 of operating profit. Firm A has total contribution of EUR 500,000, firm B has EUR 200,000. How much higher is firm A's degree of operating leverage than firm B's?",
+    "validator": "expression",
+    "expression": "contribution_a / profit - contribution_b / profit",
+    "params": {
+      "contribution_a": 500000,
+      "contribution_b": 200000,
+      "profit": 100000
+    },
+    "answer": 3,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 300000,
+        "rule": "contribution_a - contribution_b",
+        "note": "comparing the contributions themselves rather than the two leverage figures"
+      },
+      {
+        "value": 2.5,
+        "rule": "contribution_a / contribution_b",
+        "note": "taking the ratio of the contributions instead of the difference of the leverages"
+      }
+    ]
+  }
+}

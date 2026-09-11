@@ -1,0 +1,102 @@
+{
+  "unit_id": "wac_002",
+  "domain": "corporate_finance",
+  "concept": "wacc",
+  "difficulty": 4,
+  "prerequisites": [
+    "net_present_value"
+  ],
+  "target_minutes": 8,
+  "misconception": {
+    "description": "averaging the cost of equity and the cost of debt without weighting them by how much of each the company uses, and without the tax shield on interest",
+    "method": "(cost_equity + cost_debt) / 2"
+  },
+  "worked_example": {
+    "text": "A firm is financed half by equity and half by debt. Shareholders require 16%, the bank charges 10%, and the tax rate is 20%.",
+    "solution": "After-tax cost of debt = 10% x (1 - 0.20) = 8%. WACC = 0.5 x 16% + 0.5 x 8% = 8% + 4% = 12%."
+  },
+  "problem": {
+    "text": "A firm is financed with EUR 150 million of equity and EUR 50 million of debt. Its shareholders require a return of 12%, its debt carries an interest rate of 8% before tax, and the corporate tax rate is 25%. What is the firm's weighted average cost of capital?",
+    "validator": "expression",
+    "expression": "equity / (equity + debt) * cost_equity + debt / (equity + debt) * cost_debt * (1 - tax_rate)",
+    "params": {
+      "equity": 150,
+      "debt": 50,
+      "cost_equity": 0.12,
+      "cost_debt": 0.08,
+      "tax_rate": 0.25
+    },
+    "answer": 0.105,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "(cost_equity + cost_debt) / 2",
+        "note": "the documented misconception: a simple average, ignoring both the weights and the tax shield"
+      },
+      {
+        "value": 0.11,
+        "rule": "equity / (equity + debt) * cost_equity + debt / (equity + debt) * cost_debt",
+        "note": "weighted correctly but with no adjustment for the deductibility of interest"
+      }
+    ]
+  },
+  "hints": [
+    "The firm does not use equity and debt in equal amounts, so start by working out what share of the total capital each source provides.",
+    "Interest is deducted before tax is charged, so every euro of interest cuts the tax bill. The company bears only one minus the tax rate of the interest rate the lender quotes.",
+    "Multiply each share by its own cost, using the after-tax figure for debt, and add the two together."
+  ],
+  "worked_solution": "Step 1: the weights. Total capital is 150 + 50 = EUR 200 million, so equity provides 0.75 of it and debt 0.25. Step 2: the tax shield. An 8% interest rate costs the firm 8% x (1 - 0.25) = 6% after tax. Step 3: weight and add: 0.75 x 0.12 = 0.09, and 0.25 x 0.06 = 0.015, giving 0.09 + 0.015 = 0.105, a WACC of 10.5%. A simple average of 12% and 8% would give 10%, which happens to land nearby here only because the numbers are gentle; it ignores that three quarters of this firm's capital is the expensive kind.",
+  "near_transfer": {
+    "text": "The same firm refinances and ends up with EUR 50 million of equity and EUR 150 million of debt, keeping the same 12% cost of equity, the same 8% pre-tax cost of debt and the same 25% tax rate. What is its weighted average cost of capital now?",
+    "validator": "expression",
+    "expression": "equity / (equity + debt) * cost_equity + debt / (equity + debt) * cost_debt * (1 - tax_rate)",
+    "params": {
+      "equity": 50,
+      "debt": 150,
+      "cost_equity": 0.12,
+      "cost_debt": 0.08,
+      "tax_rate": 0.25
+    },
+    "answer": 0.075,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "(cost_equity + cost_debt) / 2",
+        "note": "the misconception: a simple average does not move when the financing mix changes"
+      },
+      {
+        "value": 0.09,
+        "rule": "equity / (equity + debt) * cost_equity + debt / (equity + debt) * cost_debt",
+        "note": "correct weights but no tax shield"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A company reports a weighted average cost of capital of 12%. It is financed half by equity and half by debt, its debt carries a 10% interest rate before tax, and the tax rate is 25%. What return are its shareholders requiring?",
+    "validator": "expression",
+    "expression": "(wacc - debt_weight * cost_debt * (1 - tax_rate)) / equity_weight",
+    "params": {
+      "wacc": 0.12,
+      "debt_weight": 0.5,
+      "cost_debt": 0.1,
+      "tax_rate": 0.25,
+      "equity_weight": 0.5
+    },
+    "answer": 0.165,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.14,
+        "rule": "2 * wacc - cost_debt",
+        "note": "inverting a simple average, with no tax shield"
+      },
+      {
+        "value": 0.215,
+        "rule": "(wacc - debt_weight * cost_debt * tax_rate) / equity_weight",
+        "note": "subtracting only the tax saving on the interest rather than the whole after-tax cost"
+      }
+    ]
+  }
+}

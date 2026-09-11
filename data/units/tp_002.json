@@ -1,0 +1,102 @@
+{
+  "unit_id": "tp_002",
+  "domain": "managerial_accounting",
+  "concept": "target_profit_after_tax",
+  "difficulty": 3,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "adding the after-tax profit target to the fixed costs without first grossing it up to the pre-tax profit that produces it",
+    "method": "(fixed_costs + target_profit_after_tax) / (price - variable_cost)"
+  },
+  "worked_example": {
+    "text": "A pottery studio has fixed costs of EUR 30,000 a year. A workshop place sells for EUR 120 and costs EUR 45 in clay, glaze and firing. The studio pays tax at 25% and its owner wants EUR 15,000 of profit after tax.",
+    "solution": "Pre-tax profit needed = 15,000 / 0.75 = EUR 20,000. Margin = 120 - 45 = EUR 75. Places = (30,000 + 20,000) / 75 = 666.67, so 667 places."
+  },
+  "problem": {
+    "text": "A training studio has fixed costs of EUR 96,000 a year. A course sells for EUR 400 and costs EUR 160 to run. The studio pays tax at 20% on its profits and wants to earn EUR 48,000 after tax. How many courses must it sell?",
+    "validator": "expression",
+    "expression": "(fixed_costs + target_profit_after_tax / (1 - tax_rate)) / (price - variable_cost)",
+    "params": {
+      "fixed_costs": 96000,
+      "target_profit_after_tax": 48000,
+      "tax_rate": 0.2,
+      "price": 400,
+      "variable_cost": 160
+    },
+    "answer": 650,
+    "format": "{:,.0f} courses",
+    "distractors": [
+      {
+        "value": 600,
+        "rule": "(fixed_costs + target_profit_after_tax) / (price - variable_cost)",
+        "note": "the documented misconception: the after-tax target treated as if it were pre-tax"
+      },
+      {
+        "value": 560,
+        "rule": "(fixed_costs + target_profit_after_tax * (1 - tax_rate)) / (price - variable_cost)",
+        "note": "multiplying by one minus the tax rate instead of dividing, shrinking the target rather than grossing it up"
+      }
+    ]
+  },
+  "hints": [
+    "Tax is charged on the profit the studio earns, so the figure that drives sales volume is the profit before tax, not the amount the owner ends up keeping.",
+    "If the tax authority takes a fifth of the pre-tax profit, then what the owner keeps is four fifths of it. Recover the pre-tax figure by dividing the target by one minus the tax rate.",
+    "Treat that pre-tax profit as though it were an extra fixed cost: add it to the EUR 96,000 and divide the total by the margin on one course."
+  ],
+  "worked_solution": "Step 1: gross up the target. At a 20% tax rate the owner keeps 80% of the pre-tax profit, so 48,000 / 0.8 = EUR 60,000 has to be earned before tax. Step 2: the margin on a course is 400 - 160 = EUR 240. Step 3: the courses must cover the fixed costs and that pre-tax profit: (96,000 + 60,000) / 240 = 650 courses. Adding the after-tax target straight to the fixed costs would give 600 courses, and at that volume the tax bill leaves the owner with only EUR 38,400.",
+  "near_transfer": {
+    "text": "The same training studio, with EUR 96,000 of fixed costs, a EUR 400 price, a EUR 160 variable cost and a 20% tax rate, sells 800 courses in the year. What profit does it make after tax?",
+    "validator": "expression",
+    "expression": "(quantity * (price - variable_cost) - fixed_costs) * (1 - tax_rate)",
+    "params": {
+      "quantity": 800,
+      "price": 400,
+      "variable_cost": 160,
+      "fixed_costs": 96000,
+      "tax_rate": 0.2
+    },
+    "answer": 76800,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 96000,
+        "rule": "quantity * (price - variable_cost) - fixed_costs",
+        "note": "reporting the pre-tax profit as if it were what the owner keeps"
+      },
+      {
+        "value": 120000,
+        "rule": "(quantity * (price - variable_cost) - fixed_costs) / (1 - tax_rate)",
+        "note": "grossing up a figure that should instead be taxed down"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A workshop plans to sell 1,000 units next year. Its fixed costs are EUR 120,000, each unit costs EUR 90 to make and it pays tax at 20%. What price must it charge to earn EUR 96,000 after tax?",
+    "validator": "expression",
+    "expression": "variable_cost + (fixed_costs + target_profit_after_tax / (1 - tax_rate)) / quantity",
+    "params": {
+      "variable_cost": 90,
+      "fixed_costs": 120000,
+      "target_profit_after_tax": 96000,
+      "tax_rate": 0.2,
+      "quantity": 1000
+    },
+    "answer": 330,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 306,
+        "rule": "variable_cost + (fixed_costs + target_profit_after_tax) / quantity",
+        "note": "the misconception: no gross-up of the after-tax target"
+      },
+      {
+        "value": 240,
+        "rule": "(fixed_costs + target_profit_after_tax / (1 - tax_rate)) / quantity",
+        "note": "forgetting to add back what each unit costs to make"
+      }
+    ]
+  }
+}

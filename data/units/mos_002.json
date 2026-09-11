@@ -1,0 +1,94 @@
+{
+  "unit_id": "mos_002",
+  "domain": "managerial_accounting",
+  "concept": "margin_of_safety",
+  "difficulty": 2,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing the cushion by break-even sales instead of by budgeted sales, which compares the headroom with the wrong base and overstates it",
+    "method": "(budgeted_sales - break_even_sales) / break_even_sales"
+  },
+  "worked_example": {
+    "text": "A ski school budgets revenue of EUR 500,000 for the season and works out that it covers all its costs at EUR 350,000 of revenue.",
+    "solution": "The cushion is 500,000 - 350,000 = EUR 150,000. Against budgeted revenue that is 150,000 / 500,000 = 0.3, a margin of safety of 30%."
+  },
+  "problem": {
+    "text": "A hotel budgets revenue of EUR 1,000,000 for next year and calculates that it breaks even at EUR 800,000 of revenue. What is its margin of safety as a percentage of budgeted revenue?",
+    "validator": "expression",
+    "expression": "(budgeted_sales - break_even_sales) / budgeted_sales",
+    "params": {
+      "budgeted_sales": 1000000,
+      "break_even_sales": 800000
+    },
+    "answer": 0.2,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.25,
+        "rule": "(budgeted_sales - break_even_sales) / break_even_sales",
+        "note": "the documented misconception: the cushion divided by break-even revenue"
+      },
+      {
+        "value": 0.8,
+        "rule": "break_even_sales / budgeted_sales",
+        "note": "reporting the share of the plan that must be achieved rather than the cushion above it"
+      }
+    ]
+  },
+  "hints": [
+    "Start with the distance in euros between what the hotel plans to take and what it must take to cover its costs. That distance is the cushion.",
+    "A percentage is always a percentage of something. Here the question names budgeted revenue, so that is what goes underneath the fraction.",
+    "Divide the euro cushion by budgeted revenue and read the result as a percentage of the plan."
+  ],
+  "worked_solution": "Step 1: the cushion is 1,000,000 - 800,000 = EUR 200,000 of revenue that could be lost before the hotel stops covering its costs. Step 2: divide by the base the question names, budgeted revenue: 200,000 / 1,000,000 = 0.2, a margin of safety of 20%. One booking season in five could disappear before trouble starts. Dividing by break-even revenue instead would report 25%, which sounds safer and answers a different question: it compares the cushion with the revenue the hotel must make, not with the revenue it plans to make.",
+  "near_transfer": {
+    "text": "The same hotel budgets EUR 1,000,000 of revenue, breaks even at EUR 800,000, and sells room-nights at an average of EUR 200. What is its margin of safety measured in room-nights?",
+    "validator": "expression",
+    "expression": "(budgeted_sales - break_even_sales) / price",
+    "params": {
+      "budgeted_sales": 1000000,
+      "break_even_sales": 800000,
+      "price": 200
+    },
+    "answer": 1000,
+    "format": "{:,.0f} room-nights",
+    "distractors": [
+      {
+        "value": 5000,
+        "rule": "budgeted_sales / price",
+        "note": "reporting the whole budgeted volume instead of the cushion"
+      },
+      {
+        "value": 4000,
+        "rule": "break_even_sales / price",
+        "note": "reporting the break-even volume instead of the cushion"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A restaurant reports a margin of safety of 25% and breaks even at EUR 600,000 of revenue. What revenue has it budgeted?",
+    "validator": "expression",
+    "expression": "break_even_sales / (1 - margin_of_safety)",
+    "params": {
+      "break_even_sales": 600000,
+      "margin_of_safety": 0.25
+    },
+    "answer": 800000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 750000,
+        "rule": "break_even_sales * (1 + margin_of_safety)",
+        "note": "adding the margin to break-even revenue, which uses break-even as the base"
+      },
+      {
+        "value": 2400000,
+        "rule": "break_even_sales / margin_of_safety",
+        "note": "dividing by the margin instead of by one minus the margin"
+      }
+    ]
+  }
+}

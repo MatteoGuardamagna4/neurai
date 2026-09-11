@@ -1,0 +1,101 @@
+{
+  "unit_id": "spo_001",
+  "domain": "managerial_accounting",
+  "concept": "relevant_cost",
+  "difficulty": 3,
+  "prerequisites": [
+    "contribution_margin_ratio"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "charging allocated fixed overhead to a special order even though that overhead is incurred anyway, which makes a profitable order look like a loss",
+    "method": "quantity * (price - variable_cost - allocated_overhead) - incremental_fixed_cost"
+  },
+  "worked_example": {
+    "text": "A print shop with idle presses is offered 2,000 posters at EUR 7 each. Printing one poster costs EUR 4 in paper and ink; the shop also allocates EUR 2 of building and salary overhead to every poster it prints, and the job needs a one-off plate setup costing EUR 1,500.",
+    "solution": "The allocated EUR 2 is incurred whether or not the order is accepted, so it is not relevant. Incremental profit = 2,000 x (7 - 4) - 1,500 = 6,000 - 1,500 = EUR 4,500. Charging the allocated overhead would have shown 2,000 x 1 - 1,500 = EUR 500 and made a good order look marginal."
+  },
+  "problem": {
+    "text": "A manufacturer with spare capacity is offered a one-off export order of 5,000 units at EUR 34 each. The variable cost is EUR 22 per unit. The company's costing system also allocates EUR 10 of fixed overhead to each unit, and that overhead will be incurred whether or not the order is accepted. Accepting the order does require a one-off tooling charge of EUR 15,000. What is the incremental profit from accepting the order?",
+    "validator": "expression",
+    "expression": "quantity * (price - variable_cost) - incremental_fixed_cost",
+    "params": {
+      "quantity": 5000,
+      "price": 34,
+      "variable_cost": 22,
+      "allocated_overhead": 10,
+      "incremental_fixed_cost": 15000
+    },
+    "answer": 45000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": -5000,
+        "rule": "quantity * (price - variable_cost - allocated_overhead) - incremental_fixed_cost",
+        "note": "the documented misconception: charging allocated fixed overhead that the order does not change"
+      },
+      {
+        "value": 60000,
+        "rule": "quantity * (price - variable_cost)",
+        "note": "ignoring the tooling charge, which the order does cause"
+      }
+    ]
+  },
+  "hints": [
+    "A cost belongs in this calculation only if accepting the order changes it. Go through the three costs you were given and label each one as changed or unchanged by the decision.",
+    "The allocated overhead is unchanged: the same total is incurred either way, and spreading it over more units does not create a new cost. The tooling charge is different, because it exists only if the order is accepted.",
+    "Multiply the units by the contribution margin per unit, price minus variable cost, and then subtract the one-off cost that the order causes."
+  ],
+  "worked_solution": "Step 1: sort the costs. The EUR 22 variable cost is caused by the order, so it is relevant. The EUR 10 allocated overhead is incurred anyway, so it is not. The EUR 15,000 tooling charge exists only if the order is accepted, so it is relevant. Step 2: contribution per unit = 34 - 22 = EUR 12. Step 3: total contribution = 5,000 x 12 = EUR 60,000. Step 4: subtract the incremental fixed cost: 60,000 - 15,000 = EUR 45,000 of incremental profit, so the order is worth accepting. Charging the allocated overhead as well would show a loss of EUR 5,000 and lead the company to turn down profitable business.",
+  "near_transfer": {
+    "text": "The same manufacturer, the same 5,000-unit export order, the same variable cost of EUR 22 per unit, the same EUR 10 of allocated overhead and the same one-off tooling charge of EUR 15,000. What is the lowest price per unit at which accepting the order leaves the company no worse off?",
+    "validator": "expression",
+    "expression": "variable_cost + incremental_fixed_cost / quantity",
+    "params": {
+      "variable_cost": 22,
+      "incremental_fixed_cost": 15000,
+      "quantity": 5000,
+      "allocated_overhead": 10
+    },
+    "answer": 25,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 32,
+        "rule": "variable_cost + allocated_overhead",
+        "note": "the misconception: covering the allocated overhead as well"
+      },
+      {
+        "value": 22,
+        "rule": "variable_cost",
+        "note": "ignoring the tooling charge that the order causes"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A hotel has 40 rooms that will otherwise stay empty on each of three nights next month. A tour operator offers EUR 55 per room per night. Cleaning, laundry and breakfast cost the hotel EUR 18 per occupied room-night, and the hotel's accounts allocate EUR 40 of fixed cost to every room-night in the building. What is the incremental profit from accepting the booking?",
+    "validator": "expression",
+    "expression": "rooms * nights * (price - variable_cost)",
+    "params": {
+      "rooms": 40,
+      "nights": 3,
+      "price": 55,
+      "variable_cost": 18,
+      "allocated_fixed": 40
+    },
+    "answer": 4440,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": -360,
+        "rule": "rooms * nights * (price - variable_cost - allocated_fixed)",
+        "note": "the misconception: charging the allocated fixed cost of rooms that would stay empty"
+      },
+      {
+        "value": 6600,
+        "rule": "rooms * nights * price",
+        "note": "counting the revenue and forgetting the variable cost of serving the rooms"
+      }
+    ]
+  }
+}

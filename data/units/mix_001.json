@@ -1,0 +1,99 @@
+{
+  "unit_id": "mix_001",
+  "domain": "managerial_accounting",
+  "concept": "multi_product_break_even",
+  "difficulty": 4,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 8,
+  "misconception": {
+    "description": "averaging the two contribution margins without weighting them by how many of each product is sold, which ignores the sales mix",
+    "method": "fixed_costs / ((margin_a + margin_b) / 2)"
+  },
+  "worked_example": {
+    "text": "A cafe sells coffees at a margin of EUR 2 and cakes at a margin of EUR 5, and sells four coffees for every cake. Its fixed costs are EUR 26,000 a month.",
+    "solution": "Weighted average margin = (4 x 2 + 1 x 5) / 5 = 13 / 5 = EUR 2.60 per item. Break-even = 26,000 / 2.60 = 10,000 items a month, of which 8,000 coffees and 2,000 cakes."
+  },
+  "problem": {
+    "text": "A shop sells two products. Product A sells for EUR 30 with a variable cost of EUR 10; product B sells for EUR 50 with a variable cost of EUR 40. The shop sells three units of A for every unit of B, and its fixed costs are EUR 105,000 a year. How many units in total must it sell to break even?",
+    "validator": "expression",
+    "expression": "fixed_costs / ((mix_a * margin_a + mix_b * margin_b) / (mix_a + mix_b))",
+    "params": {
+      "fixed_costs": 105000,
+      "mix_a": 3,
+      "mix_b": 1,
+      "margin_a": 20,
+      "margin_b": 10
+    },
+    "answer": 6000,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {
+        "value": 7000,
+        "rule": "fixed_costs / ((margin_a + margin_b) / 2)",
+        "note": "the documented misconception: a plain average of the two margins, as if the shop sold equal numbers of each"
+      },
+      {
+        "value": 5250,
+        "rule": "fixed_costs / margin_a",
+        "note": "using only the better margin, as if the shop sold nothing but product A"
+      }
+    ]
+  },
+  "hints": [
+    "With two products there is no single contribution margin, so the first job is to build one that represents the mix the shop actually sells.",
+    "Work out the margin on each product, then weight them: for every four units sold, three are A and one is B, so A's margin should count three times as heavily.",
+    "Divide the fixed costs by that weighted average margin to get the total number of units, then split them back into A and B in the same three-to-one proportion."
+  ],
+  "worked_solution": "Step 1: the margins are 30 - 10 = EUR 20 on A and 50 - 40 = EUR 10 on B. Step 2: weight them by the mix. In every batch of four units, three are A and one is B, so the average unit contributes (3 x 20 + 1 x 10) / 4 = 70 / 4 = EUR 17.50. Step 3: divide the fixed costs by that figure: 105,000 / 17.50 = 6,000 units in total, made up of 4,500 of A and 1,500 of B. A plain average of the two margins would give EUR 15 and 7,000 units, overstating the requirement because it pretends the shop sells as many of the thin-margin product as of the fat one.",
+  "near_transfer": {
+    "text": "The same shop, selling three units of A for every unit of B and breaking even at 6,000 units in total, wants to know the split. How many units of product A does it need to sell?",
+    "validator": "expression",
+    "expression": "quantity * mix_a / (mix_a + mix_b)",
+    "params": {
+      "quantity": 6000,
+      "mix_a": 3,
+      "mix_b": 1
+    },
+    "answer": 4500,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {
+        "value": 3000,
+        "rule": "quantity / 2",
+        "note": "splitting the total evenly, ignoring the three-to-one mix"
+      },
+      {
+        "value": 1500,
+        "rule": "quantity * mix_b / (mix_a + mix_b)",
+        "note": "reporting the units of B instead of the units of A"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "The same shop sells product A at EUR 30 and product B at EUR 50, three units of A for every unit of B. What is the weighted average selling price of a unit?",
+    "validator": "expression",
+    "expression": "(mix_a * price_a + mix_b * price_b) / (mix_a + mix_b)",
+    "params": {
+      "mix_a": 3,
+      "mix_b": 1,
+      "price_a": 30,
+      "price_b": 50
+    },
+    "answer": 35,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 40,
+        "rule": "(price_a + price_b) / 2",
+        "note": "a plain average, ignoring that three times as many of the cheaper product are sold"
+      },
+      {
+        "value": 45,
+        "rule": "(mix_b * price_a + mix_a * price_b) / (mix_a + mix_b)",
+        "note": "the weights applied to the wrong products"
+      }
+    ]
+  }
+}

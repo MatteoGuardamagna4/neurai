@@ -1,0 +1,102 @@
+{
+  "unit_id": "tp_001",
+  "domain": "managerial_accounting",
+  "concept": "target_profit_after_tax",
+  "difficulty": 3,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "adding the after-tax profit target straight to the fixed costs, without grossing it up to the pre-tax profit the company must earn first",
+    "method": "(fixed_costs + target_profit_after_tax) / (price - variable_cost)"
+  },
+  "worked_example": {
+    "text": "A workshop has fixed costs of EUR 120,000 a year. Its product sells for EUR 30 with a variable cost of EUR 18, and it pays tax at 25%. The owner wants EUR 45,000 of profit after tax.",
+    "solution": "Pre-tax profit needed = 45,000 / (1 - 0.25) = EUR 60,000. Contribution margin = 30 - 18 = EUR 12. Quantity = (120,000 + 60,000) / 12 = 15,000 units."
+  },
+  "problem": {
+    "text": "A company has fixed costs of EUR 300,000 per year. Each unit sells for EUR 90 with a variable cost of EUR 50, and the company pays tax at 20% on its profits. How many units must it sell to earn a profit of EUR 128,000 after tax?",
+    "validator": "expression",
+    "expression": "(fixed_costs + target_profit_after_tax / (1 - tax_rate)) / (price - variable_cost)",
+    "params": {
+      "fixed_costs": 300000,
+      "target_profit_after_tax": 128000,
+      "tax_rate": 0.2,
+      "price": 90,
+      "variable_cost": 50
+    },
+    "answer": 11500,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {
+        "value": 10700,
+        "rule": "(fixed_costs + target_profit_after_tax) / (price - variable_cost)",
+        "note": "the documented misconception: treating the after-tax target as if it were the pre-tax profit"
+      },
+      {
+        "value": 10060,
+        "rule": "(fixed_costs + target_profit_after_tax * (1 - tax_rate)) / (price - variable_cost)",
+        "note": "multiplying by one minus the tax rate instead of dividing, which shrinks the target instead of grossing it up"
+      }
+    ]
+  },
+  "hints": [
+    "Sales volume is driven by the profit the company must earn before tax, because tax is charged on that profit. The figure you were given is measured after tax, so it is not yet the number you need.",
+    "Convert the target: if tax takes one fifth of the pre-tax profit, the after-tax figure is only four fifths of it. Divide the after-tax target by one minus the tax rate to recover the pre-tax profit.",
+    "Add that pre-tax profit to the fixed costs and divide the total by the contribution margin per unit, which is the price minus the variable cost."
+  ],
+  "worked_solution": "Step 1: gross up the target. Tax takes 20%, so the after-tax profit is 80% of the pre-tax profit: 128,000 / 0.8 = EUR 160,000 must be earned before tax. Step 2: compute the contribution margin: 90 - 50 = EUR 40 per unit. Step 3: the contribution must cover the fixed costs and the pre-tax profit: (300,000 + 160,000) / 40 = 11,500 units. Adding the after-tax target directly would give (300,000 + 128,000) / 40 = 10,700 units, which leaves the company short once the tax bill arrives.",
+  "near_transfer": {
+    "text": "The same company, with fixed costs of EUR 300,000, a price of EUR 90, a variable cost of EUR 50 and a tax rate of 20%, sells 14,000 units in the year. What profit does it earn after tax?",
+    "validator": "expression",
+    "expression": "(quantity * (price - variable_cost) - fixed_costs) * (1 - tax_rate)",
+    "params": {
+      "quantity": 14000,
+      "price": 90,
+      "variable_cost": 50,
+      "fixed_costs": 300000,
+      "tax_rate": 0.2
+    },
+    "answer": 208000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 260000,
+        "rule": "quantity * (price - variable_cost) - fixed_costs",
+        "note": "reporting the pre-tax profit as if it were the after-tax profit"
+      },
+      {
+        "value": 325000,
+        "rule": "(quantity * (price - variable_cost) - fixed_costs) / (1 - tax_rate)",
+        "note": "grossing up when the figure should be taxed down"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A firm expects to sell 8,000 units next year. Its fixed costs are EUR 200,000, the variable cost is EUR 35 per unit and it pays tax at 25%. What price must it charge to earn EUR 96,000 after tax?",
+    "validator": "expression",
+    "expression": "variable_cost + (fixed_costs + target_profit_after_tax / (1 - tax_rate)) / quantity",
+    "params": {
+      "variable_cost": 35,
+      "fixed_costs": 200000,
+      "target_profit_after_tax": 96000,
+      "tax_rate": 0.25,
+      "quantity": 8000
+    },
+    "answer": 76,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 72,
+        "rule": "variable_cost + (fixed_costs + target_profit_after_tax) / quantity",
+        "note": "the misconception: no gross-up of the after-tax target"
+      },
+      {
+        "value": 41,
+        "rule": "(fixed_costs + target_profit_after_tax / (1 - tax_rate)) / quantity",
+        "note": "forgetting to add the variable cost back to the required margin per unit"
+      }
+    ]
+  }
+}

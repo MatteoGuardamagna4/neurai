@@ -1,0 +1,91 @@
+{
+  "unit_id": "mkp_001",
+  "domain": "pricing",
+  "concept": "markup_vs_margin",
+  "difficulty": 2,
+  "prerequisites": [],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "setting the price by adding the target margin percentage to the cost, which applies the percentage to the cost instead of to the selling price",
+    "method": "unit_cost * (1 + target_margin)"
+  },
+  "worked_example": {
+    "text": "A shop buys a lamp for EUR 30 and wants a gross margin of 25% of the selling price.",
+    "solution": "If the margin is a quarter of the price, the cost is the other three quarters: price = 30 / 0.75 = EUR 40. Check: the margin is 40 - 30 = EUR 10, which is a quarter of 40. Adding 25% to the cost would have given EUR 37.50, a margin of only 20%."
+  },
+  "problem": {
+    "text": "A retailer buys an item for EUR 51 and wants a gross margin of 40% of the selling price. What price should it set?",
+    "validator": "expression",
+    "expression": "unit_cost / (1 - target_margin)",
+    "params": {
+      "unit_cost": 51,
+      "target_margin": 0.4
+    },
+    "answer": 85,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 71.4,
+        "rule": "unit_cost * (1 + target_margin)",
+        "note": "the documented misconception: adding the margin percentage to the cost, which is a markup on cost"
+      },
+      {
+        "value": 127.5,
+        "rule": "unit_cost / target_margin",
+        "note": "dividing by the margin instead of by one minus the margin"
+      }
+    ]
+  },
+  "hints": [
+    "A gross margin is always measured against the selling price, while a markup is measured against the cost. The question names a margin, so decide what share of the price the cost has to be.",
+    "If the margin takes 40% of the price, the cost is the remaining 60% of it. Write that as an equation: cost equals price times 0.6.",
+    "Rearrange the equation: divide the cost by one minus the target margin to recover the price."
+  ],
+  "worked_solution": "Step 1: read the percentage correctly. The margin is measured on the selling price, so the cost is what is left: 1 - 0.4 = 0.6 of the price. Step 2: write the relationship: 51 = price x 0.6. Step 3: divide: 51 / 0.6 = EUR 85.00. Check it: the gross profit is 85 - 51 = EUR 34, and 34 / 85 is 40% of the price, as required. Adding 40% to the cost instead would give EUR 71.40, where the gross profit of EUR 20.40 is only 28.6% of the price, because the percentage was applied to the smaller base.",
+  "near_transfer": {
+    "text": "The same retailer buys a second item for EUR 63 and wants a gross margin of 30% of the selling price on it. What price should it set?",
+    "validator": "expression",
+    "expression": "unit_cost / (1 - target_margin)",
+    "params": {
+      "unit_cost": 63,
+      "target_margin": 0.3
+    },
+    "answer": 90,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 81.9,
+        "rule": "unit_cost * (1 + target_margin)",
+        "note": "the misconception: a markup on cost instead of a margin on price"
+      },
+      {
+        "value": 210,
+        "rule": "unit_cost / target_margin",
+        "note": "dividing by the margin instead of by one minus the margin"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A wholesaler sells a case of goods for EUR 108 and earns a gross margin of 25% of that selling price. What does the case cost the wholesaler?",
+    "validator": "expression",
+    "expression": "price * (1 - margin)",
+    "params": {
+      "price": 108,
+      "margin": 0.25
+    },
+    "answer": 81,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 27,
+        "rule": "price * margin",
+        "note": "reporting the gross profit rather than the cost"
+      },
+      {
+        "value": 86.4,
+        "rule": "price / (1 + margin)",
+        "note": "treating the 25% as a markup on cost rather than a margin on price"
+      }
+    ]
+  }
+}

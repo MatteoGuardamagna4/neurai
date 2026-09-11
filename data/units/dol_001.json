@@ -1,0 +1,95 @@
+{
+  "unit_id": "dol_001",
+  "domain": "managerial_accounting",
+  "concept": "operating_leverage",
+  "difficulty": 3,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "inverting the ratio and dividing operating profit by contribution, which reports the profit margin on contribution instead of how sensitive profit is to sales",
+    "method": "(quantity * (price - variable_cost) - fixed_costs) / (quantity * (price - variable_cost))"
+  },
+  "worked_example": {
+    "text": "A workshop sells 5,000 units at EUR 40 with a variable cost of EUR 24, and has fixed costs of EUR 40,000.",
+    "solution": "Contribution = 5,000 x 16 = EUR 80,000. Operating profit = 80,000 - 40,000 = EUR 40,000. Degree of operating leverage = 80,000 / 40,000 = 2.00, so a 10% rise in sales lifts profit by 20%."
+  },
+  "problem": {
+    "text": "A manufacturer sells 10,000 units a year at EUR 50 each, with a variable cost of EUR 30 per unit and fixed costs of EUR 120,000. What is its degree of operating leverage?",
+    "validator": "expression",
+    "expression": "quantity * (price - variable_cost) / (quantity * (price - variable_cost) - fixed_costs)",
+    "params": {
+      "quantity": 10000,
+      "price": 50,
+      "variable_cost": 30,
+      "fixed_costs": 120000
+    },
+    "answer": 2.5,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 0.4,
+        "rule": "(quantity * (price - variable_cost) - fixed_costs) / (quantity * (price - variable_cost))",
+        "note": "the documented misconception: the ratio inverted, which reports a margin rather than a sensitivity"
+      },
+      {
+        "value": 1.5,
+        "rule": "fixed_costs / (quantity * (price - variable_cost) - fixed_costs)",
+        "note": "using the fixed costs on top instead of the contribution"
+      }
+    ]
+  },
+  "hints": [
+    "Operating leverage compares two quantities the business already has: what all its sales contribute, and what is left of that after the fixed costs. Work out both before forming any ratio.",
+    "Total contribution is the units sold times the margin on each. Operating profit is that contribution minus the fixed costs, so it is always the smaller of the two.",
+    "The degree of operating leverage is contribution divided by operating profit, the larger over the smaller, so the answer is always greater than one when the firm is profitable."
+  ],
+  "worked_solution": "Step 1: the margin on a unit is 50 - 30 = EUR 20, so total contribution is 10,000 x 20 = EUR 200,000. Step 2: operating profit is 200,000 - 120,000 = EUR 80,000. Step 3: the degree of operating leverage is 200,000 / 80,000 = 2.50. It reads as a multiplier: a 10% rise in sales would lift operating profit by 25%, and a 10% fall would cut it by the same. Dividing the other way round would give 0.40, which is the share of contribution that survives the fixed costs, a different and much less useful number.",
+  "near_transfer": {
+    "text": "A firm with a degree of operating leverage of 2.5 expects sales to grow by 10% next year. By what percentage should its operating profit grow?",
+    "validator": "expression",
+    "expression": "dol * sales_growth",
+    "params": {
+      "dol": 2.5,
+      "sales_growth": 0.1
+    },
+    "answer": 0.25,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "sales_growth",
+        "note": "assuming profit grows in step with sales, which is true only with no fixed costs"
+      },
+      {
+        "value": 0.04,
+        "rule": "sales_growth / dol",
+        "note": "dividing by the leverage instead of multiplying by it"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A company reports total contribution of EUR 600,000 and fixed costs of EUR 450,000. What is its degree of operating leverage?",
+    "validator": "expression",
+    "expression": "contribution / (contribution - fixed_costs)",
+    "params": {
+      "contribution": 600000,
+      "fixed_costs": 450000
+    },
+    "answer": 4,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 0.25,
+        "rule": "(contribution - fixed_costs) / contribution",
+        "note": "the inverted ratio again"
+      },
+      {
+        "value": 3,
+        "rule": "fixed_costs / (contribution - fixed_costs)",
+        "note": "fixed costs on top instead of contribution"
+      }
+    ]
+  }
+}

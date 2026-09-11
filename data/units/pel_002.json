@@ -1,0 +1,95 @@
+{
+  "unit_id": "pel_002",
+  "domain": "pricing",
+  "concept": "price_elasticity",
+  "difficulty": 3,
+  "prerequisites": [
+    "markup_vs_margin"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "dividing the raw change in quantity by the raw change in price instead of comparing two percentage changes, giving a figure that depends on the units used",
+    "method": "(q0 - q1) / (p1 - p0)"
+  },
+  "worked_example": {
+    "text": "A cinema raises the ticket price from EUR 10 to EUR 11 and weekly admissions fall from 2,000 to 1,800.",
+    "solution": "Admissions fall by 200 / 2,000 = 10%. The price rises by 1 / 10 = 10%. Elasticity = 10% / 10% = 1.00, the unit-elastic case where revenue is unchanged."
+  },
+  "problem": {
+    "text": "A gym raises its monthly membership from EUR 20 to EUR 24 and the number of members falls from 1,000 to 700. What is the price elasticity of demand, expressed as a positive number?",
+    "validator": "expression",
+    "expression": "((q0 - q1) / q0) / ((p1 - p0) / p0)",
+    "params": {
+      "q0": 1000,
+      "q1": 700,
+      "p0": 20,
+      "p1": 24
+    },
+    "answer": 1.5,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 75,
+        "rule": "(q0 - q1) / (p1 - p0)",
+        "note": "the documented misconception: members per euro, with no percentages anywhere"
+      },
+      {
+        "value": 2.5714285714285716,
+        "rule": "((q0 - q1) / q1) / ((p1 - p0) / p1)",
+        "note": "both changes measured against the new values rather than the starting ones"
+      }
+    ]
+  },
+  "hints": [
+    "The answer has to be a ratio of two percentages. Members and euros are different units, so dividing one by the other gives a number without a meaning.",
+    "Take each change as a share of where it started: the lost members as a share of the original 1,000, and the price rise as a share of the original EUR 20.",
+    "Divide the percentage fall in members by the percentage rise in price. Above one means demand is elastic and the gym is losing revenue."
+  ],
+  "worked_solution": "Step 1: members fall by 300 out of 1,000, which is 30%. Step 2: the price rises by 4 out of 20, which is 20%. Step 3: divide: 30% / 20% = 1.50. Demand is elastic: members responded proportionately more than the price moved, so revenue falls from EUR 20,000 to EUR 16,800 and the rise was a mistake. Dividing the raw figures would report 75 members per euro, which would become 0.75 if the price were quoted in cents, and so cannot be a property of the demand itself.",
+  "near_transfer": {
+    "text": "The same gym, with a price elasticity of demand of 1.5, instead cuts its price by 10%. By what percentage would it expect membership to rise?",
+    "validator": "expression",
+    "expression": "elasticity * price_change",
+    "params": {
+      "elasticity": 1.5,
+      "price_change": 0.1
+    },
+    "answer": 0.15,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "price_change",
+        "note": "assuming membership responds one for one with the price"
+      },
+      {
+        "value": 0.06666666666666667,
+        "rule": "price_change / elasticity",
+        "note": "dividing by the elasticity rather than multiplying"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A bus operator whose price elasticity of demand is 0.6 raises fares by 10%. By what percentage does its revenue change?",
+    "validator": "expression",
+    "expression": "price_change - elasticity * price_change",
+    "params": {
+      "price_change": 0.1,
+      "elasticity": 0.6
+    },
+    "answer": 0.04,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "price_change",
+        "note": "counting the fare rise and ignoring the passengers lost"
+      },
+      {
+        "value": -0.06,
+        "rule": "0 - elasticity * price_change",
+        "note": "counting the passengers lost and ignoring the higher fare on those who stay"
+      }
+    ]
+  }
+}

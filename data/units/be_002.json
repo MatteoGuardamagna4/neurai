@@ -1,0 +1,95 @@
+{
+  "unit_id": "be_002",
+  "domain": "managerial_accounting",
+  "concept": "break_even_quantity",
+  "difficulty": 2,
+  "prerequisites": [],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing fixed costs by the selling price instead of by the contribution margin, ignoring what each unit costs to produce",
+    "method": "fixed_costs / price"
+  },
+  "worked_example": {
+    "text": "A bike repair shop pays EUR 2,400 a month for its workshop, tools and insurance. A standard service is sold at EUR 50 and uses EUR 20 of parts and consumables.",
+    "solution": "Contribution margin = 50 - 20 = EUR 30 per service. Break-even = 2,400 / 30 = 80 services a month."
+  },
+  "problem": {
+    "text": "A food truck pays EUR 3,600 a month for its pitch, licence and insurance. A meal is sold at EUR 12 and costs EUR 4.50 in ingredients and packaging. How many meals must it sell each month to break even?",
+    "validator": "expression",
+    "expression": "fixed_costs / (price - variable_cost)",
+    "params": {
+      "fixed_costs": 3600,
+      "price": 12,
+      "variable_cost": 4.5
+    },
+    "answer": 480,
+    "format": "{:,.0f} meals",
+    "distractors": [
+      {
+        "value": 300,
+        "rule": "fixed_costs / price",
+        "note": "the documented misconception: dividing by the price, as if the whole EUR 12 were available for the fixed costs"
+      },
+      {
+        "value": 800,
+        "rule": "fixed_costs / variable_cost",
+        "note": "dividing by the variable cost instead of by the margin"
+      }
+    ]
+  },
+  "hints": [
+    "Three numbers matter here, and each plays a different role: what the truck pays whatever it sells, what one meal brings in, and what one meal costs to make. Name them before calculating.",
+    "Only part of the EUR 12 is free to pay the pitch and the licence, because EUR 4.50 of it has already been spent on the meal itself. Work out what is left from one sale.",
+    "Divide the monthly fixed costs by that leftover amount. The result is the number of meals needed to cover them exactly."
+  ],
+  "worked_solution": "Step 1: the fixed costs are EUR 3,600 a month, the price is EUR 12 and the variable cost is EUR 4.50 a meal. Step 2: the contribution margin is 12 - 4.50 = EUR 7.50, the part of each sale left over once the meal has been paid for. Step 3: 3,600 / 7.50 = 480 meals a month, which is 16 meals a day on a 30-day month. Dividing by the price instead gives 3,600 / 12 = 300 meals, and a truck selling 300 meals would still be EUR 1,350 short of its fixed costs.",
+  "near_transfer": {
+    "text": "The same food truck, with the same EUR 3,600 of monthly fixed costs, the same EUR 12 price and the same EUR 4.50 variable cost, wants to earn EUR 1,800 of profit a month. How many meals must it sell?",
+    "validator": "expression",
+    "expression": "(fixed_costs + target_profit) / (price - variable_cost)",
+    "params": {
+      "fixed_costs": 3600,
+      "target_profit": 1800,
+      "price": 12,
+      "variable_cost": 4.5
+    },
+    "answer": 720,
+    "format": "{:,.0f} meals",
+    "distractors": [
+      {
+        "value": 450,
+        "rule": "(fixed_costs + target_profit) / price",
+        "note": "the misconception carried into the target-profit case"
+      },
+      {
+        "value": 1200,
+        "rule": "(fixed_costs + target_profit) / variable_cost",
+        "note": "dividing by the variable cost rather than the margin"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A market stall has fixed costs of EUR 1,800 a month and spends EUR 5 on each item it sells. It expects to sell 300 items a month. What price must it charge to break even?",
+    "validator": "expression",
+    "expression": "fixed_costs / quantity + variable_cost",
+    "params": {
+      "fixed_costs": 1800,
+      "quantity": 300,
+      "variable_cost": 5
+    },
+    "answer": 11,
+    "format": "EUR {:,.2f}",
+    "distractors": [
+      {
+        "value": 6,
+        "rule": "fixed_costs / quantity",
+        "note": "covering the fixed costs but not the cost of the item itself"
+      },
+      {
+        "value": 1,
+        "rule": "fixed_costs / quantity - variable_cost",
+        "note": "subtracting the variable cost instead of adding it"
+      }
+    ]
+  }
+}

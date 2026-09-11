@@ -1,0 +1,96 @@
+{
+  "unit_id": "ltv_002",
+  "domain": "marketing_analytics",
+  "concept": "customer_lifetime_value",
+  "difficulty": 3,
+  "prerequisites": [],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "building lifetime value on the revenue a customer pays rather than the gross margin the company keeps, which credits the customer with the cost of serving them",
+    "method": "arpu / churn"
+  },
+  "worked_example": {
+    "text": "A magazine charges EUR 15 a month. Printing, postage and editorial cost it 20% of that, leaving an 80% gross margin, and 4% of subscribers cancel each month.",
+    "solution": "Monthly margin = 15 x 0.8 = EUR 12. The average subscriber stays 1 / 0.04 = 25 months. Lifetime value = 12 x 25 = EUR 300."
+  },
+  "problem": {
+    "text": "A meal-kit company charges EUR 80 per customer per month. Its gross margin is 60% of that revenue, and 8% of its customers cancel each month. What is the lifetime value of a customer, before discounting?",
+    "validator": "expression",
+    "expression": "arpu * gross_margin / churn",
+    "params": {
+      "arpu": 80,
+      "gross_margin": 0.6,
+      "churn": 0.08,
+      "months": 12
+    },
+    "answer": 600,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 1000,
+        "rule": "arpu / churn",
+        "note": "the documented misconception: revenue used instead of the margin the company keeps"
+      },
+      {
+        "value": 576,
+        "rule": "arpu * gross_margin * months",
+        "note": "assuming a fixed one-year life instead of deriving it from the churn rate"
+      }
+    ]
+  },
+  "hints": [
+    "Two ingredients make up lifetime value: what the company keeps from a customer each month, and how many months that customer stays. Work them out separately.",
+    "The company does not keep the whole EUR 80. Apply the gross margin first, so that the cost of the ingredients and the delivery is already out of the figure.",
+    "A monthly cancellation rate of 8% implies an average life of one divided by 0.08. Multiplying by that life, or dividing by the churn rate, comes to the same thing."
+  ],
+  "worked_solution": "Step 1: the monthly gross margin is 80 x 0.6 = EUR 48, which is what is left after the boxes have been packed and delivered. Step 2: with 8% cancelling each month, a customer stays 1 / 0.08 = 12.5 months on average. Step 3: multiply: 48 x 12.5 = EUR 600, the same as dividing the monthly margin by the churn rate. Using the full EUR 80 of revenue would give EUR 1,000 and would let the company spend on acquisition money that is already committed to ingredients and couriers.",
+  "near_transfer": {
+    "text": "The same meal-kit company, still charging EUR 80 a month at a 60% gross margin, improves its recipes and monthly churn falls to 5%. What is the lifetime value of a customer now?",
+    "validator": "expression",
+    "expression": "arpu * gross_margin / churn",
+    "params": {
+      "arpu": 80,
+      "gross_margin": 0.6,
+      "churn": 0.05,
+      "months": 12
+    },
+    "answer": 960,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 1600,
+        "rule": "arpu / churn",
+        "note": "the misconception: revenue rather than margin"
+      },
+      {
+        "value": 576,
+        "rule": "arpu * gross_margin * months",
+        "note": "a fixed one-year life, which cannot respond to better retention"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A garden centre's customers spend EUR 350 a year with it, the gross margin on that spending is 20%, and a customer keeps coming back for five years on average. What is the lifetime value of a customer?",
+    "validator": "expression",
+    "expression": "spend * margin * years",
+    "params": {
+      "spend": 350,
+      "margin": 0.2,
+      "years": 5
+    },
+    "answer": 350,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 1750,
+        "rule": "spend * years",
+        "note": "the misconception: lifetime revenue rather than lifetime margin"
+      },
+      {
+        "value": 70,
+        "rule": "spend * margin",
+        "note": "one year of margin instead of the whole relationship"
+      }
+    ]
+  }
+}

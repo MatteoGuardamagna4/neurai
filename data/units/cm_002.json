@@ -1,0 +1,96 @@
+{
+  "unit_id": "cm_002",
+  "domain": "managerial_accounting",
+  "concept": "contribution_margin_ratio",
+  "difficulty": 2,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "dividing the fixed costs by the variable cost ratio rather than by the contribution margin ratio, using the share of revenue that is consumed instead of the share that is left",
+    "method": "fixed_costs / (variable_cost / price)"
+  },
+  "worked_example": {
+    "text": "A translation agency has fixed costs of EUR 60,000 a year. A typical job is billed at EUR 500 and costs EUR 200 in freelance fees.",
+    "solution": "Contribution margin = 500 - 200 = EUR 300, so the ratio is 300 / 500 = 0.6. Break-even revenue = 60,000 / 0.6 = EUR 100,000 of billings a year."
+  },
+  "problem": {
+    "text": "A cleaning company has fixed costs of EUR 144,000 a year. A contract is billed at EUR 800 and costs EUR 500 in labour and materials. What annual revenue does the company need to break even?",
+    "validator": "expression",
+    "expression": "fixed_costs / ((price - variable_cost) / price)",
+    "params": {
+      "fixed_costs": 144000,
+      "price": 800,
+      "variable_cost": 500
+    },
+    "answer": 384000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 230400,
+        "rule": "fixed_costs / (variable_cost / price)",
+        "note": "the documented misconception: dividing by the variable cost ratio"
+      },
+      {
+        "value": 480,
+        "rule": "fixed_costs / (price - variable_cost)",
+        "note": "answering with the number of contracts instead of the revenue"
+      }
+    ]
+  },
+  "hints": [
+    "The question asks for an amount of revenue, not a number of contracts, so what you divide by has to be a share of each euro rather than an amount in euros.",
+    "Work out the margin on one contract first, then express it as a fraction of the billed price. That fraction is the share of every euro of revenue that survives to meet the fixed costs.",
+    "Divide the annual fixed costs by that fraction. The result is the level of billings at which the company covers everything and no more."
+  ],
+  "worked_solution": "Step 1: the margin on one contract is 800 - 500 = EUR 300. Step 2: as a share of the price that is 300 / 800 = 0.375, so 37.5 cents of every euro billed is left after paying for the labour and materials. Step 3: 144,000 / 0.375 = EUR 384,000 of billings a year. Dividing by the variable cost ratio of 0.625 would give EUR 230,400, which measures how much revenue the company spends rather than how much it keeps.",
+  "near_transfer": {
+    "text": "The same cleaning company, with fixed costs of EUR 144,000, a contract price of EUR 800 and a variable cost of EUR 500, now wants an annual profit of EUR 36,000. What revenue does it need?",
+    "validator": "expression",
+    "expression": "(fixed_costs + target_profit) / ((price - variable_cost) / price)",
+    "params": {
+      "fixed_costs": 144000,
+      "target_profit": 36000,
+      "price": 800,
+      "variable_cost": 500
+    },
+    "answer": 480000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 288000,
+        "rule": "(fixed_costs + target_profit) / (variable_cost / price)",
+        "note": "the misconception applied to the target-profit case"
+      },
+      {
+        "value": 600,
+        "rule": "(fixed_costs + target_profit) / (price - variable_cost)",
+        "note": "answering in contracts rather than in revenue"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A design studio expects a project to cost EUR 36,000 in freelance and production costs, and wants a contribution margin ratio of 0.4 on it. What must it charge for the project?",
+    "validator": "expression",
+    "expression": "variable_cost / (1 - ratio)",
+    "params": {
+      "variable_cost": 36000,
+      "ratio": 0.4
+    },
+    "answer": 60000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 50400,
+        "rule": "variable_cost * (1 + ratio)",
+        "note": "adding the ratio to the cost, which is a markup on cost rather than a margin on price"
+      },
+      {
+        "value": 90000,
+        "rule": "variable_cost / ratio",
+        "note": "dividing by the ratio instead of by one minus the ratio"
+      }
+    ]
+  }
+}

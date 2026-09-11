@@ -1,0 +1,96 @@
+{
+  "unit_id": "pbp_001",
+  "domain": "corporate_finance",
+  "concept": "payback_period",
+  "difficulty": 1,
+  "prerequisites": [],
+  "target_minutes": 5,
+  "misconception": {
+    "description": "computing the payback period from accounting profit rather than from cash flow, which double-counts depreciation because depreciation is not a cash payment",
+    "method": "investment / annual_profit"
+  },
+  "worked_example": {
+    "text": "A delivery van costs EUR 48,000 and is expected to save EUR 16,000 of cash a year.",
+    "solution": "Payback = 48,000 / 16,000 = 3.00 years. If the van is depreciated over six years, the accounts show a profit of only 16,000 - 8,000 = EUR 8,000 a year, but no cash leaves the business for that depreciation, so it must not be deducted here."
+  },
+  "problem": {
+    "text": "A company is considering an investment of EUR 90,000 in new equipment with a five-year life. The equipment is expected to bring in EUR 24,000 of cash a year. Depreciation of EUR 9,000 a year is charged against it, so the accounts show an annual profit of EUR 15,000. What is the payback period of the investment?",
+    "validator": "expression",
+    "expression": "investment / annual_cash_flow",
+    "params": {
+      "investment": 90000,
+      "annual_cash_flow": 24000,
+      "annual_profit": 15000,
+      "life": 5
+    },
+    "answer": 3.75,
+    "format": "{:,.2f} years",
+    "distractors": [
+      {
+        "value": 6,
+        "rule": "investment / annual_profit",
+        "note": "the documented misconception: using accounting profit, which has depreciation deducted from it, instead of cash flow"
+      },
+      {
+        "value": 0.75,
+        "rule": "investment / (annual_cash_flow * life)",
+        "note": "dividing by the cash of the whole five-year life rather than by one year of cash"
+      }
+    ]
+  },
+  "hints": [
+    "Payback asks how long the investment takes to return the cash that was put in, so the numerator and the denominator must both be measured in cash.",
+    "Two of the figures you were given describe the same year: one is cash, the other is what the accounts report after depreciation. Depreciation is a bookkeeping charge, not a payment, so it does not belong in a payback calculation.",
+    "Divide the amount invested by the annual cash flow, and report the result in years."
+  ],
+  "worked_solution": "Step 1: identify the cash. The equipment brings in EUR 24,000 a year. The EUR 15,000 profit figure is that same cash after the EUR 9,000 depreciation charge, and depreciation is not a payment to anyone, so the cash figure is the one to use. Step 2: divide the investment by the annual cash flow: 90,000 / 24,000 = 3.75 years. The company gets its money back three quarters of the way through the fourth year. Using the profit figure instead would give 90,000 / 15,000 = 6.00 years, which understates the investment badly by deducting a cost that never leaves the bank account.",
+  "near_transfer": {
+    "text": "A second machine costs EUR 90,000 but its cash flows are uneven: EUR 30,000 in year 1, EUR 30,000 in year 2 and EUR 40,000 in year 3. What is its payback period?",
+    "validator": "expression",
+    "expression": "2 + (investment - cf1 - cf2) / cf3",
+    "params": {
+      "investment": 90000,
+      "cf1": 30000,
+      "cf2": 30000,
+      "cf3": 40000
+    },
+    "answer": 2.75,
+    "format": "{:,.2f} years",
+    "distractors": [
+      {
+        "value": 2.7,
+        "rule": "investment / ((cf1 + cf2 + cf3) / 3)",
+        "note": "using the average annual cash flow instead of tracking the cumulative recovery"
+      },
+      {
+        "value": 3,
+        "rule": "investment / cf1",
+        "note": "assuming every year repeats the first year's cash flow"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A company will only approve projects that pay back within three years. A proposed machine costs EUR 72,000 and would be depreciated by EUR 12,000 a year. What is the minimum annual cash flow the machine must generate to be approved?",
+    "validator": "expression",
+    "expression": "investment / required_payback",
+    "params": {
+      "investment": 72000,
+      "required_payback": 3,
+      "depreciation": 12000
+    },
+    "answer": 24000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 12000,
+        "rule": "investment / required_payback - depreciation",
+        "note": "the misconception: subtracting depreciation from the cash flow the project must produce"
+      },
+      {
+        "value": 216000,
+        "rule": "investment * required_payback",
+        "note": "multiplying by the payback limit instead of dividing by it"
+      }
+    ]
+  }
+}

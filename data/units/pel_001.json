@@ -1,0 +1,95 @@
+{
+  "unit_id": "pel_001",
+  "domain": "pricing",
+  "concept": "price_elasticity",
+  "difficulty": 3,
+  "prerequisites": [
+    "markup_vs_margin"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "dividing the change in quantity by the change in price without turning either into a percentage, which produces a number that depends on the units rather than on the responsiveness",
+    "method": "(q0 - q1) / (p1 - p0)"
+  },
+  "worked_example": {
+    "text": "A bakery raises the price of a loaf from EUR 2.00 to EUR 2.20 and weekly sales fall from 500 loaves to 450.",
+    "solution": "Quantity falls by 50 / 500 = 10%. Price rises by 0.20 / 2.00 = 10%. Elasticity = 10% / 10% = 1.00, so demand is exactly unit elastic and revenue is unchanged."
+  },
+  "problem": {
+    "text": "A coffee shop raises the price of a latte from EUR 4.00 to EUR 5.00 and weekly sales fall from 1,000 cups to 800. What is the price elasticity of demand, expressed as a positive number?",
+    "validator": "expression",
+    "expression": "((q0 - q1) / q0) / ((p1 - p0) / p0)",
+    "params": {
+      "q0": 1000,
+      "q1": 800,
+      "p0": 4,
+      "p1": 5
+    },
+    "answer": 0.8,
+    "format": "{:,.2f}",
+    "distractors": [
+      {
+        "value": 200,
+        "rule": "(q0 - q1) / (p1 - p0)",
+        "note": "the documented misconception: raw change in cups divided by raw change in euros, with no percentages"
+      },
+      {
+        "value": 1.25,
+        "rule": "((q0 - q1) / q1) / ((p1 - p0) / p1)",
+        "note": "measuring both changes against the new values instead of the original ones"
+      }
+    ]
+  },
+  "hints": [
+    "Elasticity compares two percentage changes, never two raw amounts: cups and euros cannot be divided by one another and mean anything.",
+    "Work out each percentage separately against its starting value: how much of the original 1,000 cups was lost, and how much of the original EUR 4.00 was added.",
+    "Divide the percentage change in quantity by the percentage change in price. A result below one means demand responds less than proportionately."
+  ],
+  "worked_solution": "Step 1: the quantity change as a percentage of where it started: 200 / 1,000 = 20%. Step 2: the price change the same way: 1.00 / 4.00 = 25%. Step 3: divide: 20% / 25% = 0.80. Demand is inelastic, because quantity moved proportionately less than price, and the shop's revenue actually rises: 800 cups at EUR 5 is EUR 4,000 against EUR 4,000 before, before allowing for the cups it no longer has to make. Dividing the raw changes would give 200 cups per euro, a figure that would change completely if the price were quoted in cents.",
+  "near_transfer": {
+    "text": "The same coffee shop, facing a price elasticity of demand of 0.8, is considering a further price rise of 10%. By what percentage would it expect its unit sales to fall?",
+    "validator": "expression",
+    "expression": "elasticity * price_change",
+    "params": {
+      "elasticity": 0.8,
+      "price_change": 0.1
+    },
+    "answer": 0.08,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "price_change",
+        "note": "assuming sales fall by the same percentage as the price rises"
+      },
+      {
+        "value": 0.125,
+        "rule": "price_change / elasticity",
+        "note": "dividing by the elasticity instead of multiplying by it"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A retailer whose price elasticity of demand is 1.5 raises its prices by 10%. By what percentage does its revenue change?",
+    "validator": "expression",
+    "expression": "price_change - elasticity * price_change",
+    "params": {
+      "price_change": 0.1,
+      "elasticity": 1.5
+    },
+    "answer": -0.05,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.1,
+        "rule": "price_change",
+        "note": "assuming revenue moves with price, which holds only if quantity does not respond"
+      },
+      {
+        "value": -0.15,
+        "rule": "0 - elasticity * price_change",
+        "note": "counting the loss of volume and forgetting the higher price on what is still sold"
+      }
+    ]
+  }
+}

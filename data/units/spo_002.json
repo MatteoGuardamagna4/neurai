@@ -1,0 +1,98 @@
+{
+  "unit_id": "spo_002",
+  "domain": "managerial_accounting",
+  "concept": "relevant_cost",
+  "difficulty": 3,
+  "prerequisites": [
+    "contribution_margin_ratio"
+  ],
+  "target_minutes": 7,
+  "misconception": {
+    "description": "charging allocated overhead to a one-off job even though the same total is incurred whether or not the job is taken, which makes profitable work look unprofitable",
+    "method": "price - variable_cost - allocated_overhead - incremental_fixed_cost"
+  },
+  "worked_example": {
+    "text": "A photographer with a free weekend is offered a wedding for EUR 1,800. Travel, assistants and album printing for the job cost EUR 700. The accounts allocate EUR 400 of studio rent and equipment depreciation to a booking of this size, and the couple want a drone permit that costs EUR 150 and is bought only for this wedding.",
+    "solution": "The EUR 400 of studio rent is paid whatever happens that weekend, so it is not relevant. Incremental profit = 1,800 - 700 - 150 = EUR 950. Charging the allocated rent would have shown EUR 550 and made a very good booking look ordinary."
+  },
+  "problem": {
+    "text": "A software firm with idle developer time is offered a one-off customisation for EUR 40,000. The developer hours and cloud capacity the job consumes cost EUR 22,000. The firm's costing system allocates EUR 12,000 of office and management overhead to a job of this size, and that overhead is incurred whether or not the job is taken. The job also needs a third-party licence costing EUR 5,000, bought only for this customer. What is the incremental profit from accepting?",
+    "validator": "expression",
+    "expression": "price - variable_cost - incremental_fixed_cost",
+    "params": {
+      "price": 40000,
+      "variable_cost": 22000,
+      "allocated_overhead": 12000,
+      "incremental_fixed_cost": 5000
+    },
+    "answer": 13000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 1000,
+        "rule": "price - variable_cost - allocated_overhead - incremental_fixed_cost",
+        "note": "the documented misconception: charging overhead that the job does not change"
+      },
+      {
+        "value": 18000,
+        "rule": "price - variable_cost",
+        "note": "ignoring the licence, which exists only because of this job"
+      }
+    ]
+  },
+  "hints": [
+    "Ask one question of each of the three costs in turn: would this amount be any different next month if the firm turned the job down?",
+    "The office and management overhead is paid either way, so accepting the job does not create it. The licence is the opposite case: it is bought only because the job was accepted, even though it is a one-off fixed amount.",
+    "Take the price, subtract only the costs the decision actually changes, and leave the allocated overhead out of the calculation entirely."
+  ],
+  "worked_solution": "Step 1: sort the three costs. The EUR 22,000 of developer time and cloud capacity is caused by the job, so it counts. The EUR 12,000 of allocated overhead is incurred whatever the firm decides, so it does not. The EUR 5,000 licence exists only because of the job, so it counts. Step 2: subtract only what changes: 40,000 - 22,000 - 5,000 = EUR 13,000 of incremental profit, and the job is worth taking. Charging the allocated overhead as well would leave EUR 1,000 and make a solidly profitable job look like a rounding error, tempting the firm to leave its developers idle instead.",
+  "near_transfer": {
+    "text": "The same software firm and the same one-off customisation: EUR 22,000 of developer time and cloud capacity, EUR 12,000 of allocated overhead, and a EUR 5,000 licence bought only for this job. What is the lowest price at which accepting the work leaves the firm no worse off?",
+    "validator": "expression",
+    "expression": "variable_cost + incremental_fixed_cost",
+    "params": {
+      "variable_cost": 22000,
+      "incremental_fixed_cost": 5000,
+      "allocated_overhead": 12000
+    },
+    "answer": 27000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 39000,
+        "rule": "variable_cost + incremental_fixed_cost + allocated_overhead",
+        "note": "the misconception: insisting that the job also cover overhead that is paid anyway"
+      },
+      {
+        "value": 22000,
+        "rule": "variable_cost",
+        "note": "forgetting the licence the job itself causes"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A coach company has 8 empty seats on a service that is running anyway. A group offers EUR 25 per seat. Each extra passenger adds EUR 4 of fuel, cleaning and refreshments, and the company's accounts allocate EUR 30 of fixed cost to every seat on the vehicle. What is the incremental profit from taking the group?",
+    "validator": "expression",
+    "expression": "seats * (price - variable_cost)",
+    "params": {
+      "seats": 8,
+      "price": 25,
+      "variable_cost": 4,
+      "allocated_fixed": 30
+    },
+    "answer": 168,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": -72,
+        "rule": "seats * (price - variable_cost - allocated_fixed)",
+        "note": "the misconception: charging allocated fixed cost to seats that would otherwise travel empty"
+      },
+      {
+        "value": 200,
+        "rule": "seats * price",
+        "note": "counting the fares and forgetting what each extra passenger costs"
+      }
+    ]
+  }
+}

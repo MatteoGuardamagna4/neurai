@@ -1,0 +1,126 @@
+# NeuroTutorSim configuration.
+# Every numeric value is an ASSUMPTION (brief §7.2) unless the comment names a brief section that
+# fixes it. A leaf written as {low: .., medium: .., high: ..} is a sensitivity arm and
+# `parameter_setting` selects which arm is used; every other leaf is fixed.
+parameter_setting: medium
+
+seeds:
+  master: 20260909            # one master seed; per (condition, learner, episode) streams derive from it
+
+population:                   # brief §7.1-7.2, eq. 15-16
+  # Every learner is run through all three conditions from the same initial state (a triplet), so
+  # n_learners x 3 is the learner count of §7.1: 1667 x 3 = 5001 >= the 5,000 the brief asks for.
+  n_learners: 1667
+  prior_problems: 20          # ASSUMPTION: length of the §7.3 prior record seeded from the initial state
+  stratum_weights: [0.30, 0.50, 0.20]      # low / medium / high prior knowledge (fixed by the brief)
+  state_means: {K: 0.35, M: 0.30, R: 0.30, C: 0.50, D: 0.40}
+  state_sd: {low: 0.10, medium: 0.15, high: 0.20}
+  stratum_k_shift: [-0.20, 0.0, 0.20]      # added to the K mean per stratum
+  stratum_m_shift: [-0.10, 0.0, 0.10]
+  correlation:                              # order K, M, R, C, D; truncated multivariate normal
+    - [1.00, 0.55, 0.45, 0.30, -0.35]
+    - [0.55, 1.00, 0.40, 0.20, -0.25]
+    - [0.45, 0.40, 1.00, 0.25, -0.45]
+    - [0.30, 0.20, 0.25, 1.00, -0.20]
+    - [-0.35, -0.25, -0.45, -0.20, 1.00]
+  mu_alpha: {low: -2.6, medium: -2.3, high: -2.0}     # alpha_i ~ LogNormal(mu, sigma), eq. 16
+  sigma_alpha: {low: 0.25, medium: 0.40, high: 0.55}
+  a_delta: 2.0                                         # delta_i ~ Beta(a, b), eq. 16
+  b_delta: {low: 120.0, medium: 80.0, high: 50.0}
+  theta_slope: {low: 3.0, medium: 4.0, high: 5.0}     # theta = theta_slope * (K - 0.5)
+  confidence_bias_sd: {low: 0.05, medium: 0.10, high: 0.15}
+  speed_sigma: 0.25                                    # latency multiplier ~ LogNormal(0, sigma)
+
+curriculum:
+  b_slope: {low: 0.4, medium: 0.6, high: 0.8}          # b_u = b_slope * (difficulty - 3), logit scale
+  near_b_delta: 0.5                                    # transfer items are harder by these offsets
+  far_b_delta: 1.2
+
+response:                     # logistic engine, eq. 17-18, plus the help-request and confidence models
+  rho: {low: 0.7, medium: 1.0, high: 1.3}
+  kappa: {low: 0.5, medium: 0.8, high: 1.1}
+  omega: {low: 1.5, medium: 2.5, high: 3.5}
+  request_intercept: -1.0                              # P(ask for help) = logistic(s0 + s1*D - s2*(theta - b_u))
+  request_dependence_slope: 2.0
+  request_ability_slope: 0.5
+  misconception_share: 0.67                            # share of wrong answers following the documented misconception
+  confidence_noise_sd: 0.08
+
+effort:                       # eq. 19
+  a0: -1.0
+  a1: {low: 0.9, medium: 1.2, high: 1.5}
+  a2: {low: 0.6, medium: 0.8, high: 1.0}
+  a3: {low: 0.7, medium: 1.0, high: 1.3}
+  a4: {low: 1.5, medium: 2.0, high: 2.5}
+
+effectiveness:                # eq. 20
+  f0: -1.5
+  f1: 1.0
+  f2: 0.8
+  f3: {low: 0.9, medium: 1.2, high: 1.5}
+  f4: {low: 1.2, medium: 1.5, high: 1.8}
+  coverage_default: 1.0        # used until Phase I semantic coverage (§5.4) exists
+  correctness_default: 1.0
+
+updates:                      # eq. 21-25
+  m_decay_scale: 1.0           # delta_M,i = m_decay_scale * delta_i
+  eta_M: {low: 0.010, medium: 0.015, high: 0.025}
+  eta_C: {low: 0.010, medium: 0.015, high: 0.025}
+  eta_R: {low: 0.003, medium: 0.005, high: 0.008}   # eq. 23 and 25 have no saturating term: keep rates small
+  eta_O: {low: 0.003, medium: 0.005, high: 0.008}
+  eta_D: {low: 0.006, medium: 0.010, high: 0.016}
+  eta_F: {low: 0.006, medium: 0.010, high: 0.016}
+
+support:                      # brief §3.3-3.4 tutor conditions and support persistence
+  max_hints: 3
+  adaptation: {traditional: 0.35, ai_scaffolding: 0.90, ai_substitution: 0.20}
+  mismatch_scale: 3.0
+  persistence_policy: persistent        # persistent | gradual_fading | immediate_withdrawal
+  fade_base: 0.75                       # gradual_fading: help turns available = ceil(max_hints * fade_base ** streak)
+  withdrawal_success_threshold: 2       # immediate_withdrawal: no help once the independent-success streak reaches this
+  latency: {base_s: 45.0, per_hint_s: 20.0, per_attempt_s: 30.0}
+
+checkpoints:                  # brief §7.7: all support removed, state never mutated
+  episodes: [9, 19, 39]       # 0-based episode indices after which a checkpoint runs
+  n_trained: 3
+  n_near: 2
+  n_far: 2
+  retention_interval: 10      # a trained item is a retention item when last practised >= this many episodes ago
+  ece_bins: 10
+
+engine:
+  name: hybrid                # hybrid | centaur | minitaur | logistic
+  choice_model: centaur       # hybrid only: the transcript model that makes the behavioural choices
+                              # (approach, help requests, confidence); eq. 17-18 decide correctness
+  base_url: http://127.0.0.1:1234
+  models:                     # served model id per transcript engine; `--engine` picks the entry
+    minitaur: llama-3.1-minitaur-8b
+    centaur: llama-3.1-centaur-8b   # merged from marcelbinz/Llama-3.1-Centaur-8B-adapter, q4_k_m
+  model: llama-3.1-minitaur-8b   # resolved from `models[name]` at run time; a wrong id fails loudly
+  history_window: 3           # past episodes in the prompt. Measured 2026-09-10: the transcript carries
+                              # no payoff information (-0.012, 0/5 units) and at 8 episodes it drowns the
+                              # record line that does (+0.053 -> +0.009), so keep this small.
+  top_logprobs: 20
+  timeout_s: 180
+  max_attempts: 3
+
+tutor:
+  provider: openai            # openai (= any OpenAI-compatible server) | fake (canned replies, offline)
+  base_url: http://127.0.0.1:1234/v1     # LM Studio serving Qwen2.5-3B-Instruct; no API key needed
+  model: qwen2.5-3b-instruct  # the id LM Studio reports for the loaded GGUF
+  api_key_env: OPENAI_API_KEY # only read for a non-local base_url
+  temperature: 0.3
+  max_tokens: 350
+  seed: 7
+  timeout_s: 60
+
+run:
+  episodes: 40
+  # three assigned arms (the eq. 10-12 contrasts) plus free_choice, where the same learner picks the
+  # approach at every problem after reading it; the choice is the transcript engine's decision
+  conditions: [traditional, ai_scaffolding, ai_substitution, free_choice]
+  units_dir: data/units
+  stimuli_dir: stimuli
+  prompts_dir: config/prompts
+  processed_dir: data/processed
+  logs_dir: outputs/logs

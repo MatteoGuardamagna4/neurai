@@ -1,0 +1,94 @@
+{
+  "unit_id": "mos_001",
+  "domain": "managerial_accounting",
+  "concept": "margin_of_safety",
+  "difficulty": 2,
+  "prerequisites": [
+    "break_even_quantity"
+  ],
+  "target_minutes": 6,
+  "misconception": {
+    "description": "expressing the margin of safety as a share of break-even sales rather than of budgeted sales, which overstates the cushion",
+    "method": "(budgeted_sales - break_even_sales) / break_even_sales"
+  },
+  "worked_example": {
+    "text": "A publisher budgets sales of EUR 250,000 for the year and calculates that it breaks even at EUR 200,000 of sales.",
+    "solution": "The cushion is 250,000 - 200,000 = EUR 50,000. As a share of budgeted sales that is 50,000 / 250,000 = 0.2, a margin of safety of 20%."
+  },
+  "problem": {
+    "text": "A manufacturer budgets sales of EUR 800,000 for next year and breaks even at EUR 500,000 of sales. What is its margin of safety as a percentage of budgeted sales?",
+    "validator": "expression",
+    "expression": "(budgeted_sales - break_even_sales) / budgeted_sales",
+    "params": {
+      "budgeted_sales": 800000,
+      "break_even_sales": 500000
+    },
+    "answer": 0.375,
+    "format": "{:.1%}",
+    "distractors": [
+      {
+        "value": 0.6,
+        "rule": "(budgeted_sales - break_even_sales) / break_even_sales",
+        "note": "the documented misconception: dividing the cushion by break-even sales instead of by budgeted sales"
+      },
+      {
+        "value": 0.625,
+        "rule": "break_even_sales / budgeted_sales",
+        "note": "reporting the share of budgeted sales needed to break even rather than the cushion above it"
+      }
+    ]
+  },
+  "hints": [
+    "The margin of safety measures how far sales can fall before the company starts losing money. Start by working out that distance in euros.",
+    "The question asks for a percentage of budgeted sales, so budgeted sales is the base of the fraction, not the break-even figure.",
+    "Divide the euro cushion you computed by the budgeted sales figure, then read the result as a percentage."
+  ],
+  "worked_solution": "Step 1: find the cushion in euros: 800,000 - 500,000 = EUR 300,000 of sales can be lost before the company reaches break-even. Step 2: divide by the base the question names, budgeted sales: 300,000 / 800,000 = 0.375, a margin of safety of 37.5%. Dividing by break-even sales instead would give 300,000 / 500,000 = 60%, which flatters the position: the cushion is being compared with the sales the company must make rather than with the sales it plans to make.",
+  "near_transfer": {
+    "text": "The same manufacturer budgets sales of EUR 800,000, breaks even at EUR 500,000 and sells its product at EUR 40 per unit. What is its margin of safety expressed in units?",
+    "validator": "expression",
+    "expression": "(budgeted_sales - break_even_sales) / price",
+    "params": {
+      "budgeted_sales": 800000,
+      "break_even_sales": 500000,
+      "price": 40
+    },
+    "answer": 7500,
+    "format": "{:,.0f} units",
+    "distractors": [
+      {
+        "value": 20000,
+        "rule": "budgeted_sales / price",
+        "note": "reporting budgeted volume rather than the cushion"
+      },
+      {
+        "value": 12500,
+        "rule": "break_even_sales / price",
+        "note": "reporting the break-even volume rather than the cushion"
+      }
+    ]
+  },
+  "far_transfer": {
+    "text": "A retailer reports a margin of safety of 20% and breaks even at EUR 480,000 of sales. What are its budgeted sales?",
+    "validator": "expression",
+    "expression": "break_even_sales / (1 - margin_of_safety)",
+    "params": {
+      "break_even_sales": 480000,
+      "margin_of_safety": 0.2
+    },
+    "answer": 600000,
+    "format": "EUR {:,.0f}",
+    "distractors": [
+      {
+        "value": 576000,
+        "rule": "break_even_sales * (1 + margin_of_safety)",
+        "note": "adding the margin to break-even sales, i.e. using break-even sales as the base"
+      },
+      {
+        "value": 2400000,
+        "rule": "break_even_sales / margin_of_safety",
+        "note": "dividing by the margin instead of by one minus the margin"
+      }
+    ]
+  }
+}
