@@ -113,9 +113,21 @@ both engines. What has NOT been done: the two-tier production run itself, the §
 `centaur_free_pilot2`, 3 learners x 11 episodes each) are shakedown runs, not results; note they predate
 the `concept_record` rename and so cannot be `--resume`d.
 
-Budget, measured: **~110 s per episode** on the hybrid engine. Covering all 30 units needs >= 30 episodes
-per learner, so 40 learners x 4 arms x 30 episodes is ~6 days of wall clock. Plan around that number
-before promising anything.
+Budget, measured: **~100-110 s per episode** on the hybrid engine. Covering all 30 units needs >= 30
+episodes per learner, so the decided main run is **40 learners x 4 arms x 30 episodes = 4,800 episodes,
+about 5.5 days of wall clock** (user decision 2026-09-11: keep all four arms, so the eq. 10-12 contrasts
+survive; the free-choice arm alone cannot support them, because there the protocol is chosen by the
+learner from their own state and any outcome difference confounds the condition with who selected it).
+
+    uv run python -m neurotutorsim.simulate --learners 40 --episodes 30 --tag centaur_main   # ~5.5 days
+    uv run python -m neurotutorsim.simulate --engine logistic --tutor fake --tag population_logistic  # ~16 min
+
+Before starting: both models must be loaded in LM Studio (`lms ps` should list `llama-3.1-centaur-8b` at
+8192 context and `qwen2.5-3b-instruct`). LM Studio has unloaded a model mid-run before, which stops the
+run; `--resume` with the same tag picks it up. **`--resume` must keep the same `--learners`, `--episodes`
+and seed**: `make_population` draws the strata with `rng.choice(size=n)`, so changing n redraws every
+learner (learner 0 of a 40-draw is a different person from learner 0 of a 20-draw). `simulate.py` refuses
+such a resume rather than blending two populations - you cannot start small and extend.
 
 ## Commands
 
