@@ -8,6 +8,7 @@
 | `tutor.py` | OpenAI-compatible tutor (`scaffold`, `substitute`), leakage check, `.env` loading, `FakeTutor` |
 | `episode.py` | the per-learner episode state machine for the three assigned conditions and the `free_choice` arm, proxies, `EpisodeRecord` (`condition` = the arm, `protocol` = what actually ran) |
 | `simulate.py` | CLI: config arms, run/resume loop, §7.7 checkpoints, table export, run log, §10.2 direction checks |
+| `tribe.py` | Phase II adapters, model-free: eq. 4 word timing, vertex-file I/O, parcel/network aggregation (eq. 6-7), §6.5 metrics (eq. 8-9), eq. 10-13 contrasts with cluster bootstrap, RSA (eq. 14, 34), shuffled-text controls; driven by `notebooks/tribe_phase2.ipynb` |
 
 Invariants:
 - Engines only see a `Trial`; Minitaur reads its text fields, the logistic engine its numeric fields.

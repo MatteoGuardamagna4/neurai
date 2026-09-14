@@ -14,8 +14,11 @@ implements the Phase I corpus skeleton and Phase III (synthetic learners) and no
   units**, so every concept recurs once with a different surface form and the learner's concept-level
   experience line fires on the second encounter (user decision 2026-09-11, replacing the earlier target
   of 40). `python -m neurotutorsim.corpus` validates all 30 and their 90 stimuli.
-- **TRIBE (Phase II) is the teammate's deliverable.** Deliberately nothing here computes, reads or
-  fakes a cortical prediction. The stimuli texts are the TRIBE inputs; the join key is `(unit_id, condition)`.
+- **TRIBE (Phase II) runs in `notebooks/tribe_phase2.ipynb` on Google Colab** (user request 2026-09-14,
+  replacing the earlier "teammate's deliverable" split). The simulation code still never computes, reads or
+  fakes a cortical prediction: `tribe.py` is model-free arithmetic on cached predictions, and the notebook's
+  `DRY_RUN` smoke test is quarantined under `DRYRUN_<tag>`. The stimuli texts (file body, all sections) are the
+  TRIBE inputs; the join key is `(unit_id, condition)`. See `notebooks/CLAUDE.md` for the decisions.
 - **Phases IV and V are not built.** `learner_state.parquet` already carries what they need per episode:
   `effort` (E), `pe`, `retrieval`, `offloading`, `resolution`, `unit_id`, `condition`. The support-
   persistence policy and the low/medium/high parameter arms are the §9.2-9.3 scenario knobs. Phase V
@@ -108,8 +111,11 @@ Far transfer is used only by the §7.7 checkpoints.
 ## Where this stands (2026-09-11)
 
 Phase I corpus is complete (30 units, 90 stimuli, all calipers inside 10%). Phase III runs end to end on
-both engines. What has NOT been done: the two-tier production run itself, the §7.2 low/high arms, and any
-§10.2 hybrid-vs-logistic comparison at a usable N. The pilots on disk (`centaur_free_pilot`,
+both engines. Phase II is built (2026-09-14) but **not yet run**: `notebooks/tribe_phase2.ipynb` passed its
+offline dry run and its adapter tests; the first real Colab run (needs `HF_TOKEN` with Llama-3.2 access and
+`GITHUB_TOKEN`) has not happened, so no cortical prediction exists on disk. What has NOT been done: that TRIBE
+run, the two-tier production run itself, the §7.2 low/high arms, and any §10.2 hybrid-vs-logistic comparison at
+a usable N. The pilots on disk (`centaur_free_pilot`,
 `centaur_free_pilot2`, 3 learners x 11 episodes each) are shakedown runs, not results; note they predate
 the `concept_record` rename and so cannot be `--resume`d.
 

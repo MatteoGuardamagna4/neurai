@@ -44,7 +44,7 @@ APPROACH_TEXT = {  # the free-choice arm: option `kind` is the condition the lea
 CONFIDENCE_KEYS = ("1", "2", "3", "4", "5")
 CONFIDENCE_QUESTION = "How confident are you that this answer is correct, from 1 (guessing) to 5 (certain)?"
 INSTRUCTIONS = (
-    "You are taking part in a study on learning business analytics. On each trial you read a short lesson "
+    "You are taking part in a study on learning MBA concepts. On each trial you read a short lesson "
     "and a problem, then choose one option by pressing the corresponding key. Your choices are recorded "
     "between double angle brackets. After a wrong answer you may receive a hint or a message from a tutor, "
     "and then you choose again."

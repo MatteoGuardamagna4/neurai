@@ -6,8 +6,8 @@ skeleton (one validated example unit per condition) and the full Phase III synth
 with a **hybrid response engine** - Centaur (served locally by LM Studio) makes every behavioural
 choice, the transparent logistic model decides correctness - and a local LLM tutor (Qwen2.5-3B-Instruct)
 for the two AI protocols. Each learner runs three assigned arms plus a `free_choice` arm in which it picks
-the protocol itself at every problem. TRIBE predictions (Phase II) are produced by a teammate; Phases IV and V are not built
-yet but every quantity they need is already emitted.
+the protocol itself at every problem. TRIBE predictions (Phase II) come from `notebooks/tribe_phase2.ipynb`, a
+Google Colab notebook (see below); Phases IV and V are not built yet but every quantity they need is already emitted.
 
 ## Setup
 
@@ -41,6 +41,29 @@ comparison: `episodes.jsonl` (source of truth, append-only), `responses.csv`, `l
 of any finished folder. Each scored response carries the brief's §7.3 fields: the answer, the 1-5 confidence
 rating, the `explanation` (the method behind the chosen option) and `requested_support`.
 
+## Phase II: TRIBE v2 on Colab
+
+Open `notebooks/tribe_phase2.ipynb` in Google Colab with a GPU runtime, add the Colab secrets `HF_TOKEN` (a
+Hugging Face account that has accepted the `meta-llama/Llama-3.2-3B` licence, TRIBE's gated text encoder) and
+`GITHUB_TOKEN` (to clone this private repository; or point `CORPUS_SOURCE` at a Drive copy or an uploaded zip),
+edit the configuration cell and run all. The first run installs TRIBE v2 at a pinned commit and asks for one
+runtime restart. The notebook verifies the checkpoint hash, reproduces the official example, predicts all 90
+stimuli at 220 wpm (plus 180 and 260 as robustness arms), aggregates to Schaefer-200 parcels and Yeo-7 networks,
+and writes the brief's D3 prediction dataset (`tribe_vertex/`, `tribe_parcel.parquet`, `tribe_network.parquet`,
+`tribe_metrics.parquet`, `tribe_patterns.parquet`, the §10.1 controls, `run_metadata.json`, `tribe_qc.json`) to
+`DRIVE_OUTPUT_DIR/<RUN_TAG>/` on Google Drive and offers a zip of the summary tables for download. Budget: about an
+hour on a T4. No figures are produced. `src/neurotutorsim/tribe.py` holds the arithmetic (tested offline by
+`uv run pytest tests/test_tribe.py`); the §6.6 contrasts and §6.7 RSA need no GPU and run offline on the saved
+tables:
+
+```python
+import pandas as pd
+from neurotutorsim import tribe
+metrics = pd.read_parquet("<run>/wpm220/tribe_metrics.parquet")
+table4 = tribe.fixed_effects(metrics)           # eq. 13 with cluster-bootstrap CIs; tribe.paired_contrasts for eq. 10-12
+z = pd.read_parquet("<run>/wpm220/tribe_patterns.parquet")   # rows stimulus_id, columns parcel_id: the z_uc of eq. 14
+```
+
 ## Layout
 
 | Path | Holds |
@@ -49,7 +72,8 @@ rating, the `explanation` (the method behind the chosen option) and `requested_s
 | `config/prompts/` | the scaffolding and substitution tutor policy prompts |
 | `data/units/*.json` | authored units: problem, validator, misconception, distractors, hints, transfers |
 | `stimuli/<condition>/` | the static per-condition texts (also the TRIBE inputs) |
-| `src/neurotutorsim/` | `corpus`, `learners`, `engines`, `tutor`, `episode`, `simulate` |
+| `src/neurotutorsim/` | `corpus`, `learners`, `engines`, `tutor`, `episode`, `simulate`, `tribe` |
+| `notebooks/` | `tribe_phase2.ipynb`, the Phase II Colab notebook |
 | `tests/` | offline tests; no server or API key needed |
 
 See `CLAUDE.md` files in each folder for the decisions behind the code.
