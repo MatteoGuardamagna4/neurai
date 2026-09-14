@@ -56,6 +56,11 @@ def word_events(sections: dict[str, str], timeline: str, wpm: float = WORDS_PER_
     Returns (events, sections). `events` has one `Word` row per token with the fields neuralset's
     `AddContextToWords` reads (`sentence`, `sentence_char`, both exact by construction) and one `Text`
     row per section with its verbatim text; `sections` has each section's onset, offset and token count.
+
+    `sentence` keeps a trailing space, as spaCy's `Span.text_with_ws` does in the official pipeline
+    (`TextWordMatcher._finalize`). `AddContextToWords` appends the rest of the previous sentence when a new one
+    starts, so without it every sentence boundary in the encoder's context is glued ("together.Winning"), which
+    changes how Llama tokenizes, and therefore embeds, the first word of every sentence.
     """
     rows, secs, j, seq = [], [], 0, 0
     base = {"timeline": timeline, "subject": subject, "language": "english", "modality": "read"}
@@ -67,7 +72,8 @@ def word_events(sections: dict[str, str], timeline: str, wpm: float = WORDS_PER_
             for token in sentence.split(" "):
                 char = sentence.index(token, pos)
                 rows.append({"type": "Word", "start": 60.0 * j / wpm, "duration": 60.0 / wpm, "text": token,
-                             "sentence": sentence, "sentence_char": char, "sequence_id": seq, "section": name, **base})
+                             "sentence": sentence + " ", "sentence_char": char, "sequence_id": seq, "section": name,
+                             **base})
                 pos = char + len(token)
                 j += 1
             seq += 1

@@ -19,6 +19,9 @@ def test_word_events_follow_eq4():
     for w in words.itertuples():  # sentence_char is exact: the token sits at that offset of its sentence
         char = int(w.sentence_char)  # float column: Text rows have no sentence_char, as in the official pipeline
         assert w.sentence[char: char + len(w.text)] == w.text
+    # spaCy's text_with_ws keeps the trailing space; AddContextToWords needs it to separate sentences in the context
+    assert words.sentence.str.endswith(" ").all() and not words.sentence.str.endswith("  ").any()
+    assert words.sentence.iloc[0] == "One two. " and words.sentence.iloc[3] == "four = five "
     assert words.sequence_id.tolist() == [0, 0, 1, 2, 2, 2, 3]
     assert words.section.tolist() == ["Explanation"] * 6 + ["Problem"]
     assert (words.timeline == "s1").all() and (words.modality == "read").all() and (words.language == "english").all()

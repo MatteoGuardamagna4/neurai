@@ -16,6 +16,15 @@ Decisions baked in:
 - **Timing is eq. 4 on whitespace tokens** at 220 wpm, with 180 and 260 as robustness arms; each arm is a
   `wpm<r>/` folder. Contexts come from the official `AddContextToWords` transform, so the encoder input matches
   the released pipeline except for the word timestamps, which are deterministic instead of TTS + WhisperX.
+  `sentence` must keep a trailing space, mirroring spaCy's `text_with_ws` in `TextWordMatcher`: without it every
+  sentence boundary in the context is glued ("together.Winning") and Llama embeds sentence-initial words wrongly.
+  This was a real bug, fixed 2026-09-14; the notebook refuses to run against a repository that predates it.
+- **What reaches the model, verified 2026-09-14 with neuralset 0.0.2 on all 90 files x 3 speeds**: every body word,
+  in order (53,284); none lost to `RemoveMissing`, to the 100 s windows (the partial last window is kept) or to the
+  2 Hz text bins (neuralset gives any overlapping word at least one bin); output rows = ceil(duration); the last
+  word's context is the entire file (longest 689 words, cap 1024). Excluded on purpose: the front matter (it names
+  the condition) and the `# Section` heading lines ("Diagnostic questions" exists only in scaffolding, and the
+  Phase I duration caliper was computed without headings).
 - **Text only, no TTS audio.** The model was trained with modality dropout 0.3, so an absent modality is
   in-distribution; the optional audio arm of §5.2 item 10 is not built.
 - **Released configuration untouched** except batch size, worker count and the text encoder's precision (fp16
