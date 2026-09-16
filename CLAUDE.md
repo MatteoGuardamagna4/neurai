@@ -23,6 +23,15 @@ implements the Phase I corpus skeleton and Phase III (synthetic learners) and no
   `effort` (E), `pe`, `retrieval`, `offloading`, `resolution`, `unit_id`, `condition`. The support-
   persistence policy and the low/medium/high parameter arms are the §9.2-9.3 scenario knobs. Phase V
   curriculum resampling is a TODO in `simulate.py`.
+- **Phase V scenarios (user decision 2026-09-16): five, not the brief's five.** traditional; scaffolding
+  rapid fade (`immediate_withdrawal`); scaffolding no fade (`persistent`); substitution (`persistent`);
+  `free_choice` (logistic softmax-in-D approach rule, labelled as an assumption). Gradual fade is dropped as a
+  named scenario; `fade_base` is still swept on the §9.6 frontier. Phase V adds no new units: it reuses the
+  30 units and their TRIBE patterns with difficulty rising over the years.
+- **Phase IV-V design (user decisions 2026-09-16) lives in `PLAN.md` §2-3:** soft limits on M, R, D in Phase V
+  only (Phase III keeps eq. 22/23/25 so `centaur_main` stays consistent), forgetting per calendar week with 12
+  break weeks at 1/4 of the term rate, two frontier diagrams (behavioural G, neural), headline outcomes, eq. 42 with
+  a unit random intercept, shuffled TRIBE controls for all 30 units. Deadline 2026-09-25 (code and results).
 - **One learner, four arms.** The population is drawn once and every learner runs the three assigned
   conditions plus `free_choice` from the same initial state, the same curriculum order and common random
   numbers (`[master, learner_id, episode]`), so the eq. 10-12 contrasts are within-learner. In
@@ -109,6 +118,10 @@ lifetime totals, recent form, topic experience and, in `free_choice`, what it pi
 Far transfer is used only by the §7.7 checkpoints.
 
 ## Where this stands (2026-09-11)
+
+**Update 2026-09-16:** `centaur_main` stopped on an LM Studio timeout at 2,359 / 4,800 episodes and is not running;
+no logistic production run and no TRIBE run exist yet. `PLAN.md` holds the day-by-day plan to 2026-09-25 (resume
+command, TRIBE procedure, Phase IV-V modules, analysis outputs).
 
 Phase I corpus is complete (30 units, 90 stimuli, all calipers inside 10%). Phase III runs end to end on
 both engines. Phase II is built (2026-09-14) but **not yet run**: `notebooks/tribe_phase2.ipynb` passed its

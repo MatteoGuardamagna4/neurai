@@ -37,8 +37,10 @@ Decisions baked in:
   briefly trying the runtime disk): predictions are written straight to Drive as they are produced, so a dropped
   session costs only the stimuli it had not reached. `SAVE_TO_DRIVE = False` puts them on the runtime disk at
   `/content/tribe_outputs/<tag>/`, where a disconnect loses the whole run and the notebook says so loudly.
-- **Two disk budgets, checked separately.** Drive holds only outputs, ~5.7 GB for three reading speeds against a
-  15 GB free tier shared with Gmail and Photos. The runtime disk holds the scratch that must never touch Drive:
+- **Two disk budgets, checked separately.** Drive holds only outputs, ~5.7 GB for three reading speeds plus ~3.4 GB
+  for the shuffled controls against a 15 GB free tier shared with Gmail and Photos. Shuffled controls cover **all 30
+  units** (`N_CONTROL_UNITS = 30`, user decision 2026-09-16): 180 extra stimuli at the main speed, whose new
+  contexts add ~26 GB of feature cache on the runtime disk and roughly 1.5-2 h on a T4. The runtime disk holds the scratch that must never touch Drive:
   ~13.1 GB of Llama text features (53k words x 20 cached layers x 3072 dims x 4 B, cast to float32), ~7.2 GB of
   weights, and any download bundles. The cache key excludes the reading speed, so all three arms share it and the
   180 / 260 wpm arms cost only the encoder pass. The preflight groups every need by filesystem (`st_dev`), prints

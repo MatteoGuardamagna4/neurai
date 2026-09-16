@@ -53,7 +53,8 @@ and writes the brief's D3 prediction dataset (`tribe_vertex/`, `tribe_parcel.par
 `tribe_metrics.parquet`, `tribe_patterns.parquet`, the §10.1 controls, `run_metadata.json`, `tribe_qc.json`) to
 `DRIVE_OUTPUT_DIR/<RUN_TAG>/` on Google Drive as they are produced, so a dropped session resumes instead of
 restarting. Budget about an hour on a T4, ~5.7 GB of Drive for three reading speeds, and ~20 GB of the runtime's own
-disk for the feature cache and weights, which never touch Drive. The notebook checks both before it starts. With
+disk for the feature cache and weights, which never touch Drive; the shuffled controls for all 30 units add roughly
+1.5-2 h, ~3.4 GB of Drive and ~26 GB of runtime disk. The notebook checks both before it starts. With
 `SAVE_TO_DRIVE = False` everything goes to the runtime disk and is lost when the session ends, and the notebook
 then bundles the outputs into browser-sized zips instead. No figures are produced. `src/neurotutorsim/tribe.py` holds the arithmetic (tested offline by
 `uv run pytest tests/test_tribe.py`); the §6.6 contrasts and §6.7 RSA need no GPU and run offline on the saved
