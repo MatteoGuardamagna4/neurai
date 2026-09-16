@@ -46,6 +46,7 @@ Measured today, and used below:
 | D9 | New dependencies allowed: `matplotlib`, `statsmodels`. |
 | D10 | Claude may commit and push to `main` for this work. |
 | D11 | TRIBE runs on a Colab **L4** in one session, text encoder pinned to **fp16** (faster there; the determinism check's second encoder copy fits in 24 GB; same precision as a T4 fallback). The notebook stops on another GPU and refuses to mix precisions under one tag. |
+| D12 | Parcellation is **Schaefer-400** / 7 networks (was 200), to match the classmate's video notebook `01_tribe_video.ipynb`; parcel ids are identical there (left 1-200, right 201-400). |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -59,7 +60,7 @@ Every number here is an assumption in the sense of brief §7.2 and gets that lab
 | A4 | Neural state half-life | 20 weeks | Drawn from {52, 20, 8}; neural diagram 4-104 |
 | A5 | Eq. 33 weights | λ_A = λ_PE = λ_R = 1/3; λ_O = 1/3 | λ_O drawn from {0, 1/3, 2/3}; diagram 0-1 |
 | A6 | Plasticity rate η | 1.0: N is in arbitrary units and d (eq. 44) is scale-free, so η is a pure scale | Only η = 0 matters (zero-plasticity control) |
-| A7 | Winsorising of Z (§8.2) | Global 1st/99th percentiles of the 90 × 200 Z matrix | Unwinsorised in the spec curve |
+| A7 | Winsorising of Z (§8.2) | Global 1st/99th percentiles of the 90 × 400 Z matrix | Unwinsorised in the spec curve |
 | A8 | G weights and neutral band (§9.6) | 0.25 each; ε = 0.02 on the [0, 1] state scale | ε ∈ {0.01, 0.05} on the phase diagram |
 | A9 | Stakeholder weights | learning-first K .4 R .3 M .2 D .1; autonomy-first K .2 R .3 M .1 D .4 | Spec curve |
 | A10 | Frontier axes → knobs | e: answer-provided effort penalty `a4 × (1 − e)`; a: `support.adaptation` of both AI protocols; o: probability that an AI episode runs substitution instead of scaffolding; f: `gradual_fading` with `fade_base = 1 − f` | They are the axes |
@@ -152,14 +153,14 @@ summary prints `ok` for prior-knowledge monotonicity and support gap; a `run_*.j
    `text_encoder.json` refuses a session with a different precision. On a T4 fallback, set `EXPECTED_GPU = "T4"`
    and keep `TEXT_PRECISION = "fp16"`.
 8. Copy to the laptop, into `data/processed/tribe/tribe_main/` (gitignored), from Drive
-   `MyDrive/neurotutorsim/tribe/tribe_main/`: `run_metadata.json`, `tribe_qc.json`, `parcels_schaefer200.csv`,
+   `MyDrive/neurotutorsim/tribe/tribe_main/`: `run_metadata.json`, `tribe_qc.json`, `parcels_schaefer400.csv`,
    `controls/tribe_controls_shuffled.csv`, and for each `wpm*/`: `tribe_metrics.parquet`,
    `tribe_patterns.parquet`, `tribe_metrics_network.csv`. Skip `tribe_vertex/` and `tribe_parcel.parquet`
    (~1.7 GB per speed; not needed offline).
 
 **Done when** `tribe_qc.json` shows: `official_demo.reproduced = true`; empty `wpm220_inference_issues`,
 `wpm180_...`, `wpm260_...`; `controls.determinism.within_1e-3 = true`; empty `controls.shuffled_inference_issues`;
-and `tribe_metrics.parquet` (220) has 18,000 rows with `level == "parcel"` and `metric == "auc"` (90 × 200).
+and `tribe_metrics.parquet` (220) has 36,000 rows with `level == "parcel"` and `metric == "auc"` (90 × 400).
 **Needed by Fri 18 evening.** Durations on the L4 are not measured yet: note the per-group seconds the notebook
 prints in the first minutes to estimate the total.
 
@@ -278,18 +279,18 @@ units, permuted conditions, unit bootstrap) are **post hoc**, with no rerun. Onl
 accumulator.
 
 **Functions (exact):**
-- `load_z(tribe_dir, wpm, metric, winsorize) -> (Z (90, 200) float64, keys [(unit_id, condition)], parcel_ids)`:
+- `load_z(tribe_dir, wpm, metric, winsorize) -> (Z (90, 400) float64, keys [(unit_id, condition)], parcel_ids)`:
   eq. 28 per parcel over the 90 stimuli (ddof = 1), then clip at the global percentiles. Keys are sorted by
   `unit_id` × `corpus.CONDITIONS`.
-- `load_networks(tribe_dir, weights) -> (W (7, 200) row-normalised, network names)`, i.e. eq. 7.
+- `load_networks(tribe_dir, weights) -> (W (7, 400) row-normalised, network names)`, i.e. eq. 7.
 - `stimulus_index(unit_ids, protocols) -> int array` = unit position × 3 + condition position.
 - `class Accumulator(n_learners, dtype=float32)`: `step(k, values (n, 5), decay)` does lazy decay (one global
   scale, `acc[rows, :, k] += values / scale`); `apply_decay(factor)`; `renormalise()` once per school year;
   `values() -> (n, 5, 90)`.
-- `mechanism_weights(name, cfg) -> (5,)`; `neural_state(values, w, Z) -> (n, 200)`; `network_state(N, W) -> (n, 7)`.
+- `mechanism_weights(name, cfg) -> (5,)`; `neural_state(values, w, Z) -> (n, 400)`; `network_state(N, W) -> (n, 7)`.
 - §8.7 metrics:
-  - `concentration(N)`: share of Σ|N_p| held by the top quartile of parcels (50 of 200).
-  - `differentiation(values, w, Z, unit_ids, concepts)`: builds per-unit state patterns (n, 30, 200), then eq. 34
+  - `concentration(N)`: share of Σ|N_p| held by the top quartile of parcels (100 of 400).
+  - `differentiation(values, w, Z, unit_ids, concepts)`: builds per-unit state patterns (n, 30, 400), then eq. 34
     per learner via `tribe.differentiation`. Run on a subsample only.
   - `integration(sum_x, sum_xx, count)`: mean |covariance| over the 21 network pairs, from per-year running sums.
   - `efficiency(unaided, N_cont)`: NaN unless unaided > 0.40 (A14).
@@ -407,7 +408,7 @@ changed config (same rule as `simulate.py`):
 | `episodes_central.parquet` | draw −1, year 1: learner × scenario × episode | §11.3 model (first_correct, transfer, help, reveal, E, protocol, unit, difficulty, stratum, K, D, far accuracy) |
 | `mean_accumulator_diff.npz` | draw × scenario × year {1, 5, 10}: mean ΔA (5 × 90) | exact post hoc neural contrasts for any Z (spec curve, Z controls) |
 | `accumulators_subsample.npz` | draws ≤ 20 × learners ≤ 200 × scenario × year {1, 5, 10} × 5 × 90 | post hoc d / PrSup for alternative Z |
-| `neural_state.parquet` | draws {−1, 0} × learners ≤ 100 × year {1, 5, 10} × 200 parcels × A-D | brief §4.2 schema |
+| `neural_state.parquet` | draws {−1, 0} × learners ≤ 100 × year {1, 5, 10} × 400 parcels × A-D | brief §4.2 schema |
 
 **CLI:**
 
@@ -613,7 +614,7 @@ Labels follow §15: "predicted cortical response", "simulated learner", "model-i
 | Table 2 | Model components: inputs, outputs, assumptions, validation tests | dict in `report.py` |
 | Table 3 | Every parameter: low / medium / high, distribution, "assumption" or source label | config |
 | Fig. 3 (§11.2) | 7 network panels: AUC per condition, paired unit lines, mean ± 95% bootstrap CI | `tribe_metrics.parquet` |
-| Table 4 (§11.2) | `tribe.fixed_effects` at network level (S−T, U−T, S−U) for auc (primary), mean, peak, time_to_peak, sustained + stimulus-level entropy, dispersion, integration; BH-FDR over the 7 networks per metric × contrast. Eq. 42 with statsmodels MixedLM (D8): `auc ~ C(condition) + difficulty + C(domain) + C(network or parcel_id)`, groups = unit_id, at network (primary) and parcel level. Parcel map as a network-grouped strip plot with FDR over 200 × 3 (no brain-surface plot: no new dependency) | same |
+| Table 4 (§11.2) | `tribe.fixed_effects` at network level (S−T, U−T, S−U) for auc (primary), mean, peak, time_to_peak, sustained + stimulus-level entropy, dispersion, integration; BH-FDR over the 7 networks per metric × contrast. Eq. 42 with statsmodels MixedLM (D8): `auc ~ C(condition) + difficulty + C(domain) + C(network or parcel_id)`, groups = unit_id, at network (primary) and parcel level. Parcel map as a network-grouped strip plot with FDR over 400 × 3 (no brain-surface plot: no new dependency) | same |
 | Fig. 4 (§6.7) | Three 30 × 30 RDMs (units ordered by concept) + `tribe.rsa` table + `tribe.differentiation` per condition | `tribe_patterns.parquet` |
 | Fig. 5 (§11.3) | Year-1 weekly K, far accuracy and D per scenario, mean with a 90% band across draws; supplementary 10-year version. Model: `BinomialBayesMixedGLM` of first-try correctness ~ `bs(t, df=5):C(scenario) + C(scenario) + stratum + C(domain) + difficulty`, learner random intercept, 500 learners of draw −1; GEE fallback if the fit takes > 20 min | `weekly_means`, `episodes_central` |
 | Fig. 6 | Learner-level year-10 paired differences per AI scenario × headline outcome (histograms), with median and 90 / 95% intervals across draws; years 1 and 5 as small multiples | `contrast_hist`, `simulation_draws` |

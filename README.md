@@ -49,7 +49,7 @@ Hugging Face account that has accepted the `meta-llama/Llama-3.2-3B` licence, TR
 `GITHUB_TOKEN` (to clone this private repository; or point `CORPUS_SOURCE` at a Drive copy or an uploaded zip),
 edit the configuration cell and run all. The first run installs TRIBE v2 at a pinned commit and asks for one
 runtime restart. The notebook verifies the checkpoint hash, reproduces the official example, predicts all 90
-stimuli at 220 wpm (plus 180 and 260 as robustness arms), aggregates to Schaefer-200 parcels and Yeo-7 networks,
+stimuli at 220 wpm (plus 180 and 260 as robustness arms), aggregates to Schaefer-400 parcels and Yeo-7 networks,
 and writes the brief's D3 prediction dataset (`tribe_vertex/`, `tribe_parcel.parquet`, `tribe_network.parquet`,
 `tribe_metrics.parquet`, `tribe_patterns.parquet`, the §10.1 controls, `run_metadata.json`, `tribe_qc.json`) to
 `DRIVE_OUTPUT_DIR/<RUN_TAG>/` on Google Drive as they are produced, so a dropped session resumes instead of

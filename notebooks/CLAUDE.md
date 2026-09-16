@@ -33,7 +33,7 @@ Decisions baked in:
   a T4 fallback uses the same precision. `EXPECTED_GPU = "L4"` stops the notebook on any other GPU, and
   `text_encoder.json`, written by a tag's first session, refuses a later session with a different precision. `cache_n_layers` stays 20 because changing it changes
   the features the model was trained on; the feature cache is ~13 GB and lives on the runtime disk, not Drive.
-- **Schaefer-200 / 7 networks on fsaverage5** from the CBIG repository at a pinned commit; area weights from
+- **Schaefer-400 / 7 networks on fsaverage5** (user decision 2026-09-16, was 200: matches the video notebook) from the CBIG repository at a pinned commit; area weights from
   nilearn's fsaverage5 area maps (eq. 7 main), equal weights as robustness (`level == "network_equal"`).
 - **Append-only and resumable**: predictions are one file per stimulus; rerunning a tag skips what exists. That
   only helps when the outputs persist, hence `SAVE_TO_DRIVE = True` by default (user decision 2026-09-14, after
@@ -50,7 +50,7 @@ Decisions baked in:
   each, and refuses to start when one is short; `SKIP_DISK_CHECK` is the escape hatch if a mount misreports.
 - **Zips are staged on the runtime disk, never on Drive**, and `MAKE_ZIPS = "auto"` skips them entirely when the
   outputs already live on Drive: bundling there would just duplicate the files against the quota.
-- **Memory is not the constraint**: peak RAM stays near 2 GB because the 2.9 M-row parcel table is streamed to
+- **Memory is not the constraint**: peak RAM stays near 2 GB because the 5.8 M-row parcel table is streamed to
   parquet one stimulus at a time (`pq.ParquetWriter`) instead of being concatenated, and only the small metric
   table is kept per arm.
 - `DRY_RUN = True` replaces the model with seeded noise to exercise the pipeline offline; outputs are quarantined
