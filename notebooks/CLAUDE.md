@@ -25,6 +25,12 @@ Decisions baked in:
   word's context is the entire file (longest 689 words, cap 1024). Excluded on purpose: the front matter (it names
   the condition) and the `# Section` heading lines ("Diagnostic questions" exists only in scaffolding, and the
   Phase I duration caliper was computed without headings).
+- **Two Colab traps hit on the first real run (2026-09-16).** (1) The egress proxy makes NLTK refuse downloads (its
+  SSRF guard), so WhisperX alignment died fetching `punkt_tab`; the demo cell installs it into `~/nltk_data` from a
+  pinned, checksummed nltk_data commit rather than setting `NLTK_ALLOW_PROXIED_URLOPEN`. (2) tribev2's `torch<2.7`
+  downgrades torch but not Colab's torchaudio, which `transformers` imports with the Llama encoder and which then fails
+  (`undefined symbol: aoti_torch_abi_version`); the install cell pins `torchaudio<2.7` and the environment cell stops
+  on any torch/torchaudio version mismatch.
 - **Text only, no TTS audio.** The model was trained with modality dropout 0.3, so an absent modality is
   in-distribution; the optional audio arm of §5.2 item 10 is not built.
 - **Released configuration untouched** except batch size, worker count and the text encoder's precision, recorded
