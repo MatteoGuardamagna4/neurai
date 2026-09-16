@@ -45,6 +45,7 @@ Measured today, and used below:
 | D8 | Eq. 42 is estimated with a **unit random intercept** (difficulty and domain are constant within a unit); the paired fixed-effects bootstrap is the robustness check. |
 | D9 | New dependencies allowed: `matplotlib`, `statsmodels`. |
 | D10 | Claude may commit and push to `main` for this work. |
+| D11 | TRIBE runs on a Colab **L4** in one session, text encoder pinned to **fp16** (faster there; the determinism check's second encoder copy fits in 24 GB; same precision as a T4 fallback). The notebook stops on another GPU and refuses to mix precisions under one tag. |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -77,8 +78,8 @@ Every number here is an assumption in the sense of brief §7.2 and gets that lab
 
 | Day | You | Claude | Laptop | Colab |
 |---|---|---|---|---|
-| **Wed 16** | S2 session 1; S3 start after S1 | S0 (today), S1 | S1 (~1 h), then Centaur | TRIBE 220 wpm + controls |
-| Thu 17 | Check Centaur morning + evening | S4, S5 | Centaur | TRIBE 180 / 260 wpm |
+| **Wed 16** | S2 (one L4 session); S3 start after S1 | S0 (today), S1 | S1 (~1 h), then Centaur | TRIBE: all speeds + controls |
+| Thu 17 | Check Centaur morning + evening | S4, S5 | Centaur | Only if S2 did not finish |
 | Fri 18 | Check Centaur; copy TRIBE outputs to the laptop (S2.8) | S5 finish, S6 | Centaur | — |
 | Sat 19 | Check Centaur | S6 + benchmark | Centaur (expected end: Sat evening) | — |
 | Sun 20 | Review the gate-18 table (15 min) | S7, S8 | Phase V pilot | — |
@@ -132,19 +133,24 @@ uv run python -m neurotutorsim.simulate --engine logistic --tutor fake --setting
 **Done when:** `episodes.jsonl` has 4,800 lines (`logistic_40`) and 266,720 lines (each population run); each
 summary prints `ok` for prior-knowledge monotonicity and support gap; a `run_*.json` exists per tag.
 
-### S2. TRIBE v2 on Colab (you · run · start today · ~3-4 h GPU over 1-2 sessions)
+### S2. TRIBE v2 on Colab (you · run · start today · one session on an L4, paid compute units)
 
 1. Colab → File → Open notebook → GitHub → `MatteoGuardamagna4/neurai` → `notebooks/tribe_phase2.ipynb`.
-2. Runtime → Change runtime type → **T4 GPU**.
+2. Runtime → Change runtime type → **L4 GPU** (D11). Standard RAM is enough (the run peaks near 2 GB).
 3. Secrets (key icon), notebook access on: `HF_TOKEN` (the account must have accepted the
    `meta-llama/Llama-3.2-3B` licence on Hugging Face) and `GITHUB_TOKEN` (read access to `neurai`).
-4. **Session 1** configuration cell: `RUN_TAG = "tribe_main"`, `DRY_RUN = False`, `READING_SPEEDS = [220]`.
-   Leave everything else (controls are already 30 units).
+4. Configuration cell: check `RUN_TAG = "tribe_main"` and `DRY_RUN = False`. Everything else is already set for
+   the L4: `READING_SPEEDS = [220, 180, 260]`, `TEXT_PRECISION = "fp16"`, `EXPECTED_GPU = "L4"`,
+   `N_CONTROL_UNITS = 30`.
 5. Runtime → Run all. It installs TRIBE and stops asking for a restart: Runtime → Restart session → Run all.
-6. Watch for: `"reproduced": true` (official demo, gate 17); the disk table with no shortfall; 90 stimuli, then
-   180 controls.
-7. **Session 2** (same or next day): `READING_SPEEDS = [220, 180, 260]` → Run all. 220 wpm and the controls are
-   skipped; text features are re-extracted once for the other two speeds (~40-60 min).
+6. Watch for:
+   - the environment cell printing an `NVIDIA L4` GPU (any other GPU stops the notebook);
+   - `"reproduced": true` (official demo, gate 17);
+   - the disk table with no shortfall;
+   - the 220, 180 and 260 wpm arms (90 stimuli each), then 180 controls.
+7. If the session drops, reconnect to an **L4** and Run all with the same tag: finished stimuli are skipped, and
+   `text_encoder.json` refuses a session with a different precision. On a T4 fallback, set `EXPECTED_GPU = "T4"`
+   and keep `TEXT_PRECISION = "fp16"`.
 8. Copy to the laptop, into `data/processed/tribe/tribe_main/` (gitignored), from Drive
    `MyDrive/neurotutorsim/tribe/tribe_main/`: `run_metadata.json`, `tribe_qc.json`, `parcels_schaefer200.csv`,
    `controls/tribe_controls_shuffled.csv`, and for each `wpm*/`: `tribe_metrics.parquet`,
@@ -154,8 +160,8 @@ summary prints `ok` for prior-knowledge monotonicity and support gap; a `run_*.j
 **Done when** `tribe_qc.json` shows: `official_demo.reproduced = true`; empty `wpm220_inference_issues`,
 `wpm180_...`, `wpm260_...`; `controls.determinism.within_1e-3 = true`; empty `controls.shuffled_inference_issues`;
 and `tribe_metrics.parquet` (220) has 18,000 rows with `level == "parcel"` and `metric == "auc"` (90 × 200).
-**Needed by Fri 18 evening.** If the free GPU quota runs out, rerun later with the same tag (resumable); the
-paid fallback is Colab Pay As You Go.
+**Needed by Fri 18 evening.** Durations on the L4 are not measured yet: note the per-group seconds the notebook
+prints in the first minutes to estimate the total.
 
 ### S3. Resume `centaur_main` (you · run · after S1 · ~2.5 days · check twice a day)
 
@@ -670,6 +676,7 @@ and `outputs/figures` with no manual step.
 ## 8. Log (append as we go)
 
 - 2026-09-16: plan written; notebook controls set to 30 units; decisions D1-D10 recorded.
+- 2026-09-16: notebook set up for an L4 (D11): fp16 pinned, `EXPECTED_GPU` guard, `text_encoder.json` precision lock.
 
 ## 9. Not blocking now; decide by S15
 

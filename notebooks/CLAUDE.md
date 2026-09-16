@@ -27,8 +27,11 @@ Decisions baked in:
   Phase I duration caliper was computed without headings).
 - **Text only, no TTS audio.** The model was trained with modality dropout 0.3, so an absent modality is
   in-distribution; the optional audio arm of §5.2 item 10 is not built.
-- **Released configuration untouched** except batch size, worker count and the text encoder's precision (fp16
-  on GPUs under 20 GB, recorded in `run_metadata.json`). `cache_n_layers` stays 20 because changing it changes
+- **Released configuration untouched** except batch size, worker count and the text encoder's precision, recorded
+  in `run_metadata.json`. **The run is on an L4 with `TEXT_PRECISION = "fp16"` pinned** (user decision 2026-09-16):
+  faster than fp32 there, the determinism check's second encoder copy fits in 24 GB (two fp32 copies may not), and
+  a T4 fallback uses the same precision. `EXPECTED_GPU = "L4"` stops the notebook on any other GPU, and
+  `text_encoder.json`, written by a tag's first session, refuses a later session with a different precision. `cache_n_layers` stays 20 because changing it changes
   the features the model was trained on; the feature cache is ~13 GB and lives on the runtime disk, not Drive.
 - **Schaefer-200 / 7 networks on fsaverage5** from the CBIG repository at a pinned commit; area weights from
   nilearn's fsaverage5 area maps (eq. 7 main), equal weights as robustness (`level == "network_equal"`).

@@ -43,7 +43,8 @@ rating, the `explanation` (the method behind the chosen option) and `requested_s
 
 ## Phase II: TRIBE v2 on Colab
 
-Open `notebooks/tribe_phase2.ipynb` in Google Colab with a GPU runtime, add the Colab secrets `HF_TOKEN` (a
+Open `notebooks/tribe_phase2.ipynb` in Google Colab with an L4 GPU runtime (the configured `EXPECTED_GPU`; a T4
+works with `EXPECTED_GPU = "T4"` over two sessions), add the Colab secrets `HF_TOKEN` (a
 Hugging Face account that has accepted the `meta-llama/Llama-3.2-3B` licence, TRIBE's gated text encoder) and
 `GITHUB_TOKEN` (to clone this private repository; or point `CORPUS_SOURCE` at a Drive copy or an uploaded zip),
 edit the configuration cell and run all. The first run installs TRIBE v2 at a pinned commit and asks for one
