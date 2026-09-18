@@ -237,3 +237,60 @@ def test_cli_writes_parts_resumes_and_refuses_a_changed_design(tmp_path, units):
     assert LG.main(base + ["--tag", "z", "--draws", "1", "--zero-plasticity", "--scenarios", "traditional", "substitution"]) == 0
     neural = LG.read_table(tmp_path / "data" / "processed" / "phase5" / "z", "neural_contrasts")
     assert len(neural) and (neural["mean"] == 0).all()
+
+
+def test_mediation_and_per_scenario_comparators(cfg, units, root):
+    scen = [LG.Scenario("traditional", "traditional"), LG.Scenario("substitution", "ai_substitution"),
+            LG.Scenario("free_choice", "free_choice"),
+            LG.Scenario("traditional|hold_E", "traditional", mediate="E"),
+            LG.Scenario("traditional|hold_D", "traditional", mediate="D"),
+            LG.Scenario("substitution|hold_D", "ai_substitution", mediate="D"),
+            LG.Scenario("substitution|hold_F", "ai_substitution", mediate="F"),
+            LG.Scenario("free_choice|hold_D", "free_choice", mediate="D"),
+            LG.Scenario("traditional_x2", "traditional", forget_scale=2.0),
+            LG.Scenario("traditional_x2_copy", "traditional", forget_scale=2.0, comparator="traditional_x2")]
+    res = LG.run_draw(build(cfg, units, root, scen), 0, cfg, 80, 1, 1, {}, subsample=5)
+    c = contrasts_of(res)
+    est = c.set_index(["scenario", "outcome"])["estimate"]
+    for held in ("traditional|hold_E", "traditional|hold_D", "traditional_x2_copy"):
+        assert (c[c["scenario"] == held]["estimate"] == 0).all(), held  # held at its own value / its own twin
+    # substitution never asks for help and never chooses, so holding D there changes nothing ...
+    assert (c[c["scenario"] == "substitution|hold_D"].set_index("outcome")["estimate"]
+            == c[c["scenario"] == "substitution"].set_index("outcome")["estimate"]).all()
+    # ... while holding D in free choice changes the approach picks, and holding F changes the K update
+    assert est[("free_choice|hold_D", "K")] != est[("free_choice", "K")]
+    assert est[("substitution|hold_F", "K")] != est[("substitution", "K")]
+    retention = levels_of(res).query("outcome == 'retention'").set_index("scenario")["estimate"]
+    assert retention["traditional_x2"] < retention["traditional"], "double forgetting lowers retention"
+
+
+def test_frontier_designs_and_the_neural_diagram(cfg, units, root):
+    grid, knobs, extra = LG.frontier_scenarios("grid")
+    assert len(grid) == 1 + 7 * 7 * 3 and len(knobs) == 147 and extra == {}
+    lines, knobs, _ = LG.frontier_scenarios("lines")
+    assert sum(k["line"] == "forget" for k in knobs.values()) == 11 and sum(k["line"] == "e" for k in knobs.values()) == 11
+    by_name = {s.name: s for s in lines}
+    assert by_name["line_forget_0.2500"].comparator == "traditional_forget_0.2500"
+    assert by_name["line_f_0.00"].fade_base == 1.0, "f = 0 is the no-fade point"
+    scen, _, extra = LG.frontier_scenarios("neural")
+    assert [s.name for s in scen] == ["traditional", "substitution"] and extra["half_lives"] == LG.NEURAL_HALF_LIVES
+    lam = cfg["plasticity"]["lambda_O"]
+    res = LG.run_draw(build(cfg, units, root, scen), 0, cfg, 60, 1, 1, {}, subsample=5,
+                      half_lives=(cfg["plasticity"]["half_life_weeks"], 8), lambda_o_grid=(lam, 1.0))
+    nd = res["neural_diagram"]
+    assert len(nd) == 2 * 2 * 7  # half-lives x lambda_O x networks, one AI scenario, one year
+    same = nd[(nd["half_life_weeks"] == cfg["plasticity"]["half_life_weeks"]) & (nd["lambda_O"] == lam)].set_index("network")["mean"]
+    main = res["neural_contrasts"].query("mechanism == 'D'").set_index("network")["mean"]
+    assert np.allclose(same.reindex(main.index), main, rtol=0, atol=1e-12), "the diagram reproduces the main mechanism-D contrast"
+
+
+def test_cli_mediation_records_the_design(tmp_path, units):
+    for folder in ("config", "data/units", "stimuli"):
+        shutil.copytree(ROOT / folder, tmp_path / folder)
+    write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    args = ["--config", str(tmp_path / "config" / "default.yaml"), "--years", "1", "--learners", "20", "--draws", "1",
+            "--tag", "m", "--mediate", "E,F,D", "--no-neural"]
+    assert LG.main(args) == 0
+    meta = json.loads((tmp_path / "data" / "processed" / "phase5" / "m" / "run.json").read_text())
+    assert len(meta["scenarios"]) == 5 + 4 * 3 and len(meta["scenario_knobs"]) == 12 and meta["neural"] is False
+    assert LG.main(args[:-5] + ["--tag", "m", "--mediate", "E", "--no-neural", "--resume"]) == 2, "the design may not change"

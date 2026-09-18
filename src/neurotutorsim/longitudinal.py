@@ -98,7 +98,10 @@ class Scenario:
     """A protocol under a support policy, plus the §9.6 frontier knobs (A10): `adaptation` overrides
     `support.adaptation` of both AI protocols (a); `effort_retained` scales the answer-provided effort
     penalty to a4 (1 - e); `substitution_prob` is the chance an AI episode runs substitution instead of
-    scaffolding (o); `fade_base` sets gradual fading (f = 1 - fade_base)."""
+    scaffolding (o); `fade_base` sets gradual fading (f = 1 - fade_base). `forget_scale` multiplies every
+    forgetting rate (the §9.7 forgetting line, applied to both arms of a pair); `comparator` names the scenario
+    this one is contrasted with (default: phase5.comparator); `mediate` holds one mediator at the comparator's
+    value for the same learner and episode (§11.5): "E" or "F" in the K update, "D" in the decision rules."""
     name: str
     protocol: str
     policy: str = "persistent"
@@ -106,12 +109,17 @@ class Scenario:
     effort_retained: float = 0.0
     substitution_prob: float = 0.0
     fade_base: float | None = None
+    forget_scale: float = 1.0
+    comparator: str | None = None
+    mediate: str | None = None
 
     def __post_init__(self):
         if self.protocol not in CONDITIONS and self.protocol != FREE:
             raise ValueError(f"unknown protocol {self.protocol!r}")
         if self.policy not in POLICIES:
             raise ValueError(f"unknown policy {self.policy!r}")
+        if self.mediate not in (None, "E", "F", "D"):
+            raise ValueError(f"unknown mediator {self.mediate!r}: use E, F or D")
 
 
 def scenarios_from_config(p5: dict, names=None) -> list[Scenario]:
@@ -123,6 +131,62 @@ def scenarios_from_config(p5: dict, names=None) -> list[Scenario]:
     if missing:
         raise ValueError(f"scenarios not in config: {sorted(missing)}")
     return out
+
+
+# ------------------------------------------------------------------ frontier, tipping-point and mediation designs
+FRONTIER_A = tuple(round(float(x), 3) for x in np.linspace(0.1, 1.0, 7))  # personalisation quality a (§9.6, A10)
+FRONTIER_E = tuple(round(float(x), 3) for x in np.linspace(0.0, 1.0, 7))  # retained effort e
+FRONTIER_O = (0.0, 0.5, 1.0)  # answer substitution o (facets)
+LINE_GRID = tuple(round(float(x), 2) for x in np.linspace(0.0, 1.0, 11))  # §9.7 one-at-a-time lines for e, o, f
+FORGET_GRID = tuple(round(float(x), 4) for x in np.geomspace(0.25, 4.0, 11))  # forgetting multiplier, both arms
+NEURAL_HALF_LIVES = (4, 8, 13, 20, 32, 52, 104)  # weeks (the neural diagram, D5)
+NEURAL_LAMBDA_O = tuple(round(float(x), 4) for x in np.linspace(0.0, 1.0, 7))
+
+
+def frontier_scenarios(kind: str) -> tuple[list[Scenario], dict, dict]:
+    """(scenarios, knob values per scenario name, extra run_draw arguments) for PLAN.md S10.
+    grid: traditional + 7 a x 7 e x 3 o scaffolding cells with f = 0 (Fig. 7a). lines: one-at-a-time lines through
+    the scaffolding-no-fade point for e, o and f, plus the forgetting multiplier applied to both arms of each pair
+    (eq. 40). neural: substitution vs traditional with one accumulator per half-life (Fig. 7b)."""
+    trad = Scenario("traditional", "traditional")
+    if kind == "grid":
+        cells = [Scenario(f"grid_o{o:.2f}_a{a:.2f}_e{e:.2f}", "ai_scaffolding", adaptation=a, effort_retained=e, substitution_prob=o)
+                 for o in FRONTIER_O for a in FRONTIER_A for e in FRONTIER_E]
+        knobs = {s.name: {"a": s.adaptation, "e": s.effort_retained, "o": s.substitution_prob, "f": 0.0} for s in cells}
+        return [trad] + cells, knobs, {}
+    if kind == "lines":
+        out, knobs = [trad], {}
+        for x in LINE_GRID:
+            for line, s in (("e", Scenario(f"line_e_{x:.2f}", "ai_scaffolding", effort_retained=x)),
+                            ("o", Scenario(f"line_o_{x:.2f}", "ai_scaffolding", substitution_prob=x)),
+                            ("f", Scenario(f"line_f_{x:.2f}", "ai_scaffolding", policy="gradual_fading", fade_base=1.0 - x))):
+                out.append(s)
+                knobs[s.name] = {"line": line, "x": x}
+        for x in FORGET_GRID:
+            pair = f"traditional_forget_{x:.4f}"
+            out += [Scenario(pair, "traditional", forget_scale=x),
+                    Scenario(f"line_forget_{x:.4f}", "ai_scaffolding", forget_scale=x, comparator=pair)]
+            knobs[f"line_forget_{x:.4f}"] = {"line": "forget", "x": x}
+        return out, knobs, {}
+    if kind == "neural":
+        return ([trad, Scenario("substitution", "ai_substitution")], {},
+                {"half_lives": NEURAL_HALF_LIVES, "lambda_o_grid": NEURAL_LAMBDA_O})
+    raise ValueError(f"unknown frontier {kind!r}")
+
+
+def mediation_scenarios(base: list[Scenario], mediators, comparator: str) -> tuple[list[Scenario], dict]:
+    """§11.5: every non-comparator scenario is repeated once per mediator, with that mediator held at the
+    comparator's value for the same learner and episode. Contribution = 1 - SC(held) / SC(full), computed later."""
+    out, knobs = list(base), {}
+    for s in base:
+        if s.name == comparator:
+            continue
+        for m in mediators:
+            held = Scenario(f"{s.name}|hold_{m}", s.protocol, s.policy, s.adaptation, s.effort_retained,
+                            s.substitution_prob, s.fade_base, s.forget_scale, s.comparator, m)
+            out.append(held)
+            knobs[held.name] = {"base": s.name, "mediator": m}
+    return out, knobs
 
 
 # ------------------------------------------------------------------ the population as arrays
@@ -216,6 +280,8 @@ class EpisodeOut:
     p1: np.ndarray
     forecasts: list  # [(confidence, correct)] arrays for the first answer and the transfer answer
     clipped: np.ndarray  # per learner: how many of K, M, R, D left [0, 1] before clipping
+    k_idx: np.ndarray  # the stimulus row of Z each learner read (unit x protocol), for extra accumulators
+    channels: np.ndarray  # (learners, 5) accumulator inputs of this episode (plasticity.CHANNELS)
 
 
 @dataclass
@@ -233,17 +299,17 @@ class Sim:
 
     @classmethod
     def build(cls, cfg: dict, units: dict, scenarios: list[Scenario], root: Path, zero_plasticity=False,
-              zero_effort=False, form=None, epw=None) -> "Sim":
+              zero_effort=False, form=None, epw=None, neural: bool = True) -> "Sim":
         p = cfg["plasticity"]
         Z = W = None
         nets: list[str] = []
         tribe_dir = root / p["tribe_dir"]
-        if (tribe_dir / f"wpm{int(p['wpm'])}" / "tribe_metrics.parquet").exists():
+        if neural and (tribe_dir / f"wpm{int(p['wpm'])}" / "tribe_metrics.parquet").exists():
             Z, keys, _ = P.load_z(tribe_dir, int(p["wpm"]), p["metric"], p["winsorize"])
             W, nets = P.load_networks(tribe_dir, p["network_weights"])
             if [u for u, _ in keys][::3] != sorted(units):
                 raise ValueError("TRIBE patterns and the corpus disagree on the units")
-        else:
+        elif neural:
             print(f"no TRIBE run at {tribe_dir}: neural outputs are skipped", file=sys.stderr)
         return cls(cfg, Curriculum.load(units), scenarios, Z, W, nets, zero_plasticity, zero_effort,
                    form or cfg["phase5"]["update_form"], int(epw or cfg["calendar"]["episodes_per_week"]))
@@ -260,9 +326,11 @@ class Sim:
         r, theta = self.cfg["response"], self.cfg["population"]["theta_slope"] * (pop.K - 0.5)
         return L.logistic(theta - b + r["rho"] * pop.R + r["kappa"] * pop.M + r["omega"] * support_h)
 
-    def p_request(self, pop: Pop, b):
+    def p_request(self, pop: Pop, b, D=None):
+        """P(ask for help) of the help-request model; `D` overrides the learner's own D (the §11.5 D mediator)."""
         r, theta = self.cfg["response"], self.cfg["population"]["theta_slope"] * (pop.K - 0.5)
-        return L.logistic(r["request_intercept"] + r["request_dependence_slope"] * pop.D - r["request_ability_slope"] * (theta - b))
+        D = pop.D if D is None else D
+        return L.logistic(r["request_intercept"] + r["request_dependence_slope"] * D - r["request_ability_slope"] * (theta - b))
 
     def rating(self, p, pop: Pop, noise):
         """`LogisticEngine.confidence`: rating 1 + round(4 clip(p + bias + noise)), on the (rating - 1) / 4 scale."""
@@ -285,16 +353,20 @@ class Sim:
         """One episode for every learner in `pop`, in place: the numeric mirror of `episode.run_episode` with the
         logistic engine. `protocol` is per learner (3 = free choice, resolved by the softmax-in-D rule of
         `LogisticEngine.approach`); `knobs` holds per-learner arrays adaptation (or NaN), effort_retained,
-        substitution_prob and fade_base (the §9.6 frontier axes, A10)."""
+        substitution_prob and fade_base (the §9.6 frontier axes, A10), forget (the forgetting multiplier), and for
+        §11.5 `src` (the comparator row of the same learner) with the masks med_E, med_F, med_D: a held D enters
+        the decision rules and a held E or F the K update, each taken from `src` in this same episode."""
         cfg, s, m = self.cfg, self.cfg["support"], int(self.cfg["support"]["max_hints"])
         n = len(pop.K)
         b = self.difficulty(unit_pos, year, ramp)
         theta = cfg["population"]["theta_slope"] * (pop.K - 0.5)
         cap = self.help_cap(pop, policy, knobs["fade_base"])
+        src = knobs.get("src")
+        D_dec = pop.D if src is None or not knobs["med_D"].any() else np.where(knobs["med_D"], pop.D[src], pop.D)
         proto = protocol.copy()
         free = proto == 3  # logit(substitution) = +s (D - 0.5), logit(traditional) = -s (D - 0.5), scaffolding 0
         if free.any():
-            sc = cfg["response"]["request_dependence_slope"] * (pop.D[free] - 0.5)
+            sc = cfg["response"]["request_dependence_slope"] * (D_dec[free] - 0.5)
             w = np.stack([np.exp(-sc), np.ones_like(sc), np.exp(sc)], axis=1)
             cum = np.cumsum(w / w.sum(axis=1, keepdims=True), axis=1)
             proto[free] = (U[0, free][:, None] > cum).sum(axis=1).clip(0, 2)
@@ -313,7 +385,7 @@ class Sim:
             resolved[sub] = U[8, sub] < self.p_correct(pop, b, 1.0)[sub]
             answers[sub] += 1
         hint = (proto <= 1) & ~first & (cap > 0)  # hints / tutor turns: ask for more or answer at h = k / 3
-        p_req = self.p_request(pop, b)
+        p_req = self.p_request(pop, b, D_dec)
         for k in range(1, m + 1):
             active = hint & ~resolved & (depth < cap) & (depth == k - 1)
             if not active.any():
@@ -345,8 +417,14 @@ class Sim:
         E = L.logistic(ec["a0"] + ec["a1"] * p.attempt + ec["a2"] * p.retrieval + ec["a3"] * p.explanation
                        - ec["a4"] * (1.0 - knobs["effort_retained"]) * p.answer_provided)
         F = L.effectiveness(p, cfg["effectiveness"])
-        raw = L.step_state(pop.K, pop.M, pop.R, pop.D, pop.alpha, pop.delta, p, E, F, cfg["updates"], self.form,
-                           L.calendar_delta_scale({**cfg["calendar"], "episodes_per_week": self.epw}))
+        delta_scale = L.calendar_delta_scale({**cfg["calendar"], "episodes_per_week": self.epw}) * knobs.get("forget", 1.0)
+        raw = L.step_state(pop.K, pop.M, pop.R, pop.D, pop.alpha, pop.delta, p, E, F, cfg["updates"], self.form, delta_scale)
+        if src is not None and (knobs["med_E"].any() or knobs["med_F"].any()):
+            held = knobs["med_E"] | knobs["med_F"]
+            E_k, F_k = np.where(knobs["med_E"], E[src], E), np.where(knobs["med_F"], F[src], F)
+            K_held = L.step_state(pop.K, pop.M, pop.R, pop.D, pop.alpha, pop.delta, p, E_k, F_k, cfg["updates"], self.form,
+                                  delta_scale)["K"]
+            raw["K"] = np.where(held, K_held, raw["K"])
         clipped = np.zeros(n, dtype=np.int64)
         for key, v in raw.items():
             clipped += (v < 0.0) | (v > 1.0)
@@ -357,11 +435,12 @@ class Sim:
         pop.n_help += help_
         pop.n_episodes += 1
         pop.n_first += first
+        k_idx = unit_pos * len(CONDITIONS) + proto
+        channels = P.channel_values(E, np.abs(first - p1), p.correct_after_error, p.retrieval, p.offloading)
         if acc is not None:
-            acc.step(unit_pos * len(CONDITIONS) + proto,
-                     P.channel_values(E, np.abs(first - p1), p.correct_after_error, p.retrieval, p.offloading), decay)
+            acc.step(k_idx, channels, decay)
         return EpisodeOut(proto, first, transfer, help_, reveal, resolved, E, F, p1,
-                          [(conf1, first.astype(float)), (conf_t, transfer.astype(float))], clipped)
+                          [(conf1, first.astype(float)), (conf_t, transfer.astype(float))], clipped, k_idx, channels)
 
     # -- end-of-year test outcomes (A11-A13) ---------------------------------------------------
     def expected(self, pop: Pop, year: int, ramp: float, only: tuple = ()) -> dict:
@@ -402,18 +481,19 @@ def _summary(delta: np.ndarray) -> dict:
 
 def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int, drawn: dict, n_episodes=None,
              subsample: int = 100, keep_yearly: bool = True, keep_acc: bool = False, keep_episodes: bool = False,
-             break_scale=None) -> dict:
+             break_scale=None, half_lives=None, lambda_o_grid=None) -> dict:
     """Simulate every scenario on one drawn population (§9.3) and return this draw's tables and arrays.
     `n_episodes` truncates the calendar (T1 runs 30 episodes of year 1). Each year ends with the tests on the
     pre-break state, then the break (K and M by `learners.apply_break`; N by the same break_weeks x
     break_decay_scale weeks of term-time decay, user decision 2026-09-18), then retention on the post-break
-    state. `final` is the state before the last break."""
+    state. `final` is the state before the last break. `half_lives` and `lambda_o_grid` add the neural diagram
+    (PLAN.md S10, D5): one extra accumulator per half-life, and mechanism D's network d for every lambda_O."""
     p5, cal = cfg["phase5"], dict(cfg["calendar"])
     if break_scale is not None:
         cal["break_decay_scale"] = float(break_scale)
     scen, S = sim.scenarios, len(sim.scenarios)
     names = [s.name for s in scen]
-    comp = names.index(p5["comparator"]) if p5["comparator"] in names else None
+    comp_of = [names.index(c) if (c := s.comparator or p5["comparator"]) in names else None for s in scen]
     pop = Pop.draw(cfg, n, master * 1000 + draw_id).tile(S)
     rows_n = n * S
     sidx = np.repeat(np.arange(S), n)  # scenario of each row; rows are scenario-major
@@ -422,7 +502,12 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
     knobs = {"adaptation": np.array([np.nan if s.adaptation is None else s.adaptation for s in scen])[sidx],
              "effort_retained": np.array([s.effort_retained for s in scen], dtype=float)[sidx],
              "substitution_prob": np.array([s.substitution_prob for s in scen], dtype=float)[sidx],
-             "fade_base": np.array([cfg["support"]["fade_base"] if s.fade_base is None else s.fade_base for s in scen])[sidx]}
+             "fade_base": np.array([cfg["support"]["fade_base"] if s.fade_base is None else s.fade_base for s in scen])[sidx],
+             "forget": np.array([s.forget_scale for s in scen], dtype=float)[sidx]}
+    if any(s.mediate for s in scen):  # §11.5: each row's comparator row for the same learner
+        knobs["src"] = np.array([(si if comp_of[si] is None else comp_of[si]) for si in range(S)])[sidx] * n + np.tile(np.arange(n), S)
+        for m in ("E", "F", "D"):
+            knobs[f"med_{m}"] = np.array([s.mediate == m for s in scen])[sidx]
     draws = Draws(master, draw_id, n, S)
     ramp = float(p5["ramp_per_year"])
     per_year = sim.episodes_per_year()
@@ -430,6 +515,10 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
     acc = P.Accumulator(rows_n, len(sim.cur.units) * len(CONDITIONS)) if sim.Z is not None else None
     decay = P.decay_per_episode(cfg["plasticity"]["half_life_weeks"], sim.epw)
     break_factor_n = (1.0 - decay) ** (sim.epw * cal["break_weeks"] * cal["break_decay_scale"])
+    diagram = {}  # half-life -> (accumulator, per-episode decay) for the neural diagram
+    if half_lives is not None and sim.Z is not None:
+        for hl in half_lives:
+            diagram[float(hl)] = (P.Accumulator(rows_n, len(sim.cur.units) * len(CONDITIONS)), P.decay_per_episode(hl, sim.epw))
     bins = int(cfg["checkpoints"]["ece_bins"])
     sub = min(subsample, n)
     sub_rows = (np.arange(S)[:, None] * n + np.arange(sub)[None, :]).ravel()
@@ -445,7 +534,7 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
         z.update(proto=np.zeros((rows_n, 3)), ece=np.zeros((3, S * bins)), episodes=0)
         return z
 
-    levels, contrasts, neural, yearly, weekly, episodes, mean_acc = [], [], [], [], [], [], []
+    levels, contrasts, neural, yearly, weekly, episodes, mean_acc, neural_diagram = [], [], [], [], [], [], [], []
     hist, acc_sub, final = {}, {}, {}
     tally, week_first = new_tally(), np.zeros(rows_n)
     for t in range(T):
@@ -453,6 +542,8 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
         unit_pos = int(sim.cur.order[t % len(sim.cur.order)])
         U, N = draws.episode(t)
         out = sim.step(pop, unit_pos, year, ramp, protocol, policy, knobs, U, N, acc, decay)
+        for d_acc, d_decay in diagram.values():
+            d_acc.step(out.k_idx, out.channels, d_decay)
         for k, v in (("first", out.first), ("transfer", out.transfer), ("help", out.help), ("reveal", out.reveal),
                      ("E", out.E), ("F", out.F), ("clipped", out.clipped)):
             tally[k] += v
@@ -491,6 +582,8 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
         final = end
         values = acc.values() if acc is not None else None
         nets = {m: sim.neural(values, m) for m in P.MECHANISMS} if values is not None else {}
+        diagram_values = ({hl: d_acc.values() for hl, (d_acc, _) in diagram.items()}  # pre-break, like `values`
+                          if diagram and (y1 in checkpoint_years or t + 1 == T) else {})
         lv = {k: by_scenario(v) for k, v in end.items()}
         lv.update({k: by_scenario(ex[k]) for k in ("unaided", "near", "far", "supported", "support_gap", "p_request")})
         lv["support_gap_min"] = ex["support_gap"].reshape(S, n).min(axis=1)
@@ -514,10 +607,13 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
         lv["difficulty_slope"] = np.polyfit(sim.cur.difficulty, ex["per_unit"].reshape(S, n, -1).mean(axis=1).T, 1)[0]
 
         # ---- the break, then retention on the post-break state
-        pop.K, pop.M = L.apply_break(pop.K, pop.M, pop.delta, cal, cfg["updates"])
+        pop.K, pop.M = L.apply_break(pop.K, pop.M, pop.delta * knobs["forget"], cal, cfg["updates"])
         if acc is not None:
             acc.apply_decay(break_factor_n)
             acc.renormalise()
+        for d_acc, d_decay in diagram.values():
+            d_acc.apply_decay((1.0 - d_decay) ** (sim.epw * cal["break_weeks"] * cal["break_decay_scale"]))
+            d_acc.renormalise()
         retention = sim.expected(pop, year, ramp, only=("unaided",))["unaided"]
         lv["retention"] = by_scenario(retention)
         lv["retention_below_share"] = by_scenario(retention < ex["unaided"])
@@ -525,32 +621,45 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
             levels.append(pd.DataFrame({"draw_id": draw_id, "scenario": names, "year": y1, "kind": "level",
                                         "outcome": outcome, "estimate": np.asarray(v, dtype=np.float64)}))
 
-        # ---- paired contrasts against the comparator (eq. 37-39 and 44)
-        if comp is not None:
-            cs = slice(comp * n, (comp + 1) * n)
-            for si, s in enumerate(scen):
-                if si == comp:
-                    continue
-                sl = slice(si * n, (si + 1) * n)
-                d = {k: end[k][sl] - end[k][cs] for k in ("K", "R", "M", "D")}
-                d.update({k: ex[k][sl] - ex[k][cs] for k in ("unaided", "far", "p_request")})
-                d["retention"] = retention[sl] - retention[cs]
-                d["G"] = gw["K"] * d["K"] + gw["R"] * d["R"] + gw["M"] * d["M"] - gw["D"] * d["D"]
-                for outcome, delta in d.items():
-                    contrasts.append({"draw_id": draw_id, "scenario": s.name, "year": y1, "kind": "contrast",
-                                      "outcome": outcome, **_summary(delta)})
-                    if y1 in checkpoint_years or t + 1 == T:
-                        key = (s.name, y1, outcome)
-                        hist[key] = hist.get(key, 0) + np.histogram(np.clip(delta, -1.0, 1.0), HIST_BINS)[0]
-                for m, Nn in nets.items():
+        # ---- paired contrasts against each scenario's comparator (eq. 37-39 and 44)
+        for si, s in enumerate(scen):
+            comp = comp_of[si]
+            if comp is None or comp == si:
+                continue
+            cs, sl = slice(comp * n, (comp + 1) * n), slice(si * n, (si + 1) * n)
+            d = {k: end[k][sl] - end[k][cs] for k in ("K", "R", "M", "D")}
+            d.update({k: ex[k][sl] - ex[k][cs] for k in ("unaided", "far", "p_request")})
+            d["retention"] = retention[sl] - retention[cs]
+            d["G"] = gw["K"] * d["K"] + gw["R"] * d["R"] + gw["M"] * d["M"] - gw["D"] * d["D"]
+            for outcome, delta in d.items():
+                contrasts.append({"draw_id": draw_id, "scenario": s.name, "year": y1, "kind": "contrast",
+                                  "outcome": outcome, **_summary(delta)})
+                if y1 in checkpoint_years or t + 1 == T:
+                    key = (s.name, y1, outcome)
+                    hist[key] = hist.get(key, 0) + np.histogram(np.clip(delta, -1.0, 1.0), HIST_BINS)[0]
+            for m, Nn in nets.items():
+                for ni, net in enumerate(sim.networks):
+                    sm = _summary(Nn[sl, ni] - Nn[cs, ni])
+                    neural.append({"draw_id": draw_id, "scenario": s.name, "year": y1, "mechanism": m, "network": net,
+                                   "mean": sm["estimate"], "sd": sm["sd"], "prsup": sm["prsup"],
+                                   "d": sm["estimate"] / sm["sd"] if sm["sd"] > 0 else 0.0})
+            if values is not None and (y1 in checkpoint_years or t + 1 == T):
+                mean_acc.append({"draw_id": draw_id, "scenario": s.name, "year": y1,
+                                 "diff": (values[sl] - values[cs]).mean(axis=0).astype(np.float32)})
+        for hl, d_values in diagram_values.items():  # mechanism D per half-life x lambda_O (D5), pre-break
+            for lam_o in lambda_o_grid:
+                w = P.mechanism_weights("D", {**cfg["plasticity"], "lambda_O": float(lam_o)})
+                Nn = P.network_state(P.neural_state(d_values, w, sim.Z), sim.W)
+                for si, s in enumerate(scen):
+                    comp = comp_of[si]
+                    if comp is None or comp == si:
+                        continue
+                    cs, sl = slice(comp * n, (comp + 1) * n), slice(si * n, (si + 1) * n)
                     for ni, net in enumerate(sim.networks):
                         sm = _summary(Nn[sl, ni] - Nn[cs, ni])
-                        neural.append({"draw_id": draw_id, "scenario": s.name, "year": y1, "mechanism": m, "network": net,
-                                       "mean": sm["estimate"], "sd": sm["sd"], "prsup": sm["prsup"],
-                                       "d": sm["estimate"] / sm["sd"] if sm["sd"] > 0 else 0.0})
-                if values is not None and (y1 in checkpoint_years or t + 1 == T):
-                    mean_acc.append({"draw_id": draw_id, "scenario": s.name, "year": y1,
-                                     "diff": (values[sl] - values[cs]).mean(axis=0).astype(np.float32)})
+                        neural_diagram.append({"draw_id": draw_id, "scenario": s.name, "year": y1, "half_life_weeks": hl,
+                                               "lambda_O": float(lam_o), "network": net, "mean": sm["estimate"], "sd": sm["sd"],
+                                               "d": sm["estimate"] / sm["sd"] if sm["sd"] > 0 else 0.0, "prsup": sm["prsup"]})
         if keep_acc and values is not None and (y1 in checkpoint_years or t + 1 == T):
             acc_sub[y1] = values[sub_rows].astype(np.float32)
         if keep_yearly:
@@ -575,11 +684,13 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
             "yearly_subsample": pd.concat(yearly, ignore_index=True) if yearly else None,
             "weekly_means": pd.concat(weekly, ignore_index=True) if weekly else None,
             "episodes_central": pd.concat(episodes, ignore_index=True) if episodes else None,
+            "neural_diagram": pd.DataFrame(neural_diagram) if neural_diagram else None,
             "hist": hist, "mean_acc": mean_acc, "acc_sub": acc_sub, "final": final}
 
 
 # ------------------------------------------------------------------ outputs: append-only parts + run.json
-TABLES = ("simulation_draws", "parameter_draws", "neural_contrasts", "yearly_subsample", "weekly_means", "episodes_central")
+TABLES = ("simulation_draws", "parameter_draws", "neural_contrasts", "yearly_subsample", "weekly_means", "episodes_central",
+          "neural_diagram")
 
 
 def flush(out_dir: Path, chunk: list[dict], meta: dict) -> None:
@@ -657,7 +768,8 @@ def config_from_args(args) -> tuple[dict, dict]:
         node[parts[-1]] = yaml.safe_load(value)
     return raw, {"epw": args.epw, "form": args.form, "distribution": args.distribution, "break_scale": args.break_scale,
                  "scenarios": args.scenarios, "zero_plasticity": args.zero_plasticity, "zero_effort": args.zero_effort,
-                 "seed_offset": args.seed_offset, "set": args.set or [], "subsample": args.subsample}
+                 "seed_offset": args.seed_offset, "set": args.set or [], "subsample": args.subsample,
+                 "frontier": args.frontier, "mediate": args.mediate, "no_neural": args.no_neural}
 
 
 def main(argv=None) -> int:
@@ -677,6 +789,9 @@ def main(argv=None) -> int:
     ap.add_argument("--seed-offset", type=int, default=0, dest="seed_offset", help="replicate runs (§10.5): master + offset")
     ap.add_argument("--set", nargs="*", metavar="key=value", help="override raw config leaves, e.g. calendar.break_weeks=4")
     ap.add_argument("--subsample", type=int, help="learners per scenario kept per learner-year (first draws only)")
+    ap.add_argument("--frontier", choices=("grid", "lines", "neural"), help="the §9.6-9.7 designs (replace the scenarios)")
+    ap.add_argument("--mediate", help="comma list of mediators held at the comparator (§11.5), e.g. E,F,D")
+    ap.add_argument("--no-neural", action="store_true", dest="no_neural", help="skip the plasticity accumulators")
     ap.add_argument("--flush-every", type=int, default=10, dest="flush_every", help="draws per written part")
     ap.add_argument("--resume", action="store_true")
     args = ap.parse_args(argv)
@@ -711,9 +826,17 @@ def main(argv=None) -> int:
                 "wall_time_s": 0.0}
     units = corpus.load_units(root / raw["run"]["units_dir"])
     cfg0, _ = draw_parameters(raw, -1, master)
-    scen = scenarios_from_config(p5, args.scenarios)
-    sim = Sim.build(cfg0, units, scen, root, args.zero_plasticity, args.zero_effort, args.form, args.epw)
-    meta.update(scenarios=[s.name for s in scen], networks=sim.networks, neural=sim.Z is not None)
+    extra, knobs = {}, {}
+    if args.frontier:
+        scen, knobs, extra = frontier_scenarios(args.frontier)
+    else:
+        scen = scenarios_from_config(p5, args.scenarios)
+    if args.mediate:
+        scen, held = mediation_scenarios(scen, [m.strip() for m in args.mediate.split(",")], p5["comparator"])
+        knobs.update(held)
+    sim = Sim.build(cfg0, units, scen, root, args.zero_plasticity, args.zero_effort, args.form, args.epw,
+                    neural=not args.no_neural)
+    meta.update(scenarios=[s.name for s in scen], networks=sim.networks, neural=sim.Z is not None, scenario_knobs=knobs)
     draw_ids = ([-1] if p5.get("central_draw", True) else []) + list(range(n_draws))
     todo = [b for b in draw_ids if b not in set(meta["draws_done"])]
     print(f"{args.tag}: {len(todo)} draws to run x {len(scen)} scenarios x {n} learners x {years} years")
@@ -723,7 +846,7 @@ def main(argv=None) -> int:
         sim.cfg = cfg
         keep = b < subsample_draws
         chunk.append(run_draw(sim, b, cfg, n, years, master, drawn, subsample=subsample, keep_yearly=keep,
-                              keep_acc=keep, keep_episodes=(b == -1), break_scale=args.break_scale))
+                              keep_acc=keep, keep_episodes=(b == -1), break_scale=args.break_scale, **extra))
         elapsed = time.time() - started
         if len(chunk) >= args.flush_every or i + 1 == len(todo):
             meta["wall_time_s"] = round(meta.get("wall_time_s", 0.0) + elapsed, 1)
