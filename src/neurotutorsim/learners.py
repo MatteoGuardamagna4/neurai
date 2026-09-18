@@ -220,28 +220,63 @@ class Proxies:
     correctness: float
 
 
-def effort(p: Proxies, c: dict) -> float:
-    """Eq. 19."""
-    return float(logistic(c["a0"] + c["a1"] * p.attempt + c["a2"] * p.retrieval + c["a3"] * p.explanation
-                          - c["a4"] * p.answer_provided))
+def _scalar_or_array(x):
+    return float(x) if np.ndim(x) == 0 else x
 
 
-def effectiveness(p: Proxies, c: dict) -> float:
+def effort(p: Proxies, c: dict):
+    """Eq. 19 (a float for one learner; arrays pass through, for the vectorised Phase V step)."""
+    return _scalar_or_array(logistic(c["a0"] + c["a1"] * p.attempt + c["a2"] * p.retrieval + c["a3"] * p.explanation
+                                     - c["a4"] * p.answer_provided))
+
+
+def effectiveness(p: Proxies, c: dict):
     """Eq. 20."""
-    return float(logistic(c["f0"] + c["f1"] * p.correctness + c["f2"] * p.coverage + c["f3"] * p.adaptation
-                          - c["f4"] * p.mismatch))
+    return _scalar_or_array(logistic(c["f0"] + c["f1"] * p.correctness + c["f2"] * p.coverage + c["f3"] * p.adaptation
+                                     - c["f4"] * p.mismatch))
+
+
+def step_state(K, M, R, D, alpha, delta, p: Proxies, E, F, c: dict, form: str = "brief",
+               delta_scale: float = 1.0) -> dict:
+    """Eq. 21-23 and 25 for one learner (floats) or a population (numpy arrays), unclipped so the caller
+    can count clips. `brief` is the equations as written (every Phase III run). `bounded` is the Phase V
+    variant (PLAN.md D3): each gain is scaled by the distance to 1 and each loss by the distance to 0, and D
+    falls after any unaided success rather than only under a faded policy, because an unaided success
+    means no support was used. `delta_scale` rescales forgetting to the calendar exposure (A16)."""
+    d = delta * delta_scale
+    K1 = K + alpha * E * F * (1.0 - K) - d * K
+    if form == "brief":
+        M1 = (1.0 - c["m_decay_scale"] * d) * M + c["eta_M"] * p.retrieval + c["eta_C"] * p.correct_after_error
+        R1 = R + c["eta_R"] * E * p.transfer_success - c["eta_O"] * p.offloading
+        D1 = D + c["eta_D"] * p.support_used - c["eta_F"] * p.support_faded * p.independent_success
+    elif form == "bounded":
+        M1 = M + (c["eta_M"] * p.retrieval + c["eta_C"] * p.correct_after_error) * (1.0 - M) - c["m_decay_scale"] * d * M
+        R1 = R + c["eta_R"] * E * p.transfer_success * (1.0 - R) - c["eta_O"] * p.offloading * R
+        D1 = D + c["eta_D"] * p.support_used * (1.0 - D) - c["eta_F"] * p.independent_success * D
+    else:
+        raise ValueError(f"unknown update form {form!r}: use 'brief' or 'bounded'")
+    return {"K": K1, "M": M1, "R": R1, "D": D1}
+
+
+def calendar_delta_scale(cal: dict) -> float:
+    """delta_i (eq. 16) is per episode at `reference_episodes_per_week`; at another exposure each episode
+    carries reference / episodes_per_week of it, so forgetting per calendar week is unchanged (D4, A16)."""
+    return float(cal["reference_episodes_per_week"]) / float(cal["episodes_per_week"])
+
+
+def apply_break(K, M, delta, cal: dict, c: dict):
+    """Between school years (D4): `break_weeks` without practice at `break_decay_scale` of the term rate.
+    K and M compound their per-episode decay over reference_episodes_per_week x break_weeks x scale
+    episode-equivalents ((1 - delta)^9 at the defaults); R, C and D do not decay. Floats or arrays."""
+    n = float(cal["reference_episodes_per_week"]) * float(cal["break_weeks"]) * float(cal["break_decay_scale"])
+    return K * (1.0 - delta) ** n, M * (1.0 - c["m_decay_scale"] * delta) ** n
 
 
 def update(learner: Learner, p: Proxies, E: float, F: float, forecasts, c: dict) -> dict:
     """Eq. 21-25 applied in place. `forecasts` = [(confidence, correct)] for the unaided responses of
     the episode; C is one minus the running Brier score (brief §7.6). Returns which components clipped."""
-    raw = {
-        "K": learner.K + learner.alpha * E * F * (1.0 - learner.K) - learner.delta * learner.K,
-        "M": (1.0 - c["m_decay_scale"] * learner.delta) * learner.M + c["eta_M"] * p.retrieval
-             + c["eta_C"] * p.correct_after_error,
-        "R": learner.R + c["eta_R"] * E * p.transfer_success - c["eta_O"] * p.offloading,
-        "D": learner.D + c["eta_D"] * p.support_used - c["eta_F"] * p.support_faded * p.independent_success,
-    }
+    raw = step_state(learner.K, learner.M, learner.R, learner.D, learner.alpha, learner.delta, p, E, F, c,
+                     c.get("form", "brief"))
     for confidence, correct in forecasts:
         learner.brier_sum += (confidence - correct) ** 2
         learner.brier_n += 1

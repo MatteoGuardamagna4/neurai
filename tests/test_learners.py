@@ -1,10 +1,38 @@
 import copy
+import json
 from dataclasses import replace
+from pathlib import Path
 
+import numpy as np
 import pytest
 
+from neurotutorsim import corpus, simulate
 from neurotutorsim import learners as L
-from neurotutorsim.engines import find_latent_leaks
+from neurotutorsim.engines import LogisticEngine, find_latent_leaks
+from neurotutorsim.episode import run_episode
+from neurotutorsim.tutor import FakeTutor
+
+GOLDEN = Path(__file__).parent / "data" / "phase3_golden.json"
+
+
+def phase3_states(cfg, units, stimuli, n_learners=5, n_episodes=10) -> dict:
+    """Learners 0..n-1 through all four arms with the logistic engine and the fake tutor, exactly as
+    simulate.main sequences them; the fixture that pins Phase III while learners.py grows (PLAN.md S4)."""
+    order = corpus.curriculum_order(units)
+    master = int(cfg["seeds"]["master"])
+    pop = L.make_population(cfg["population"], n_learners, master)
+    L.seed_prior_records(pop, cfg)
+    engine = LogisticEngine(cfg["response"], cfg["population"]["theta_slope"])
+    out = {}
+    for condition in simulate.RUN_CONDITIONS:
+        for base in pop:
+            learner = L.Learner.restore(base.snapshot())
+            for ep in range(n_episodes):
+                unit = order[ep % len(order)]
+                rec = run_episode(learner, unit, {c: stimuli[(unit.unit_id, c)] for c in corpus.CONDITIONS}, condition,
+                                  ep, engine, FakeTutor(), cfg, np.random.default_rng([master, learner.learner_id, ep]))
+                out[f"{condition}|{learner.learner_id}|{ep}"] = {k: round(v, 12) for k, v in rec.state_after.items()}
+    return out
 
 
 def make_learner(**kw):
@@ -97,6 +125,59 @@ def test_clipping_is_counted(cfg):
     assert clipped["D"] == 1 and learner.D == 1.0
 
 
+def test_phase3_golden_states_are_reproduced(cfg, units, stimuli):
+    """Every Phase III run on disk used these equations; regenerate the fixture only with a deliberate
+    physics change (python -m tests.test_learners rewrites it)."""
+    assert cfg["updates"]["form"] == "brief"
+    golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
+    states = phase3_states(cfg, units, stimuli)
+    assert states.keys() == golden.keys()
+    for key, expected in golden.items():
+        for k, v in expected.items():
+            assert states[key][k] == pytest.approx(v, abs=1e-11), f"{key} {k}"
+
+
+def test_bounded_form_never_clips_and_matches_brief_gains_far_from_the_bounds(cfg):
+    rng = np.random.default_rng(0)
+    n = 10_000
+    K, M, R, D = (rng.random(n) for _ in range(4))
+    p = L.Proxies(*(rng.random(n) for _ in range(14)))
+    p.independent_success = rng.integers(0, 2, n).astype(float)
+    rates = {k: rng.random(n) * 0.5 for k in ("eta_M", "eta_C", "eta_R", "eta_O", "eta_D", "eta_F")}
+    c = {**rates, "m_decay_scale": 1.0}  # eta_M + eta_C <= 1 keeps the M gain inside the distance to 1
+    out = L.step_state(K, M, R, D, rng.random(n), rng.random(n) * 0.05, p, rng.random(n), rng.random(n), c, "bounded")
+    for k, v in out.items():
+        assert np.all(v >= 0.0) and np.all(v <= 1.0), k
+    # the brief form does clip on the same inputs, which is what D3 removes
+    brief = L.step_state(K, M, R, D, rng.random(n), rng.random(n) * 0.05, p, rng.random(n), rng.random(n), c, "brief")
+    assert any(np.any((v < 0.0) | (v > 1.0)) for v in brief.values())
+    with pytest.raises(ValueError):
+        L.step_state(0.5, 0.5, 0.5, 0.5, 0.1, 0.01, proxies(), 0.5, 0.5, cfg["updates"], "other")
+
+
+def test_bounded_dependence_falls_after_any_unaided_success(cfg):
+    p = proxies(support_used=0.0, support_faded=0.0, independent_success=1.0)
+    brief = L.step_state(0.4, 0.3, 0.3, 0.4, 0.1, 0.01, p, 0.5, 0.5, cfg["updates"], "brief")
+    bounded = L.step_state(0.4, 0.3, 0.3, 0.4, 0.1, 0.01, p, 0.5, 0.5, cfg["updates"], "bounded")
+    assert brief["D"] == 0.4, "under a persistent policy the brief form never lowers D"
+    assert bounded["D"] < 0.4
+
+
+def test_calendar_scaling_and_break(cfg):
+    cal = copy.deepcopy(cfg["calendar"])
+    assert L.calendar_delta_scale(cal) == 1.0, "three episodes per week reproduces Phase III exactly"
+    cal["episodes_per_week"] = 1
+    assert L.calendar_delta_scale(cal) == 3.0
+    p, c = proxies(), cfg["updates"]
+    base = L.step_state(0.6, 0.5, 0.3, 0.4, 0.1, 0.02, p, 0.0, 0.0, c, "brief")  # E = 0: forgetting only
+    weekly = L.step_state(0.6, 0.5, 0.3, 0.4, 0.1, 0.02, p, 0.0, 0.0, c, "brief", delta_scale=3.0)
+    assert 0.6 - weekly["K"] == pytest.approx(3 * (0.6 - base["K"]))
+    K, M = L.apply_break(0.8, 0.5, 0.02, cfg["calendar"], c)
+    assert K == pytest.approx(0.8 * 0.98 ** 9) and M == pytest.approx(0.5 * 0.98 ** 9)
+    Ks, _ = L.apply_break(np.array([0.8, 0.4]), np.array([0.5, 0.5]), np.array([0.02, 0.0]), cfg["calendar"], c)
+    assert Ks[1] == 0.4 and Ks[0] < 0.8
+
+
 def test_help_cap_policies(cfg):
     s = copy.deepcopy(cfg["support"])
     learner = make_learner(streak=3)
@@ -116,3 +197,13 @@ def test_calibration_metrics():
     assert L.brier([(1.0, 1.0), (0.0, 1.0)]) == 0.5
     assert L.ece([(0.9, 1.0), (0.9, 1.0)]) == pytest.approx(0.1)
     assert L.brier([]) != L.brier([])  # nan
+
+
+if __name__ == "__main__":  # rewrite the golden fixture after a deliberate change to the Phase III equations
+    from tests.conftest import ROOT
+
+    c = simulate.load_config(ROOT / "config" / "default.yaml")
+    c["tutor"]["provider"], c["engine"]["name"] = "fake", "logistic"
+    u = corpus.load_units(ROOT / "data" / "units")
+    GOLDEN.write_text(json.dumps(phase3_states(c, u, corpus.load_stimuli(ROOT / "stimuli", u)), indent=0), encoding="utf-8")
+    print(f"wrote {GOLDEN}")

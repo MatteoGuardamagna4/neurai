@@ -63,6 +63,9 @@ effectiveness:                # eq. 20
   correctness_default: 1.0
 
 updates:                      # eq. 21-25
+  form: brief                  # brief = eq. 21-25 as written (every Phase III run) | bounded = the Phase V soft
+                               # limits of PLAN.md D3 (gains shrink near 1, losses near 0, D falls after any
+                               # unaided success); `learners.step_state` holds both
   m_decay_scale: 1.0           # delta_M,i = m_decay_scale * delta_i
   eta_M: {low: 0.010, medium: 0.015, high: 0.025}
   eta_C: {low: 0.010, medium: 0.015, high: 0.025}
@@ -70,6 +73,24 @@ updates:                      # eq. 21-25
   eta_O: {low: 0.003, medium: 0.005, high: 0.008}
   eta_D: {low: 0.006, medium: 0.010, high: 0.016}
   eta_F: {low: 0.006, medium: 0.010, high: 0.016}
+
+calendar:                     # brief §9.1; forgetting follows calendar weeks (PLAN.md D4, A16)
+  weeks_per_year: 40
+  break_weeks: 12
+  episodes_per_week: 3         # main exposure; 1 and 5 are the §9.1 alternatives
+  reference_episodes_per_week: 3   # delta_i (eq. 16) is per episode at this exposure, so Phase III is unchanged
+  break_decay_scale: 0.25      # ASSUMPTION: break forgetting runs at this fraction of the term rate
+
+plasticity:                   # brief §8; every value an ASSUMPTION (PLAN.md A4-A7)
+  tribe_dir: data/tribe/tribe_main
+  wpm: 220                     # §6.2 main reading speed; 180 / 260 are the robustness arms
+  metric: auc                  # the eq. 28 input; mean / peak as robustness
+  network_weights: area        # eq. 7 main; equal as robustness
+  winsorize: [0.01, 0.99]      # global percentiles of Z (§8.2); null = unwinsorised robustness
+  half_life_weeks: {low: 52, medium: 20, high: 8}   # delta_N per week = 1 - 0.5 ** (1 / half_life)
+  eta: 1.0                     # N is in arbitrary units and eq. 44 is scale-free, so only eta = 0 matters
+  lambda: {A: 0.3333333, PE: 0.3333333, R: 0.3333334}   # eq. 33: non-negative, sum to one
+  lambda_O: {low: 0.0, medium: 0.3333333, high: 0.6666667}
 
 support:                      # brief §3.3-3.4 tutor conditions and support persistence
   max_hints: 3
@@ -113,6 +134,29 @@ tutor:
   max_tokens: 350
   seed: 7
   timeout_s: 60
+
+phase5:                       # brief §9; PLAN.md D1-D4, A1-A2, A8-A10; every value an ASSUMPTION
+  years: 10
+  draws: 500                   # §9.3 fallback size (2,000 x 5,000 only if time allows)
+  learners_per_draw: 2000
+  subsample_learners: 100      # learners per scenario whose yearly rows and accumulators are kept ...
+  subsample_draws: 20          # ... in the first this-many draws (and the central draw); the rest keep summaries
+  central_draw: true           # draw_id -1 = every leaf at medium (the Phase III parameterisation)
+  update_form: bounded         # D3; `brief` only in the specification curve
+  distribution: triangular     # A1; `uniform` for falsification check F4
+  ramp_per_year: {low: 0.0, medium: 0.1, high: 0.2}   # A2: difficulty added per school year, logit scale
+  scenarios:                   # D1; each runs the named protocol under the named support policy
+    traditional:        {protocol: traditional,     policy: persistent}
+    scaffolding_rapid:  {protocol: ai_scaffolding,  policy: immediate_withdrawal}
+    scaffolding_nofade: {protocol: ai_scaffolding,  policy: persistent}
+    substitution:       {protocol: ai_substitution, policy: persistent}
+    free_choice:        {protocol: free_choice,     policy: persistent}   # logistic softmax-in-D rule (an assumption)
+  comparator: traditional
+  checkpoint_years: [1, 5, 10]
+  G: {weights: {K: 0.25, R: 0.25, M: 0.25, D: 0.25}, epsilon: 0.02}   # eq. 39, A8
+  stakeholder_weights:         # A9, sensitivity only
+    learning_first: {K: 0.4, R: 0.3, M: 0.2, D: 0.1}
+    autonomy_first: {K: 0.2, R: 0.3, M: 0.1, D: 0.4}
 
 run:
   episodes: 40
