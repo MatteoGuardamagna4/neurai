@@ -157,3 +157,20 @@ def test_falsification_verdicts_on_constructed_inputs():
     assert f.filter(like="F4").iloc[0] == "claim allowed"
     assert f.filter(like="F5").iloc[0].startswith("no claim for 1")
     assert f.filter(like="F6").iloc[0] == "no claim for far", "far transfer does not separate scaffolding from substitution"
+
+
+def test_phase_diagram_and_tipping_points_on_constructed_draws():
+    knobs = {f"line_e_{x:.2f}": {"line": "e", "x": x} for x in (0.0, 0.5, 1.0)}
+    knobs["grid_cell"] = {"a": 0.9, "e": 0.5, "o": 0.0, "f": 0.0}
+    rows = []
+    for b in range(20):
+        for x in (0.0, 0.5, 1.0):  # G rises with e and crosses zero at e = 0.4 + 0.01 b
+            rows.append({"draw_id": b, "year": 10, "kind": "contrast", "outcome": "G", "scenario": f"line_e_{x:.2f}",
+                         "estimate": x - (0.4 + 0.01 * b)})
+        rows.append({"draw_id": b, "year": 10, "kind": "contrast", "outcome": "G", "scenario": "grid_cell", "estimate": 0.03})
+    draws = pd.DataFrame(rows)
+    per_draw, summary = A.tipping_points(draws, {k: v for k, v in knobs.items() if "line" in v})
+    assert np.allclose(per_draw.sort_values("draw_id")["tipping_point"], 0.4 + 0.01 * np.arange(20))
+    assert summary["share_no_sign_change"].iloc[0] == 0 and summary["median"].iloc[0] == pytest.approx(0.495)
+    pdg = A.phase_diagram(draws, {"grid_cell": knobs["grid_cell"]}).iloc[0]
+    assert pdg["class_eps0.02"] == "beneficial" and pdg["class_eps0.05"] == "neutral" and pdg["share_beneficial_eps0.01"] == 1.0

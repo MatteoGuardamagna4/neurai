@@ -594,3 +594,48 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
         f"year-{year} SC(scaffolding, no fade) - SC(substitution)", "includes 0", ", ".join(same) or "none",
         f"no claim for {', '.join(same)}" if same else "claim allowed")
     return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §9.6-9.7 frontier, tipping points, neural diagram (S10)
+def phase_diagram(draws: pd.DataFrame, knobs: dict, year: int = 10, epsilons=(0.01, 0.02, 0.05)) -> pd.DataFrame:
+    """Figure 7a: per frontier cell, the median over draws of the draw's mean G (eq. 39) at `year`, the share of draws
+    with G > epsilon, and the class beneficial / neutral / harmful for each epsilon (A8)."""
+    g = draws[(draws["kind"] == "contrast") & (draws["outcome"] == "G") & (draws["year"] == year) & (draws["draw_id"] >= 0)]
+    rows = []
+    for s, grp in g.groupby("scenario"):
+        if s not in knobs:
+            continue
+        med = float(grp["estimate"].median())
+        row = {"scenario": s, **knobs[s], "median_G": med, **{k: v for k, v in intervals(grp["estimate"]).items() if k != "median"}}
+        for eps in epsilons:
+            row[f"share_beneficial_eps{eps}"] = float((grp["estimate"] > eps).mean())
+            row[f"class_eps{eps}"] = "beneficial" if med > eps else ("harmful" if med < -eps else "neutral")
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def tipping_points(draws: pd.DataFrame, knobs: dict, year: int = 10, outcome: str = "G") -> tuple[pd.DataFrame, pd.DataFrame]:
+    """eq. 40 per draw along each one-at-a-time line (e, o, f, forgetting multiplier), then across draws: the median,
+    90 and 95% intervals of the tipping point and the share of draws where G never changes sign on the line."""
+    g = draws[(draws["kind"] == "contrast") & (draws["outcome"] == outcome) & (draws["year"] == year) & (draws["draw_id"] >= 0)]
+    g = g[g["scenario"].isin(knobs)].copy()
+    g["line"] = g["scenario"].map(lambda s: knobs[s]["line"])
+    g["x"] = g["scenario"].map(lambda s: float(knobs[s]["x"]))
+    per_draw = []
+    for (line, b), grp in g.groupby(["line", "draw_id"]):
+        grp = grp.sort_values("x")
+        per_draw.append({"line": line, "draw_id": int(b), "tipping_point": tipping_point(grp["x"], grp["estimate"])})
+    per_draw = pd.DataFrame(per_draw)
+    summary = []
+    for line, grp in per_draw.groupby("line"):
+        x = grp["tipping_point"]
+        summary.append({"line": line, "year": year, "outcome": outcome, **intervals(x),
+                        "share_no_sign_change": float(x.isna().mean()), "n_draws": len(x)})
+    return per_draw, pd.DataFrame(summary)
+
+
+def neural_diagram(nd: pd.DataFrame, year: int = 10) -> pd.DataFrame:
+    """Figure 7b: per half-life x lambda_O x network, the median over draws of mechanism D's d (eq. 44) and PrSup."""
+    n = nd[(nd["year"] == year) & (nd["draw_id"] >= 0)]
+    return n.groupby(["scenario", "half_life_weeks", "lambda_O", "network"]).agg(
+        median_d=("d", "median"), prsup=("prsup", "mean"), n_draws=("d", "size")).reset_index()
