@@ -536,6 +536,17 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
 
     levels, contrasts, neural, yearly, weekly, episodes, mean_acc, neural_diagram = [], [], [], [], [], [], [], []
     hist, acc_sub, final = {}, {}, {}
+    # ---- year 0: the tests on the drawn population before any episode (the §10.2 baseline, Fig. 5 starting point)
+    ex0 = sim.expected(pop, 0, ramp)
+    base = {k: by_scenario(getattr(pop, k)) for k in STATES}
+    base.update({k: by_scenario(ex0[k]) for k in ("unaided", "near", "far", "supported", "support_gap", "p_request")})
+    unaided0, strata0 = ex0["unaided"].reshape(S, n), pop.stratum.reshape(S, n)
+    for st in range(3):
+        base[f"unaided_stratum{st}"] = np.array([unaided0[i][strata0[i] == st].mean() if (strata0[i] == st).any()
+                                                 else np.nan for i in range(S)])
+    for outcome, v in base.items():
+        levels.append(pd.DataFrame({"draw_id": draw_id, "scenario": names, "year": 0, "kind": "level",
+                                    "outcome": outcome, "estimate": np.asarray(v, dtype=np.float64)}))
     tally, week_first = new_tally(), np.zeros(rows_n)
     for t in range(T):
         year = t // per_year

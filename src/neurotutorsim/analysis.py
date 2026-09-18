@@ -329,10 +329,18 @@ def gate18(pilot: Path, zero_plasticity: Path | None = None, zero_effort: Path |
     def add(check, rule, value, ok):
         rows.append({"check": check, "rule": rule, "value": value, "pass": ok if isinstance(ok, str) else bool(ok)})
 
+    # G1 as the brief words it (§10.2): higher prior knowledge must not reduce baseline accuracy on average. The
+    # stricter year-1 version planned in PLAN.md (S8) is reported but does not gate (user decision 2026-09-18): the
+    # strata converge within weeks because eq. 16 draws the learning rate independently of prior knowledge.
+    b0, b1, b2 = (_levels(draws, f"unaided_stratum{i}", year=0) for i in range(3))
+    add("G1 prior knowledge monotone (brief §10.2)", "baseline unaided accuracy low <= medium <= high on average over draws, every scenario",
+        f"mean low / medium / high {b0.mean().mean():.3f} / {b1.mean().mean():.3f} / {b2.mean().mean():.3f}",
+        bool(((b0.mean() <= b1.mean()) & (b1.mean() <= b2.mean())).all()))
     s0, s1, s2 = (_levels(draws, f"unaided_stratum{i}") for i in range(3))
     mono = ((s0 < s1) & (s1 < s2)).mean()
-    add("G1 prior knowledge monotone", "year-1 unaided accuracy low < medium < high in >= 95% of draws, every scenario",
-        f"min share {mono.min():.3f} ({mono.idxmin()})", mono.min() >= 0.95)
+    add("G1b prior knowledge at year 1 (PLAN.md S8, informational)", "year-1 unaided accuracy low < medium < high in >= 95% of draws",
+        f"min share {mono.min():.3f} ({mono.idxmin()}); mean high - low {(s2 - s0).mean().mean():+.4f}: strata converge within weeks",
+        "not met (informational)" if mono.min() < 0.95 else True)
     slope = _levels(draws, "difficulty_slope")
     add("G2 difficulty lowers accuracy", "slope of expected accuracy on difficulty < 0 in 100% of draws",
         f"max slope {slope.max().max():.4f}", (slope < 0).all().all())

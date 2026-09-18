@@ -156,8 +156,8 @@ def test_t6_bounded_form_never_clips_over_ten_years(cfg, units, root):
 
 def test_t7_retention_falls_over_the_break(cfg, units, root):
     sim = build(cfg, units, root)
-    res = levels_of(LG.run_draw(sim, 0, cfg, 80, 1, 1, {}, subsample=5)).set_index(["scenario", "outcome"])["estimate"]
-    flat = levels_of(LG.run_draw(sim, 0, cfg, 80, 1, 1, {}, subsample=5, break_scale=0.0)).set_index(["scenario", "outcome"])["estimate"]
+    res = levels_of(LG.run_draw(sim, 0, cfg, 80, 1, 1, {}, subsample=5)).query("year == 1").set_index(["scenario", "outcome"])["estimate"]
+    flat = levels_of(LG.run_draw(sim, 0, cfg, 80, 1, 1, {}, subsample=5, break_scale=0.0)).query("year == 1").set_index(["scenario", "outcome"])["estimate"]
     for s in cfg["phase5"]["scenarios"]:
         assert res[(s, "retention")] < res[(s, "unaided")]
         assert res[(s, "retention_below_share")] == 1.0

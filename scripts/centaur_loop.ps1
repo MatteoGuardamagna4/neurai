@@ -15,6 +15,7 @@ param(
     [string]$Tag = "centaur_main",
     [int]$Learners = 40,
     [int]$Episodes = 30,
+    [string]$Conditions = "",   # comma list, e.g. "free_choice"; empty = the config's four arms
     [int]$RetrySeconds = 120,
     [int]$MaxRounds = 200,
     [int]$Ttl = 604800   # local only: a week, since LM Studio's default 1 h idle TTL has unloaded a model mid-run
@@ -26,6 +27,9 @@ Set-Location $root
 $callsPath = Join-Path $root "outputs/logs/$Tag/calls_centaur.jsonl"
 $episodesPath = Join-Path $root "data/processed/$Tag/episodes.jsonl"
 $logPath = Join-Path $root "outputs/logs/$Tag/loop.log"
+New-Item -ItemType Directory -Force (Split-Path $logPath) | Out-Null
+$armList = if ($Conditions) { $Conditions.Split(",") | ForEach-Object { $_.Trim() } } else { @() }
+$nArms = if ($armList.Count) { $armList.Count } else { 4 }
 $uv = (Get-Command uv -ErrorAction Stop).Source
 
 function Log([string]$msg) {
@@ -44,6 +48,14 @@ function MedianSeconds([string]$path, [int]$n) {
 
 $mode = if ($Remote) { "remote (Colab)" } else { "local (LM Studio)" }
 Log "loop started: $mode, tag $Tag"
+# never run two simulate processes on one tag: both would append to the same episodes.jsonl
+$pattern = "neurotutorsim\.simulate.*--tag $Tag(\s|$)"
+$existing = @(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match $pattern })
+if ($existing.Count) {
+    Log "waiting for the simulate already running on $Tag (pids $($existing.ProcessId -join ', ')) to exit"
+    $existing | ForEach-Object { Wait-Process -Id $_.ProcessId -ErrorAction SilentlyContinue }
+}
+$finished = $false
 for ($round = 1; $round -le $MaxRounds; $round++) {
     if (-not $Remote) {
         Log "round ${round}: reloading LM Studio"
@@ -56,12 +68,14 @@ for ($round = 1; $round -le $MaxRounds; $round++) {
     $simArgs = @("run", "python", "-m", "neurotutorsim.simulate", "--learners", $Learners, "--episodes", $Episodes,
                  "--tag", $Tag, "--resume")
     if ($Remote) { $simArgs += "--remote" }
+    if ($armList.Count) { $simArgs += @("--conditions") + $armList }
     $out = Join-Path $root "outputs/logs/$Tag/run_console_$round.log"
     $err = Join-Path $root "outputs/logs/$Tag/run_console_$round.err"
     $startedAt = Get-Date
     $p = Start-Process -FilePath $uv -ArgumentList $simArgs -WorkingDirectory $root -PassThru -WindowStyle Hidden `
         -RedirectStandardOutput $out -RedirectStandardError $err
-    Log "round ${round}: simulate started (pid $($p.Id)), episodes done $(LineCount $episodesPath) of $($Learners * $Episodes * 4)"
+    $null = $p.Handle  # without a cached handle, ExitCode stays empty after the process exits (measured 2026-09-18)
+    Log "round ${round}: simulate started (pid $($p.Id)), episodes done $(LineCount $episodesPath) of $($Learners * $Episodes * $nArms)"
     while (-not $p.HasExited) {
         Start-Sleep -Seconds 300
         if (-not $p.HasExited) {
@@ -72,7 +86,7 @@ for ($round = 1; $round -le $MaxRounds; $round++) {
     $code = $p.ExitCode
     $minutes = ((Get-Date) - $startedAt).TotalMinutes
     Log ("round {0}: simulate exited with code {1} after {2:N0} min, episodes done {3}" -f $round, $code, $minutes, (LineCount $episodesPath))
-    if ($code -eq 0) { Log "FINISHED"; break }
+    if ($code -eq 0) { Log "FINISHED"; $finished = $true; break }
     $tail = (Get-Content $err -Tail 3 -ErrorAction SilentlyContinue) -join " | "
     Log "last error lines: $tail"
     if ($code -ne 1) { Log "exit code $code means the run refused to start (see above); stopping"; break }
@@ -80,3 +94,4 @@ for ($round = 1; $round -le $MaxRounds; $round++) {
     Start-Sleep -Seconds $RetrySeconds
 }
 Log "loop ended"
+if ($finished) { exit 0 } else { exit 1 }

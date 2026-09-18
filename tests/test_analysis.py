@@ -82,8 +82,10 @@ def test_gate18_on_a_tiny_pilot(tmp_path, units):
     assert LG.main(base + ["--tag", "c", "--set", "phase5.scenarios.traditional_copy={protocol: traditional, policy: persistent}"]) == 0
     out = tmp_path / "data" / "processed" / "phase5"
     table = A.gate18(out / "p", out / "z", out / "e", out / "c", run_t1=False).set_index("check")
-    assert len(table) == 9 and table["pass"].map(lambda v: isinstance(v, (bool, np.bool_))).all()
-    for check in ("G2 difficulty lowers accuracy", "G3 support helps", "G6 zero plasticity", "G8 common random numbers"):
+    assert len(table) == 10 and table.drop(index="G1b prior knowledge at year 1 (PLAN.md S8, informational)")["pass"].map(
+        lambda v: isinstance(v, (bool, np.bool_))).all()
+    for check in ("G1 prior knowledge monotone (brief §10.2)", "G2 difficulty lowers accuracy", "G3 support helps",
+                  "G6 zero plasticity", "G8 common random numbers"):
         assert bool(table.loc[check, "pass"]), (check, table.loc[check, "value"])
     draws = LG.read_table(out / "p", "simulation_draws")
     sc = A.scenario_contrasts(draws, outcomes=["G", "unaided"], years=(1,))
