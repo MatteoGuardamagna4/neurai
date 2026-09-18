@@ -16,7 +16,7 @@ from neurotutorsim.engines import LogisticEngine
 from neurotutorsim.episode import run_episode
 from neurotutorsim.tutor import FakeTutor
 from tests.conftest import ROOT
-from tests.test_plasticity import write_fake_tribe
+from tests.test_plasticity import write_fake_rule, write_fake_tribe
 
 
 @pytest.fixture(scope="module")
@@ -24,6 +24,7 @@ def root(tmp_path_factory, units):
     """A repository root with a synthetic TRIBE run, so `Sim.build` has patterns to accumulate."""
     r = tmp_path_factory.mktemp("root")
     write_fake_tribe(r / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(r)
     return r
 
 
@@ -77,7 +78,8 @@ def se_diff(a, b):
 
 def test_t1_vectorised_step_matches_the_reference_loop(cfg, units, stimuli, root):
     n, episodes, master = 200, 30, int(cfg["seeds"]["master"])
-    scen = LG.scenarios_from_config(cfg["phase5"])
+    # the Centaur-calibrated rule has no Phase III counterpart to compare with; the other five scenarios do
+    scen = [s for s in LG.scenarios_from_config(cfg["phase5"]) if s.protocol != LG.FREE_CENTAUR]
     sim = build(cfg, units, root, scen, form="brief", epw=3)
     res = LG.run_draw(sim, -1, cfg, n, 1, master, {}, n_episodes=episodes, keep_episodes=True)
     vec = res["episodes_central"]
@@ -128,7 +130,7 @@ def test_t4_zero_plasticity_gives_exact_zeros(cfg, units, root):
     sim = build(cfg, units, root, zero_plasticity=True)
     res = LG.run_draw(sim, 0, cfg, 40, 1, 1, {}, subsample=5)
     neural = res["neural_contrasts"]
-    assert len(neural) == 4 * 4 * 7  # AI scenarios x mechanisms x networks
+    assert len(neural) == 5 * 4 * 7  # AI scenarios x mechanisms x networks
     assert (neural["mean"] == 0).all() and (neural["d"] == 0).all()
     yearly = res["yearly_subsample"]
     assert (yearly[[c for c in yearly.columns if c.startswith("N_")]] == 0).all().all()
@@ -214,6 +216,7 @@ def test_cli_writes_parts_resumes_and_refuses_a_changed_design(tmp_path, units):
     for folder in ("config", "data/units", "stimuli"):
         shutil.copytree(ROOT / folder, tmp_path / folder)
     write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(tmp_path)
     base = ["--config", str(tmp_path / "config" / "default.yaml"), "--years", "1", "--learners", "30", "--subsample", "4",
             "--flush-every", "2"]
     args = base + ["--tag", "t", "--draws", "2"]
@@ -224,12 +227,12 @@ def test_cli_writes_parts_resumes_and_refuses_a_changed_design(tmp_path, units):
     draws = LG.read_table(out, "simulation_draws", with_params=True)
     assert sorted(draws["draw_id"].unique()) == [-1, 0, 1]
     assert set(draws["kind"]) == {"level", "contrast"} and "population.mu_alpha" in draws.columns
-    assert len(LG.read_table(out, "episodes_central")) == 30 * 5 * 120, "the central draw keeps year-1 episodes"
+    assert len(LG.read_table(out, "episodes_central")) == 30 * 6 * 120, "the central draw keeps year-1 episodes"
     assert set(LG.read_table(out, "yearly_subsample")["draw_id"]) == {-1, 0, 1}
     hist = LG.read_table(out, "contrast_hist")
     assert hist.groupby(["scenario", "year", "outcome"])["count"].sum().eq(3 * 30).all(), "3 draws x 30 learners"
     assert LG.read_arrays(out, "mean_accumulator_diff")["diff"].shape[1:] == (5, 90)
-    assert LG.read_arrays(out, "accumulators_subsample")["values"].shape[1:] == (5 * 4, 5, 90)
+    assert LG.read_arrays(out, "accumulators_subsample")["values"].shape[1:] == (6 * 4, 5, 90)
     assert LG.main(args) == 2, "an existing tag needs --resume"
     assert LG.main(base + ["--tag", "t", "--draws", "3", "--resume"]) == 2, "a resume may not change the design"
     assert LG.main(args + ["--resume"]) == 0  # nothing left to do
@@ -288,9 +291,55 @@ def test_cli_mediation_records_the_design(tmp_path, units):
     for folder in ("config", "data/units", "stimuli"):
         shutil.copytree(ROOT / folder, tmp_path / folder)
     write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(tmp_path)
     args = ["--config", str(tmp_path / "config" / "default.yaml"), "--years", "1", "--learners", "20", "--draws", "1",
             "--tag", "m", "--mediate", "E,F,D", "--no-neural"]
     assert LG.main(args) == 0
     meta = json.loads((tmp_path / "data" / "processed" / "phase5" / "m" / "run.json").read_text())
-    assert len(meta["scenarios"]) == 5 + 4 * 3 and len(meta["scenario_knobs"]) == 12 and meta["neural"] is False
+    assert len(meta["scenarios"]) == 6 + 5 * 3 and len(meta["scenario_knobs"]) == 15 and meta["neural"] is False
     assert LG.main(args[:-5] + ["--tag", "m", "--mediate", "E", "--no-neural", "--resume"]) == 2, "the design may not change"
+
+
+def test_pop_note_keeps_the_record_like_the_phase3_learner(cfg):
+    rng = np.random.default_rng(3)
+    learner = L.Learner(learner_id=0, stratum=1, K=0.4, M=0.3, R=0.3, C=0.5, D=0.4, alpha=0.1, delta=0.01,
+                        confidence_bias=0.0, speed=1.0)
+    L.seed_prior_records([learner], cfg)
+    pop = LG.Pop(K=np.array([0.4]), M=np.array([0.3]), R=np.array([0.3]), D=np.array([0.4]), alpha=np.array([0.1]),
+                 delta=np.array([0.01]), bias=np.zeros(1), stratum=np.array([1]), brier_sum=np.zeros(1),
+                 brier_n=np.ones(1, dtype=int), recent=np.array([learner.recent], float))
+    picks = []
+    for _ in range(25):
+        first, chose = bool(rng.random() < 0.6), bool(rng.random() < 0.8)
+        pick, transfer = int(rng.integers(3)), bool(rng.random() < 0.5)
+        learner.note_episode("c", first, CONDITIONS[pick] if chose else None, transfer)
+        pop.note(np.array([first]), np.array([chose]), np.array([pick]), np.array([transfer]))
+        if chose:
+            picks.append(pick)
+        assert pop.recent[0].tolist() == [float(x) for x in learner.recent]
+        assert pop.uses[0].tolist() == [learner.choice_record.get(a, [0, 0])[0] for a in CONDITIONS]
+        assert pop.wins[0].tolist() == [learner.choice_record.get(a, [0, 0])[1] for a in CONDITIONS]
+        assert pop.last_picks[0].tolist() == ([-1, -1, -1] + picks)[-3:]
+    tiled = pop.tile(3)
+    assert tiled.recent.shape == (3, L.RECENT_N) and (tiled.last_picks == pop.last_picks[0]).all()
+
+
+def test_centaur_calibrated_scenario_follows_its_rule(cfg, units, root, tmp_path):
+    scen = [LG.Scenario("traditional", "traditional"), LG.Scenario("free_choice_centaur", LG.FREE_CENTAUR)]
+    sim = build(cfg, units, root, scen)
+    res = LG.run_draw(sim, -1, cfg, 60, 1, 1, {}, n_episodes=20, keep_episodes=True)
+    eps = res["episodes_central"][res["episodes_central"]["scenario"] == "free_choice_centaur"]
+    assert set(eps["protocol"]) <= set(CONDITIONS) and eps["protocol"].nunique() == 3
+    sim.set_draw(cfg, -1)
+    assert sim.choice_params.tolist() == sim.choice_rule["params"], "the central draw uses the point estimate"
+    sim.set_draw(cfg, 7)
+    assert sim.choice_params.tolist() == sim.choice_rule["bootstrap"][7 % len(sim.choice_rule["bootstrap"])]
+    # a rule that prefers substitution by a wide margin produces substitution every time
+    forced = tmp_path / "forced"
+    write_fake_tribe(forced / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(forced, params=(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0), n_boot=1)
+    res = LG.run_draw(build(cfg, units, forced, scen), -1, cfg, 60, 1, 1, {}, n_episodes=10, keep_episodes=True)
+    eps = res["episodes_central"][res["episodes_central"]["scenario"] == "free_choice_centaur"]
+    assert (eps["protocol"] == "ai_substitution").all()
+    with pytest.raises(FileNotFoundError):
+        build(cfg, units, tmp_path / "no_rule", scen)

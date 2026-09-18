@@ -28,6 +28,20 @@ def write_fake_tribe(tribe_dir, units, n_parcels=8, seed=0):
                  ).to_csv(tribe_dir / "parcels_schaefer400.csv", index=False)
 
 
+def write_fake_rule(root, params=(-0.25, 0.08, 0.87, 0.15, 0.26, -0.15, 0.07), n_boot=5, seed=0):
+    """A choice_rule.json like `choice_rule.fit_rule` writes, for scenarios that use the Centaur-calibrated rule."""
+    import json
+
+    from neurotutorsim import choice_rule as CR
+
+    rng = np.random.default_rng(seed)
+    boot = (np.asarray(params) + rng.normal(0, 0.05, (n_boot, len(params)))).tolist()
+    path = root / "data" / "processed" / "choice_rule" / "choice_rule.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"features": list(CR.FEATURES), "params": list(params), "bootstrap": boot}), encoding="utf-8")
+    return path
+
+
 def test_standardize_is_eq28_then_global_winsorising():
     A = np.random.default_rng(1).normal(5, 2, (90, 6))
     Z = P.standardize(A, winsorize=None)

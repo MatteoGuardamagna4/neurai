@@ -7,7 +7,7 @@ import pytest
 from neurotutorsim import analysis as A, longitudinal as LG
 from neurotutorsim.corpus import CONDITIONS
 from tests.conftest import ROOT
-from tests.test_plasticity import write_fake_tribe
+from tests.test_plasticity import write_fake_rule, write_fake_tribe
 
 
 def test_smd_tost_and_fdr_on_hand_examples():
@@ -75,6 +75,7 @@ def test_gate18_on_a_tiny_pilot(tmp_path, units):
     for folder in ("config", "data/units", "stimuli"):
         shutil.copytree(ROOT / folder, tmp_path / folder)
     write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(tmp_path)
     base = ["--config", str(tmp_path / "config" / "default.yaml"), "--years", "1", "--learners", "300", "--draws", "3"]
     assert LG.main(base + ["--tag", "p"]) == 0
     assert LG.main(base + ["--tag", "z", "--zero-plasticity"]) == 0
@@ -89,7 +90,8 @@ def test_gate18_on_a_tiny_pilot(tmp_path, units):
         assert bool(table.loc[check, "pass"]), (check, table.loc[check, "value"])
     draws = LG.read_table(out / "p", "simulation_draws")
     sc = A.scenario_contrasts(draws, outcomes=["G", "unaided"], years=(1,))
-    assert set(sc["scenario"]) == {"scaffolding_rapid", "scaffolding_nofade", "substitution", "free_choice"}
+    assert set(sc["scenario"]) == {"scaffolding_rapid", "scaffolding_nofade", "substitution", "free_choice",
+                                   "free_choice_centaur"}
     assert (sc["n"] == 3).all() and {"lo90", "hi95", "prsup"} <= set(sc.columns)
     neural = A.neural_contrasts_table(LG.read_table(out / "p", "neural_contrasts"), years=(1,))
-    assert len(neural) == 4 * 7
+    assert len(neural) == 5 * 7

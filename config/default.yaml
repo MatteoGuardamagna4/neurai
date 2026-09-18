@@ -151,7 +151,9 @@ phase5:                       # brief §9; PLAN.md D1-D4, A1-A2, A8-A10; every v
     scaffolding_nofade: {protocol: ai_scaffolding,  policy: persistent}
     substitution:       {protocol: ai_substitution, policy: persistent}
     free_choice:        {protocol: free_choice,     policy: persistent}   # logistic softmax-in-D rule (an assumption)
+    free_choice_centaur: {protocol: free_choice_centaur, policy: persistent}   # rule fitted to Centaur's picks (2026-09-18)
   comparator: traditional
+  choice_rule: data/processed/choice_rule/choice_rule.json   # choice_rule.py fit; needed by free_choice_centaur
   checkpoint_years: [1, 5, 10]
   G: {weights: {K: 0.25, R: 0.25, M: 0.25, D: 0.25}, epsilon: 0.02}   # eq. 39, A8
   stakeholder_weights:         # A9, sensitivity only

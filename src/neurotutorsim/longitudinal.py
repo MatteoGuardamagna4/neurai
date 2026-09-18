@@ -30,12 +30,15 @@ import yaml
 
 from . import __version__, corpus
 from . import learners as L
+from . import choice_rule as CR
 from . import plasticity as P
 from .corpus import CONDITIONS
 from .episode import FREE
 
 ARMS = L.ARMS
 PROTOCOL = {c: i for i, c in enumerate(CONDITIONS)}  # traditional 0, ai_scaffolding 1, ai_substitution 2
+FREE_CENTAUR = "free_choice_centaur"  # free choice by the rule fitted to Centaur's picks (choice_rule.py), code 4
+FREE_CODE = {FREE: 3, FREE_CENTAUR: 4}
 POLICIES = ("persistent", "immediate_withdrawal", "gradual_fading")
 STATES = ("K", "M", "R", "C", "D")
 HIST_BINS = np.linspace(-1.0, 1.0, 202)  # 201 bins on [-1, 1] for the learner-level contrast histograms
@@ -114,7 +117,7 @@ class Scenario:
     mediate: str | None = None
 
     def __post_init__(self):
-        if self.protocol not in CONDITIONS and self.protocol != FREE:
+        if self.protocol not in CONDITIONS and self.protocol not in FREE_CODE:
             raise ValueError(f"unknown protocol {self.protocol!r}")
         if self.policy not in POLICIES:
             raise ValueError(f"unknown policy {self.policy!r}")
@@ -206,12 +209,24 @@ class Pop:
     n_help: np.ndarray = None
     n_episodes: np.ndarray = None
     n_first: np.ndarray = None
+    recent: np.ndarray = None  # (n, 5) first-try outcomes of the last five problems, seeded like the prior record
+    last_picks: np.ndarray = None  # (n, 3) the last three free-choice picks (approach index, -1 = none yet)
+    uses: np.ndarray = None  # (n, 3) free-choice picks per approach
+    wins: np.ndarray = None  # (n, 3) follow-up questions solved after each approach
 
     def __post_init__(self):
         n = len(self.K)
         for k in ("streak", "n_help", "n_episodes", "n_first"):
             if getattr(self, k) is None:
                 setattr(self, k, np.zeros(n, dtype=np.int64))
+        if self.recent is None:
+            self.recent = np.full((n, L.RECENT_N), 0.5)
+        if self.last_picks is None:
+            self.last_picks = np.full((n, CR.HABIT_WINDOW), -1, dtype=np.int64)
+        if self.uses is None:
+            self.uses = np.zeros((n, 3))
+        if self.wins is None:
+            self.wins = np.zeros((n, 3))
 
     @property
     def C(self):
@@ -221,17 +236,31 @@ class Pop:
     def draw(cls, cfg: dict, n: int, seed: int) -> "Pop":
         """`learners.make_population` plus the §7.3 prior record seeding of the running Brier score."""
         pop = L.make_population(cfg["population"], n, seed)
+        L.seed_prior_records(pop, cfg)  # the recent-form window starts from the prior record, as in Phase III
         prior = int(cfg["population"]["prior_problems"])
         arr = lambda k: np.array([getattr(l, k) for l in pop], dtype=np.float64)  # noqa: E731
         C = arr("C")
         return cls(arr("K"), arr("M"), arr("R"), arr("D"), arr("alpha"), arr("delta"), arr("confidence_bias"),
-                   np.array([l.stratum for l in pop], dtype=np.int64), prior * (1.0 - C), np.full(n, prior, dtype=np.int64))
+                   np.array([l.stratum for l in pop], dtype=np.int64), prior * (1.0 - C), np.full(n, prior, dtype=np.int64),
+                   recent=np.array([l.recent for l in pop], dtype=np.float64))
 
     def copy(self) -> "Pop":
         return Pop(**{k: v.copy() for k, v in self.__dict__.items()})
 
+    def note(self, first: np.ndarray, chose: np.ndarray, pick: np.ndarray, transfer: np.ndarray) -> None:
+        """The observable record after an episode, as `Learner.note_episode` keeps it: the last five first-try
+        outcomes for everyone; for rows that chose freely (`chose`), the pick joins the last three picks and the
+        pick's counts of uses and follow-up questions solved."""
+        self.recent = np.concatenate([self.recent[:, 1:], np.asarray(first, float)[:, None]], axis=1)
+        rows = np.flatnonzero(chose)
+        if len(rows):
+            self.last_picks[rows] = np.concatenate([self.last_picks[rows, 1:], pick[rows, None]], axis=1)
+            self.uses[rows, pick[rows]] += 1
+            self.wins[rows, pick[rows]] += np.asarray(transfer, float)[rows]
+
     def tile(self, reps: int) -> "Pop":
-        return Pop(**{k: np.tile(v, reps) for k, v in self.__dict__.items()})
+        """The population repeated `reps` times along learners (2-D fields are tiled by row)."""
+        return Pop(**{k: np.tile(v, (reps,) + (1,) * (v.ndim - 1)) for k, v in self.__dict__.items()})
 
 
 class Draws:
@@ -296,6 +325,8 @@ class Sim:
     zero_effort: bool = False  # the §10.3 control: a1-a4 = 0, so E is the constant logistic(a0)
     form: str = "bounded"
     epw: int = 3
+    choice_rule: dict | None = None  # choice_rule.json, loaded when a scenario uses FREE_CENTAUR
+    choice_params: np.ndarray | None = None  # the rule's parameters for the current draw
 
     @classmethod
     def build(cls, cfg: dict, units: dict, scenarios: list[Scenario], root: Path, zero_plasticity=False,
@@ -311,8 +342,25 @@ class Sim:
                 raise ValueError("TRIBE patterns and the corpus disagree on the units")
         elif neural:
             print(f"no TRIBE run at {tribe_dir}: neural outputs are skipped", file=sys.stderr)
+        rule = None
+        if any(s.protocol == FREE_CENTAUR for s in scenarios):
+            path = root / cfg["phase5"]["choice_rule"]
+            if not path.exists():
+                raise FileNotFoundError(f"{path} does not exist: fit it first (python -m neurotutorsim.choice_rule fit "
+                                        f"--runs data/processed/centaur_main) or drop the {FREE_CENTAUR} scenario")
+            rule = json.loads(path.read_text(encoding="utf-8"))
+            if rule["features"] != list(CR.FEATURES):
+                raise ValueError(f"{path} was fitted with other features: {rule['features']}")
         return cls(cfg, Curriculum.load(units), scenarios, Z, W, nets, zero_plasticity, zero_effort,
-                   form or cfg["phase5"]["update_form"], int(epw or cfg["calendar"]["episodes_per_week"]))
+                   form or cfg["phase5"]["update_form"], int(epw or cfg["calendar"]["episodes_per_week"]), rule)
+
+    def set_draw(self, cfg: dict, draw_id: int) -> None:
+        """The draw's configuration and, for the Centaur-calibrated rule, its parameters: the point estimate for
+        the central draw, bootstrap vector draw_id mod B otherwise (the rule's uncertainty enters the draws)."""
+        self.cfg = cfg
+        if self.choice_rule is not None:
+            boot = self.choice_rule["bootstrap"]
+            self.choice_params = np.array(self.choice_rule["params"] if draw_id < 0 or not boot else boot[draw_id % len(boot)])
 
     # -- per-episode arithmetic ------------------------------------------------------------
     def episodes_per_year(self) -> int:
@@ -370,6 +418,11 @@ class Sim:
             w = np.stack([np.exp(-sc), np.ones_like(sc), np.exp(sc)], axis=1)
             cum = np.cumsum(w / w.sum(axis=1, keepdims=True), axis=1)
             proto[free] = (U[0, free][:, None] > cum).sum(axis=1).clip(0, 2)
+        centaur = proto == 4  # the rule fitted to Centaur's picks, on what Centaur would read (choice_rule.py)
+        if centaur.any():
+            q = CR.probabilities(self.choice_params, CR.design(pop.last_picks[centaur], pop.uses[centaur],
+                                                               pop.wins[centaur], pop.recent[centaur].mean(axis=1)))
+            proto[centaur] = (U[0, centaur][:, None] > np.cumsum(q, axis=1)).sum(axis=1).clip(0, 2)
         mix = (proto == 1) & (U[10] < knobs["substitution_prob"])  # frontier knob o
         proto[mix] = 2
         p1 = self.p_correct(pop, b)
@@ -435,6 +488,7 @@ class Sim:
         pop.n_help += help_
         pop.n_episodes += 1
         pop.n_first += first
+        pop.note(first, centaur, proto, transfer)
         k_idx = unit_pos * len(CONDITIONS) + proto
         channels = P.channel_values(E, np.abs(first - p1), p.correct_after_error, p.retrieval, p.offloading)
         if acc is not None:
@@ -491,13 +545,14 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
     p5, cal = cfg["phase5"], dict(cfg["calendar"])
     if break_scale is not None:
         cal["break_decay_scale"] = float(break_scale)
+    sim.set_draw(cfg, draw_id)
     scen, S = sim.scenarios, len(sim.scenarios)
     names = [s.name for s in scen]
     comp_of = [names.index(c) if (c := s.comparator or p5["comparator"]) in names else None for s in scen]
     pop = Pop.draw(cfg, n, master * 1000 + draw_id).tile(S)
     rows_n = n * S
     sidx = np.repeat(np.arange(S), n)  # scenario of each row; rows are scenario-major
-    protocol = np.array([3 if s.protocol == FREE else PROTOCOL[s.protocol] for s in scen])[sidx]
+    protocol = np.array([FREE_CODE.get(s.protocol, PROTOCOL.get(s.protocol, -1)) for s in scen])[sidx]
     policy = np.array([POLICIES.index(s.policy) for s in scen])[sidx]
     knobs = {"adaptation": np.array([np.nan if s.adaptation is None else s.adaptation for s in scen])[sidx],
              "effort_retained": np.array([s.effort_retained for s in scen], dtype=float)[sidx],
@@ -854,7 +909,7 @@ def main(argv=None) -> int:
     started, chunk = time.time(), []
     for i, b in enumerate(todo):
         cfg, drawn = draw_parameters(raw, b, master, distribution)
-        sim.cfg = cfg
+        sim.set_draw(cfg, b)
         keep = b < subsample_draws
         chunk.append(run_draw(sim, b, cfg, n, years, master, drawn, subsample=subsample, keep_yearly=keep,
                               keep_acc=keep, keep_episodes=(b == -1), break_scale=args.break_scale, **extra))
