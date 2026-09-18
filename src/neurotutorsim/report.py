@@ -3,6 +3,7 @@
     python -m neurotutorsim.report phase12                 # Tables 1-4, Figures 1-4, gate-19 definitions
     python -m neurotutorsim.report gate18 --pilot v_pilot --zero-plasticity v_pilot_z0 --zero-effort v_pilot_e0
     python -m neurotutorsim.report engines                 # §10.2: centaur_main vs logistic_40 (Figure S1)
+    python -m neurotutorsim.report phase5 --run v_main     # Table 5, Figures 5-6 for one Phase V run
     python -m neurotutorsim.report all
 
 Tables go to outputs/tables/*.csv, figures to outputs/figures/*.png and .pdf. Every figure has a CSV twin.
@@ -443,9 +444,119 @@ def gate18_report(paths: Paths, pilot: str, z0: str | None, e0: str | None, crn:
     return [paths.table(table, "gate18_checks")]
 
 
+# ------------------------------------------------------------------ Phase V: Table 5, Figures 5-6
+SCENARIO_COLOR = {"traditional": SERIES[0], "scaffolding_rapid": SERIES[1], "scaffolding_nofade": SERIES[2],
+                  "substitution": SERIES[3], "free_choice": SERIES[4], "free_choice_centaur": SERIES[5]}
+SCENARIO_LABEL = {"traditional": "Traditional", "scaffolding_rapid": "Scaffolding, rapid fade",
+                  "scaffolding_nofade": "Scaffolding, no fade", "substitution": "Substitution",
+                  "free_choice": "Free choice (assumed rule)", "free_choice_centaur": "Free choice (Centaur-calibrated)"}
+HEADLINE = ("G", "unaided", "far", "retention", "p_request")  # PLAN.md D7
+OUTCOME_LABEL = {"G": "net advantage G (eq. 39)", "unaided": "unaided accuracy", "far": "far transfer",
+                 "retention": "retention after the break", "p_request": "P(request help)", "K": "knowledge K",
+                 "D": "dependence D"}
+
+
+def figure5(plt, weekly: pd.DataFrame, levels: pd.DataFrame, out: Path, name: str) -> tuple[list[Path], pd.DataFrame]:
+    """Year-1 weekly K, far transfer and D per scenario: mean over parameter draws with the 5-95% band across draws
+    (§11.3); a second row with the yearly levels when the run is longer than one year."""
+    w = weekly[weekly["draw_id"] >= 0]
+    multi_year = levels["year"].max() > 1
+    fig, axes = plt.subplots(2 if multi_year else 1, 3, figsize=(12, 7.2 if multi_year else 3.8), squeeze=False)
+    rows = []
+    scen = [s for s in SCENARIO_COLOR if s in set(w["scenario"])]
+    for j, var in enumerate(("K", "far", "D")):
+        ax = axes[0, j]
+        y1 = w[(w["year"] == 1) & w[var].notna()]
+        for s in scen:
+            g = y1[y1["scenario"] == s].groupby("week")[var]
+            m, lo, hi = g.mean(), g.quantile(0.05), g.quantile(0.95)
+            ax.fill_between(m.index, lo, hi, color=SCENARIO_COLOR[s], alpha=0.10, lw=0)
+            ax.plot(m.index, m.values, color=SCENARIO_COLOR[s], lw=2, label=SCENARIO_LABEL[s])
+            rows += [{"panel": "year 1 weekly", "variable": var, "scenario": s, "time": int(k), "mean": float(m[k]),
+                      "p05": float(lo[k]), "p95": float(hi[k])} for k in m.index]
+        ax.set_title(f"{OUTCOME_LABEL.get(var, var)}, year 1")
+        ax.set_xlabel("instructional week")
+        if multi_year:
+            ax2 = axes[1, j]
+            lv = levels[(levels["kind"] == "level") & (levels["outcome"] == var) & (levels["draw_id"] >= 0)]
+            for s in scen:
+                g = lv[lv["scenario"] == s].groupby("year")["estimate"]
+                m, lo, hi = g.mean(), g.quantile(0.05), g.quantile(0.95)
+                ax2.fill_between(m.index, lo, hi, color=SCENARIO_COLOR[s], alpha=0.10, lw=0)
+                ax2.plot(m.index, m.values, color=SCENARIO_COLOR[s], lw=2, marker="o", ms=5, mec=SURFACE, mew=1.5)
+                rows += [{"panel": "yearly", "variable": var, "scenario": s, "time": int(k), "mean": float(m[k]),
+                          "p05": float(lo[k]), "p95": float(hi[k])} for k in m.index]
+            ax2.set_title(f"{OUTCOME_LABEL.get(var, var)}, end of each school year")
+            ax2.set_xlabel("school year (0 = before the first episode)")
+    axes[0, 0].legend(loc="lower right", fontsize=7.5)
+    fig.suptitle("Figure 5. Model-implied trajectories per scenario (mean over parameter draws, band: 5-95% of draws)",
+                 x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
+    fig.tight_layout()
+    return save(fig, out, f"fig5_trajectories_{name}"), pd.DataFrame(rows)
+
+
+def figure6(plt, hist: pd.DataFrame, table5: pd.DataFrame, out: Path, name: str, year: int) -> list[Path]:
+    """Learner-level paired differences (AI minus traditional, pooled over draws) per scenario and headline outcome at
+    one year, with the median across draws of each draw's mean and its 90% simulation interval."""
+    h = hist[hist["year"] == year]
+    scen = [s for s in SCENARIO_COLOR if s in set(h["scenario"]) and s != "traditional"]
+    outs = [o for o in HEADLINE if o in set(h["outcome"])]
+    fig, axes = plt.subplots(len(outs), len(scen), figsize=(2.6 * len(scen), 1.9 * len(outs)), squeeze=False, sharey="row")
+    for i, o in enumerate(outs):
+        g_all = h[h["outcome"] == o]
+        nz = g_all[g_all["count"] > 0]
+        lo_x, hi_x = (nz["bin_low"].min(), nz["bin_high"].max()) if len(nz) else (-0.1, 0.1)
+        half = max(abs(lo_x), abs(hi_x), 1e-3)
+        for j, s in enumerate(scen):
+            ax = axes[i, j]
+            g = g_all[g_all["scenario"] == s].sort_values("bin")
+            total = g["count"].sum()
+            ax.bar(g["bin_low"], g["count"] / max(total, 1), width=g["bin_high"] - g["bin_low"], align="edge",
+                   color=SCENARIO_COLOR[s], lw=0)
+            t = table5[(table5["scenario"] == s) & (table5["outcome"] == o) & (table5["year"] == year)]
+            if len(t):
+                ax.axvspan(t["lo90"].iloc[0], t["hi90"].iloc[0], color=INK2, alpha=0.10, lw=0)
+                ax.axvline(t["median"].iloc[0], color=INK, lw=1.2)
+            ax.axvline(0, color=AXIS, lw=0.8)
+            ax.set_xlim(-half, half)
+            ax.grid(axis="x", visible=False)
+            if i == 0:
+                ax.set_title(SCENARIO_LABEL[s], fontsize=8.5)
+            if j == 0:
+                ax.set_ylabel(OUTCOME_LABEL.get(o, o), fontsize=8)
+            ax.tick_params(labelsize=7)
+    fig.suptitle(f"Figure 6. Year-{year} scenario contrasts: learner-level paired differences vs traditional "
+                 f"(bars), median across draws (line) and 90% simulation interval (band)", x=0.01, ha="left",
+                 fontsize=10, fontweight="bold", color=INK)
+    fig.tight_layout()
+    return save(fig, out, f"fig6_distributions_{name}")
+
+
+def phase5(paths: Paths, tag: str) -> list[Path]:
+    """Table 5 (behavioural and neural scenario contrasts at years 1, 5, 10) and Figures 5-6 for one Phase V run."""
+    from .longitudinal import read_table
+
+    plt = plt_setup()
+    run = paths.processed / "phase5" / tag
+    draws = read_table(run, "simulation_draws")
+    years = sorted(int(y) for y in draws["year"].unique() if y > 0)
+    target = [y for y in (1, 5, 10) if y in years] or [max(years)]
+    t5 = A.scenario_contrasts(draws, outcomes=list(HEADLINE) + ["K", "R", "M", "D"], years=target)
+    written = [paths.table(t5, f"table5_scenario_contrasts_{tag}")]
+    neural = read_table(run, "neural_contrasts")
+    if len(neural):
+        written.append(paths.table(A.neural_contrasts_table(neural, "D", target), f"table5_neural_d_{tag}"))
+    fig5, fig5_table = figure5(plt, read_table(run, "weekly_means"), draws, paths.figures, tag)
+    written += fig5 + [paths.table(fig5_table, f"fig5_trajectories_{tag}")]
+    hist = read_table(run, "contrast_hist")
+    if len(hist):
+        written += figure6(plt, hist, t5, paths.figures, tag, max(target))
+    return written
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("what", choices=("phase12", "engines", "gate18", "all"))
+    ap.add_argument("what", choices=("phase12", "engines", "gate18", "phase5", "all"))
     ap.add_argument("--root", default=".")
     ap.add_argument("--n-boot", type=int, default=2000, dest="n_boot")
     ap.add_argument("--pilot", default="v_pilot")
@@ -453,6 +564,7 @@ def main(argv=None) -> int:
     ap.add_argument("--zero-effort", default="v_pilot_e0", dest="e0")
     ap.add_argument("--crn", default=None)
     ap.add_argument("--breaks", nargs="*", default=[], help="WEEKS=TAG runs of the central draw, e.g. 4=v_break4 24=v_break24")
+    ap.add_argument("--run", default="v_main", help="Phase V tag for `phase5`")
     args = ap.parse_args(argv)
     paths = Paths(Path(args.root).resolve())
     written = []
@@ -462,6 +574,8 @@ def main(argv=None) -> int:
         written += engines(paths)
     if args.what in ("gate18", "all") and (paths.processed / "phase5" / args.pilot / "run.json").exists():
         written += gate18_report(paths, args.pilot, args.z0, args.e0, args.crn, args.breaks)
+    if args.what in ("phase5", "all") and (paths.processed / "phase5" / args.run / "run.json").exists():
+        written += phase5(paths, args.run)
     for p in written:
         print(p.relative_to(paths.root))
     return 0
