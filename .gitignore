@@ -14,3 +14,6 @@ data/processed/*
 
 # run outputs (call logs, run logs, tables)
 outputs/
+
+data/tribe
+data/tribe/*
