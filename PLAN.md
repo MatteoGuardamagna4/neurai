@@ -20,6 +20,21 @@ free-choice calibration batch `centaur_free_calib` (queued by `outputs/logs/cent
 S7 (after Centaur), the final choice-rule fit and validation, S9, S10-S13 runs, S12 code, the Phase V part of S14,
 S15. The table below is the 2026-09-16 state.
 
+**Update 2026-09-18 (23:30).** Done overnight: `v_main` (5 scenarios, 500 x 2,000 x 10 years, 69 min), `v_frontier`,
+`v_tipping`, `v_neural` (S10 runs). `centaur_free_calib` at 3,926 / 4,800 episodes. Every remaining laptop run is now
+in two scripts (below); what is left after them is code (the Phase V part of S14, the report wiring for the new tags)
+and S15.
+
+| Script | Runs | Starts |
+|---|---|---|
+| `scripts/run_remaining.ps1` | S12 10-year controls `v_z0_10y`, `v_e0_10y`, `v_uniform` (F4); S11 `v_mediation`; S13 replicates `v_repl0-2`; S9 `v_epw1`, `v_epw5`; then the 72 `spec_*` runs | now (~3-4 h, estimated from `v_main`'s speed) |
+| `scripts/run_centaur_rule.ps1 -WaitForPid <centaur_main.pid>` | `choice_rule validate` (the `centaur_main` fit, kept as `choice_rule_centaur_main.json`) on `centaur_free_calib`; refit on both runs; `v_main_fcc` = traditional + `free_choice_centaur` at `v_main`'s design | when the calibration batch ends (refuses if it has < 4,800 episodes) |
+
+Both scripts append to `outputs/logs/remaining_runs.log` / `centaur_rule.log`. `run_remaining.ps1` names the five
+`v_main` scenarios explicitly, because the config also lists `free_choice_centaur` and those runs must not use the
+interim rule. Fixed on the way (D19): `--seed-offset` used to shift the master seed for parameters and learners as
+well, which would have made the §10.5 replicates independent runs; it now moves only the behaviour stream.
+
 | Part | State |
 |---|---|
 | Phase I corpus | Done: 30 units, 90 stimuli, all calipers inside 10%. No reworded variants, no semantic-coverage judge (§5.4). |
@@ -62,6 +77,7 @@ Measured today, and used below:
 | D16 | (2026-09-18) Gate 18: G1 uses the brief's §10.2 wording (baseline accuracy must not fall with prior knowledge). The stricter year-1 rule planned in S8 is reported as not met: the strata converge within ~5 weeks because eq. 16 draws the learning rate independently of prior knowledge (K tends to alpha E F / (alpha E F + delta) from any start). Reported as a finding and a limitation; no model change. |
 | D17 | (2026-09-18) The specification-curve ranks in `config/spec_curve.yaml` are approved as drafted from S13, before any Phase V result. |
 | D18 | (2026-09-18) Centaur extension. The three assigned arms are not extended (Centaur only makes help and confidence choices there; measured on the 40 paired learners, it adds +0.07 to +0.09 help requests per episode, lowers C by 0.07-0.09, and leaves every learning outcome and every eq. 10-12 contrast unchanged). The free-choice arm is where it matters (after 7 learners: substitution 50% vs 28% under the softmax-in-D rule on the same learners), so: fit a transparent rule to Centaur's free-choice probabilities (`choice_rule.py`), validate it out of sample on a free-choice-only batch (`centaur_free_calib`: 80 new learners x 60 episodes on Colab), and add it to Phase V as a sixth scenario, `free_choice_centaur`, next to the assumed rule. |
+| D19 | (2026-09-18) `--seed-offset` moves only the behavioural random stream (`Draws`); parameter draws and the learner population keep the base master seed, so §10.5 replicates differ in behaviour alone (V_behavior is identified). No existing run used an offset. |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -506,6 +522,10 @@ uv run python -m neurotutorsim.longitudinal --tag v_epw1 --years 10 --draws 200 
 uv run python -m neurotutorsim.longitudinal --tag v_epw5 --years 10 --draws 200 --learners 1000 --epw 5
 ```
 
+`v_main` ran with `--scenarios` set to the five scenarios; the sixth, `free_choice_centaur`, runs as `v_main_fcc`
+(traditional + free_choice_centaur, same seed and design, so its traditional arm equals `v_main`'s) after the rule is
+refitted (`scripts/run_centaur_rule.ps1`). `v_epw1` / `v_epw5` are in `scripts/run_remaining.ps1`.
+
 **Done when** each `run.json` shows all chunks complete and `simulation_draws.parquet` has 500 (or 200) draws × 4
 AI scenarios × 10 years × 9 outcomes, plus draw −1.
 
@@ -606,7 +626,9 @@ underneath, and colour by plausibility tier:
 - year-10 Δ N for the control network (Cont), substitution vs traditional: 72 × 144 = 10,368 specs
 
 **Variance decomposition (§10.5, eq. 41),** for year-10 G and Δ N_Cont:
-- Replicate run: `--tag v_repl --draws 50 --learners 200 --seed-offset 1`, then `2` (3 replicates in total).
+- Replicate runs: `v_repl0`, `v_repl1`, `v_repl2` = `--draws 50 --learners 200 --seed-offset 0|1|2`
+  (`scripts/run_remaining.ps1`). The offset moves only the behaviour stream (D19), so the three share parameters and
+  learners.
 - Nested method-of-moments ANOVA on scenario ⊃ draw ⊃ learner ⊃ replicate gives V_scenario, V_parameters
   (between draws), V_learner and V_behavior (between replicates).
 - V_plasticity: variance over mechanism × half-life × λ_O settings, post hoc.
@@ -718,6 +740,9 @@ and `outputs/figures` with no manual step.
   1.033 vs 1.076 for constant shares. Plan: validate on `centaur_free_calib`, then refit on both runs for Phase V.
   Phase IV (`plasticity --run`) on `centaur_main` done. `v_main` (5 scenarios, 500 x 2,000 x 10 years) started
   20:33; `scripts/run_frontier.ps1` is chained after it (grid, lines, neural).
+- 2026-09-18 23:30: `v_main` done (69 min), then `v_frontier` (36 min), `v_tipping` (28 min), `v_neural` (4 min),
+  all exit 0. D19 (seed offset). `scripts/run_remaining.ps1` (S9 exposure, S11, S12 controls, S13 replicates and
+  spec curve) and `scripts/run_centaur_rule.ps1` (validate, refit, `v_main_fcc`) written.
 
 ## 9. Not blocking now; decide by S15
 

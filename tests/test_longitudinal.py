@@ -115,6 +115,11 @@ def test_t2_same_seed_same_outputs(cfg, units, root):
     assert a["neural_contrasts"].equals(b["neural_contrasts"])
     c = LG.run_draw(sim, 4, cfg, 50, 1, 1, {}, subsample=5)
     assert not a["simulation_draws"].equals(c["simulation_draws"])
+    # §10.5 replicates: noise_seed moves only the behaviour stream (noise_seed == master is the plain run)
+    same = LG.run_draw(sim, 3, cfg, 50, 1, 1, {}, subsample=5, noise_seed=1)
+    repl = LG.run_draw(sim, 3, cfg, 50, 1, 1, {}, subsample=5, noise_seed=2)
+    assert a["simulation_draws"].equals(same["simulation_draws"])
+    assert not a["simulation_draws"].equals(repl["simulation_draws"])
 
 
 def test_t3_common_random_numbers_null(cfg, units, root):

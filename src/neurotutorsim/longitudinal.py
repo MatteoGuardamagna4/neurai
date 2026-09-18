@@ -535,13 +535,15 @@ def _summary(delta: np.ndarray) -> dict:
 
 def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int, drawn: dict, n_episodes=None,
              subsample: int = 100, keep_yearly: bool = True, keep_acc: bool = False, keep_episodes: bool = False,
-             break_scale=None, half_lives=None, lambda_o_grid=None) -> dict:
+             break_scale=None, half_lives=None, lambda_o_grid=None, noise_seed: int | None = None) -> dict:
     """Simulate every scenario on one drawn population (§9.3) and return this draw's tables and arrays.
     `n_episodes` truncates the calendar (T1 runs 30 episodes of year 1). Each year ends with the tests on the
     pre-break state, then the break (K and M by `learners.apply_break`; N by the same break_weeks x
     break_decay_scale weeks of term-time decay, user decision 2026-09-18), then retention on the post-break
     state. `final` is the state before the last break. `half_lives` and `lambda_o_grid` add the neural diagram
-    (PLAN.md S10, D5): one extra accumulator per half-life, and mechanism D's network d for every lambda_O."""
+    (PLAN.md S10, D5): one extra accumulator per half-life, and mechanism D's network d for every lambda_O.
+    `noise_seed` replaces `master` in the behavioural random stream only (§10.5 replicates: same parameters, same
+    learners, new behaviour)."""
     p5, cal = cfg["phase5"], dict(cfg["calendar"])
     if break_scale is not None:
         cal["break_decay_scale"] = float(break_scale)
@@ -563,7 +565,7 @@ def run_draw(sim: Sim, draw_id: int, cfg: dict, n: int, years: int, master: int,
         knobs["src"] = np.array([(si if comp_of[si] is None else comp_of[si]) for si in range(S)])[sidx] * n + np.tile(np.arange(n), S)
         for m in ("E", "F", "D"):
             knobs[f"med_{m}"] = np.array([s.mediate == m for s in scen])[sidx]
-    draws = Draws(master, draw_id, n, S)
+    draws = Draws(master if noise_seed is None else noise_seed, draw_id, n, S)
     ramp = float(p5["ramp_per_year"])
     per_year = sim.episodes_per_year()
     T = int(n_episodes) if n_episodes is not None else years * per_year
@@ -852,7 +854,7 @@ def main(argv=None) -> int:
     ap.add_argument("--scenarios", nargs="+")
     ap.add_argument("--zero-plasticity", action="store_true", dest="zero_plasticity")
     ap.add_argument("--zero-effort", action="store_true", dest="zero_effort")
-    ap.add_argument("--seed-offset", type=int, default=0, dest="seed_offset", help="replicate runs (§10.5): master + offset")
+    ap.add_argument("--seed-offset", type=int, default=0, dest="seed_offset", help="replicate runs (§10.5): behaviour stream master + offset; parameters and learners unchanged")
     ap.add_argument("--set", nargs="*", metavar="key=value", help="override raw config leaves, e.g. calendar.break_weeks=4")
     ap.add_argument("--subsample", type=int, help="learners per scenario kept per learner-year (first draws only)")
     ap.add_argument("--frontier", choices=("grid", "lines", "neural"), help="the §9.6-9.7 designs (replace the scenarios)")
@@ -870,7 +872,8 @@ def main(argv=None) -> int:
     subsample = args.subsample or int(p5["subsample_learners"])
     subsample_draws = int(p5.get("subsample_draws", 20))
     distribution = args.distribution or p5["distribution"]
-    master = int(raw["seeds"]["master"]) + int(args.seed_offset)
+    master = int(raw["seeds"]["master"])  # parameters and population; --seed-offset moves only the behaviour stream
+    noise_seed = master + int(args.seed_offset) if args.seed_offset else None
     out_dir = root / raw["run"]["processed_dir"] / "phase5" / args.tag
     design = {"years": years, "draws": n_draws, "learners_per_draw": n, "master_seed": master, "options": opts,
               "config_sha256": hashlib.sha256(json.dumps(raw, sort_keys=True).encode()).hexdigest()}
@@ -912,7 +915,8 @@ def main(argv=None) -> int:
         sim.set_draw(cfg, b)
         keep = b < subsample_draws
         chunk.append(run_draw(sim, b, cfg, n, years, master, drawn, subsample=subsample, keep_yearly=keep,
-                              keep_acc=keep, keep_episodes=(b == -1), break_scale=args.break_scale, **extra))
+                              keep_acc=keep, keep_episodes=(b == -1), break_scale=args.break_scale, noise_seed=noise_seed,
+                              **extra))
         elapsed = time.time() - started
         if len(chunk) >= args.flush_every or i + 1 == len(todo):
             meta["wall_time_s"] = round(meta.get("wall_time_s", 0.0) + elapsed, 1)

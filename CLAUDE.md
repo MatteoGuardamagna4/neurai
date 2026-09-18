@@ -170,7 +170,7 @@ and so on); the default tag is the engine name and would collide.
 
 `uv run pytest` · `uv run python -m neurotutorsim.corpus` · `uv run python -m neurotutorsim.simulate ...` ·
 `... plasticity --run DIR` · `... longitudinal --tag TAG ...` · `... choice_rule fit|validate` · `... report phase12|engines|gate18`
-· `scripts/run_gate18.ps1` · `scripts/centaur_loop.ps1 -Remote` (see README). Runs are append-only and resumable
+· `scripts/run_gate18.ps1` · `scripts/run_remaining.ps1` · `scripts/run_centaur_rule.ps1` · `scripts/centaur_loop.ps1 -Remote` (see README). Runs are append-only and resumable
 (`--resume`); never delete logs to "clean up": a superseded run gets a new tag (e.g. `v_pilot` -> `g18_pilot`).
 
 ## Rules
