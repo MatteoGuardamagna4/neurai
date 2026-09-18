@@ -134,3 +134,26 @@ def test_z_controls_and_sign_flips_on_a_tiny_run(tmp_path, units, cfg):
     assert np.allclose(zc.set_index("network")["main_contrast"].reindex(in_run.index), in_run, atol=1e-9)
     flips = A.sign_flip_null(LG.read_table(run, "yearly_subsample"), "unaided", n_perm=200)
     assert len(flips) == 1 and abs(flips["null_mean"].iloc[0]) < 3 * flips["null_sd"].iloc[0] / np.sqrt(200) + 1e-9
+
+
+def test_falsification_verdicts_on_constructed_inputs():
+    t_plain = pd.DataFrame({"level": "network", "metric": "auc", "key": ["Cont", "Vis"], "contrast": "S-T",
+                            "ci_excludes_0": [True, True]})
+    t_cov = t_plain.assign(ci_excludes_0=[True, False])  # Vis disappears once duration and words are covariates
+    shuffle = pd.DataFrame({"metric": "auc", "control": "sentence", "key": ["Cont", "Vis"], "ratio_shuffle_to_contrast": [0.2, 1.5]})
+    draws = pd.DataFrame([{"draw_id": b, "year": 10, "kind": "contrast", "scenario": s, "outcome": o, "estimate": v + 0.001 * b}
+                          for b in range(40) for s, o, v in (("scaffolding_nofade", "unaided", 0.05), ("substitution", "unaided", -0.05),
+                                                             ("scaffolding_nofade", "far", 0.01), ("substitution", "far", 0.01))]
+                         + [{"draw_id": b, "year": 10, "kind": "level", "scenario": "traditional", "outcome": "near_bound_share",
+                             "estimate": 0.02} for b in range(40)])
+    neural = pd.DataFrame([{"draw_id": b, "year": 10, "scenario": "substitution", "network": "Cont", "mechanism": m,
+                            "d": (-1 if m == "B" else 1) * 0.3} for b in range(5) for m in "ABCD"])
+    zc = pd.DataFrame({"year": 10, "scenario": "substitution", "network": ["Cont", "Vis"],
+                       "permuted_units_median_ratio": [0.1, 0.7], "permuted_conditions_median_ratio": [0.2, 0.1]})
+    f = A.falsification(t_plain, t_cov, shuffle, draws, neural, zc).set_index(f"criterion")["verdict"]
+    assert f.filter(like="F1").iloc[0].startswith("no claim for 1")
+    assert f.filter(like="F2").iloc[0].startswith("not assessable")
+    assert f.filter(like="F3").iloc[0].startswith("no claim for 1"), "mechanism B reverses the sign"
+    assert f.filter(like="F4").iloc[0] == "claim allowed"
+    assert f.filter(like="F5").iloc[0].startswith("no claim for 1")
+    assert f.filter(like="F6").iloc[0] == "no claim for far", "far transfer does not separate scaffolding from substitution"

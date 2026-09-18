@@ -522,3 +522,75 @@ def sign_flip_null(yearly: pd.DataFrame, outcome: str, comparator: str = "tradit
                      "null_mean": float(null.mean()), "null_sd": float(null.std(ddof=1)),
                      "share_null_as_extreme": float((np.abs(null) >= abs(d.mean())).mean()), "n_pairs": len(d)})
     return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §10.6 falsification checklist (S12)
+def _sc_by_draw(draws: pd.DataFrame, year: int) -> pd.DataFrame:
+    c = draws[(draws["kind"] == "contrast") & (draws["draw_id"] >= 0) & (draws["year"] == year)]
+    return c.pivot_table(index="draw_id", columns=["scenario", "outcome"], values="estimate")
+
+
+def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle: pd.DataFrame, draws: pd.DataFrame,
+                  neural: pd.DataFrame, zc: pd.DataFrame, uniform_draws: pd.DataFrame | None = None,
+                  year: int | None = None) -> pd.DataFrame:
+    """The brief's six conditions under which no meaningful difference is claimed (§10.6), one row each with
+    the indicator, the threshold (PLAN.md A15), the value and a verdict: `claim allowed`, `no claim` (naming what
+    it applies to) or `not assessable` (the evidence does not exist in this study)."""
+    year = year or int(draws["year"].max())
+    rows = []
+
+    def add(f, criterion, indicator, threshold, value, verdict):
+        rows.append({"criterion": f"{f} {criterion}", "indicator": indicator, "threshold": threshold, "value": value,
+                     "verdict": verdict})
+
+    def sig(t):
+        s = t[(t["level"] == "network") & (t["metric"] == "auc")]
+        return set(zip(s["key"], s["contrast"])) - set(zip(s.loc[~s["ci_excludes_0"], "key"], s.loc[~s["ci_excludes_0"], "contrast"]))
+
+    gone = sorted(sig(table4_plain) - sig(table4_cov))
+    add("F1", "effects disappear after matching content and duration", "network AUC contrasts whose 95% CI excludes 0 "
+        "without covariates but not with duration and word count", "any", ", ".join(f"{k} {c}" for k, c in gone) or "none",
+        f"no claim for {len(gone)} network contrasts" if gone else "claim allowed")
+    big = shuffle[(shuffle["metric"] == "auc") & (shuffle["control"] == "sentence") & (shuffle["ratio_shuffle_to_contrast"] > 1)]
+    add("F2", "TRIBE contrasts smaller than harmless regenerations", "reworded versions were not built (D6); proxy: "
+        "sentence-shuffle |change| in AUC larger than the largest condition contrast", "ratio > 1",
+        ", ".join(big["key"]) or "none", "not assessable as specified" + (f"; proxy flags {len(big)} networks" if len(big) else ""))
+    n = neural[(neural["year"] == year) & (neural["draw_id"] >= 0)]
+    med = n.groupby(["scenario", "network", "mechanism"])["d"].median().unstack("mechanism")
+    flip = med[(np.sign(med).nunique(axis=1) > 1)] if len(med) else med
+    add("F3", "long-term direction reverses across plausible plasticity models", f"sign of the median year-{year} d "
+        "across mechanisms A-D, per scenario and network", "any disagreement", f"{len(flip)} of {len(med)} scenario-networks",
+        f"no claim for {len(flip)} scenario-networks" if len(flip) else "claim allowed")
+    bound = draws[(draws["kind"] == "level") & (draws["outcome"] == "near_bound_share") & (draws["year"] == year)]["estimate"]
+    value = f"max near-bound share {bound.max():.3f}" if len(bound) else "n/a"
+    verdict = "no claim" if len(bound) and bound.max() > 0.10 else "claim allowed"
+    if uniform_draws is not None:
+        a, b = _sc_by_draw(draws, year).median(), _sc_by_draw(uniform_draws, year).median()
+        both = a.index.intersection(b.index)
+        flips = [f"{s}/{o}" for s, o in both if o in ("G", "unaided", "far", "retention") and np.sign(a[(s, o)]) != np.sign(b[(s, o)])]
+        value += f"; sign flips triangular vs uniform: {', '.join(flips) or 'none'}"
+        verdict = "no claim" if flips or verdict == "no claim" else verdict
+    else:
+        value += "; uniform-draw rerun not given"
+    add("F4", "result driven by parameter bounds", "learners within 0.01 of a bound; SC sign under uniform draws",
+        "> 10% of learners; any sign flip", value, verdict)
+    if len(zc):
+        z = zc[zc["year"] == zc["year"].max()]
+        hit = z[(z["permuted_units_median_ratio"] >= 0.5) | (z["permuted_conditions_median_ratio"] >= 0.5)]
+        add("F5", "negative controls as large as the substantive effects", "median |permuted-Z contrast| / |main|, per "
+            "scenario and network (mechanism D)", ">= 0.5 (A15)", f"{len(hit)} of {len(z)}",
+            f"no claim for {len(hit)} scenario-networks" if len(hit) else "claim allowed")
+    else:
+        add("F5", "negative controls as large as the substantive effects", "permuted-Z ratios", ">= 0.5", "controls not run", "not assessable")
+    sc = _sc_by_draw(draws, year)
+    same = []
+    for o in ("unaided", "far", "retention"):
+        if ("scaffolding_nofade", o) in sc and ("substitution", o) in sc:
+            d = (sc[("scaffolding_nofade", o)] - sc[("substitution", o)]).dropna()
+            lo, hi = np.quantile(d, [0.025, 0.975])
+            if lo <= 0 <= hi:
+                same.append(o)
+    add("F6", "scaffolding and substitution indistinguishable after support removal", f"95% interval across draws of the "
+        f"year-{year} SC(scaffolding, no fade) - SC(substitution)", "includes 0", ", ".join(same) or "none",
+        f"no claim for {', '.join(same)}" if same else "claim allowed")
+    return pd.DataFrame(rows)
