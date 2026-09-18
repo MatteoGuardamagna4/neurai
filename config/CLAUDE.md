@@ -16,3 +16,9 @@
   Scaffolding must never state the answer; leakage is checked numerically after every call.
 - `support.persistence_policy` (`persistent` / `gradual_fading` / `immediate_withdrawal`) is the
   Phase V scenario knob; it caps how many help turns an episode may use.
+- `updates.form` (`brief` for every Phase III run, `bounded` for Phase V, D3), `calendar` (weekly forgetting, 12
+  break weeks at a quarter of the term rate, D4), `plasticity` (Phase IV; `tribe_dir: data/tribe/tribe_main`) and
+  `phase5` (draws, scenarios incl. `free_choice_centaur`, which needs `phase5.choice_rule`, G weights) are the
+  2026-09-16/18 blocks; every value there is an assumption labelled in Table 3 (`report.py`).
+- `spec_curve.yaml` holds the specification-curve plausibility ranks, approved 2026-09-18 before any Phase V result
+  (brief §10.4): do not edit ranks after results exist.

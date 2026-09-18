@@ -52,8 +52,12 @@ implements the Phase I corpus skeleton and Phase III (synthetic learners) and no
   the offline baseline, whose approach rule is a documented softmax in D. Centaur and Minitaur share
   `MinitaurEngine`; the served id comes from `engine.models[...]` and a missing id fails loudly. Never
   silently fall back between engines.
-- **Centaur runs locally as a GGUF**: the HF adapter is merged and quantised on Colab, then served by
-  LM Studio next to the tutor. The tutor is Qwen2.5-3B-Instruct on the same LM Studio (no API key).
+- **Centaur runs as a GGUF**: the HF adapter is merged and quantised on Colab, then served by LM Studio next
+  to the tutor (Qwen2.5-3B-Instruct, no API key). **Since 2026-09-18 both are served from a Colab GPU**
+  (`notebooks/serve_models.ipynb`, `simulate --remote`, `scripts/centaur_loop.ps1 -Remote`): the laptop pages
+  both models to disk (RAM, not a stale model; reloads do not help). The proxy reproduces LM Studio's
+  rendering (`<|begin_of_text|>AI: ` + transcript; the Centaur GGUF has no chat template) and
+  `scripts/compare_servers.py` must PASS before any run switches servers (PLAN.md D13).
 - **The tutor is an LLM** behind any OpenAI-compatible URL (`tutor.base_url`; local servers need no key).
   Its text is numerically inert for correctness (`adaptation` is a per-protocol constant and eq. 17-18
   never read the transcript) but it is what the transcript engine reads when choosing, so `--tutor fake`
@@ -98,10 +102,15 @@ self-reinforces +0.119, a traditional one +0.006), the U-shaped confidence scale
 history *drowns* the record line that carries the payoff (+0.053 alone -> +0.009 with 8 past episodes).
 Hence `history_window: 3`; do not raise it.
 
-**Cost.** ~110 s per episode, and concurrency does not help: 1 worker 4.2 calls/min, 2 -> 0.76x, 4 ->
-0.53x, 8 -> 0.50x on cold disjoint prompt sets. One-token generations behind ~1000-token prompts are
-prompt-processing bound and the GPU is already saturated, so **do not build a parallel runner**. (An
-early test showed 2.57x; it reused one prompt set across levels and was measuring the prefix cache.)
+**Cost.** On the laptop ~110 s per episode (RAM-bound, see above); on the Colab L4 ~4 s per assigned-arm
+episode and ~10-15 s per free-choice episode (more calls). Concurrency did not help on the laptop (1 worker
+4.2 calls/min, 2 -> 0.76x, 4 -> 0.53x, 8 -> 0.50x on cold disjoint prompt sets), so **do not build a parallel
+runner**; the run's order also matters for the learner state, which is sequential per learner.
+
+**Centaur vs the logistic baseline, measured on `centaur_main`** (40 paired learners, 2026-09-18): in the
+assigned arms Centaur adds +0.07 to +0.09 help requests per episode and lowers C by 0.07-0.09, and changes
+no learning outcome or eq. 10-12 contrast. In free choice it picks substitution far more often than the
+softmax-in-D rule, which is why `choice_rule.py` fits a rule to its picks for Phase V (PLAN.md D18).
 
 **Two-tier run design** (user decision): the full 1667-triplet population runs on `logistic` (~16 min),
 and a ~40-learner subsample runs on `hybrid` for the §10.2 comparison. State plainly that in the logistic
@@ -118,6 +127,12 @@ lifetime totals, recent form, topic experience and, in `free_choice`, what it pi
 Far transfer is used only by the §7.7 checkpoints.
 
 ## Where this stands (2026-09-11)
+
+**Update 2026-09-18:** see `PLAN.md` §1 and decisions D13-D18. Logistic runs, TRIBE (`data/tribe/tribe_main/`, QC
+passes), Phase IV (`plasticity.py`), Phase V (`longitudinal.py`, six scenarios, frontier/lines/neural/mediation
+modes; gate 18 passes), `analysis.py`, `report.py` (Phase I/II tables and figures) and `choice_rule.py` exist and
+are tested. `centaur_main` runs on Colab, followed by the free-choice calibration batch `centaur_free_calib`.
+The text below is the 2026-09-11 state.
 
 **Update 2026-09-16:** `centaur_main` stopped on an LM Studio timeout at 2,359 / 4,800 episodes and is not running;
 no logistic production run and no TRIBE run exist yet. `PLAN.md` holds the day-by-day plan to 2026-09-25 (resume
@@ -153,8 +168,10 @@ and so on); the default tag is the engine name and would collide.
 
 ## Commands
 
-`uv run pytest` · `uv run python -m neurotutorsim.corpus` · `uv run python -m neurotutorsim.simulate ...`
-(see README). Runs are append-only and resumable (`--resume`); never delete logs to "clean up".
+`uv run pytest` · `uv run python -m neurotutorsim.corpus` · `uv run python -m neurotutorsim.simulate ...` ·
+`... plasticity --run DIR` · `... longitudinal --tag TAG ...` · `... choice_rule fit|validate` · `... report phase12|engines|gate18`
+· `scripts/run_gate18.ps1` · `scripts/centaur_loop.ps1 -Remote` (see README). Runs are append-only and resumable
+(`--resume`); never delete logs to "clean up": a superseded run gets a new tag (e.g. `v_pilot` -> `g18_pilot`).
 
 ## Rules
 

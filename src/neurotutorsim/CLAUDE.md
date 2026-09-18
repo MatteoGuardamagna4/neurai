@@ -9,6 +9,11 @@
 | `episode.py` | the per-learner episode state machine for the three assigned conditions and the `free_choice` arm, proxies, `EpisodeRecord` (`condition` = the arm, `protocol` = what actually ran) |
 | `simulate.py` | CLI: config arms, run/resume loop, §7.7 checkpoints, table export, run log, §10.2 direction checks |
 | `tribe.py` | Phase II adapters, model-free: eq. 4 word timing, vertex-file I/O, parcel/network aggregation (eq. 6-7), §6.5 metrics (eq. 8-9), eq. 10-13 contrasts with cluster bootstrap, RSA (eq. 14, 34), shuffled-text controls; driven by `notebooks/tribe_phase2.ipynb` |
+| `plasticity.py` | Phase IV: eq. 28 Z from the TRIBE run, the five-channel `Accumulator` (N = (w . A) @ Z, so mechanism, lambdas and every Z control are post hoc), eq. 29-33 weights, eq. 7 networks, §8.7 outcomes, `apply_to_run` on a Phase III run |
+| `longitudinal.py` | Phase V: parameter draws, `Pop` arrays, the vectorised mirror of `run_episode` + `LogisticEngine` (`Sim.step`, checked by T1), calendar and breaks, paired contrasts, G, neural d, frontier/lines/neural-diagram/mediation designs, append-only parts + `run.json`, `read_table` |
+| `choice_rule.py` | a conditional logit fitted to Centaur's free-choice probabilities on what Centaur reads (habit, payoff record, tried, recent form), with a learner bootstrap; Phase V's `free_choice_centaur` uses it |
+| `analysis.py` | pure §10-§11 functions: corpus balance (SMD, TOST), BH-FDR, Table 4 and eq. 42, RSA summary, gate-19 metric definitions, engine comparison, gate 18, Table 5 summaries |
+| `report.py` | CLI that rebuilds tables and figures from saved data (dataviz reference palette; every figure has a CSV twin) |
 
 Invariants:
 - Engines only see a `Trial`; Minitaur reads its text fields, the logistic engine its numeric fields.
@@ -26,3 +31,9 @@ Invariants:
 - Proxy definitions (brief §7.4, all observable, none tunable) live in `run_episode`; keep them there.
 - Phase IV/V consume `learner_state.parquet` (`effort`, `pe`, `retrieval`, `offloading`, `resolution`);
   do not add neural quantities here.
+- Phase V must stay a numeric mirror of the Phase III loop: a change to `run_episode`, the proxies or the logistic
+  engine needs the same change in `Sim.step`, and `tests/test_longitudinal.py::test_t1_*` must stay green (it is
+  gate 18's G10). `learners.step_state` is the one implementation of eq. 21-25 for both (`form: brief` pins Phase III
+  through `tests/data/phase3_golden.json`; `bounded` is Phase V).
+- Phase V rows are scenario-major (`row = scenario * n + learner`) and every scenario of a draw sees the same random
+  numbers (`Draws`), so a scenario contrast is paired; a mediated or forgetting-scaled scenario names its comparator.

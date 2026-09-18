@@ -18,3 +18,13 @@
   are the append-only run outputs; every
   table (`responses.csv`, `learner_state.parquet`, `checkpoints.csv`) is derived from them and a
   resumed run restores learner state from them. Gitignored, never hand-edited, never regenerated silently.
+- `tribe/tribe_main/` (gitignored) is the Phase II run copied from Drive: `wpm220|180|260/tribe_metrics.parquet`,
+  `tribe_patterns.parquet`, `parcels_schaefer400.csv`, `controls/`, `tribe_qc.json`. `plasticity.tribe_dir` points here.
+- `processed/<tag>/neural_network.parquet` / `neural_state.parquet` / `plasticity.json` are Phase IV's post hoc
+  outputs on a Phase III run (`python -m neurotutorsim.plasticity --run ...`).
+- `processed/phase5/<tag>/` is one Phase V run: `run.json` (design, seeds, `draws_done`, the part list) and one
+  folder per table (`simulation_draws`, `parameter_draws`, `neural_contrasts`, `weekly_means`, `yearly_subsample`,
+  `episodes_central`, `neural_diagram`, `contrast_hist`) plus `.npz` accumulator parts. Read them with
+  `longitudinal.read_table` / `read_arrays`, which only list the parts `run.json` records.
+- `processed/choice_rule/choice_rule.json` is the rule fitted to Centaur's free-choice picks (`choice_rule.py`), with
+  its bootstrap and data sources; `validation.json` beside it is the out-of-sample check on `centaur_free_calib`.

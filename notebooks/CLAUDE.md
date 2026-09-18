@@ -64,3 +64,11 @@ Decisions baked in:
 
 All arithmetic lives in `src/neurotutorsim/tribe.py` (tested offline); the notebook only orchestrates. Rebuild the
 notebook by editing it directly; keep cell outputs cleared in git.
+
+`serve_models.ipynb` (2026-09-18) serves Centaur and the tutor from a Colab GPU for the laptop's `simulate --remote`:
+llama-server at a pinned commit (the engine LM Studio embeds), the laptop's exact GGUF files (SHA-256 checked), a
+proxy that renders Centaur's prefill as LM Studio does (`AI: ` + transcript on `/completion`, BOS added by the
+server) and returns OpenAI-format top logprobs, a bearer token, and a Cloudflare quick tunnel with `--protocol
+http2` (the default QUIC connector never registered from Colab: error 1033); a conditional ngrok cell is the
+fallback. It prints `NEUROTUTOR_SERVER_URL` / `_TOKEN` for `.env` before its own (DNS-sensitive) self-check.
+`scripts/compare_servers.py` is the gate before any run switches to it.

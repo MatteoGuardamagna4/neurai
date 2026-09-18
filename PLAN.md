@@ -9,7 +9,16 @@ Deadline: **Fri 2026-09-25, code and results** (paper and presentation later). P
 
 ---
 
-## 1. Where things stand (verified 2026-09-16)
+## 1. Where things stand
+
+**Update 2026-09-18 (evening).** Done: S1 (four logistic runs), S2 (TRIBE `tribe_main`, all QC checks pass;
+outputs in `data/tribe/tribe_main/`), S4, S5 (code, and `apply_to_run` on both logistic runs), S6 (T1 green), S8
+(gate 18 passes on the `g18_*` runs, see D16), the S10/S11 run modes (`--frontier grid|lines|neural`,
+`--mediate`), the Phase I/II part of S14 (Tables 1-4, Figures 1-4 and S2, gate-19 definitions), the S13 ranks
+(approved, D17) and `choice_rule.py` + the sixth scenario (D18). Running: `centaur_main` on Colab (D13), then the
+free-choice calibration batch `centaur_free_calib` (queued by `outputs/logs/centaur_main.pid`'s chain). Still to do:
+S7 (after Centaur), the final choice-rule fit and validation, S9, S10-S13 runs, S12 code, the Phase V part of S14,
+S15. The table below is the 2026-09-16 state.
 
 | Part | State |
 |---|---|
@@ -47,6 +56,12 @@ Measured today, and used below:
 | D10 | Claude may commit and push to `main` for this work. |
 | D11 | TRIBE runs on a Colab **L4** in one session, text encoder pinned to **fp16** (faster there; the determinism check's second encoder copy fits in 24 GB; same precision as a T4 fallback). The notebook stops on another GPU and refuses to mix precisions under one tag. |
 | D12 | Parcellation is **Schaefer-400** / 7 networks (was 200), to match the classmate's video notebook `01_tribe_video.ipynb`; parcel ids are identical there (left 1-200, right 201-400). |
+| D13 | (2026-09-18) `centaur_main` moves to a **Colab GPU** from episode 3,571: the laptop's ~7x slowdown was RAM exhaustion (both models ~9.2 GB of shared GPU memory, up to 61k hard faults/s), which a reload does not cure. `notebooks/serve_models.ipynb` serves the same GGUF files (SHA-256 checked) with llama-server v0.4.1 behind a proxy that reproduces LM Studio's rendering (`<\|begin_of_text\|>AI:` plus a space and the transcript, captured with `lms log stream`). `scripts/compare_servers.py` PASSED before the switch: 38 captured prompts with identical token counts, median TV 0.012 (p90 0.021), argmax 100%, tutor ChatML identical 10/10; 6 approach prompts median TV 0.0115. Every call log line names its server. |
+| D14 | (2026-09-18) The neural state N decays over the summer break at the same quarter of the term rate as K and M. |
+| D15 | (2026-09-18) With Centaur on Colab the laptop is free, so the gate-18 pilot ran next to it. |
+| D16 | (2026-09-18) Gate 18: G1 uses the brief's §10.2 wording (baseline accuracy must not fall with prior knowledge). The stricter year-1 rule planned in S8 is reported as not met: the strata converge within ~5 weeks because eq. 16 draws the learning rate independently of prior knowledge (K tends to alpha E F / (alpha E F + delta) from any start). Reported as a finding and a limitation; no model change. |
+| D17 | (2026-09-18) The specification-curve ranks in `config/spec_curve.yaml` are approved as drafted from S13, before any Phase V result. |
+| D18 | (2026-09-18) Centaur extension. The three assigned arms are not extended (Centaur only makes help and confidence choices there; measured on the 40 paired learners, it adds +0.07 to +0.09 help requests per episode, lowers C by 0.07-0.09, and leaves every learning outcome and every eq. 10-12 contrast unchanged). The free-choice arm is where it matters (after 7 learners: substitution 50% vs 28% under the softmax-in-D rule on the same learners), so: fit a transparent rule to Centaur's free-choice probabilities (`choice_rule.py`), validate it out of sample on a free-choice-only batch (`centaur_free_calib`: 80 new learners x 60 episodes on Colab), and add it to Phase V as a sixth scenario, `free_choice_centaur`, next to the assumed rule. |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -673,11 +688,28 @@ and `outputs/figures` with no manual step.
   appears in the specification curve.
 - Eq. 42 uses a unit random intercept for identification. G has no neural term (two diagrams).
 - §5.4 semantic coverage and contradiction checks were not run: coverage and correctness default to 1.0 in eq. 20.
+- The corpus meets the per-unit calipers (duration within 5.7%) but not the §5.5 target |SMD| < 0.10: 7 of 8 features
+  miss it (scaffolding vs traditional: words and duration 0.41, sentences 0.46, lexical diversity 0.52, equations
+  -1.76), because the texts vary little across units. Table 4 is therefore also reported with duration and word count
+  as covariates (F1).
+- Prior-knowledge differences wash out within the first ~5 weeks (D16): stratum effects are a baseline property only.
+- `centaur_main` switched from LM Studio to the Colab server at episode 3,571 (D13), after an equivalence check.
+- The Centaur-calibrated free-choice rule (D18) is model-implied behaviour of a model trained on human choices; it
+  inherits Centaur's habit (imitation of its own recent picks), which may be partly a transcript artifact.
 
 ## 8. Log (append as we go)
 
 - 2026-09-16: plan written; notebook controls set to 30 units; decisions D1-D10 recorded.
 - 2026-09-16: notebook set up for an L4 (D11): fp16 pinned, `EXPECTED_GPU` guard, `text_encoder.json` precision lock.
+- 2026-09-17: TRIBE `tribe_main` finished on the L4 (02:27 UTC); QC passes (demo reproduced, no inference issues at
+  three speeds, determinism within 1e-3, 36,000 parcel AUC rows, 180 shuffled controls).
+- 2026-09-18: S4 (golden fixture of 200 Phase III episodes reproduced), S5, S6 (T1 green), analysis/report layer,
+  Phase I/II outputs, S10/S11 run modes. Centaur diagnosed (RAM) and moved to Colab (D13): Cloudflare's default
+  QUIC connector failed with error 1033 inside Colab; `--protocol http2` registered. Remote speed ~4-15 s per episode
+  (free choice needs more calls) against ~140 s locally. The first `v_*` pilot tags predate the year-0 rows and are
+  superseded by `g18_*`. Gate 18 passes (D16). Spec ranks approved (D17). Centaur extension decided (D18).
+  `scripts/centaur_loop.ps1`: `Start-Process` left `ExitCode` empty until the handle was cached; fixed, and the
+  loop now refuses to start a second `simulate` on a running tag.
 
 ## 9. Not blocking now; decide by S15
 

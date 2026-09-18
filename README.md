@@ -41,6 +41,24 @@ comparison: `episodes.jsonl` (source of truth, append-only), `responses.csv`, `l
 of any finished folder. Each scored response carries the brief's §7.3 fields: the answer, the 1-5 confidence
 rating, the `explanation` (the method behind the chosen option) and `requested_support`.
 
+### Phases IV-V, analysis and the Colab model server (added 2026-09-18)
+
+```bash
+uv run python -m neurotutorsim.plasticity --run data/processed/population_logistic       # Phase IV, post hoc
+uv run python -m neurotutorsim.longitudinal --tag v_main --years 10 --draws 500 --learners 2000   # Phase V
+uv run python -m neurotutorsim.longitudinal --tag v_frontier --frontier grid --draws 100 --learners 300 --no-neural
+uv run python -m neurotutorsim.longitudinal --tag v_mediation --mediate E,F,D --draws 50 --learners 500
+uv run python -m neurotutorsim.choice_rule fit --runs data/processed/centaur_main      # the Centaur free-choice rule
+uv run python -m neurotutorsim.report phase12          # Tables 1-4, Figures 1-4 (outputs/tables, outputs/figures)
+powershell -File scripts/run_gate18.ps1                # decision gate 18 (one-year pilot + controls + table)
+powershell -File scripts/centaur_loop.ps1 -Remote      # a Centaur run against notebooks/serve_models.ipynb
+uv run python scripts/compare_servers.py               # equivalence check before switching a run's server
+```
+
+Phase V writes append-only parts under `data/processed/phase5/<tag>/` and refuses a `--resume` with a changed design.
+`notebooks/serve_models.ipynb` serves Centaur and the tutor from a Colab GPU; paste the two lines it prints into
+`.env` (`NEUROTUTOR_SERVER_URL`, `NEUROTUTOR_SERVER_TOKEN`) and run with `--remote`.
+
 ## Phase II: TRIBE v2 on Colab
 
 Open `notebooks/tribe_phase2.ipynb` in Google Colab with an L4 GPU runtime (the configured `EXPECTED_GPU`; a T4
@@ -77,8 +95,9 @@ z = pd.read_parquet("<run>/wpm220/tribe_patterns.parquet")   # rows stimulus_id,
 | `config/prompts/` | the scaffolding and substitution tutor policy prompts |
 | `data/units/*.json` | authored units: problem, validator, misconception, distractors, hints, transfers |
 | `stimuli/<condition>/` | the static per-condition texts (also the TRIBE inputs) |
-| `src/neurotutorsim/` | `corpus`, `learners`, `engines`, `tutor`, `episode`, `simulate`, `tribe` |
-| `notebooks/` | `tribe_phase2.ipynb`, the Phase II Colab notebook |
+| `src/neurotutorsim/` | `corpus`, `learners`, `engines`, `tutor`, `episode`, `simulate`, `tribe`, `plasticity`, `longitudinal`, `choice_rule`, `analysis`, `report` |
+| `notebooks/` | `tribe_phase2.ipynb` (Phase II) and `serve_models.ipynb` (Centaur + tutor server), both for Colab |
+| `scripts/` | the Centaur run loop, the gate-18 driver and the server equivalence check |
 | `tests/` | offline tests; no server or API key needed |
 
 See `CLAUDE.md` files in each folder for the decisions behind the code.
