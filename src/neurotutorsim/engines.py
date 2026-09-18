@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import time
 from dataclasses import dataclass, field
@@ -96,6 +97,23 @@ def render_options(options) -> str:
     return "  ".join(f"{o.key}) {o.text}" for o in options)
 
 
+def pool_keys(top: list[dict], keys) -> tuple[dict, list, dict]:
+    """A top-logprobs list renormalised onto `keys`: token variants such as ' W' or 'w' are pooled onto the
+    key they mean, and a key outside the top-k gets a floor one nat below the lowest returned logprob.
+    Returns (probabilities, missing keys, unnormalised mass per key)."""
+    mass = {k: 0.0 for k in keys}
+    for e in top:
+        tok = str(e["token"]).strip().upper()
+        if tok in mass:
+            mass[tok] += math.exp(e["logprob"])
+    missing = [k for k in keys if mass[k] == 0.0]
+    floor = math.exp(min(e["logprob"] for e in top) - 1.0)
+    for k in missing:
+        mass[k] = floor
+    total = sum(mass.values())
+    return {k: mass[k] / total for k in keys}, missing, mass
+
+
 def find_latent_leaks(text: str) -> list[str]:
     return sorted({m.group(0) for m in _LATENT.finditer(text)})
 
@@ -123,11 +141,17 @@ class MinitaurEngine:
         self.log_path = Path(log_path) if log_path else None
         self.calls = 0
         self.seconds = 0.0
+        # a remote server (notebooks/serve_models.ipynb) wants a bearer token; LM Studio on localhost needs none
+        token_env = cfg.get("api_key_env")
+        token = os.environ.get(token_env, "") if token_env else ""
+        if token_env and not token:
+            raise EngineError(f"set {token_env} in .env or the environment (the token the serving notebook printed)")
+        self.headers = {"Authorization": f"Bearer {token}"} if token else {}
 
     # -- transport ---------------------------------------------------------------------------
     def health_check(self) -> dict:
         try:
-            ids = [m["id"] for m in requests.get(f"{self.base_url}/v1/models", timeout=10).json()["data"]]
+            ids = [m["id"] for m in requests.get(f"{self.base_url}/v1/models", timeout=30, headers=self.headers).json()["data"]]
         except Exception as exc:  # noqa: BLE001
             raise EngineError(f"cannot reach LM Studio at {self.base_url}: {exc}") from exc
         if self.model not in ids:
@@ -145,7 +169,8 @@ class MinitaurEngine:
         started, last = time.perf_counter(), None
         for attempt in range(self.max_attempts):
             try:
-                r = requests.post(f"{self.base_url}/v1/chat/completions", json=payload, timeout=self.timeout)
+                r = requests.post(f"{self.base_url}/v1/chat/completions", json=payload, timeout=self.timeout,
+                                  headers=self.headers)
                 if r.status_code < 500 and not (r.status_code == 400 and "ngine" in r.text):
                     r.raise_for_status()
                     data = r.json()
@@ -162,17 +187,7 @@ class MinitaurEngine:
         except (KeyError, IndexError, TypeError) as exc:
             raise EngineError("the server returned no logprobs; scoring needs /v1/chat/completions with "
                               "logprobs=true (raw /v1/completions never returns them)") from exc
-        mass = {k: 0.0 for k in keys}
-        for e in top:
-            tok = str(e["token"]).strip().upper()
-            if tok in mass:
-                mass[tok] += math.exp(e["logprob"])
-        missing = [k for k in keys if mass[k] == 0.0]
-        floor = math.exp(min(e["logprob"] for e in top) - 1.0)
-        for k in missing:
-            mass[k] = floor
-        total = sum(mass.values())
-        probs = {k: mass[k] / total for k in keys}
+        probs, missing, mass = pool_keys(top, keys)
         meta = {"prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(), "prompt_chars": len(prompt),
                 "prompt_tokens": (data.get("usage") or {}).get("prompt_tokens"), "seconds": round(seconds, 3),
                 "mass_on_keys": round(sum(mass[k] for k in keys if k not in missing), 4), "missing_keys": missing,
@@ -181,7 +196,8 @@ class MinitaurEngine:
         self.seconds += seconds
         if self.log_path:
             with self.log_path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps({"model": self.model, "keys": list(keys), "probabilities": probs, **meta}) + "\n")
+                f.write(json.dumps({"model": self.model, "server": self.base_url, "keys": list(keys),
+                                    "probabilities": probs, **meta}) + "\n")
         return probs, meta
 
     # -- prompt (Psych-101 transcript) -------------------------------------------------------

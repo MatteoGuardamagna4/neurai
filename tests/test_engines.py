@@ -46,6 +46,40 @@ def test_scoring_pools_token_variants_and_floors_missing_keys(monkeypatch, tmp_p
     assert len((tmp_path / "log.jsonl").read_text().splitlines()) == 1
 
 
+def test_remote_server_gets_the_bearer_token_and_every_call_names_its_server(monkeypatch, tmp_path):
+    sent = []
+
+    def post(url, **kw):
+        sent.append((url, kw.get("headers")))
+        return FakeResponse(payload([("W", -0.5), ("Q", -1.0), ("Z", -2.0)]))
+
+    monkeypatch.setattr(engines.requests, "post", post)
+    monkeypatch.setenv("NEUROTUTOR_SERVER_TOKEN", "secret")
+    engine = MinitaurEngine({"base_url": "https://colab.example/", "model": "m", "api_key_env": "NEUROTUTOR_SERVER_TOKEN"},
+                            tmp_path / "log.jsonl")
+    engine.score("You press <<", ("W", "Q", "Z"))
+    assert sent == [("https://colab.example/v1/chat/completions", {"Authorization": "Bearer secret"})]
+    assert json.loads((tmp_path / "log.jsonl").read_text())["server"] == "https://colab.example"
+    local = MinitaurEngine({"base_url": "http://127.0.0.1:1234", "model": "m"})
+    assert local.headers == {}, "LM Studio on localhost gets no token"
+    monkeypatch.delenv("NEUROTUTOR_SERVER_TOKEN")
+    with pytest.raises(engines.EngineError):
+        MinitaurEngine({"base_url": "https://colab.example", "model": "m", "api_key_env": "NEUROTUTOR_SERVER_TOKEN"})
+
+
+def test_use_remote_server_points_both_models_at_the_tunnel_and_never_sends_the_openai_key(cfg):
+    import copy
+
+    from neurotutorsim import simulate
+
+    c = copy.deepcopy(cfg)
+    simulate.use_remote_server(c, "https://abc.trycloudflare.com/")
+    assert c["engine"]["base_url"] == "https://abc.trycloudflare.com"
+    assert c["tutor"]["base_url"] == "https://abc.trycloudflare.com/v1"
+    assert c["engine"]["api_key_env"] == c["tutor"]["api_key_env"] == "NEUROTUTOR_SERVER_TOKEN"
+    assert cfg["tutor"]["api_key_env"] == "OPENAI_API_KEY", "the session config is untouched"
+
+
 def test_choose_samples_from_distribution_and_prompt_is_observable_only(monkeypatch, tmp_path):
     monkeypatch.setattr(engines.requests, "post", lambda *a, **k: FakeResponse(payload([("Q", -0.1), ("W", -5.0), ("Z", -5.0)])))
     engine = MinitaurEngine({"base_url": "http://x", "model": "m"})

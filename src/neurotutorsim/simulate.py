@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import sys
 import time
@@ -33,10 +34,21 @@ from .engines import EngineError, HybridEngine, LogisticEngine, MinitaurEngine, 
 
 TRANSCRIPT_ENGINES = ("minitaur", "centaur")  # same protocol, different served model
 from .episode import build_options, run_episode, FREE
-from .tutor import FakeTutor, Tutor, TutorError
+from .tutor import FakeTutor, Tutor, TutorError, load_dotenv
 
 AI_CONDITIONS = ("ai_scaffolding", "ai_substitution")
 RUN_CONDITIONS = corpus.CONDITIONS + (FREE,)  # three assigned arms plus the free-choice arm
+REMOTE_URL_ENV, REMOTE_TOKEN_ENV = "NEUROTUTOR_SERVER_URL", "NEUROTUTOR_SERVER_TOKEN"
+
+
+def use_remote_server(cfg: dict, url: str) -> None:
+    """Point the choice model and the tutor at one remote server (notebooks/serve_models.ipynb) that serves both
+    under their LM Studio ids, authenticated with the token in NEUROTUTOR_SERVER_TOKEN. The tutor's own key
+    variable is replaced too, so an OpenAI key in .env is never sent to the tunnel."""
+    url = url.rstrip("/")
+    cfg["engine"]["base_url"] = url
+    cfg["tutor"]["base_url"] = f"{url}/v1"
+    cfg["engine"]["api_key_env"] = cfg["tutor"]["api_key_env"] = REMOTE_TOKEN_ENV
 
 
 def load_config(path: Path, setting: str | None = None) -> dict:
@@ -173,6 +185,9 @@ def main(argv=None) -> int:
     ap.add_argument("--tag", help="output folder under data/processed and outputs/logs (default: the engine name)")
     ap.add_argument("--resume", action="store_true", help="continue an existing data/processed/<tag>/episodes.jsonl")
     ap.add_argument("--summarize", metavar="DIR", help="print the summary of a finished output folder and exit")
+    ap.add_argument("--remote", action="store_true",
+                    help=f"serve both models from {REMOTE_URL_ENV} (notebooks/serve_models.ipynb) with the bearer token "
+                         f"{REMOTE_TOKEN_ENV}; both are read from .env. Transport only: it may change on a --resume")
     args = ap.parse_args(argv)
     if args.summarize:
         print(summarize(Path(args.summarize)))
@@ -192,6 +207,13 @@ def main(argv=None) -> int:
         cfg["run"]["conditions"] = args.conditions
     if args.policy:
         cfg["support"]["persistence_policy"] = args.policy
+    if args.remote:
+        load_dotenv(root / ".env")
+        if not os.environ.get(REMOTE_URL_ENV):
+            print(f"--remote needs {REMOTE_URL_ENV} (and {REMOTE_TOKEN_ENV}) in .env: paste the two lines the "
+                  f"serving notebook printed", file=sys.stderr)
+            return 2
+        use_remote_server(cfg, os.environ[REMOTE_URL_ENV])
     run, tag = cfg["run"], args.tag or cfg["engine"]["name"]
     processed, logs = root / run["processed_dir"] / tag, root / run["logs_dir"] / tag
     processed.mkdir(parents=True, exist_ok=True)
@@ -292,6 +314,8 @@ def main(argv=None) -> int:
            "persistence_policy": cfg["support"]["persistence_policy"],
            "engine": cfg["engine"]["name"],
            "engine_model": cfg["engine"]["model"] if name in TRANSCRIPT_ENGINES or name == "hybrid" else None,
+           "engine_base_url": cfg["engine"]["base_url"] if name in TRANSCRIPT_ENGINES or name == "hybrid" else None,
+           "tutor_base_url": None if tutor is None or isinstance(tutor, FakeTutor) else cfg["tutor"]["base_url"],
            "engine_calls": getattr(engine, "calls", 0), "engine_seconds": round(getattr(engine, "seconds", 0.0), 1),
            "tutor": None if tutor is None else {"provider": cfg["tutor"]["provider"], "model": cfg["tutor"]["model"],
                                                 "calls": tutor.calls, "leaks": tutor.leaks, "fallbacks": tutor.fallbacks},

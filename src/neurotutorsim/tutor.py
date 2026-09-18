@@ -97,7 +97,7 @@ class Tutor:
             raise TutorError(f"tutor API failed 3 times; last error: {last}")
         self.calls += 1
         text = (data["choices"][0]["message"]["content"] or "").strip()
-        return text, {"model": data.get("model", self.cfg["model"]), "usage": data.get("usage"),
+        return text, {"model": data.get("model", self.cfg["model"]), "server": base, "usage": data.get("usage"),
                       "seconds": round(time.perf_counter() - started, 3),
                       "prompt_sha256": hashlib.sha256((system + "\n" + user).encode("utf-8")).hexdigest()}
 
