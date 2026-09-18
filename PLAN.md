@@ -710,6 +710,14 @@ and `outputs/figures` with no manual step.
   superseded by `g18_*`. Gate 18 passes (D16). Spec ranks approved (D17). Centaur extension decided (D18).
   `scripts/centaur_loop.ps1`: `Start-Process` left `ExitCode` empty until the handle was cached; fixed, and the
   loop now refuses to start a second `simulate` on a running tag.
+- 2026-09-18 20:39: `centaur_main` complete (4,800 episodes; run log `run_20260918_203917.json`). S7 done
+  (`report engines`: `engine_comparison.csv`, Figure S1): in free choice Centaur picks substitution 44%, traditional
+  31%, scaffolding 25% (the softmax-in-D rule on the same learners: 31 / 39 / 30%). Final choice rule fitted on the
+  1,200 decisions (`data/processed/choice_rule/choice_rule.json`, 500 bootstrap fits): habit 0.86 [0.83, 0.90],
+  payoff 0.14 [0.05, 0.23], tried 0.24, substitution +0.07 and scaffolding -0.25 vs traditional; cross-entropy
+  1.033 vs 1.076 for constant shares. Plan: validate on `centaur_free_calib`, then refit on both runs for Phase V.
+  Phase IV (`plasticity --run`) on `centaur_main` done. `v_main` (5 scenarios, 500 x 2,000 x 10 years) started
+  20:33; `scripts/run_frontier.ps1` is chained after it (grid, lines, neural).
 
 ## 9. Not blocking now; decide by S15
 
