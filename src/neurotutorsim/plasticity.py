@@ -205,12 +205,13 @@ def apply_to_run(processed: Path, cfg: dict, root: Path | None = None, subsample
     weights = {m: mechanism_weights(m, p) for m in MECHANISMS}
     state = pd.read_parquet(Path(processed) / "learner_state.parquet")
     checkpoints = set(int(e) for e in cfg["checkpoints"]["episodes"]) | {int(state["time"].max())}
-    net_rows, parcel_rows = [], []
+    draw = cfg.get("parameter_setting", "medium")
+    net_parts, parcel_parts = [], []  # column arrays per (condition, time, mechanism), assembled once at the end
     for condition, g in state.groupby("condition", sort=True):
         g = g.sort_values(["time", "learner_id"])
         learners = np.sort(g["learner_id"].unique())
-        pos = {l: i for i, l in enumerate(learners)}
         acc = Accumulator(len(learners), len(keys))
+        sub = np.arange(min(subsample_learners, len(learners)))
         for t, e in g.groupby("time", sort=True):
             e = e.set_index("learner_id").reindex(learners)
             if e.isna().any().any():
@@ -218,23 +219,30 @@ def apply_to_run(processed: Path, cfg: dict, root: Path | None = None, subsample
             k = stimulus_index(e["unit_id"], e["protocol"], units)
             acc.step(k, channel_values(e["effort"], e["pe"], e["resolution"], e["retrieval"], e["offloading"]), decay)
             values = acc.values()
+            protocols = e["protocol"].to_numpy()
             for m, w in weights.items():
                 N = neural_state(values, w, Z)
-                Nn = network_state(N, W)
-                net_rows.append(pd.DataFrame({
-                    "learner_id": np.repeat(learners, len(nets)), "condition": condition,
-                    "protocol": np.repeat(e["protocol"].to_numpy(), len(nets)), "time": int(t),
-                    "network": np.tile(nets, len(learners)), "mechanism": m, "state_value": Nn.ravel(),
-                    "parameter_draw": cfg.get("parameter_setting", "medium")}))
+                net_parts.append((condition, int(t), m, np.repeat(learners, len(nets)), np.repeat(protocols, len(nets)),
+                                  np.tile(np.arange(len(nets)), len(learners)), network_state(N, W).ravel()))
                 if int(t) in checkpoints:
-                    sub = learners[:subsample_learners]
-                    idx = [pos[l] for l in sub]
-                    parcel_rows.append(pd.DataFrame({
-                        "learner_id": np.repeat(sub, len(parcel_ids)), "condition": condition, "time": int(t),
-                        "parcel_id": np.tile(parcel_ids, len(sub)), "state_value": N[idx].ravel(), "mechanism": m,
-                        "parameter_draw": cfg.get("parameter_setting", "medium")}))
-    network = pd.concat(net_rows, ignore_index=True)
-    parcels = pd.concat(parcel_rows, ignore_index=True)
+                    parcel_parts.append((condition, int(t), m, np.repeat(learners[sub], len(parcel_ids)),
+                                         np.tile(parcel_ids, len(sub)), N[sub].ravel()))
+
+    def column(parts, i, dtype=None):
+        return np.concatenate([np.full(len(x[3]), x[i]) if np.ndim(x[i]) == 0 else x[i] for x in parts]).astype(dtype) \
+            if dtype else np.concatenate([np.full(len(x[3]), x[i]) if np.ndim(x[i]) == 0 else x[i] for x in parts])
+
+    network = pd.DataFrame({
+        "learner_id": column(net_parts, 3, np.int32), "condition": pd.Categorical(column(net_parts, 0)),
+        "protocol": pd.Categorical(column(net_parts, 4)), "time": column(net_parts, 1, np.int16),
+        "network": pd.Categorical.from_codes(column(net_parts, 5, np.int8), categories=nets),
+        "mechanism": pd.Categorical(column(net_parts, 2), categories=list(MECHANISMS)),
+        "state_value": column(net_parts, 6, np.float32), "parameter_draw": draw})
+    parcels = pd.DataFrame({
+        "learner_id": column(parcel_parts, 3, np.int32), "condition": pd.Categorical(column(parcel_parts, 0)),
+        "time": column(parcel_parts, 1, np.int16), "parcel_id": column(parcel_parts, 4, np.int16),
+        "state_value": column(parcel_parts, 5, np.float32),
+        "mechanism": pd.Categorical(column(parcel_parts, 2), categories=list(MECHANISMS)), "parameter_draw": draw})
     network.to_parquet(Path(processed) / "neural_network.parquet", index=False)
     parcels.to_parquet(Path(processed) / "neural_state.parquet", index=False)
     meta = {"tribe_dir": str(tribe_dir), "wpm": int(p["wpm"]), "metric": p["metric"], "winsorize": p["winsorize"],
