@@ -95,3 +95,42 @@ def test_gate18_on_a_tiny_pilot(tmp_path, units):
     assert (sc["n"] == 3).all() and {"lo90", "hi95", "prsup"} <= set(sc.columns)
     neural = A.neural_contrasts_table(LG.read_table(out / "p", "neural_contrasts"), years=(1,))
     assert len(neural) == 5 * 7
+
+
+def test_z_permutations_and_the_post_hoc_contrast_are_exact():
+    rng = np.random.default_rng(0)
+    Z = rng.normal(size=(30 * 3, 6))
+    U = A.permute_z(Z, "units", rng).reshape(30, 3, 6)
+    blocks = Z.reshape(30, 3, 6)
+    for u in range(30):  # a derangement: every unit gets another unit's patterns, conditions stay aligned
+        src = [v for v in range(30) if np.array_equal(U[u], blocks[v])]
+        assert len(src) == 1 and src[0] != u
+    C = A.permute_z(Z, "conditions", rng).reshape(30, 3, 6)
+    for u in range(30):
+        assert sorted(map(tuple, C[u])) == sorted(map(tuple, blocks[u])) and not np.array_equal(C[u], blocks[u])
+    # the post hoc mean contrast equals the mean of per-learner network contrasts (linearity of N in the accumulators)
+    from neurotutorsim import plasticity as P
+
+    acc_a, acc_b = rng.random((50, 5, 90)), rng.random((50, 5, 90))
+    w, W = np.array([0.3, 0.3, 0.0, 0.4, -0.2]), rng.random((7, 6))
+    per_learner = P.network_state(P.neural_state(acc_a, w, Z), W) - P.network_state(P.neural_state(acc_b, w, Z), W)
+    assert np.allclose(A.network_contrast((acc_a - acc_b).mean(axis=0)[None], w, Z, W)[0], per_learner.mean(axis=0))
+
+
+def test_z_controls_and_sign_flips_on_a_tiny_run(tmp_path, units, cfg):
+    for folder in ("config", "data/units", "stimuli"):
+        shutil.copytree(ROOT / folder, tmp_path / folder)
+    write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    write_fake_rule(tmp_path)
+    assert LG.main(["--config", str(tmp_path / "config" / "default.yaml"), "--years", "1", "--learners", "60",
+                    "--draws", "3", "--tag", "c", "--scenarios", "traditional", "substitution"]) == 0
+    run = tmp_path / "data" / "processed" / "phase5" / "c"
+    zc = A.z_controls(run, cfg, tmp_path, n_perm=20)
+    assert len(zc) == 7 and set(zc["scenario"]) == {"substitution"}
+    assert zc["permuted_units_median_ratio"].between(0, 1e6).all() and zc["permuted_units_share_as_large"].between(0, 1).all()
+    # the main contrast reproduces the in-run neural contrast for mechanism D (mean over draws)
+    neural = LG.read_table(run, "neural_contrasts").query("mechanism == 'D' and draw_id >= 0")
+    in_run = neural.groupby("network")["mean"].mean()
+    assert np.allclose(zc.set_index("network")["main_contrast"].reindex(in_run.index), in_run, atol=1e-9)
+    flips = A.sign_flip_null(LG.read_table(run, "yearly_subsample"), "unaided", n_perm=200)
+    assert len(flips) == 1 and abs(flips["null_mean"].iloc[0]) < 3 * flips["null_sd"].iloc[0] / np.sqrt(200) + 1e-9

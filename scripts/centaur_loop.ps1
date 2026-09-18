@@ -69,8 +69,9 @@ for ($round = 1; $round -le $MaxRounds; $round++) {
                  "--tag", $Tag, "--resume")
     if ($Remote) { $simArgs += "--remote" }
     if ($armList.Count) { $simArgs += @("--conditions") + $armList }
-    $out = Join-Path $root "outputs/logs/$Tag/run_console_$round.log"
-    $err = Join-Path $root "outputs/logs/$Tag/run_console_$round.err"
+    $stamp = Get-Date -Format "yyyyMMdd_HHmmss"  # unique per start: a new loop must not overwrite an older round's output
+    $out = Join-Path $root "outputs/logs/$Tag/run_console_${stamp}_$round.log"
+    $err = Join-Path $root "outputs/logs/$Tag/run_console_${stamp}_$round.err"
     $startedAt = Get-Date
     $p = Start-Process -FilePath $uv -ArgumentList $simArgs -WorkingDirectory $root -PassThru -WindowStyle Hidden `
         -RedirectStandardOutput $out -RedirectStandardError $err

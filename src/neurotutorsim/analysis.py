@@ -423,3 +423,102 @@ def neural_contrasts_table(neural: pd.DataFrame, mechanism: str = "D", years=(1,
         rows.append({"scenario": s, "network": net, "year": y, "mechanism": mechanism, **{f"d_{k}": v for k, v in intervals(g["d"]).items()},
                      "prsup": float(g["prsup"].mean())})
     return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §10.3 negative controls on Z (S12, post hoc)
+def permute_z(Z: np.ndarray, how: str, rng: np.random.Generator, n_cond: int = 3) -> np.ndarray:
+    """A permuted copy of Z (rows unit-major x condition). `units`: within each condition the units' patterns are
+    deranged, so no unit keeps its own (the irrelevant-content control); `conditions`: within each unit the condition
+    rows get a random non-identity permutation (the permuted-labels control)."""
+    n_units = len(Z) // n_cond
+    blocks = np.asarray(Z).reshape(n_units, n_cond, -1).copy()
+    if how == "units":
+        while True:
+            perm = rng.permutation(n_units)
+            if not np.any(perm == np.arange(n_units)):
+                break
+        return blocks[perm].reshape(Z.shape)
+    if how == "conditions":
+        out = blocks.copy()
+        for u in range(n_units):
+            while True:
+                perm = rng.permutation(n_cond)
+                if not np.all(perm == np.arange(n_cond)):
+                    break
+            out[u] = blocks[u, perm]
+        return out.reshape(Z.shape)
+    raise ValueError(f"unknown permutation {how!r}")
+
+
+def network_contrast(mean_diff: np.ndarray, w: np.ndarray, Z: np.ndarray, W: np.ndarray) -> np.ndarray:
+    """Mean network contrast (rows, networks) for any Z, exact because N is linear in the accumulators:
+    (w . mean dA) @ Z @ W^T, with `mean_diff` (rows, 5, 90) the per-draw mean accumulator difference and `w` one
+    weight vector (5,) or one per row (rows, 5), since each parameter draw has its own lambdas."""
+    w = np.asarray(w, float)
+    spec = "c,rcs->rs" if w.ndim == 1 else "rc,rcs->rs"
+    return np.einsum(spec, w, np.asarray(mean_diff, float)) @ Z @ W.T
+
+
+def z_controls(run: Path, cfg: dict, root: Path, n_perm: int = 200, seed: int = 0, mechanism: str = "D") -> pd.DataFrame:
+    """§10.3 on a Phase V run, post hoc: per AI scenario, year and network, the mean over draws of the main network
+    contrast, and the same under (a) units permuted within condition, (b) conditions permuted within unit (n_perm
+    each: median |control| / |main| and the share of permutations at least as large as the main contrast), and
+    (c) harmless variations: 180 and 260 wpm, and unwinsorised Z (change relative to the main contrast)."""
+    from . import plasticity as P
+    from .longitudinal import read_arrays, read_table
+
+    p = cfg["plasticity"]
+    tribe_dir = Path(root) / p["tribe_dir"]
+    arr = read_arrays(run, "mean_accumulator_diff")
+    if not arr:
+        return pd.DataFrame()
+    keep = arr["draw_id"] >= 0
+    W, nets = P.load_networks(tribe_dir, p["network_weights"])
+    params = read_table(run, "parameter_draws").set_index("draw_id")
+    lam_o = params["plasticity.lambda_O"] if "plasticity.lambda_O" in params else pd.Series(dtype=float)
+    Z, _, _ = P.load_z(tribe_dir, int(p["wpm"]), p["metric"], p["winsorize"])
+    variants = {"reading speed 180 wpm": (180, p["winsorize"]), "reading speed 260 wpm": (260, p["winsorize"]),
+                "unwinsorised Z": (int(p["wpm"]), None)}
+    alt = {}
+    for name, (wpm, wins) in variants.items():
+        if (tribe_dir / f"wpm{wpm}" / "tribe_metrics.parquet").exists():
+            alt[name] = P.load_z(tribe_dir, wpm, p["metric"], wins)[0]
+    rng = np.random.default_rng(seed)
+    perms = {how: [permute_z(Z, how, rng) for _ in range(n_perm)] for how in ("units", "conditions")}
+    rows = []
+    groups = pd.DataFrame({"scenario": arr["scenario"][keep], "year": arr["year"][keep]}).groupby(["scenario", "year"]).groups
+    diffs, draw_ids = arr["diff"][keep], arr["draw_id"][keep]
+    for (s, y), idx in groups.items():
+        idx = np.asarray(list(idx))
+        d = diffs[idx]
+        w = np.stack([P.mechanism_weights(mechanism, {**p, "lambda_O": float(lam_o.get(b, p["lambda_O"]))}) for b in draw_ids[idx]])
+        main = network_contrast(d, w, Z, W).mean(axis=0)
+        ctl = {how: np.stack([network_contrast(d, w, Zp, W).mean(axis=0) for Zp in zs]) for how, zs in perms.items()}
+        other = {name: network_contrast(d, w, Za, W).mean(axis=0) for name, Za in alt.items()}
+        for i, net in enumerate(nets):
+            row = {"scenario": s, "year": int(y), "network": net, "mechanism": mechanism, "main_contrast": float(main[i])}
+            for how, c in ctl.items():
+                ratio = np.abs(c[:, i]) / max(abs(main[i]), 1e-12)
+                row[f"permuted_{how}_median_ratio"] = float(np.median(ratio))
+                row[f"permuted_{how}_share_as_large"] = float((ratio >= 1).mean())
+            for name, v in other.items():
+                row[f"{name} change ratio"] = float(abs(v[i] - main[i]) / max(abs(main[i]), 1e-12))
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def sign_flip_null(yearly: pd.DataFrame, outcome: str, comparator: str = "traditional", n_perm: int = 1000,
+                   seed: int = 0) -> pd.DataFrame:
+    """§10.3 behavioural label permutation: within each learner the sign of the paired difference is flipped at
+    random; the null distribution of the mean SC is centred at 0 by construction, and the observed SC's position in
+    it is reported per scenario, year and draw subsample (learner-level rows from `yearly_subsample`)."""
+    rng = np.random.default_rng(seed)
+    base = yearly[yearly["scenario"] == comparator].set_index(["draw_id", "year", "learner_id"])[outcome]
+    rows = []
+    for (s, y), g in yearly[yearly["scenario"] != comparator].groupby(["scenario", "year"]):
+        d = (g.set_index(["draw_id", "year", "learner_id"])[outcome] - base).dropna().to_numpy(float)
+        null = (d[None, :] * rng.choice([-1.0, 1.0], (n_perm, len(d)))).mean(axis=1)
+        rows.append({"scenario": s, "year": int(y), "outcome": outcome, "observed_sc": float(d.mean()),
+                     "null_mean": float(null.mean()), "null_sd": float(null.std(ddof=1)),
+                     "share_null_as_extreme": float((np.abs(null) >= abs(d.mean())).mean()), "n_pairs": len(d)})
+    return pd.DataFrame(rows)
