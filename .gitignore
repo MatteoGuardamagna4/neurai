@@ -17,3 +17,5 @@ outputs/
 
 data/tribe
 data/tribe/*
+
+data/tribe_textctl/*
