@@ -159,6 +159,19 @@ def test_falsification_verdicts_on_constructed_inputs():
     assert f.filter(like="F6").iloc[0] == "no claim for far", "far transfer does not separate scaffolding from substitution"
 
 
+def test_f4_names_only_the_bound_driven_scenarios():
+    """D23: a scenario whose typical draw sits near a bound does not block the other scenarios' claims."""
+    base = [{"draw_id": b, "year": 10, "kind": "contrast", "scenario": s, "outcome": "unaided", "estimate": 0.05}
+            for b in range(40) for s in ("scaffolding_rapid", "substitution")]
+    near = [{"draw_id": b, "year": 10, "kind": "level", "scenario": s, "outcome": "near_bound_share", "estimate": v}
+            for b in range(40) for s, v in (("scaffolding_rapid", 0.12), ("substitution", 0.02), ("traditional", 0.0))]
+    empty = pd.DataFrame(columns=["level", "metric", "key", "contrast", "ci_excludes_0"])
+    f = A.falsification(empty, empty, pd.DataFrame(columns=["metric", "control", "key", "ratio_shuffle_to_contrast"]),
+                        pd.DataFrame(base + near), pd.DataFrame(columns=["draw_id", "year", "scenario", "network", "mechanism", "d"]),
+                        pd.DataFrame()).set_index("criterion")["verdict"]
+    assert f.filter(like="F4").iloc[0] == "no claim for scaffolding_rapid"
+
+
 def test_phase_diagram_and_tipping_points_on_constructed_draws():
     knobs = {f"line_e_{x:.2f}": {"line": "e", "x": x} for x in (0.0, 0.5, 1.0)}
     knobs["grid_cell"] = {"a": 0.9, "e": 0.5, "o": 0.0, "f": 0.0}

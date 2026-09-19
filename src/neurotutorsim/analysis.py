@@ -716,17 +716,22 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
         f"no claim for {len(flip)} scenario-networks" if len(flip) else "claim allowed")
     nb = draws[(draws["kind"] == "level") & (draws["outcome"] == "near_bound_share") & (draws["year"] == year) & (draws["draw_id"] >= 0)]
     by_s = nb.groupby("scenario")["estimate"] if len(nb) else None
-    worst = by_s.median().max() if len(nb) else np.nan  # the typical draw of the worst scenario
+    # D23: the verdict names the scenarios it applies to, as F1, F3 and F5 do; a bound-driven scenario does not
+    # block the others' claims. Scope = scenarios whose typical (median) draw is above the A15 threshold.
+    med = by_s.median() if len(nb) else pd.Series(dtype=float)
+    bound = sorted(med[med > 0.10].index)
+    worst = med.max() if len(nb) else np.nan
     value = (f"median near-bound share, worst scenario {worst:.3f}; draws with > 10%: "
              + ", ".join(f"{k} {v:.0%}" for k, v in by_s.apply(lambda x: (x > 0.10).mean()).items() if v > 0)
              if len(nb) else "n/a")
-    verdict = "no claim" if len(nb) and worst > 0.10 else "claim allowed"
+    verdict = f"no claim for {', '.join(bound)}" if bound else "claim allowed"
     if uniform_draws is not None:
         a, b = _sc_by_draw(draws, year).median(), _sc_by_draw(uniform_draws, year).median()
         both = a.index.intersection(b.index)
         flips = [f"{s}/{o}" for s, o in both if o in ("G", "unaided", "far", "retention") and np.sign(a[(s, o)]) != np.sign(b[(s, o)])]
         value += f"; sign flips triangular vs uniform: {', '.join(flips) or 'none'}"
-        verdict = "no claim" if flips or verdict == "no claim" else verdict
+        if flips:
+            verdict = (verdict if bound else "no claim") + f"; sign flips under uniform draws: {', '.join(flips)}"
     else:
         value += "; uniform-draw rerun not given"
     add("F4", "result driven by parameter bounds", "learners within 0.01 of a bound; SC sign under uniform draws",

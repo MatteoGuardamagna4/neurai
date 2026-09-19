@@ -18,8 +18,12 @@
   are the append-only run outputs; every
   table (`responses.csv`, `learner_state.parquet`, `checkpoints.csv`) is derived from them and a
   resumed run restores learner state from them. Gitignored, never hand-edited, never regenerated silently.
-- `tribe/tribe_main/` (gitignored) is the Phase II run copied from Drive: `wpm220|180|260/tribe_metrics.parquet`,
-  `tribe_patterns.parquet`, `parcels_schaefer400.csv`, `controls/`, `tribe_qc.json`. `plasticity.tribe_dir` points here.
+- `tribe/tribe_main/` (gitignored, 8.1 GB) is the Phase II run copied whole from Drive and is the brief's D3 dataset:
+  per speed (`wpm220|180|260/`) `tribe_vertex/` (90 stimulus files), `tribe_parcel.parquet`, `tribe_network.parquet`,
+  `tribe_metrics.parquet`, `tribe_patterns.parquet`, `tribe_events.parquet`, plus `parcels_schaefer400.csv`,
+  `parcellation/`, `official_demo/`, `controls/` (180 shuffled texts), `run_metadata.json`, `tribe_qc.json`,
+  `tribe_run_log.jsonl`. `plasticity.tribe_dir` points here; the analysis reads only the metric and pattern tables,
+  so the vertex files are the archive, not a dependency.
 - `tribe/tribe_textctl/` (gitignored) is the text-controls TRIBE run (210 reworded / incorrect texts, 220 wpm, and
   `coverage/semantic_coverage.csv`). Copy the Drive tag folder **inside** `data/tribe/`; `report textctl` reads it there.
 - `processed/<tag>/neural_network.parquet` / `neural_state.parquet` / `plasticity.json` are Phase IV's post hoc

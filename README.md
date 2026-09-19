@@ -99,7 +99,7 @@ rather than blended. In order, with the wall clock measured here:
 | Step | Command | Time |
 | --- | --- | --- |
 | Corpus | `uv run python -m neurotutorsim.corpus` | seconds |
-| Phase II | `notebooks/tribe_phase2.ipynb` on a Colab L4, `SESSION = "main"` then `"text_controls"`; copy each Drive tag folder to `data/tribe/<tag>/` | ~8 h (main), ~5.5 h (text controls) |
+| Phase II | `notebooks/tribe_phase2.ipynb` on a Colab L4, `SESSION = "main"` then `"text_controls"`; copy each Drive tag folder to `data/tribe/<tag>/` (8.1 GB + 26 MB; the D3 vertex files are kept as the archive, the analysis reads the metric and pattern tables) | ~8 h (main), ~5.5 h (text controls) |
 | Phase III, logistic | `simulate --engine logistic --tutor fake --tag population_logistic` (and `--setting low/high --tag population_low/high`; `--learners 40 --episodes 30 --tag logistic_40`) | ~16 min each |
 | Phase III, Centaur | `notebooks/serve_models.ipynb`, then `scripts/centaur_loop.ps1 -Remote` (`centaur_main`, then `centaur_free_calib`) | ~1 day on Colab |
 | Phase IV | `plasticity --run data/processed/<tag>` | minutes |
@@ -146,7 +146,7 @@ reproduced from its logs, never re-derived.
 | Zero-plasticity and shuffled-condition controls null | Zero plasticity exactly 0; permuted conditions median ratio 0.30, but 8 of 28 scenario-networks >= 0.5 (reported as no claim, F5) |
 | One-year pilot sensible before ten years | Done: gate 18 passes (`g18_*`) |
 | Every parameter has a source or "assumption" label | Done: Table 3 |
-| Conclusions survive the robustness set or are indeterminate | Done: G keeps its sign in all 216 specifications per scenario; neural contrasts reported as no claim where F1-F5 fail (`table6_falsification`) |
+| Conclusions survive the robustness set or are indeterminate | Done: the median year-10 G keeps its sign in all 216 specifications per scenario; F4 reports scaffolding-with-rapid-fade as bound-driven, and neural contrasts are no claim where F1-F5 fail (`table6_falsification`) |
 | No causal or observed-future-brain claims | Done: §15 wording in all labels |
 | All figures and tables regenerate from scripts | Done: `report all` into empty folders, exit 0 |
 | README lets another team reproduce the pipeline | This file |

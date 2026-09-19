@@ -115,6 +115,7 @@ Measured today, and used below:
 | D19 | (2026-09-18) `--seed-offset` moves only the behavioural random stream (`Draws`); parameter draws and the learner population keep the base master seed, so §10.5 replicates differ in behaviour alone (V_behavior is identified). No existing run used an offset. |
 | D20 | (2026-09-19) Three analysis rules fixed on first contact with the results, before reading any as a finding: (1) F4 judges the typical draw (the worst scenario's median near-bound share) and lists the share of draws above 10%, instead of the single most extreme draw; (2) F5 uses only the condition-label permutation, the null for a condition contrast (permuting units within a condition keeps each condition's mean text profile, so that ratio is ~1 by construction; it stays in Table 6 as a content control); (3) the variance decomposition treats scenarios as fixed (population variance of the means), which closes the decomposition (residual ~0). |
 | D21 | (2026-09-19, before the text-controls TRIBE run) Rules for the new controls. **F2**: each network AUC contrast is recomputed with the 9 combinations of primary and two reworded versions; a claim is allowed only if all 9 share the primary's sign and |primary| > 2 x their SD. **F5** adds the incorrect-but-fluent texts: a network is flagged when |incorrect - correct| >= 0.5 x its largest condition contrast (A15). **eq. 41** gains V_stimulus_generation: the variance of the scenario-mean control-network d across the three versions' Z. |
+| D23 | (2026-09-20, after the results) The F4 verdict names the scenarios it applies to, as F1, F3 and F5 already do: a scenario whose median draw has > 10% of learners near a bound (here `scaffolding_rapid`, 0.121) is reported as bound-driven without blocking the other scenarios' year-10 claims. A sign flip under uniform draws is appended to the verdict instead of replacing it. |
 | D22 | (2026-09-19) User request: close the brief's gaps that matter most. Written: 2 reworded variants per stimulus (§5.2 item 9), incorrect-but-fluent traditional texts (§10.3), semantic coverage (§5.4). Still not done, stated as limitations: the contradiction judge (§5.4), audio (§5.2 item 10), held-out fMRI (§10.1), parcellation and learner engine in the spec curve (§10.4). Coverage is reported as corpus validation and a matching feature; eq. 20 keeps coverage = 1.0 in the simulation, because feeding it in would change every completed run. |
 
 ## 3. Assumptions I set (change them before the step that uses them)
@@ -804,6 +805,13 @@ and `outputs/figures` with no manual step.
   Refitted choice rule (6,000 decisions, `choice_rule_fit.csv`): habit 0.84 [0.82, 0.86], payoff 0.16 [0.10, 0.21],
   tried 0.24, scaffolding -0.26 and substitution +0.05 vs traditional.
 - 2026-09-19 (afternoon): eq. 43 cheap form (Figure 5b). 210 text controls written and validated; notebook `SESSION = "text_controls"`; D21-D22, A19. Found on the way: a new regex in `corpus.py` had shadowed the one `contains_number` uses (renamed before any result depended on it); the incorrect-text check compares magnitudes, because a loss is written without a minus sign.
+- 2026-09-20: S15 freeze. F4 scoped per scenario (D23): `no claim for scaffolding_rapid`, the other scenarios' year-10
+  claims stand. Audit against the brief: fixed the stale "semantic coverage not computed" labels (Table 2, Figure 2, the
+  dictionary), recounted the §5.5 limitation (8 of 9 features miss |SMD| < 0.10; duration caliper 7.9%), added the missing
+  `.env.example`, and tracked the run records (`outputs/logs/**/run_*.json`, every phase5 `run.json`, the choice-rule fits)
+  plus `outputs/tables` and `outputs/figures` as the deliverable. D3 is complete on the laptop (270 vertex files over three
+  speeds, 8.1 GB). Open for the paper: Figure 8a covers 4 of the 6 scenarios (the spec runs predate `free_choice_centaur`),
+  and "G keeps its sign" holds for the medians, not every 95% interval.
 - 2026-09-19 (evening): `tribe_textctl` done on the L4 (09:27-14:54 UTC, 210/210 texts, no inference issues), copied to
   `data/tribe/tribe_textctl/`; `report all` exit 0. **F2: no claim for 15 of 21 network AUC contrasts.** Survive (same sign
   in all 9 primary x reworded combinations and |primary| > 2 SD): DorsAttn, SalVentAttn, SomMot for S-T and S-U. No U-T
