@@ -230,3 +230,35 @@ def test_trajectory_model_recovers_a_scenario_gap():
     assert gap["ci_low"] < -0.8 < gap["ci_high"]
     last = curves[curves["episode"] == 39].set_index("scenario")["p_correct"]
     assert last["substitution"] < last["traditional"]
+
+
+def _text_control_metrics(effect, noise, seed=0):
+    """Network AUC for 12 units x 3 conditions x (primary, 2 rewordings, incorrect): scaffolding is `effect` above
+    traditional in network A and equal in network B; every version adds `noise`."""
+    rng = np.random.default_rng(seed)
+    main, tc = [], []
+    for u in range(12):
+        for c in CONDITIONS:
+            for net, shift in (("A", effect if c == "ai_scaffolding" else 0.0), ("B", 0.0)):
+                base = 10 + u * 0.1 + shift
+                main.append({"unit_id": f"u{u}", "condition": c, "level": "network", "key": net, "metric": "auc",
+                             "value": base + rng.normal(0, noise)})
+                for v in ("reworded_1", "reworded_2") + (("incorrect",) if c == "traditional" else ()):
+                    tc.append({"unit_id": f"u{u}", "condition": c, "variant": v, "level": "network", "key": net,
+                               "metric": "auc", "value": base + rng.normal(0, noise)})
+    return pd.DataFrame(main), pd.DataFrame(tc)
+
+
+def test_regeneration_contrasts_and_incorrect_control():
+    main, tc = _text_control_metrics(effect=2.0, noise=0.05)
+    r = A.regeneration_contrasts(main, tc).set_index(["key", "contrast"])
+    assert r.loc[("A", "S-T"), "claim_allowed"] and r.loc[("A", "S-T"), "primary"] == pytest.approx(2.0, abs=0.1)
+    assert not r.loc[("B", "S-T"), "claim_allowed"], "a null contrast cannot beat the rewording spread"
+    change = A.regeneration_change(main, tc).set_index("key")
+    assert change.loc["A", "ratio_regeneration_to_contrast"] < 0.1
+    wrong = A.incorrect_control(main, tc, n_boot=200).set_index("key")
+    assert abs(wrong.loc["A", "incorrect_minus_correct"]) < 0.1 and wrong.loc["A", "ratio_to_contrast"] < 0.1
+    cov = pd.DataFrame({"stimulus_id": [f"s{i}" for i in range(20)], "unit_id": "u", "condition": "traditional",
+                        "variant": "primary", "text": "explanation", "cosine": np.linspace(0.3, 0.9, 20)})
+    summary, review = A.coverage_table(cov)
+    assert summary["n_below_threshold"].iloc[0] == int((np.linspace(0.3, 0.9, 20) < 0.5).sum()) and len(review) == 2

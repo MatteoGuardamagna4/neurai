@@ -161,3 +161,17 @@ def test_vertex_roundtrip(tmp_path):
     assert np.array_equal(back, preds) and t.tolist() == [0, 1, 2]
     long = tribe.vertex_long("s", preds, np.arange(3))
     assert len(long) == 15 and long.predicted_bold.iloc[7] == preds[1, 2] and long.vertex_id.iloc[7] == 2
+
+
+def test_summarize_prediction_matches_the_main_aggregation():
+    parc = _toy_parcellation()
+    table = tribe.parcel_table(parc)
+    preds = np.random.default_rng(0).normal(size=(6, 12))
+    rows, pattern = tribe.summarize_prediction(preds, parc, table, stimulus_id="s", variant="reworded_1")
+    mean, _, ids = tribe.aggregate_parcels(preds, parc)
+    net, nets = tribe.aggregate_networks(mean, table, "area")
+    expected = tribe.stimulus_metrics(mean, ids, net, nets)
+    got = rows[rows["level"] != "network_equal"].reset_index(drop=True)
+    assert np.allclose(got["value"], expected["value"]) and (got["variant"] == "reworded_1").all()
+    assert set(rows["level"]) == {"parcel", "network", "network_equal", "stimulus"}
+    assert np.allclose(pattern, mean.mean(axis=0))

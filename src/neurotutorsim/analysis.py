@@ -235,6 +235,102 @@ def rsa_summary(patterns: pd.DataFrame, units: pd.DataFrame, n_perm: int = 1000,
     return agreement, diff
 
 
+VERSIONS = ("primary", "reworded_1", "reworded_2")
+COVERAGE_THRESHOLD = 0.5  # A19, set 2026-09-19 before any coverage was computed: cosine of explanation vs reference
+
+
+def _network_values(main: pd.DataFrame, text_controls: pd.DataFrame, metric: str = "auc") -> pd.DataFrame:
+    """Network-level values of the main corpus (variant `primary`) and of the text controls, one table."""
+    rows = [main.assign(variant="primary"), text_controls]
+    v = pd.concat([r[(r["level"] == "network") & (r["metric"] == metric)] for r in rows], ignore_index=True)
+    return v[["unit_id", "condition", "variant", "key", "value"]]
+
+
+def regeneration_contrasts(main: pd.DataFrame, text_controls: pd.DataFrame, metric: str = "auc") -> pd.DataFrame:
+    """§10.6 F2 as specified: each condition contrast per network is recomputed with every combination of the three
+    versions of the texts (primary and two stylistic regenerations: 3 x 3 = 9 estimates of the mean paired
+    difference over units). The contrast survives (D21, fixed before the TRIBE run) only if all 9 estimates share the
+    primary's sign and |primary| exceeds twice their SD, the spread harmless rewording alone produces."""
+    v = _network_values(main, text_controls, metric)
+    wide = v[v["variant"].isin(VERSIONS)].pivot_table(index=["key", "unit_id"], columns=["condition", "variant"], values="value")
+    rows = []
+    for name, (a, b) in PAIRS.items():
+        for net, g in wide.groupby(level="key"):
+            est = np.array([(g[(a, va)] - g[(b, vb)]).mean() for va in VERSIONS for vb in VERSIONS])
+            primary, sd = float(est[0]), float(est.std(ddof=1))
+            same = bool((np.sign(est) == np.sign(primary)).all())
+            rows.append({"key": net, "contrast": name, "metric": metric, "primary": primary, "min": float(est.min()),
+                         "max": float(est.max()), "sd_regeneration": sd, "same_sign_all_9": same,
+                         "claim_allowed": same and abs(primary) > 2 * sd})
+    return pd.DataFrame(rows)
+
+
+def regeneration_change(main: pd.DataFrame, text_controls: pd.DataFrame, metric: str = "auc") -> pd.DataFrame:
+    """Stimulus-level companion of F2, in the layout of `shuffle_controls`: per network, the mean |regenerated -
+    primary| over the 180 regenerated texts next to the largest |primary condition contrast|."""
+    v = _network_values(main, text_controls, metric)
+    base = v[v["variant"] == "primary"].set_index(["unit_id", "condition", "key"])["value"]
+    reg = v[v["variant"].isin(VERSIONS[1:])].copy()
+    reg["abs_change"] = (reg.set_index(["unit_id", "condition", "key"])["value"] - base).abs().to_numpy()
+    wide = base.unstack("condition")
+    contrast = pd.concat([(wide[a] - wide[b]).groupby(level="key").mean().abs() for a, b in PAIRS.values()], axis=1).max(axis=1)
+    out = reg.groupby("key", as_index=False)["abs_change"].mean()
+    out["max_abs_condition_contrast"] = out["key"].map(contrast)
+    out["ratio_regeneration_to_contrast"] = out["abs_change"] / out["max_abs_condition_contrast"]
+    return out.assign(metric=metric)
+
+
+def incorrect_control(main: pd.DataFrame, text_controls: pd.DataFrame, metric: str = "auc", n_boot: int = 2000,
+                      seed: int = 0) -> pd.DataFrame:
+    """§10.3 incorrect-but-fluent control: per network, the mean paired difference incorrect - correct traditional
+    text over units (95% bootstrap CI over units) and its size relative to the largest |condition contrast|. A
+    ratio near or above 1 means TRIBE separates a wrong text from a right one as much as it separates conditions,
+    i.e. the predicted response tracks wording, not correctness."""
+    v = _network_values(main, text_controls, metric)
+    t = v[v["condition"] == "traditional"].pivot_table(index=["key", "unit_id"], columns="variant", values="value")
+    base = v[v["variant"] == "primary"].pivot_table(index=["key", "unit_id"], columns="condition", values="value")
+    rows = []
+    for net, g in t.groupby(level="key"):
+        d = (g["incorrect"] - g["primary"]).dropna().to_numpy(float)
+        b = base.loc[net]
+        contrast = max(abs(float((b[x] - b[y]).mean())) for x, y in PAIRS.values())
+        lo, hi = bootstrap_ci(d, n_boot, seed)
+        rows.append({"key": net, "metric": metric, "incorrect_minus_correct": float(d.mean()), "ci_low": lo, "ci_high": hi,
+                     "n_units": len(d), "max_abs_condition_contrast": contrast,
+                     "ratio_to_contrast": abs(float(d.mean())) / contrast if contrast else np.nan})
+    return pd.DataFrame(rows)
+
+
+def coverage_table(coverage: pd.DataFrame, threshold: float = COVERAGE_THRESHOLD) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """§5.4-5.5 semantic coverage: per text part, variant and condition the mean, minimum and count below the
+    threshold (A19), and the lowest 10% of the primary explanations, listed for manual review as §5.5 asks."""
+    summary = coverage.groupby(["text", "variant", "condition"]).agg(
+        mean=("cosine", "mean"), min=("cosine", "min"), n=("cosine", "size"),
+        n_below_threshold=("cosine", lambda x: int((x < threshold).sum()))).reset_index()
+    summary["threshold"] = threshold
+    prim = coverage[(coverage["text"] == "explanation") & (coverage["variant"] == "primary")]
+    review = prim[prim["cosine"] <= prim["cosine"].quantile(0.10)].sort_values("cosine")
+    return summary, review
+
+
+def generation_variance(mean_diff: dict, lam_o: pd.Series, zs: list[np.ndarray], W: np.ndarray, nets: list[str],
+                        pcfg: dict, scale: float, year: int = 10, network: str = "Cont") -> float:
+    """V_stimulus from generation (§10.5): the scenario-mean mechanism-D contrast recomputed with the Z of each
+    version of the texts (primary, two regenerations), in units of `scale`; variance across versions, averaged over
+    scenarios. It complements the unit bootstrap, which varies which units are sampled, not how they are worded."""
+    from . import plasticity as P
+
+    keep = (mean_diff["draw_id"] >= 0) & (mean_diff["year"] == year)
+    j = nets.index(network)
+    out = []
+    for s in np.unique(mean_diff["scenario"][keep]):
+        idx = np.flatnonzero(keep & (mean_diff["scenario"] == s))
+        w = np.stack([P.mechanism_weights("D", {**pcfg, "lambda_O": float(lam_o.get(b, 0.0))}) for b in mean_diff["draw_id"][idx]])
+        x = np.einsum("bc,bcs->bs", w, mean_diff["diff"][idx].astype(float)).mean(axis=0)
+        out.append(np.var([float(x @ (Z @ W[j])) / scale for Z in zs], ddof=1))
+    return float(np.mean(out))
+
+
 def shuffle_controls(controls: pd.DataFrame, contrasts: pd.DataFrame) -> pd.DataFrame:
     """§10.1/§10.3: per network and metric, the mean |change| from sentence- and word-shuffling (identical words and
     duration) next to the |condition contrast| of Table 4; ratio > 1 means shuffling moves the prediction more."""
@@ -580,7 +676,8 @@ def _sc_by_draw(draws: pd.DataFrame, year: int) -> pd.DataFrame:
 
 def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle: pd.DataFrame, draws: pd.DataFrame,
                   neural: pd.DataFrame, zc: pd.DataFrame, uniform_draws: pd.DataFrame | None = None,
-                  year: int | None = None) -> pd.DataFrame:
+                  year: int | None = None, regen: pd.DataFrame | None = None,
+                  incorrect: pd.DataFrame | None = None) -> pd.DataFrame:
     """The brief's six conditions under which no meaningful difference is claimed (§10.6), one row each with
     the indicator, the threshold (PLAN.md A15), the value and a verdict: `claim allowed`, `no claim` (naming what
     it applies to) or `not assessable` (the evidence does not exist in this study)."""
@@ -599,10 +696,18 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
     add("F1", "effects disappear after matching content and duration", "network AUC contrasts whose 95% CI excludes 0 "
         "without covariates but not with duration and word count", "any", ", ".join(f"{k} {c}" for k, c in gone) or "none",
         f"no claim for {len(gone)} network contrasts" if gone else "claim allowed")
-    big = shuffle[(shuffle["metric"] == "auc") & (shuffle["control"] == "sentence") & (shuffle["ratio_shuffle_to_contrast"] > 1)]
-    add("F2", "TRIBE contrasts smaller than harmless regenerations", "reworded versions were not built (D6); proxy: "
-        "sentence-shuffle |change| in AUC larger than the largest condition contrast", "ratio > 1",
-        ", ".join(big["key"]) or "none", "not assessable as specified" + (f"; proxy flags {len(big)} networks" if len(big) else ""))
+    if regen is not None and len(regen):
+        r = regen[regen["metric"] == "auc"]
+        fail = r[~r["claim_allowed"]]
+        add("F2", "TRIBE contrasts smaller than harmless regenerations", "each network AUC contrast recomputed over the "
+            "9 combinations of primary and two reworded versions (D21)", "sign differs in any, or |primary| <= 2 SD",
+            f"{len(fail)} of {len(r)}: " + (", ".join(f"{k} {c}" for k, c in zip(fail["key"], fail["contrast"])) or "none"),
+            f"no claim for {len(fail)} network contrasts" if len(fail) else "claim allowed")
+    else:
+        big = shuffle[(shuffle["metric"] == "auc") & (shuffle["control"] == "sentence") & (shuffle["ratio_shuffle_to_contrast"] > 1)]
+        add("F2", "TRIBE contrasts smaller than harmless regenerations", "reworded versions not yet predicted; proxy: "
+            "sentence-shuffle |change| in AUC larger than the largest condition contrast", "ratio > 1",
+            ", ".join(big["key"]) or "none", "not assessable as specified" + (f"; proxy flags {len(big)} networks" if len(big) else ""))
     n = neural[(neural["year"] == year) & (neural["draw_id"] >= 0)]
     med = n.groupby(["scenario", "network", "mechanism"])["d"].median().unstack("mechanism")
     flip = med[(np.sign(med).nunique(axis=1) > 1)] if len(med) else med
@@ -631,10 +736,17 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
         # the condition-label permutation is the null for a condition contrast; permuting units within a condition
         # keeps each condition's mean text profile, so its ratio is ~1 by construction (a content control, Table 6)
         hit = z[z["permuted_conditions_median_ratio"] >= 0.5]
+        value = f"{len(hit)} of {len(z)}: " + (", ".join(f"{a}/{b}" for a, b in zip(hit["scenario"], hit["network"])) or "none")
+        verdict = f"no claim for {len(hit)} scenario-networks" if len(hit) else "claim allowed"
+        if incorrect is not None and len(incorrect):
+            wrong = incorrect[(incorrect["metric"] == "auc") & (incorrect["ratio_to_contrast"] >= 0.5)]
+            value += (f"; incorrect-but-fluent texts reach >= 0.5 of the largest condition contrast in {len(wrong)} of "
+                      f"{len(incorrect[incorrect['metric'] == 'auc'])} networks" + (f" ({', '.join(wrong['key'])})" if len(wrong) else ""))
+            if len(wrong):
+                verdict = (verdict if len(hit) else "no claim") + f"; immediate TRIBE contrasts: no claim for {len(wrong)} networks"
         add("F5", "negative controls as large as the substantive effects", "median |contrast with condition labels "
-            "permuted within unit| / |main|, per scenario and network (mechanism D)", ">= 0.5 (A15)",
-            f"{len(hit)} of {len(z)}: " + (", ".join(f"{a}/{b}" for a, b in zip(hit["scenario"], hit["network"])) or "none"),
-            f"no claim for {len(hit)} scenario-networks" if len(hit) else "claim allowed")
+            "permuted within unit| / |main|, per scenario and network (mechanism D); incorrect-but-fluent vs correct "
+            "text, per network", ">= 0.5 (A15)", value, verdict)
     else:
         add("F5", "negative controls as large as the substantive effects", "permuted-Z ratios", ">= 0.5", "controls not run", "not assessable")
     sc = _sc_by_draw(draws, year)
@@ -890,7 +1002,7 @@ def neural_scale(paired: list[pd.DataFrame], column: str, year: int = 10) -> flo
 
 
 def variance_decomposition(paired: list[pd.DataFrame], scenarios: list[str], year: int = 10, network: str = "Cont",
-                           v_stimulus: float | None = None) -> pd.DataFrame:
+                           v_stimulus: float | None = None, v_generation: float | None = None) -> pd.DataFrame:
     """eq. 41 for the year-`year` G and mechanism D's `network` contrast (in units of its pooled learner-level SD).
     V_plasticity: variance across mechanisms A-D of the scenario-mean standardised contrast, averaged over scenarios;
     half-life and lambda_O are drawn per draw and so sit in V_parameters. V_stimulus: the unit bootstrap of Z
@@ -904,16 +1016,17 @@ def variance_decomposition(paired: list[pd.DataFrame], scenarios: list[str], yea
         scale = neural_scale(paired, outcome, year) if neural else 1.0
         y = replicate_array([p.assign(v=p[outcome] / scale) for p in paired], "v", scenarios, year)
         comp = nested_variance(y)
-        extra = {"plasticity": 0.0, "stimulus": 0.0}
+        extra = {"plasticity": 0.0, "stimulus": 0.0, "stimulus_generation": 0.0}
         if neural:
             allp = pd.concat([p[(p["year"] == year) & (p["draw_id"] >= 0)] for p in paired])
             means = [allp.groupby("scenario")[f"N_{m}_{network}"].mean() / neural_scale(paired, f"N_{m}_{network}", year)
                      for m in "ABCD" if f"N_{m}_{network}" in allp]
             extra["plasticity"] = float(pd.concat(means, axis=1).var(axis=1, ddof=1).mean()) if len(means) > 1 else 0.0
             extra["stimulus"] = float(v_stimulus) if v_stimulus is not None else np.nan
+            extra["stimulus_generation"] = float(v_generation) if v_generation is not None else np.nan
         parts = {k: comp[k] for k in ("scenario", "parameters", "learner", "behavior")}
         parts.update(extra, residual=comp["total"] - sum(parts.values()))
-        denom = comp["total"] + extra["plasticity"] + (extra["stimulus"] if np.isfinite(extra["stimulus"]) else 0.0)
+        denom = comp["total"] + sum(v for v in extra.values() if np.isfinite(v))
         label = "G" if not neural else f"d_{network} (mechanism D)"
         for name, v in parts.items():
             rows.append({"outcome": label, "year": year, "component": name, "variance": v,

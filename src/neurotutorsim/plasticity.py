@@ -44,10 +44,15 @@ def load_z(tribe_dir: Path, wpm: int = 220, metric: str = "auc", winsorize=(0.01
            ) -> tuple[np.ndarray, list[tuple[str, str]], np.ndarray]:
     """(Z (90, P), keys [(unit_id, condition)] sorted by unit_id x CONDITIONS, parcel_ids) from
     `<tribe_dir>/wpm<wpm>/tribe_metrics.parquet` (level `parcel`, the chosen metric)."""
-    m = pd.read_parquet(Path(tribe_dir) / f"wpm{wpm}" / "tribe_metrics.parquet")
+    return z_from_metrics(pd.read_parquet(Path(tribe_dir) / f"wpm{wpm}" / "tribe_metrics.parquet"), metric, winsorize)
+
+
+def z_from_metrics(m: pd.DataFrame, metric: str = "auc", winsorize=(0.01, 0.99)
+                   ) -> tuple[np.ndarray, list[tuple[str, str]], np.ndarray]:
+    """`load_z` on a metrics table already in memory (e.g. one reworded version of the corpus)."""
     m = m[(m["level"] == "parcel") & (m["metric"] == metric)]
     if m.empty:
-        raise ValueError(f"no parcel-level {metric!r} rows in {tribe_dir} at {wpm} wpm")
+        raise ValueError(f"no parcel-level {metric!r} rows")
     wide = m.pivot_table(index=["unit_id", "condition"], columns="key", values="value")
     units = sorted(wide.index.get_level_values("unit_id").unique())
     rows = pd.MultiIndex.from_product([units, list(CONDITIONS)], names=["unit_id", "condition"])

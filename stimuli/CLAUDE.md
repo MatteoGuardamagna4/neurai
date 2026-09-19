@@ -20,3 +20,12 @@ At runtime the learner reads the condition's Explanation and nothing else of the
 solution` section is never part of the initial reading, so it cannot be seen before the first attempt
 (`episode.run_episode` passes `Stimulus.explanation`). Hints and worked solution come from the unit JSON;
 scaffolding and substitution tutor turns are generated live by the LLM.
+
+**Text controls (TRIBE inputs only; the learner never reads them).** `variants/<condition>/<unit_id>__reworded_{1,2}.md`
+are two stylistic regenerations of each stimulus (brief §5.2 item 9, the F2 test): same sections and facts, the same
+stated numbers (0-10 ignored), the canonical problem verbatim, the answer only where the primary has it, duration within
+10% of the primary. `incorrect/traditional/<unit_id>__incorrect.md` teaches the unit's documented misconception as if it
+were right (§10.3): never the correct answer, the worked solution reaches the misconception's answer. Front matter
+`variant:` names the version. `corpus.load_text_controls` validates all 210; `python -m neurotutorsim.corpus` reports them.
+Written by Claude on 2026-09-19 (PLAN.md D22); reworded_1 is plainer, reworded_2 more formal, both keep each condition's voice.
+

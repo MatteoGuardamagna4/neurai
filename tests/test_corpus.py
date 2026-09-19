@@ -85,3 +85,16 @@ def test_diagnostic_questions_must_cover_every_documented_distractor(units, stim
                            {**stim.sections, "Diagnostic questions": "Let me say one thing about your result."},
                            stim.path)
     assert any("Diagnostic questions asks 0" in e for e in corpus.check_stimulus(thin, units["be_001"]))
+
+
+def test_text_controls_are_complete_and_their_checks_bite(units, stimuli):
+    controls = corpus.load_text_controls(ROOT / "stimuli", units, stimuli, require_all=True)
+    assert len(controls) == len(units) * (len(corpus.CONDITIONS) * len(corpus.REWORDED) + 1)
+    variant, primary = controls[("be_001", "traditional", "reworded_1")], stimuli[("be_001", "traditional")]
+    changed = corpus.Stimulus(variant.stimulus_id, variant.unit_id, variant.condition, variant.variant,
+                              {**variant.sections, "Explanation": variant.explanation.replace("24,000", "25,000")}, variant.path)
+    assert any("stated numbers differ" in e for e in corpus.check_text_control(changed, primary, units["be_001"]))
+    wrong = controls[("be_001", "traditional", "incorrect")]
+    leaked = corpus.Stimulus(wrong.stimulus_id, wrong.unit_id, wrong.condition, wrong.variant,
+                             {**wrong.sections, "Hints": wrong.sections["Hints"] + " The answer is 6,000 units."}, wrong.path)
+    assert any("must not appear" in e for e in corpus.check_text_control(leaked, primary, units["be_001"]))

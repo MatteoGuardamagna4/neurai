@@ -20,6 +20,23 @@ free-choice calibration batch `centaur_free_calib` (queued by `outputs/logs/cent
 S7 (after Centaur), the final choice-rule fit and validation, S9, S10-S13 runs, S12 code, the Phase V part of S14,
 S15. The table below is the 2026-09-16 state.
 
+**Update 2026-09-19 (afternoon).** §11.3 done in its cheap form (user choice): eq. 43 as a population-averaged
+logistic model with learner-clustered errors on the central draw (500 learners, 300,000 episodes), curves with the
+curriculum held fixed (Figure 5b, `tableS_trajectory_model_v_main`). The gaps of the brief that the user asked to close
+(D22): **180 reworded variants** (two per stimulus) and **30 incorrect-but-fluent texts**, written by Claude and
+validated by `corpus.load_text_controls` (same sections, canonical problem, same stated numbers, answer placement,
+duration within the 10% caliper; incorrect texts never state the correct answer and reach the misconception's), and
+**§5.4 semantic coverage**. The notebook has a `SESSION = "text_controls"` mode (tag `tribe_textctl`) that predicts the
+210 texts at 220 wpm, keeps only their metrics and parcel patterns, and computes coverage. The analysis
+(`report textctl`, F2 as specified, F5 with the incorrect texts, V_stimulus_generation in eq. 41, coverage in the
+§11.1 balance table) is written and tested on constructed data; it produces nothing until the run's outputs are on disk.
+
+**You, next:** open `notebooks/tribe_phase2.ipynb` on Colab (L4, `HF_TOKEN` and `GITHUB_TOKEN` secrets, as for
+`tribe_main`), keep `SESSION = "text_controls"`, Run all. Expect the Llama feature extraction for 210 new texts
+(~30 GB of cache on the runtime disk) plus inference: roughly the length of the shuffled-controls leg of `tribe_main`
+(an estimate, not measured). Then copy `MyDrive/neurotutorsim/tribe/tribe_textctl/` to `data/tribe/tribe_textctl/`
+and run `uv run python -m neurotutorsim.report all`.
+
 **Update 2026-09-19.** **Every run is done**; what is left is code and the freeze. Overnight, all exit 0 and
 complete: S12 controls `v_z0_10y`, `v_e0_10y`, `v_uniform`; S11 `v_mediation`; S13 `v_repl0-2` and all 72 `spec_*`
 runs (420 min, not the 1.5-2 h estimated); S9 `v_epw1`, `v_epw5`; `centaur_free_calib` (4,800 episodes, 80 x 60, no
@@ -97,6 +114,8 @@ Measured today, and used below:
 | D18 | (2026-09-18) Centaur extension. The three assigned arms are not extended (Centaur only makes help and confidence choices there; measured on the 40 paired learners, it adds +0.07 to +0.09 help requests per episode, lowers C by 0.07-0.09, and leaves every learning outcome and every eq. 10-12 contrast unchanged). The free-choice arm is where it matters (after 7 learners: substitution 50% vs 28% under the softmax-in-D rule on the same learners), so: fit a transparent rule to Centaur's free-choice probabilities (`choice_rule.py`), validate it out of sample on a free-choice-only batch (`centaur_free_calib`: 80 new learners x 60 episodes on Colab), and add it to Phase V as a sixth scenario, `free_choice_centaur`, next to the assumed rule. |
 | D19 | (2026-09-18) `--seed-offset` moves only the behavioural random stream (`Draws`); parameter draws and the learner population keep the base master seed, so §10.5 replicates differ in behaviour alone (V_behavior is identified). No existing run used an offset. |
 | D20 | (2026-09-19) Three analysis rules fixed on first contact with the results, before reading any as a finding: (1) F4 judges the typical draw (the worst scenario's median near-bound share) and lists the share of draws above 10%, instead of the single most extreme draw; (2) F5 uses only the condition-label permutation, the null for a condition contrast (permuting units within a condition keeps each condition's mean text profile, so that ratio is ~1 by construction; it stays in Table 6 as a content control); (3) the variance decomposition treats scenarios as fixed (population variance of the means), which closes the decomposition (residual ~0). |
+| D21 | (2026-09-19, before the text-controls TRIBE run) Rules for the new controls. **F2**: each network AUC contrast is recomputed with the 9 combinations of primary and two reworded versions; a claim is allowed only if all 9 share the primary's sign and |primary| > 2 x their SD. **F5** adds the incorrect-but-fluent texts: a network is flagged when |incorrect - correct| >= 0.5 x its largest condition contrast (A15). **eq. 41** gains V_stimulus_generation: the variance of the scenario-mean control-network d across the three versions' Z. |
+| D22 | (2026-09-19) User request: close the brief's gaps that matter most. Written: 2 reworded variants per stimulus (§5.2 item 9), incorrect-but-fluent traditional texts (§10.3), semantic coverage (§5.4). Still not done, stated as limitations: the contradiction judge (§5.4), audio (§5.2 item 10), held-out fMRI (§10.1), parcellation and learner engine in the spec curve (§10.4). Coverage is reported as corpus validation and a matching feature; eq. 20 keeps coverage = 1.0 in the simulation, because feeding it in would change every completed run. |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -121,7 +140,8 @@ Every number here is an assumption in the sense of brief §7.2 and gets that lab
 | A15 | Falsification thresholds (§10.6) | A control is "similar size" at ≥ 0.5 × the substantive effect; "bound-driven" when > 10% of learners are within 0.01 of a bound | Reported with the values |
 | A16 | Decay per episode | K and M: δ_i × 3 / episodes_per_week (linear, keeps Phase III identical). N: (1 − δ_N,week)^(1/episodes_per_week) | Exposure arms |
 | A17 | Mediator "held at the traditional distribution" (§11.5) | The paired traditional value of the same learner, draw and episode | None |
-| A18 | Stimulus variance (§10.5) | Bootstrap over the 30 units' Z (no reworded variants exist) | None |
+| A18 | Stimulus variance (§10.5) | Bootstrap over the 30 units' Z, plus the variance across the primary and two reworded versions' Z (D21) | None |
+| A19 | Semantic coverage threshold (§5.5) | Cosine (all-mpnet-base-v2) of explanation vs the unit's reference worked solution >= 0.5, set before any coverage was computed; the lowest 10% of primaries listed for manual review | None |
 
 ---
 
@@ -719,8 +739,9 @@ and `outputs/figures` with no manual step.
 
 ## 7. Limitations the results must state
 
-- 30 units / 15 concepts on MBA topics, not 120 units in two domains; one TRIBE variant per stimulus (no reworded
-  versions, no wrong-but-fluent texts, no audio arm), and no held-out fMRI validation.
+- 30 units / 15 concepts on MBA topics, not 120 units in two domains; two reworded versions and one incorrect-but-fluent
+  text per stimulus were written by Claude (an LLM), not by independent authors, and are TRIBE inputs only; no audio
+  arm, no contradiction judge, and no held-out fMRI validation.
 - TRIBE sees the fixed lesson texts, never the live tutor turns.
 - Centaur covers 40 learners × 30 episodes; **all of Phase V is the logistic model**, and its free-choice behaviour
   comes from an assumed rule.
@@ -777,6 +798,7 @@ and `outputs/figures` with no manual step.
   34% scenario, 41% plasticity mechanism, 10% parameters, 8% learner, 7% stimuli.
   Refitted choice rule (6,000 decisions, `choice_rule_fit.csv`): habit 0.84 [0.82, 0.86], payoff 0.16 [0.10, 0.21],
   tried 0.24, scaffolding -0.26 and substitution +0.05 vs traditional.
+- 2026-09-19 (afternoon): eq. 43 cheap form (Figure 5b). 210 text controls written and validated; notebook `SESSION = "text_controls"`; D21-D22, A19. Found on the way: a new regex in `corpus.py` had shadowed the one `contains_number` uses (renamed before any result depended on it); the incorrect-text check compares magnitudes, because a loss is written without a minus sign.
 
 ## 9. Not blocking now; decide by S15
 

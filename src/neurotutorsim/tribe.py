@@ -301,6 +301,20 @@ def stimulus_metrics(parcel_mean: np.ndarray, parcel_ids, network_tc: np.ndarray
     return pd.concat([parcels, nets, whole], ignore_index=True)[["level", "key", "metric", "value"]]
 
 
+def summarize_prediction(preds: np.ndarray, parc: pd.DataFrame, table: pd.DataFrame, **ids) -> tuple[pd.DataFrame, np.ndarray]:
+    """One predicted stimulus reduced to what the analysis uses, exactly as the notebook's main aggregation does it:
+    the metric rows (levels parcel, network, network_equal, stimulus) with `ids` as extra columns, and the
+    window-mean parcel pattern (z of §6.7). The text controls keep only this, not their vertex predictions."""
+    pmean, _, pids = aggregate_parcels(preds, parc)
+    net_area, nets = aggregate_networks(pmean, table, "area")
+    net_equal, _ = aggregate_networks(pmean, table, "equal")
+    rows = pd.concat([stimulus_metrics(pmean, pids, net_area, nets),
+                      series_metrics(net_equal, nets).assign(level="network_equal")], ignore_index=True)
+    for k, v in ids.items():
+        rows[k] = v
+    return rows, pmean.mean(axis=0)
+
+
 # ------------------------------------------------------------------ §6.6: condition contrasts
 def paired_contrasts(metrics: pd.DataFrame) -> pd.DataFrame:
     """eq. 10-12 on a long table with columns [unit_id, condition, level, key, metric, value]."""

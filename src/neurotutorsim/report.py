@@ -374,7 +374,14 @@ def phase12(paths: Paths, n_boot: int = 2000) -> list[Path]:
     written.append(paths.table(table2(), "table2_components"))
     written.append(paths.table(table3(paths.raw), "table3_parameters"))
     written.append(paths.table(A.metric_definitions(), "gate19_metric_definitions"))
-    balance = A.corpus_balance(stimuli)
+    coverage_csv = text_controls_dir(paths) / "coverage" / "semantic_coverage.csv"
+    if coverage_csv.exists():  # §5.4 coverage joins the matching features of eq. 1 once computed
+        cov = pd.read_csv(coverage_csv)
+        cov = cov[(cov["text"] == "explanation") & (cov["variant"] == "primary")][["unit_id", "condition", "cosine"]]
+        stimuli = stimuli.merge(cov.rename(columns={"cosine": "semantic_coverage"}), on=["unit_id", "condition"], how="left")
+        balance = A.corpus_balance(stimuli, A.FEATURES + ("semantic_coverage",))
+    else:
+        balance = A.corpus_balance(stimuli)
     written.append(paths.table(balance, "corpus_balance"))
     t4 = A.table4(metrics, n_boot=n_boot)
     written.append(paths.table(t4, "table4_cortical_contrasts"))
@@ -701,6 +708,30 @@ def mechanisms(paths: Paths, tag: str = "v_mediation", z_run: str = "v_main") ->
 
 
 # ------------------------------------------------------------------ S12: Table 6 and the falsification checklist
+def text_controls_dir(paths: Paths) -> Path:
+    """The text-controls TRIBE run (notebook SESSION = "text_controls"), copied next to the main run."""
+    return paths.tribe.parent / "tribe_textctl"
+
+
+def text_controls(paths: Paths) -> list[Path]:
+    """F2 as specified (regeneration contrasts), the incorrect-but-fluent control and §5.4 semantic coverage, from the
+    text-controls TRIBE run; nothing is written until that run's outputs are on disk."""
+    d = text_controls_dir(paths)
+    written = []
+    tc_path = d / "text_controls" / "tribe_metrics_text_controls.parquet"
+    if tc_path.exists():
+        main = pd.read_parquet(paths.tribe / "wpm220" / "tribe_metrics.parquet")
+        tc = pd.read_parquet(tc_path)
+        written += [paths.table(A.regeneration_contrasts(main, tc), "tableS_regeneration_contrasts"),
+                    paths.table(A.regeneration_change(main, tc), "tableS_regeneration_change"),
+                    paths.table(A.incorrect_control(main, tc), "tableS_incorrect_control")]
+    cov_path = d / "coverage" / "semantic_coverage.csv"
+    if cov_path.exists():
+        summary, review = A.coverage_table(pd.read_csv(cov_path))
+        written += [paths.table(summary, "tableS_semantic_coverage"), paths.table(review, "tableS_semantic_coverage_review")]
+    return written
+
+
 def table6(paths: Paths, main: list[str], z0: str = "v_z0_10y", e0: str = "v_e0_10y", uniform: str = "v_uniform",
            year: int = 10) -> list[Path]:
     """Table 6 (§10.3 negative controls, one row each with what was expected and what came out), the per-network
@@ -753,6 +784,14 @@ def table6(paths: Paths, main: list[str], z0: str = "v_z0_10y", e0: str = "v_e0_
         add(f"{ctl}-shuffled texts", "notebook controls, 30 units x 3 conditions, AUC per network",
             "network change below the intact condition contrast", f"median ratio {g['ratio_shuffle_to_contrast'].median():.2f} "
             f"(max {g['ratio_shuffle_to_contrast'].max():.2f})", bool(g["ratio_shuffle_to_contrast"].median() < 1))
+    for name, label, col in (("tableS_regeneration_change", "reworded texts (two stylistic regenerations)", "ratio_regeneration_to_contrast"),
+                             ("tableS_incorrect_control", "incorrect-but-fluent texts (traditional)", "ratio_to_contrast")):
+        f = paths.tables / f"{name}.csv"
+        if f.exists():
+            g = pd.read_csv(f)
+            g = g[g["metric"] == "auc"]
+            add(label, "text-controls TRIBE run, 30 units, AUC per network", "network change below the condition contrast",
+                f"median ratio {g[col].median():.2f} (max {g[col].max():.2f})", bool(g[col].median() < 0.5))
     yearly = load_runs(paths, main, "yearly_subsample")
     if len(yearly):
         flips = pd.concat([A.sign_flip_null(yearly[yearly["year"] == year], o) for o in ("unaided", "far", "retention")])
@@ -765,8 +804,11 @@ def table6(paths: Paths, main: list[str], z0: str = "v_z0_10y", e0: str = "v_e0_
     t4c = paths.tables / "table4_cortical_contrasts_matched_covariates.csv"
     if t4.exists() and t4c.exists():
         uni = load_runs(paths, [uniform], "simulation_draws")
+        regen_csv, wrong_csv = paths.tables / "tableS_regeneration_contrasts.csv", paths.tables / "tableS_incorrect_control.csv"
         fals = A.falsification(pd.read_csv(t4), pd.read_csv(t4c), shuffle, draws, neural, zc,
-                               uni if len(uni) else None, year)
+                               uni if len(uni) else None, year,
+                               pd.read_csv(regen_csv) if regen_csv.exists() else None,
+                               pd.read_csv(wrong_csv) if wrong_csv.exists() else None)
         print(fals.to_string(index=False))
         written.append(paths.table(fals, "table6_falsification"))
     return written
@@ -882,7 +924,14 @@ def variance(paths: Paths, tags=("v_repl0", "v_repl1", "v_repl2"), year: int = 1
     lam = read_table(base / tags[0], "parameter_draws").set_index("draw_id")["plasticity.lambda_O"]
     v_stim = A.stimulus_bootstrap(read_arrays(base / tags[0], "mean_accumulator_diff"), lam, Z, W, nets, p,
                                   A.neural_scale(paired, "N_D_Cont", year), year)
-    out = A.variance_decomposition(paired, scen, year, v_stimulus=v_stim)
+    v_gen = None
+    tc_metrics = text_controls_dir(paths) / "text_controls" / "tribe_metrics_text_controls.parquet"
+    if tc_metrics.exists():  # §10.5 stimulus generation: the same contrast with each reworded version's Z
+        tc = pd.read_parquet(tc_metrics)
+        zs = [Z] + [P.z_from_metrics(tc[tc["variant"] == v], p["metric"], p["winsorize"])[0] for v in A.VERSIONS[1:]]
+        v_gen = A.generation_variance(read_arrays(base / tags[0], "mean_accumulator_diff"), lam, zs, W, nets, p,
+                                      A.neural_scale(paired, "N_D_Cont", year), year)
+    out = A.variance_decomposition(paired, scen, year, v_stimulus=v_stim, v_generation=v_gen)
     print(out.to_string(index=False))
     return [paths.table(out, "tableS_variance_decomposition")]
 
@@ -975,7 +1024,7 @@ def data_dictionary(paths: Paths, run: str = "v_main") -> list[Path]:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("what", choices=("phase12", "engines", "gate18", "phase5", "exposure", "frontier", "mechanisms",
-                                     "controls", "spec", "variance", "dictionary", "all"))
+                                     "controls", "spec", "variance", "dictionary", "textctl", "all"))
     ap.add_argument("--root", default=".")
     ap.add_argument("--n-boot", type=int, default=2000, dest="n_boot")
     ap.add_argument("--pilot", default="g18_pilot")
@@ -1003,6 +1052,8 @@ def main(argv=None) -> int:
         written += figure7(paths)
     if args.what in ("mechanisms", "all"):
         written += mechanisms(paths, z_run=args.run)
+    if args.what in ("textctl", "all"):
+        written += text_controls(paths)
     if args.what in ("controls", "all") and (paths.processed / "phase5" / args.run / "run.json").exists():
         written += table6(paths, [args.run] + args.extra)
     if args.what in ("spec", "all"):

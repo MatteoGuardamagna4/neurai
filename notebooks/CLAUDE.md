@@ -62,6 +62,15 @@ Decisions baked in:
 - `DRY_RUN = True` replaces the model with seeded noise to exercise the pipeline offline; outputs are quarantined
   under `DRYRUN_<tag>` and flagged in the metadata. It is a smoke test, never a result.
 
+- **Two sessions, two tags** (2026-09-19). `SESSION = "main"` is the corpus run above (`tribe_main`, done);
+  `SESSION = "text_controls"` (tag `tribe_textctl`, 220 wpm only) skips the main corpus and predicts the 210 text
+  controls (`stimuli/variants/`, `stimuli/incorrect/`), reducing each at once with `tribe.summarize_prediction` (metric
+  rows + parcel pattern, vertex predictions dropped, ~0.3 GB on Drive), then computes §5.4 semantic coverage with
+  `COVERAGE_MODEL`. A separate tag because `save_state` rewrites `run_metadata.json` / `tribe_qc.json` every session:
+  rerunning `tribe_main` would overwrite its QC record. Outputs: `text_controls/tribe_metrics_text_controls.parquet`,
+  `text_controls/tribe_patterns_text_controls.parquet`, `coverage/semantic_coverage.csv`; copy the tag folder to
+  `data/tribe/tribe_textctl/` and `report textctl` reads it.
+
 All arithmetic lives in `src/neurotutorsim/tribe.py` (tested offline); the notebook only orchestrates. Rebuild the
 notebook by editing it directly; keep cell outputs cleared in git.
 
