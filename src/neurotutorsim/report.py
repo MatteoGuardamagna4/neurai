@@ -113,7 +113,7 @@ def table1(stimuli: pd.DataFrame, cfg: dict) -> pd.DataFrame:
 
 COMPONENTS = [
     ("Corpus (Phase I)", "30 authored units (15 concepts x 2) in 4 MBA domains", "90 stimuli, validators, matching features",
-     "30 units instead of 120 in two domains; semantic coverage not computed (eq. 20 uses 1.0)", "validators on every answer; calipers; SMD table (§11.1)"),
+     "30 units instead of 120 in two domains; semantic coverage reported, not fed into eq. 20 (1.0)", "validators on every answer; calipers; SMD table (§11.1)"),
     ("TRIBE v2 (Phase II)", "stimulus text, eq. 4 word timing at 220 wpm (180/260 robustness)", "predicted BOLD per vertex, Schaefer-400 parcels, 7 networks, §6.5 metrics",
      "text only; fixed lesson texts, never the live tutor turns", "official demo reproduced (gate 17); determinism within 1e-3; shuffled-text controls"),
     ("Synthetic learner (Phase III)", "eq. 15-16 population; observable history", "choices, correctness, confidence, proxies, eq. 19-25 states",
@@ -258,7 +258,7 @@ def figure2(plt, balance: pd.DataFrame, stimuli: pd.DataFrame, out: Path) -> lis
     b.set_ylabel("duration vs traditional, % (per unit)")
     b.set_title("Duration caliper per unit (shaded: within 10%)")
     b.grid(axis="x", visible=False)
-    fig.suptitle("Figure 2. Corpus matching diagnostics (descriptive; semantic coverage not computed)", x=0.01, ha="left",
+    fig.suptitle("Figure 2. Corpus matching diagnostics (descriptive)", x=0.01, ha="left",
                  fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
     return save(fig, out, "fig2_corpus_balance")
@@ -971,7 +971,7 @@ COLUMN_DOC = {
     "dependence_request_rate": "help requests per opportunity", "domain": "MBA domain", "concept": "concept (15; two units each)",
     "prerequisites": "prerequisite units", "reference_answer": "correct answer", "near_transfer_answer": "near-transfer correct answer",
     "transfer_answer": "far-transfer correct answer", "misconception_answer": "answer produced by the misconception", "misconception": "the misconception rule",
-    "coverage": "semantic coverage (not computed, 1.0)", "stimulus_id": "stimulus key (unit x condition)", "variant": "stimulus variant (one per unit and condition)",
+    "coverage": "semantic coverage as eq. 20 reads it (1.0; the measured coverage is in tableS_semantic_coverage)", "stimulus_id": "stimulus key (unit x condition)", "variant": "stimulus variant (one per unit and condition)",
     "text": "stimulus text (the TRIBE input)", "modality": "stimulus modality (text)", "example_count": "worked examples", "word_count": "words",
     "sentence_count": "sentences", "character_count": "characters", "readability": "readability score", "equation_count": "equations",
     "lexical_diversity": "type-token ratio", "duration": "reading time in s at 220 wpm (eq. 4)", "level": "`parcel`, `network` or `stimulus`",

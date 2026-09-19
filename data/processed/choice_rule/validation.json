@@ -1,0 +1,21 @@
+{
+  "out_of_sample": {
+    "n": 4800,
+    "cross_entropy": 1.0413947351820887,
+    "argmax_agreement": 0.6964583333333333,
+    "centaur_shares": {
+      "traditional": 0.351,
+      "ai_scaffolding": 0.2478,
+      "ai_substitution": 0.4012
+    },
+    "rule_shares": {
+      "traditional": 0.3485,
+      "ai_scaffolding": 0.2462,
+      "ai_substitution": 0.4053
+    },
+    "cross_entropy_fit_sample_shares": 1.0801972085899545
+  },
+  "runs": [
+    "data/processed/centaur_free_calib"
+  ]
+}

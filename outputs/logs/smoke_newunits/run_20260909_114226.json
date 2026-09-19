@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-09T09:42:26Z",
+  "config_sha256": "16448e9f4b93ae6324beb3260b2b072529a284ea121224118a87c02c23f0e012",
+  "parameter_setting": "medium",
+  "master_seed": 20260909,
+  "tag": "smoke_newunits",
+  "engine": "logistic",
+  "engine_model": null,
+  "engine_calls": 0,
+  "engine_seconds": 0.0,
+  "tutor": {
+    "provider": "fake",
+    "model": "gpt-4o-mini",
+    "calls": 36,
+    "leaks": 0,
+    "fallbacks": 0
+  },
+  "n_learners": 2,
+  "n_episodes": 11,
+  "conditions": [
+    "traditional",
+    "ai_scaffolding",
+    "ai_substitution"
+  ],
+  "n_units": 11,
+  "new_episodes_this_run": 66,
+  "row_counts": {
+    "episodes": 66,
+    "responses": 186,
+    "checkpoints": 12
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 0,
+    "R": 0,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 0.3
+}

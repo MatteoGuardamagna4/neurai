@@ -1,0 +1,78 @@
+{
+  "years": 1,
+  "draws": 20,
+  "learners_per_draw": 500,
+  "master_seed": 20260909,
+  "options": {
+    "epw": null,
+    "form": null,
+    "distribution": null,
+    "break_scale": null,
+    "scenarios": null,
+    "zero_plasticity": false,
+    "zero_effort": true,
+    "seed_offset": 0,
+    "set": [],
+    "subsample": null,
+    "frontier": null,
+    "mediate": null,
+    "no_neural": false
+  },
+  "config_sha256": "bc61b0fbd5a1aa4ee41e814b08cbbec6293aa9ed10f0463262618834e3f99f58",
+  "version": "0.1.0",
+  "subsample_learners": 100,
+  "subsample_draws": 20,
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "parts": [
+    "part-00000",
+    "part-00001",
+    "part-00002"
+  ],
+  "draws_done": [
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "wall_time_s": 8.2,
+  "scenarios": [
+    "traditional",
+    "scaffolding_rapid",
+    "scaffolding_nofade",
+    "substitution",
+    "free_choice"
+  ],
+  "networks": [
+    "Vis",
+    "SomMot",
+    "DorsAttn",
+    "SalVentAttn",
+    "Limbic",
+    "Cont",
+    "Default"
+  ],
+  "neural": true,
+  "scenario_knobs": {}
+}

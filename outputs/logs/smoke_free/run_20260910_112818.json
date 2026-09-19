@@ -1,0 +1,51 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-10T09:28:18Z",
+  "config_sha256": "061b3e210d9a3167b1faa62b2ee77c677c76dafc9a05fe3c8df3856bc1f2f34c",
+  "parameter_setting": "medium",
+  "master_seed": 20260909,
+  "tag": "smoke_free",
+  "engine": "logistic",
+  "engine_model": null,
+  "engine_calls": 0,
+  "engine_seconds": 0.0,
+  "tutor": {
+    "provider": "fake",
+    "model": "qwen2.5-3b-instruct",
+    "calls": 394,
+    "leaks": 0,
+    "fallbacks": 0
+  },
+  "n_learners": 30,
+  "n_episodes": 11,
+  "conditions": [
+    "traditional",
+    "ai_scaffolding",
+    "ai_substitution",
+    "free_choice"
+  ],
+  "n_units": 11,
+  "new_episodes_this_run": 1320,
+  "row_counts": {
+    "episodes": 1320,
+    "responses": 3632,
+    "checkpoints": 240
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 0,
+    "R": 0,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 4.8
+}

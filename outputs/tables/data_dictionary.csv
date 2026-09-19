@@ -196,7 +196,7 @@ data/processed/units.csv,transfer_answer,float64,far-transfer correct answer
 data/processed/units.csv,misconception_answer,float64,answer produced by the misconception
 data/processed/units.csv,misconception,str,the misconception rule
 data/processed/units.csv,correctness,float64,"answer correctness (0/1), or unit correctness score in units.csv"
-data/processed/units.csv,coverage,float64,"semantic coverage (not computed, 1.0)"
+data/processed/units.csv,coverage,float64,semantic coverage as eq. 20 reads it (1.0; the measured coverage is in tableS_semantic_coverage)
 data/processed/stimuli.csv,stimulus_id,str,stimulus key (unit x condition)
 data/processed/stimuli.csv,unit_id,str,curriculum unit
 data/processed/stimuli.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"

@@ -11,11 +11,21 @@ __pycache__/
 data/processed/*
 !data/processed/units.csv
 !data/processed/stimuli.csv
+# ...except the small run records (design, seeds, versions, timings): brief §4.3 / D1 logs
+!data/processed/phase5/
+data/processed/phase5/**
+!data/processed/phase5/*/
+!data/processed/phase5/*/run.json
+!data/processed/choice_rule/
 
 # run outputs: logs stay local; tables and figures are the committed deliverable (report all rebuilds them)
 outputs/*
 !outputs/tables/
 !outputs/figures/
+!outputs/logs/
+outputs/logs/**
+!outputs/logs/**/
+!outputs/logs/**/run_*.json
 
 data/tribe
 data/tribe/*

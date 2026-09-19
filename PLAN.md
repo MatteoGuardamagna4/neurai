@@ -754,7 +754,8 @@ and `outputs/figures` with no manual step.
 - F2 (reworded texts): only the scaffolding contrasts in DorsAttn, SalVentAttn and SomMot (vs traditional and vs
   substitution) survive; no substitution-vs-traditional network contrast does, and neither does the control network
   that Phase V's neural outcome uses. The Phase V neural contrasts are therefore model-implied under the primary texts.
-- The corpus meets the per-unit calipers (duration within 5.7%) but not the §5.5 target |SMD| < 0.10: 7 of 8 features
+- The corpus meets the per-unit calipers (duration within 7.9%) but not the §5.5 target |SMD| < 0.10: 8 of 9 features
+  (semantic coverage included, scaffolding vs traditional 0.35)
   miss it (scaffolding vs traditional: words and duration 0.41, sentences 0.46, lexical diversity 0.52, equations
   -1.76), because the texts vary little across units. Table 4 is therefore also reported with duration and word count
   as covariates (F1).

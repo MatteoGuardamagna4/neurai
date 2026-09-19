@@ -1,0 +1,48 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-10T12:59:19Z",
+  "config_sha256": "cff99e230c010ea8566067eb496c72ac13990a054bbb5227260c7ebdedd35d4c",
+  "parameter_setting": "medium",
+  "master_seed": 20260909,
+  "tag": "centaur_free_pilot",
+  "engine": "hybrid",
+  "engine_model": "llama-3.1-centaur-8b",
+  "engine_calls": 0,
+  "engine_seconds": 0.0,
+  "tutor": {
+    "provider": "openai",
+    "model": "qwen2.5-3b-instruct",
+    "calls": 20,
+    "leaks": 0,
+    "fallbacks": 0
+  },
+  "n_learners": 3,
+  "n_episodes": 11,
+  "conditions": [
+    "free_choice"
+  ],
+  "n_units": 11,
+  "new_episodes_this_run": 33,
+  "row_counts": {
+    "episodes": 33,
+    "responses": 124,
+    "checkpoints": 6
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 0,
+    "R": 0,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 4968.5
+}

@@ -1,0 +1,58 @@
+{
+  "years": 1,
+  "draws": 0,
+  "learners_per_draw": 1000,
+  "master_seed": 20260909,
+  "options": {
+    "epw": null,
+    "form": null,
+    "distribution": null,
+    "break_scale": null,
+    "scenarios": null,
+    "zero_plasticity": false,
+    "zero_effort": false,
+    "seed_offset": 0,
+    "set": [
+      "calendar.break_weeks=24"
+    ],
+    "subsample": null,
+    "frontier": null,
+    "mediate": null,
+    "no_neural": false
+  },
+  "config_sha256": "35e53c43d2b792a99c50c0d13c930d888fd4d4f54156547d4c3133b3db8eb2a1",
+  "version": "0.1.0",
+  "subsample_learners": 100,
+  "subsample_draws": 20,
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "parts": [
+    "part-00000"
+  ],
+  "draws_done": [
+    -1
+  ],
+  "wall_time_s": 0.9,
+  "scenarios": [
+    "traditional",
+    "scaffolding_rapid",
+    "scaffolding_nofade",
+    "substitution",
+    "free_choice"
+  ],
+  "networks": [
+    "Vis",
+    "SomMot",
+    "DorsAttn",
+    "SalVentAttn",
+    "Limbic",
+    "Cont",
+    "Default"
+  ],
+  "neural": true,
+  "scenario_knobs": {}
+}

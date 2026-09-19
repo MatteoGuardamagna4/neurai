@@ -137,7 +137,7 @@ reproduced from its logs, never re-derived.
 | --- | --- |
 | Repository builds from a clean environment | Done: `uv sync` from `uv.lock`; `uv run pytest` (99 tests, offline) |
 | All 120 units have deterministic answer validation | **Limitation**: 30 units (15 concepts x 2, MBA topics); all 30 validated by `corpus` |
-| Three conditions factually equivalent and matched | Done for calipers (duration within 10%); **limitation**: \|SMD\| < 0.10 missed on 7 of 8 features, so Table 4 is also reported with covariates (F1) |
+| Three conditions factually equivalent and matched | Done for calipers (duration within 10%); **limitation**: \|SMD\| < 0.10 missed on 8 of 9 features (all but example count), so Table 4 is also reported with covariates (F1) |
 | Scaffolding and substitution pass leakage and compliance tests | Done: numeric leakage check after every tutor call, tested (`test_corpus`, `test_episode`) |
 | Official TRIBE example reproduced | Done (`tribe_main` `tribe_qc.json`) |
 | TRIBE outputs cached with metadata and timestamps | Done: `run_metadata.json`, `tribe_run_log.jsonl`, checkpoint and atlas hashes |

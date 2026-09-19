@@ -1,0 +1,54 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-18T18:39:17Z",
+  "config_sha256": "89e967e024347ba781f972fe0e39fe9bd7f89286b3c07dadd05b38ef1be8465c",
+  "parameter_setting": "medium",
+  "master_seed": 20260909,
+  "tag": "centaur_main",
+  "persistence_policy": "persistent",
+  "engine": "hybrid",
+  "engine_model": "llama-3.1-centaur-8b",
+  "engine_base_url": "https://subscriber-biological-soma-boulevard.trycloudflare.com",
+  "tutor_base_url": "https://subscriber-biological-soma-boulevard.trycloudflare.com/v1",
+  "engine_calls": 0,
+  "engine_seconds": 0.0,
+  "tutor": {
+    "provider": "openai",
+    "model": "qwen2.5-3b-instruct",
+    "calls": 113,
+    "leaks": 0,
+    "fallbacks": 0
+  },
+  "n_learners": 40,
+  "n_episodes": 30,
+  "conditions": [
+    "traditional",
+    "ai_scaffolding",
+    "ai_substitution",
+    "free_choice"
+  ],
+  "n_units": 30,
+  "new_episodes_this_run": 281,
+  "row_counts": {
+    "episodes": 4800,
+    "responses": 13298,
+    "checkpoints": 480
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 0,
+    "R": 0,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 763.0
+}

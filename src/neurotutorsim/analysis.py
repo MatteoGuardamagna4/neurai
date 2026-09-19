@@ -18,7 +18,7 @@ from . import tribe
 from .corpus import CONDITIONS
 
 FEATURES = ("word_count", "character_count", "sentence_count", "readability", "equation_count", "example_count",
-            "lexical_diversity", "duration")  # eq. 1 without semantic coverage (§5.4 not run)
+            "lexical_diversity", "duration")  # eq. 1; semantic_coverage is appended when the text-controls run supplies it
 PAIRS = {"S-T": ("ai_scaffolding", "traditional"), "U-T": ("ai_substitution", "traditional"),
          "S-U": ("ai_scaffolding", "ai_substitution")}
 SMD_TARGET = 0.10  # §5.3: |SMD| < 0.10 for every continuous matching feature

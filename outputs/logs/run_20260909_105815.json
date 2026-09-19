@@ -1,0 +1,41 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-09T08:58:15Z",
+  "config_sha256": "ce889b399c2cefec9bf44207ada530a58d526f6f3465a68932acc497d246b857",
+  "parameter_setting": "medium",
+  "master_seed": 20260909,
+  "engine": "minitaur",
+  "engine_model": "llama-3.1-minitaur-8b",
+  "engine_calls": 10,
+  "engine_seconds": 51.6,
+  "tutor": null,
+  "n_learners": 1,
+  "n_episodes": 1,
+  "conditions": [
+    "traditional"
+  ],
+  "n_units": 1,
+  "new_episodes_this_run": 1,
+  "row_counts": {
+    "episodes": 1,
+    "responses": 3,
+    "checkpoints": 1
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 0,
+    "R": 0,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 51.7
+}

@@ -9,8 +9,8 @@ Source of truth is data/processed/episodes.jsonl (one line per learner x conditi
 the post-episode learner snapshot); every table is derived from it and a resumed run restores from it.
 Phase IV/V hooks: learner_state.parquet carries E, PE, retrieval, offloading and resolution per
 (unit_id, condition) for the plasticity equations 29-33; the support-persistence policy and the
-parameter arms are the §9.2-9.3 scenario knobs. TODO(Phase V): resample concepts with novel surface
-forms once the curriculum is exhausted (§9.1); today the unit order simply cycles.
+parameter arms are the §9.2-9.3 scenario knobs. The unit order cycles; Phase V (`longitudinal.py`) reuses the 30
+units with difficulty rising per school year instead of resampling new surface forms (PLAN.md D2).
 """
 from __future__ import annotations
 

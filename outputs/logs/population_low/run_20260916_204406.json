@@ -1,0 +1,52 @@
+{
+  "version": "0.1.0",
+  "recorded_utc": "2026-09-16T18:44:05Z",
+  "config_sha256": "89c5bd545ce70186fe0e0fdb280556ab1f42b99641b4d1d9b13562ec8458b167",
+  "parameter_setting": "low",
+  "master_seed": 20260909,
+  "tag": "population_low",
+  "persistence_policy": "persistent",
+  "engine": "logistic",
+  "engine_model": null,
+  "engine_calls": 0,
+  "engine_seconds": 0.0,
+  "tutor": {
+    "provider": "fake",
+    "model": "qwen2.5-3b-instruct",
+    "calls": 100369,
+    "leaks": 0,
+    "fallbacks": 0
+  },
+  "n_learners": 1667,
+  "n_episodes": 40,
+  "conditions": [
+    "traditional",
+    "ai_scaffolding",
+    "ai_substitution",
+    "free_choice"
+  ],
+  "n_units": 30,
+  "new_episodes_this_run": 266720,
+  "row_counts": {
+    "episodes": 266720,
+    "responses": 769030,
+    "checkpoints": 20004
+  },
+  "clip_counts_this_run": {
+    "K": 0,
+    "M": 10,
+    "R": 82,
+    "C": 0,
+    "D": 0
+  },
+  "warnings": [
+    "coverage and correctness use config defaults (Phase I \u00a75.4 semantic coverage not run)"
+  ],
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5"
+  },
+  "wall_time_s": 819.1
+}
