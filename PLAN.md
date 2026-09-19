@@ -749,7 +749,11 @@ and `outputs/figures` with no manual step.
 - Phase V deviates from the literal eq. 22, 23 and 25 (soft limits) and uses calendar forgetting; the brief form
   appears in the specification curve.
 - Eq. 42 uses a unit random intercept for identification. G has no neural term (two diagrams).
-- §5.4 semantic coverage and contradiction checks were not run: coverage and correctness default to 1.0 in eq. 20.
+- §5.4 semantic coverage was run (all 210 + 90 texts >= 0.5 cosine to the worked solution, `tableS_semantic_coverage`)
+  but is reported, not fed into eq. 20; contradiction checks were not run: coverage and correctness default to 1.0 there.
+- F2 (reworded texts): only the scaffolding contrasts in DorsAttn, SalVentAttn and SomMot (vs traditional and vs
+  substitution) survive; no substitution-vs-traditional network contrast does, and neither does the control network
+  that Phase V's neural outcome uses. The Phase V neural contrasts are therefore model-implied under the primary texts.
 - The corpus meets the per-unit calipers (duration within 5.7%) but not the §5.5 target |SMD| < 0.10: 7 of 8 features
   miss it (scaffolding vs traditional: words and duration 0.41, sentences 0.46, lexical diversity 0.52, equations
   -1.76), because the texts vary little across units. Table 4 is therefore also reported with duration and word count
@@ -799,6 +803,15 @@ and `outputs/figures` with no manual step.
   Refitted choice rule (6,000 decisions, `choice_rule_fit.csv`): habit 0.84 [0.82, 0.86], payoff 0.16 [0.10, 0.21],
   tried 0.24, scaffolding -0.26 and substitution +0.05 vs traditional.
 - 2026-09-19 (afternoon): eq. 43 cheap form (Figure 5b). 210 text controls written and validated; notebook `SESSION = "text_controls"`; D21-D22, A19. Found on the way: a new regex in `corpus.py` had shadowed the one `contains_number` uses (renamed before any result depended on it); the incorrect-text check compares magnitudes, because a loss is written without a minus sign.
+- 2026-09-19 (evening): `tribe_textctl` done on the L4 (09:27-14:54 UTC, 210/210 texts, no inference issues), copied to
+  `data/tribe/tribe_textctl/`; `report all` exit 0. **F2: no claim for 15 of 21 network AUC contrasts.** Survive (same sign
+  in all 9 primary x reworded combinations and |primary| > 2 SD): DorsAttn, SalVentAttn, SomMot for S-T and S-U. No U-T
+  contrast survives; Cont fails everywhere (regeneration SD ~1.6 against a primary contrast of ~2.2). Incorrect-but-fluent
+  vs correct (traditional): Cont -2.00 [-2.89, -1.18], Vis +0.84 [0.14, 1.58], others' CI include 0; ratio to the largest
+  condition contrast >= 0.5 in Cont, Default, Limbic. Coverage: every text >= 0.5 (min 0.52, an incorrect text), means
+  0.66-0.71. Variance decomposition now has stimulus generation: 1.1% of the control-network d, 0 for G.
+- 2026-09-19 (evening): S15 items 1-4 done: README (pipeline with measured times, output map, Appendix A checklist),
+  root and `data/` CLAUDE.md, `uv run pytest` 99 passed. Open: commit `outputs/`? (§9), tag `results-2026-09-25`, push.
 
 ## 9. Not blocking now; decide by S15
 

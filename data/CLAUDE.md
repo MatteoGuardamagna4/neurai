@@ -20,6 +20,8 @@
   resumed run restores learner state from them. Gitignored, never hand-edited, never regenerated silently.
 - `tribe/tribe_main/` (gitignored) is the Phase II run copied from Drive: `wpm220|180|260/tribe_metrics.parquet`,
   `tribe_patterns.parquet`, `parcels_schaefer400.csv`, `controls/`, `tribe_qc.json`. `plasticity.tribe_dir` points here.
+- `tribe/tribe_textctl/` (gitignored) is the text-controls TRIBE run (210 reworded / incorrect texts, 220 wpm, and
+  `coverage/semantic_coverage.csv`). Copy the Drive tag folder **inside** `data/tribe/`; `report textctl` reads it there.
 - `processed/<tag>/neural_network.parquet` / `neural_state.parquet` / `plasticity.json` are Phase IV's post hoc
   outputs on a Phase III run (`python -m neurotutorsim.plasticity --run ...`).
 - `processed/phase5/<tag>/` is one Phase V run: `run.json` (design, seeds, `draws_done`, the part list) and one

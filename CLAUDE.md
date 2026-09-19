@@ -6,7 +6,8 @@ Context for AI assistants working on this repository. Nested `CLAUDE.md` files c
 
 NeuroTutorSim (ESADE MSc Business Analytics): a purely computational study comparing traditional
 instruction, AI scaffolding and AI substitution. Spec: `NeuroTutorSim_Project_Brief.pdf`. This repo
-implements the Phase I corpus skeleton and Phase III (synthetic learners) and nothing else, on purpose.
+implements Phases I-V (corpus, TRIBE on Colab, synthetic learners, plasticity, ten-year scenarios) and the §10-§13
+analysis layer.
 
 ## Scope decisions (do not re-litigate)
 
@@ -19,10 +20,9 @@ implements the Phase I corpus skeleton and Phase III (synthetic learners) and no
   fakes a cortical prediction: `tribe.py` is model-free arithmetic on cached predictions, and the notebook's
   `DRY_RUN` smoke test is quarantined under `DRYRUN_<tag>`. The stimuli texts (file body, all sections) are the
   TRIBE inputs; the join key is `(unit_id, condition)`. See `notebooks/CLAUDE.md` for the decisions.
-- **Phases IV and V are not built.** `learner_state.parquet` already carries what they need per episode:
-  `effort` (E), `pe`, `retrieval`, `offloading`, `resolution`, `unit_id`, `condition`. The support-
-  persistence policy and the low/medium/high parameter arms are the §9.2-9.3 scenario knobs. Phase V
-  curriculum resampling is a TODO in `simulate.py`.
+- **Phases IV and V** (`plasticity.py`, `longitudinal.py`) read per episode what `learner_state.parquet` carries:
+  `effort` (E), `pe`, `retrieval`, `offloading`, `resolution`, `unit_id`, `condition`. The support-persistence policy
+  and the low/medium/high parameter arms are the §9.2-9.3 scenario knobs.
 - **Phase V scenarios (user decision 2026-09-16): five, not the brief's five.** traditional; scaffolding
   rapid fade (`immediate_withdrawal`); scaffolding no fade (`persistent`); substitution (`persistent`);
   `free_choice` (logistic softmax-in-D approach rule, labelled as an assumption). Gradual fade is dropped as a
@@ -126,37 +126,24 @@ near-transfer question -> "That took you about N minutes." -> eq. 19-25 update. 
 lifetime totals, recent form, topic experience and, in `free_choice`, what it picked and how the follow-up went.
 Far transfer is used only by the §7.7 checkpoints.
 
-## Where this stands (2026-09-11)
+## Where this stands (2026-09-19)
 
-**Update 2026-09-18:** see `PLAN.md` §1 and decisions D13-D18. Logistic runs, TRIBE (`data/tribe/tribe_main/`, QC
-passes), Phase IV (`plasticity.py`), Phase V (`longitudinal.py`, six scenarios, frontier/lines/neural/mediation
-modes; gate 18 passes), `analysis.py`, `report.py` (Phase I/II tables and figures) and `choice_rule.py` exist and
-are tested. `centaur_main` runs on Colab, followed by the free-choice calibration batch `centaur_free_calib`.
-The text below is the 2026-09-11 state.
+**Every run is done and `report all` rebuilds every table and figure (exit 0); what is left is the S15 freeze.**
+`PLAN.md` §1 and §8 (log) hold the detail, decisions D1-D22 and the limitations (§7). On disk: the logistic population
+runs, `centaur_main` and `centaur_free_calib` (40 x 4 x 30 and 80 x 60, hybrid on Colab), TRIBE `tribe_main` (QC passes)
+and `tribe_textctl` (210 text controls + §5.4 coverage) under `data/tribe/`, and every Phase V tag under
+`data/processed/phase5/` (`v_main`, `v_main_fcc`, frontier, tipping, neural, mediation, controls, replicates, 72 `spec_*`).
 
-**Update 2026-09-16:** `centaur_main` stopped on an LM Studio timeout at 2,359 / 4,800 episodes and is not running;
-no logistic production run and no TRIBE run exist yet. `PLAN.md` holds the day-by-day plan to 2026-09-25 (resume
-command, TRIBE procedure, Phase IV-V modules, analysis outputs).
+Headline status for the write-up: the behavioural results (G, scenario ranks) hold in all 216 specifications per
+scenario. The neural side is weak: F2 leaves only scaffolding's DorsAttn / SalVentAttn / SomMot contrasts, no
+substitution-vs-traditional or control-network contrast survives the reworded texts, and the control-network d keeps
+its sign in only 58% of specifications. Present the Phase V neural trajectories as model-implied and exploratory.
 
-Phase I corpus is complete (30 units, 90 stimuli, all calipers inside 10%). Phase III runs end to end on
-both engines. Phase II is built (2026-09-14) but **not yet run**: `notebooks/tribe_phase2.ipynb` passed its
-offline dry run and its adapter tests; the first real Colab run (needs `HF_TOKEN` with Llama-3.2 access and
-`GITHUB_TOKEN`) has not happened, so no cortical prediction exists on disk. What has NOT been done: that TRIBE
-run, the two-tier production run itself, the §7.2 low/high arms, and any §10.2 hybrid-vs-logistic comparison at
-a usable N. The pilots on disk (`centaur_free_pilot`,
-`centaur_free_pilot2`, 3 learners x 11 episodes each) are shakedown runs, not results; note they predate
-the `concept_record` rename and so cannot be `--resume`d.
+The main Centaur run was **40 learners x 4 arms x 30 episodes = 4,800 episodes** (user decision 2026-09-11: keep all
+four arms, so the eq. 10-12 contrasts survive; in free choice the protocol is chosen by the learner from their own
+state, so an outcome difference there confounds the condition with who selected it).
 
-Budget, measured: **~100-110 s per episode** on the hybrid engine. Covering all 30 units needs >= 30
-episodes per learner, so the decided main run is **40 learners x 4 arms x 30 episodes = 4,800 episodes,
-about 5.5 days of wall clock** (user decision 2026-09-11: keep all four arms, so the eq. 10-12 contrasts
-survive; the free-choice arm alone cannot support them, because there the protocol is chosen by the
-learner from their own state and any outcome difference confounds the condition with who selected it).
-
-    uv run python -m neurotutorsim.simulate --learners 40 --episodes 30 --tag centaur_main   # ~5.5 days
-    uv run python -m neurotutorsim.simulate --engine logistic --tutor fake --tag population_logistic  # ~16 min
-
-Before starting: both models must be loaded in LM Studio (`lms ps` should list `llama-3.1-centaur-8b` at
+Before a new hybrid run on LM Studio: both models must be loaded (`lms ps` should list `llama-3.1-centaur-8b` at
 8192 context and `qwen2.5-3b-instruct`). LM Studio has unloaded a model mid-run before, which stops the
 run; `--resume` with the same tag picks it up. **`--resume` must keep the same `--learners`, `--episodes`,
 seed, `--setting`, `--engine` and `--policy`**: `make_population` draws the strata with `rng.choice(size=n)`,

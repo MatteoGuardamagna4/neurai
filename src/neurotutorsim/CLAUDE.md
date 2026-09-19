@@ -12,7 +12,7 @@
 | `plasticity.py` | Phase IV: eq. 28 Z from the TRIBE run, the five-channel `Accumulator` (N = (w . A) @ Z, so mechanism, lambdas and every Z control are post hoc), eq. 29-33 weights, eq. 7 networks, §8.7 outcomes, `apply_to_run` on a Phase III run |
 | `longitudinal.py` | Phase V: parameter draws, `Pop` arrays, the vectorised mirror of `run_episode` + `LogisticEngine` (`Sim.step`, checked by T1), calendar and breaks, paired contrasts, G, neural d, frontier/lines/neural-diagram/mediation designs, append-only parts + `run.json`, `read_table` |
 | `choice_rule.py` | a conditional logit fitted to Centaur's free-choice probabilities on what Centaur reads (habit, payoff record, tried, recent form), with a learner bootstrap; Phase V's `free_choice_centaur` uses it |
-| `analysis.py` | pure §10-§11 functions: corpus balance (SMD, TOST), BH-FDR, Table 4 and eq. 42, RSA summary, gate-19 metric definitions, engine comparison, gate 18, Table 5 summaries |
+| `analysis.py` | pure §10-§11 functions: corpus balance (SMD, TOST), BH-FDR, Table 4 and eq. 42, RSA summary, gate-19 metric definitions, engine comparison, gate 18, Table 5 summaries, text controls (F2 regeneration, incorrect-text control, coverage) |
 | `report.py` | CLI that rebuilds tables and figures from saved data (dataviz reference palette; every figure has a CSV twin) |
 
 Invariants:
