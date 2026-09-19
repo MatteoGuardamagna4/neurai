@@ -213,3 +213,20 @@ def test_mechanism_decomposition_and_z_hold():
     Z = np.arange(12, dtype=float).reshape(6, 2)  # 2 units x 3 conditions
     held = A.hold_z_at_comparator(Z)
     assert (held[0] == Z[0]).all() and (held[1] == Z[0]).all() and (held[5] == Z[3]).all()
+
+
+def test_trajectory_model_recovers_a_scenario_gap():
+    rng = np.random.default_rng(5)
+    rows = []
+    for s, shift in (("traditional", 0.0), ("substitution", -0.8)):
+        for i in range(120):
+            for t in range(40):
+                p = 1 / (1 + np.exp(-(0.2 + 0.03 * t + shift)))
+                rows.append({"draw_id": -1, "scenario": s, "learner_id": i, "episode": t, "unit_id": f"u{t % 4}",
+                             "stratum": i % 3, "difficulty": float(t % 4), "first_correct": rng.random() < p})
+    units = pd.DataFrame({"unit_id": [f"u{k}" for k in range(4)], "domain": ["a", "b", "a", "b"]})
+    coefs, curves = A.trajectory_model(pd.DataFrame(rows), units, n_learners=120, df=3, n_sim=100)
+    gap = coefs.set_index("term").loc["C(scenario)[T.substitution]"]
+    assert gap["ci_low"] < -0.8 < gap["ci_high"]
+    last = curves[curves["episode"] == 39].set_index("scenario")["p_correct"]
+    assert last["substitution"] < last["traditional"]

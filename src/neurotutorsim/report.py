@@ -587,7 +587,28 @@ def phase5(paths: Paths, tag: str, extra: list[str] | None = None) -> list[Path]
     hist = load_runs(paths, tags, "contrast_hist")
     if len(hist):
         written += figure6(plt, hist, t5, paths.figures, tag, max(target))
+    episodes = load_runs(paths, tags, "episodes_central")
+    if len(episodes) and (paths.processed / "units.csv").exists():
+        written += figure5b(plt, episodes, pd.read_csv(paths.processed / "units.csv"), paths, tag)
     return written
+
+
+def figure5b(plt, episodes: pd.DataFrame, units: pd.DataFrame, paths: Paths, tag: str) -> list[Path]:
+    """§11.3 (eq. 43, cheap form): adjusted year-1 first-attempt correctness per scenario from the population-averaged
+    logistic model with learner-clustered errors, central draw, 500 learners."""
+    coefs, curves = A.trajectory_model(episodes, units)
+    written = [paths.table(coefs, f"tableS_trajectory_model_{tag}"), paths.table(curves, f"fig5b_trajectory_model_{tag}")]
+    fig, ax = plt.subplots(figsize=(7.5, 4.2))
+    for s in [s for s in SCENARIO_COLOR if s in set(curves["scenario"])]:
+        c = curves[curves["scenario"] == s]
+        ax.fill_between(c["episode"], c["lo95"], c["hi95"], color=SCENARIO_COLOR[s], alpha=0.15, lw=0)
+        ax.plot(c["episode"], c["p_correct"], color=SCENARIO_COLOR[s], lw=2, label=SCENARIO_LABEL[s])
+    ax.set_xlabel("episode (year 1)")
+    ax.set_ylabel("adjusted P(first attempt correct)")
+    ax.legend(loc="lower right", fontsize=7.5)
+    ax.set_title(f"Figure 5b. Eq. 43 learning curves ({coefs.attrs['n_learners']} learners, central draw; "
+                 "band: 95%, learner-clustered)", fontsize=9.5)
+    return written + save(fig, paths.figures, f"fig5b_trajectory_model_{tag}")
 
 
 # ------------------------------------------------------------------ S9 exposure, supplementary

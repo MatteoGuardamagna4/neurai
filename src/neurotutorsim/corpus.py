@@ -281,6 +281,88 @@ def load_stimuli(stimuli_dir: Path, units: dict[str, Unit]) -> dict[tuple[str, s
     return stimuli
 
 
+# ------------------------------------------------------------------ text controls (§5.2 item 9, §10.3, §10.6)
+# TRIBE-only texts, never read by the simulated learner: `stimuli/variants/<condition>/<unit_id>__reworded_<k>.md`
+# (harmless stylistic regenerations of the primary, same facts and numbers) and
+# `stimuli/incorrect/traditional/<unit_id>__incorrect.md` (the traditional text teaching the unit's documented
+# misconception as if it were right, fluent and matched in length: the §10.3 incorrect-but-fluent control).
+REWORDED = ("reworded_1", "reworded_2")
+_STATED_NUMBER = re.compile(r"(?<![A-Za-z])\d[\d,]*(?:\.\d+)?")  # own name: _NUMBER above is contains_number's
+
+
+def numbers_in(text: str) -> set[float]:
+    """Numbers a text states, ignoring 0-10 (step labels, 'two steps' written as digits, list counts)."""
+    out = set()
+    for m in _STATED_NUMBER.findall(text):
+        v = float(m.replace(",", "").rstrip("."))
+        if v > 10 or v != int(v):
+            out.add(round(v, 6))
+    return out
+
+
+def check_text_control(stim: Stimulus, primary: Stimulus, unit: Unit) -> list[str]:
+    """A reworded variant keeps the primary's facts: same sections, canonical problem, the same stated numbers,
+    the same answer placement and leakage rules, the explanation length rule, and duration within the caliper of
+    the primary. An incorrect text keeps the structure and length but teaches the misconception: the correct answer
+    appears nowhere and the worked solution reaches the misconception's answer."""
+    where = f"{stim.path.name} ({stim.condition}, {stim.variant})"
+    errors = []
+    if tuple(stim.sections) != tuple(primary.sections):
+        return [f"{where}: sections {tuple(stim.sections)} must match the primary's {tuple(primary.sections)}"]
+    words = features(stim.explanation)["word_count"]
+    if not EXPLANATION_WORDS[0] <= words <= EXPLANATION_WORDS[1]:
+        errors.append(f"{where}: explanation has {words} words, must be within {EXPLANATION_WORDS}")
+    if unit.problem.text not in stim.sections["Problem"]:
+        errors.append(f"{where}: Problem section does not contain the unit's canonical problem text")
+    rel = abs(features(stim.body)["duration"] - features(primary.body)["duration"]) / features(primary.body)["duration"]
+    if rel > DURATION_CALIPER:
+        errors.append(f"{where}: duration differs from the primary by {rel:.1%} (caliper {DURATION_CALIPER:.0%})")
+    if stim.variant.startswith("reworded"):
+        if "Diagnostic questions" in stim.sections and stim.sections["Diagnostic questions"].count("?") < len(unit.problem.distractors):
+            errors.append(f"{where}: Diagnostic questions must ask at least {len(unit.problem.distractors)} questions")
+        missing, extra = numbers_in(primary.body) - numbers_in(stim.body), numbers_in(stim.body) - numbers_in(primary.body)
+        if missing or extra:
+            errors.append(f"{where}: stated numbers differ from the primary (missing {sorted(missing)}, new {sorted(extra)})")
+        for name, section in stim.sections.items():
+            present, allowed = contains_number(section, unit.problem.answer), name in ANSWER_ALLOWED_IN[stim.condition]
+            if present and not allowed:
+                errors.append(f"{where}: the answer leaks into section {name!r}")
+            if allowed and not present:
+                errors.append(f"{where}: section {name!r} must state the answer")
+    elif stim.variant == "incorrect":
+        wrong = abs(unit.problem.distractors[0][0])  # a loss is written as "a loss of EUR 5,000": no minus sign
+        if contains_number(stim.body, unit.problem.answer):
+            errors.append(f"{where}: the correct answer {unit.problem.render(unit.problem.answer)} must not appear")
+        if not contains_number(stim.sections["Worked solution"], wrong):
+            errors.append(f"{where}: the worked solution must reach the misconception's answer {unit.problem.render(wrong)}")
+    else:
+        errors.append(f"{where}: unknown variant {stim.variant!r}")
+    return errors
+
+
+def load_text_controls(stimuli_dir: Path, units: dict[str, Unit], stimuli: dict[tuple[str, str], Stimulus],
+                       require_all: bool = False) -> dict[tuple[str, str, str], Stimulus]:
+    """{(unit_id, condition, variant): Stimulus} for every text control on disk, each validated against its primary.
+    `require_all` also fails on missing files (the TRIBE notebook needs the complete set)."""
+    root, out, errors = Path(stimuli_dir), {}, []
+    expected = [(u, c, v, root / "variants" / c / f"{u}__{v}.md") for u in units for c in CONDITIONS for v in REWORDED]
+    expected += [(u, "traditional", "incorrect", root / "incorrect" / "traditional" / f"{u}__incorrect.md") for u in units]
+    for uid, cond, variant, path in expected:
+        if not path.exists():
+            if require_all:
+                errors.append(f"missing text control {path}")
+            continue
+        stim = parse_stimulus(path)
+        if (stim.unit_id, stim.condition, stim.variant) != (uid, cond, variant):
+            errors.append(f"{path}: front matter says {stim.unit_id}/{stim.condition}/{stim.variant}")
+            continue
+        errors += check_text_control(stim, stimuli[(uid, cond)], units[uid])
+        out[(uid, cond, variant)] = stim
+    if errors:
+        raise ValueError("text control validation failed:\n  " + "\n  ".join(errors))
+    return out
+
+
 # ------------------------------------------------------------------ matching features (§5.3)
 _WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
 
@@ -350,6 +432,11 @@ def main(argv=None) -> int:
     for (uid, condition), c in result["caliper"].items():
         print(f"caliper {uid} {condition}: {c['relative_difference']:.1%} vs traditional -> {'ok' if c['passed'] else 'FAIL'}")
     print("SMD / Mahalanobis matching (§5.3) needs >= 10 units; not computed.")
+    controls = load_text_controls(root / "stimuli", units, stimuli)
+    n_var = sum(1 for k in controls if k[2].startswith("reworded"))
+    n_inc = sum(1 for k in controls if k[2] == "incorrect")
+    print(f"text controls validated: {n_var} / {len(units) * len(CONDITIONS) * len(REWORDED)} reworded variants, "
+          f"{n_inc} / {len(units)} incorrect-but-fluent")
     return 0
 
 

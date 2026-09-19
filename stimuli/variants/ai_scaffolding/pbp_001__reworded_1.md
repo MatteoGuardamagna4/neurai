@@ -1,0 +1,43 @@
+---
+stimulus_id: pbp_001_ai_scaffolding__reworded_1
+unit_id: pbp_001
+condition: ai_scaffolding
+variant: reworded_1
+---
+# Explanation
+
+Let's figure out the payback period together. It is the roughest of the investment appraisal tools and also one of the most popular: it asks how long it takes for the money put into a project to come back. A shorter payback means the company is at risk for less time, which is why lenders and careful boards like it, and it is easy to explain to people who would never sit through a discounted cash flow. Its weakness is that it ignores everything that happens once the money has been recovered.
+
+The measure is built entirely on cash. That matters because the profit in the accounts is not cash: depreciation has been subtracted from it, and depreciation is a bookkeeping charge that spreads an asset's cost over its life, not a payment to anyone. The cash for the asset left the business once, at the start, and it already sits in the top of the calculation.
+
+With the same cash flow every year:
+
+Payback period = Investment / Annual cash flow
+
+Worked example. A delivery van costs EUR 48,000 and should save EUR 16,000 of cash a year. Payback = 48,000 / 16,000 = 3.00 years. If the van is depreciated over six years, the accounts show a profit of only 16,000 - 8,000 = EUR 8,000 a year, but no cash leaves the business for that depreciation, so it must not be subtracted here.
+
+The slip is dividing the investment by the accounting profit. That takes depreciation off the yearly return while the full purchase price still sits on top, so the asset's cost is counted twice and the payback comes out far too long. Uneven cash flows need a different method but rest on the same idea: add up the cash year by year until it reaches the investment, then take the fraction of the year in which it is finally recovered. Hold on to that while you tackle the problem below, because if your result is off, I will start by asking which of the two yearly figures you divided by.
+
+# Problem
+
+A company is considering an investment of EUR 90,000 in new equipment with a five-year life. The equipment is expected to bring in EUR 24,000 of cash a year. Depreciation of EUR 9,000 a year is charged against it, so the accounts show an annual profit of EUR 15,000. What is the payback period of the investment? Have a go on your own first. I won't give you the answer: if you get it wrong, I'll ask you something about how you worked it out and offer a hint, and then you can try again.
+
+# Diagnostic questions
+
+Before I comment on your result, here are three questions for you.
+
+Of the two yearly figures in the problem, the EUR 24,000 and the EUR 15,000, which one is money really landing in the company's bank account?
+
+Does the EUR 9,000 of depreciation leave the business every year, or was that cash paid once when the equipment was bought?
+
+Imagine someone divides 90,000 by 15,000. Which cost have they counted twice?
+
+# Hints
+
+Hint 1: Payback asks how long the investment takes to return the cash put into it, so both the top and the bottom of the fraction must be measured in cash.
+
+Hint 2: Two of the figures you were given describe the same year: one is cash, the other is what the accounts show after depreciation. Depreciation is a bookkeeping charge, not a payment, so it has no place in a payback calculation.
+
+Hint 3: Divide the amount invested by the yearly cash flow, and give the answer in years.
+
+The last step of the calculation is for you to do.

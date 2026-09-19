@@ -425,6 +425,54 @@ def neural_contrasts_table(neural: pd.DataFrame, mechanism: str = "D", years=(1,
     return pd.DataFrame(rows)
 
 
+# ------------------------------------------------------------------ §11.3 learning trajectories (eq. 43, cheap form)
+def trajectory_model(episodes: pd.DataFrame, units: pd.DataFrame, n_learners: int = 500, df: int = 5,
+                     comparator: str = "traditional", n_sim: int = 300, n_ref: int = 300, seed: int = 0
+                     ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """eq. 43 as a population-averaged logistic model with learner-clustered standard errors (the chosen cheap form
+    of the brief's hierarchical logistic model: no learner random intercept, so coefficients are marginal, not
+    learner-specific): first-attempt (unaided) correctness ~ scenario x B-spline(episode, df) + prior stratum +
+    domain + difficulty, on the central draw's first `n_learners` learners, who are the same people in every
+    scenario. Returns (coefficients, adjusted curves): each scenario's curve is the model's prediction, and its band comes from `n_sim` draws of the coefficients (normal
+    approximation with the clustered covariance), averaged at each episode over one fixed reference sample of
+    `n_ref` covariate rows so the curriculum order does not show through. Intervals reflect behavioural noise within one parameter setting,
+    not parameter uncertainty (that is Figure 5's band); p-values are not reported (§11.3)."""
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+    from patsy import build_design_matrices
+
+    e = episodes[(episodes["draw_id"] == -1) & (episodes["learner_id"] < n_learners)].copy()
+    e = e.merge(units[["unit_id", "domain"]], on="unit_id", how="left")
+    e["y"] = e["first_correct"].astype(float)
+    scen = [comparator] + sorted(s for s in e["scenario"].unique() if s != comparator)
+    e["scenario"] = pd.Categorical(e["scenario"], categories=scen)
+    formula = f"y ~ C(scenario) * bs(episode, df={df}) + C(stratum) + C(domain) + difficulty"
+    fit = smf.glm(formula, e, family=sm.families.Binomial()).fit(cov_type="cluster", cov_kwds={"groups": e["learner_id"].to_numpy()})
+    ci = fit.conf_int()
+    coefs = pd.DataFrame({"term": fit.params.index, "estimate": fit.params.values, "se_cluster": fit.bse.values,
+                          "ci_low": ci[0].values, "ci_high": ci[1].values})
+    coefs.attrs["n_obs"], coefs.attrs["n_learners"] = int(fit.nobs), int(e["learner_id"].nunique())
+    rng = np.random.default_rng(seed)
+    beta = rng.multivariate_normal(fit.params.values, fit.cov_params().values, n_sim)
+    rows = []
+    # f_c(t) with the curriculum held fixed: at every episode, average over one reference sample of covariate rows
+    # (stratum, domain, difficulty), so the curve shows time and scenario, not which unit happens to come next
+    ref = e.sample(min(n_ref, len(e)), random_state=seed)[["stratum", "domain", "difficulty"]]
+    episodes_ = np.sort(e["episode"].unique())
+    base = pd.concat([ref.assign(episode=t) for t in episodes_], ignore_index=True)
+    for s in scen:
+        grid = base.assign(scenario=pd.Categorical([s] * len(base), categories=scen))
+        Xs = np.asarray(build_design_matrices([fit.model.data.model_spec], grid)[0])
+        lin = Xs @ beta.T  # (rows, n_sim)
+        p = 1 / (1 + np.exp(-lin))
+        by_ep = pd.DataFrame(p).groupby(grid["episode"].to_numpy()).mean()
+        point = pd.Series(1 / (1 + np.exp(-(Xs @ fit.params.values)))).groupby(grid["episode"].to_numpy()).mean()
+        for t in by_ep.index:
+            lo, hi = np.quantile(by_ep.loc[t], [0.025, 0.975])
+            rows.append({"scenario": s, "episode": int(t), "p_correct": float(point[t]), "lo95": float(lo), "hi95": float(hi)})
+    return coefs, pd.DataFrame(rows)
+
+
 # ------------------------------------------------------------------ §10.3 negative controls on Z (S12, post hoc)
 def permute_z(Z: np.ndarray, how: str, rng: np.random.Generator, n_cond: int = 3) -> np.ndarray:
     """A permuted copy of Z (rows unit-major x condition). `units`: within each condition the units' patterns are
