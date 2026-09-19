@@ -1,0 +1,10 @@
+stimulus_id,unit_id,condition,variant,text,cosine
+pbp_002_traditional,pbp_002,traditional,primary,explanation,0.528581976890564
+roi_002_traditional,roi_002,traditional,primary,explanation,0.5408918857574463
+cm_001_traditional,cm_001,traditional,primary,explanation,0.5651029348373413
+pbp_002_ai_substitution,pbp_002,ai_substitution,primary,explanation,0.5891547799110413
+ltv_002_ai_substitution,ltv_002,ai_substitution,primary,explanation,0.5894562005996704
+cac_002_ai_substitution,cac_002,ai_substitution,primary,explanation,0.5949464440345764
+ltv_002_ai_scaffolding,ltv_002,ai_scaffolding,primary,explanation,0.5997076630592346
+pbp_002_ai_scaffolding,pbp_002,ai_scaffolding,primary,explanation,0.6006215810775757
+ltv_002_traditional,ltv_002,traditional,primary,explanation,0.6008720397949219

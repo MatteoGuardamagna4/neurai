@@ -1,0 +1,98 @@
+parameter,low,medium,high,phase V draw,source
+population.n_learners,,1667,,fixed,"brief §7.1 (>= 5,000 learner-runs per arm)"
+population.prior_problems,,20,,fixed,assumption
+population.stratum_weights,,"[0.3, 0.5, 0.2]",,fixed,brief §7.2
+population.state_means.K,,0.35,,fixed,assumption
+population.state_means.M,,0.3,,fixed,assumption
+population.state_means.R,,0.3,,fixed,assumption
+population.state_means.C,,0.5,,fixed,assumption
+population.state_means.D,,0.4,,fixed,assumption
+population.state_sd,0.1,0.15,0.2,"Triangular(0.1, 0.15, 0.2)",assumption
+population.stratum_k_shift,,"[-0.2, 0.0, 0.2]",,fixed,assumption
+population.stratum_m_shift,,"[-0.1, 0.0, 0.1]",,fixed,assumption
+population.mu_alpha,-2.6,-2.3,-2.0,"Triangular(-2.6, -2.3, -2.0)",assumption
+population.sigma_alpha,0.25,0.4,0.55,"Triangular(0.25, 0.4, 0.55)",assumption
+population.a_delta,,2.0,,fixed,assumption
+population.b_delta,120.0,80.0,50.0,"Triangular(50.0, 80.0, 120.0)",assumption
+population.theta_slope,3.0,4.0,5.0,"Triangular(3.0, 4.0, 5.0)",assumption
+population.confidence_bias_sd,0.05,0.1,0.15,"Triangular(0.05, 0.1, 0.15)",assumption
+population.speed_sigma,,0.25,,fixed,assumption
+curriculum.b_slope,0.4,0.6,0.8,"Triangular(0.4, 0.6, 0.8)",assumption
+curriculum.near_b_delta,,0.5,,fixed,assumption
+curriculum.far_b_delta,,1.2,,fixed,assumption
+response.rho,0.7,1.0,1.3,"Triangular(0.7, 1.0, 1.3)",assumption
+response.kappa,0.5,0.8,1.1,"Triangular(0.5, 0.8, 1.1)",assumption
+response.omega,1.5,2.5,3.5,"Triangular(1.5, 2.5, 3.5)",assumption
+response.request_intercept,,-1.0,,fixed,assumption
+response.request_dependence_slope,,2.0,,fixed,assumption
+response.request_ability_slope,,0.5,,fixed,assumption
+response.misconception_share,,0.67,,fixed,assumption
+response.confidence_noise_sd,,0.08,,fixed,assumption
+effort.a0,,-1.0,,fixed,assumption
+effort.a1,0.9,1.2,1.5,"Triangular(0.9, 1.2, 1.5)",assumption
+effort.a2,0.6,0.8,1.0,"Triangular(0.6, 0.8, 1.0)",assumption
+effort.a3,0.7,1.0,1.3,"Triangular(0.7, 1.0, 1.3)",assumption
+effort.a4,1.5,2.0,2.5,"Triangular(1.5, 2.0, 2.5)",assumption
+effectiveness.f0,,-1.5,,fixed,assumption
+effectiveness.f1,,1.0,,fixed,assumption
+effectiveness.f2,,0.8,,fixed,assumption
+effectiveness.f3,0.9,1.2,1.5,"Triangular(0.9, 1.2, 1.5)",assumption
+effectiveness.f4,1.2,1.5,1.8,"Triangular(1.2, 1.5, 1.8)",assumption
+effectiveness.coverage_default,,1.0,,fixed,assumption
+effectiveness.correctness_default,,1.0,,fixed,assumption
+updates.m_decay_scale,,1.0,,fixed,assumption
+updates.eta_M,0.01,0.015,0.025,"Triangular(0.01, 0.015, 0.025)",assumption
+updates.eta_C,0.01,0.015,0.025,"Triangular(0.01, 0.015, 0.025)",assumption
+updates.eta_R,0.003,0.005,0.008,"Triangular(0.003, 0.005, 0.008)",assumption
+updates.eta_O,0.003,0.005,0.008,"Triangular(0.003, 0.005, 0.008)",assumption
+updates.eta_D,0.006,0.01,0.016,"Triangular(0.006, 0.01, 0.016)",assumption
+updates.eta_F,0.006,0.01,0.016,"Triangular(0.006, 0.01, 0.016)",assumption
+calendar.weeks_per_year,,40,,fixed,brief §9.1
+calendar.break_weeks,,12,,fixed,assumption
+calendar.episodes_per_week,,3,,fixed,brief §9.1
+calendar.reference_episodes_per_week,,3,,fixed,assumption
+calendar.break_decay_scale,,0.25,,fixed,assumption
+plasticity.wpm,,220,,fixed,brief §6.2
+plasticity.winsorize,,"[0.01, 0.99]",,fixed,brief §8.2
+plasticity.half_life_weeks,52.0,20,8.0,"Triangular(8, 20, 52)",assumption
+plasticity.eta,,1.0,,fixed,assumption
+plasticity.lambda.A,,0.3333333,,fixed,"brief §8.6 (non-negative, sum to one; equal split assumed)"
+plasticity.lambda.PE,,0.3333333,,fixed,"brief §8.6 (non-negative, sum to one; equal split assumed)"
+plasticity.lambda.R,,0.3333334,,fixed,"brief §8.6 (non-negative, sum to one; equal split assumed)"
+plasticity.lambda_O,0.0,0.3333333,0.6666667,"Triangular(0.0, 0.3333333, 0.6666667)",assumption
+support.max_hints,,3,,fixed,brief §3.3
+support.adaptation.traditional,,0.35,,fixed,assumption
+support.adaptation.ai_scaffolding,,0.9,,fixed,assumption
+support.adaptation.ai_substitution,,0.2,,fixed,assumption
+support.mismatch_scale,,3.0,,fixed,assumption
+support.fade_base,,0.75,,fixed,assumption
+support.withdrawal_success_threshold,,2,,fixed,assumption
+support.latency.base_s,,45.0,,fixed,assumption
+support.latency.per_hint_s,,20.0,,fixed,assumption
+support.latency.per_attempt_s,,30.0,,fixed,assumption
+checkpoints.episodes,,"[9, 19, 39]",,fixed,assumption
+checkpoints.n_trained,,3,,fixed,assumption
+checkpoints.n_near,,2,,fixed,assumption
+checkpoints.n_far,,2,,fixed,assumption
+checkpoints.retention_interval,,10,,fixed,assumption
+checkpoints.ece_bins,,10,,fixed,assumption
+phase5.years,,10,,fixed,brief §9
+phase5.draws,,500,,fixed,brief §9.3 (fallback size)
+phase5.learners_per_draw,,2000,,fixed,brief §9.3 (fallback size)
+phase5.subsample_learners,,100,,fixed,assumption
+phase5.subsample_draws,,20,,fixed,assumption
+phase5.ramp_per_year,0.0,0.1,0.2,"Triangular(0.0, 0.1, 0.2)",assumption
+phase5.checkpoint_years,,"[1, 5, 10]",,fixed,assumption
+phase5.G.weights.K,,0.25,,fixed,brief §9.6 (equal weights)
+phase5.G.weights.R,,0.25,,fixed,brief §9.6 (equal weights)
+phase5.G.weights.M,,0.25,,fixed,brief §9.6 (equal weights)
+phase5.G.weights.D,,0.25,,fixed,brief §9.6 (equal weights)
+phase5.G.epsilon,,0.02,,fixed,brief §9.6 (equal weights)
+phase5.stakeholder_weights.learning_first.K,,0.4,,fixed,assumption
+phase5.stakeholder_weights.learning_first.R,,0.3,,fixed,assumption
+phase5.stakeholder_weights.learning_first.M,,0.2,,fixed,assumption
+phase5.stakeholder_weights.learning_first.D,,0.1,,fixed,assumption
+phase5.stakeholder_weights.autonomy_first.K,,0.2,,fixed,assumption
+phase5.stakeholder_weights.autonomy_first.R,,0.3,,fixed,assumption
+phase5.stakeholder_weights.autonomy_first.M,,0.1,,fixed,assumption
+phase5.stakeholder_weights.autonomy_first.D,,0.4,,fixed,assumption

@@ -1,0 +1,4 @@
+condition_a,condition_b,spearman,p_perm,n_perm
+traditional,ai_scaffolding,0.7871114985778578,1.0,1000
+traditional,ai_substitution,0.8186076855454655,1.0,1000
+ai_scaffolding,ai_substitution,0.7837167261716455,1.0,1000

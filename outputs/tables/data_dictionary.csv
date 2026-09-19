@@ -1,0 +1,599 @@
+table,column,dtype,description
+data/processed/phase5/<tag>/simulation_draws,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/simulation_draws,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/simulation_draws,year,int64,school year (0 = before the first episode)
+data/processed/phase5/<tag>/simulation_draws,kind,str,`level` (scenario mean) or `contrast` (paired AI - comparator)
+data/processed/phase5/<tag>/simulation_draws,outcome,str,outcome name (see the outcome rows of this dictionary)
+data/processed/phase5/<tag>/simulation_draws,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+data/processed/phase5/<tag>/simulation_draws,sd,float64,SD over learners
+data/processed/phase5/<tag>/simulation_draws,median,float64,"median over learners, or across draws in summary tables"
+data/processed/phase5/<tag>/simulation_draws,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+data/processed/phase5/<tag>/simulation_draws,share_neg,float64,share of learners with a negative paired difference
+data/processed/phase5/<tag>/parameter_draws,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/parameter_draws,population.state_sd,float64,drawn value of the config leaf `population.state_sd` (A1)
+data/processed/phase5/<tag>/parameter_draws,population.mu_alpha,float64,drawn value of the config leaf `population.mu_alpha` (A1)
+data/processed/phase5/<tag>/parameter_draws,population.sigma_alpha,float64,drawn value of the config leaf `population.sigma_alpha` (A1)
+data/processed/phase5/<tag>/parameter_draws,population.b_delta,float64,drawn value of the config leaf `population.b_delta` (A1)
+data/processed/phase5/<tag>/parameter_draws,population.theta_slope,float64,drawn value of the config leaf `population.theta_slope` (A1)
+data/processed/phase5/<tag>/parameter_draws,population.confidence_bias_sd,float64,drawn value of the config leaf `population.confidence_bias_sd` (A1)
+data/processed/phase5/<tag>/parameter_draws,curriculum.b_slope,float64,drawn value of the config leaf `curriculum.b_slope` (A1)
+data/processed/phase5/<tag>/parameter_draws,response.rho,float64,drawn value of the config leaf `response.rho` (A1)
+data/processed/phase5/<tag>/parameter_draws,response.kappa,float64,drawn value of the config leaf `response.kappa` (A1)
+data/processed/phase5/<tag>/parameter_draws,response.omega,float64,drawn value of the config leaf `response.omega` (A1)
+data/processed/phase5/<tag>/parameter_draws,effort.a1,float64,drawn value of the config leaf `effort.a1` (A1)
+data/processed/phase5/<tag>/parameter_draws,effort.a2,float64,drawn value of the config leaf `effort.a2` (A1)
+data/processed/phase5/<tag>/parameter_draws,effort.a3,float64,drawn value of the config leaf `effort.a3` (A1)
+data/processed/phase5/<tag>/parameter_draws,effort.a4,float64,drawn value of the config leaf `effort.a4` (A1)
+data/processed/phase5/<tag>/parameter_draws,effectiveness.f3,float64,drawn value of the config leaf `effectiveness.f3` (A1)
+data/processed/phase5/<tag>/parameter_draws,effectiveness.f4,float64,drawn value of the config leaf `effectiveness.f4` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_M,float64,drawn value of the config leaf `updates.eta_M` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_C,float64,drawn value of the config leaf `updates.eta_C` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_R,float64,drawn value of the config leaf `updates.eta_R` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_O,float64,drawn value of the config leaf `updates.eta_O` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_D,float64,drawn value of the config leaf `updates.eta_D` (A1)
+data/processed/phase5/<tag>/parameter_draws,updates.eta_F,float64,drawn value of the config leaf `updates.eta_F` (A1)
+data/processed/phase5/<tag>/parameter_draws,plasticity.half_life_weeks,float64,drawn value of the config leaf `plasticity.half_life_weeks` (A1)
+data/processed/phase5/<tag>/parameter_draws,plasticity.lambda_O,float64,drawn value of the config leaf `plasticity.lambda_O` (A1)
+data/processed/phase5/<tag>/parameter_draws,phase5.ramp_per_year,float64,drawn value of the config leaf `phase5.ramp_per_year` (A1)
+data/processed/phase5/<tag>/neural_contrasts,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/neural_contrasts,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/neural_contrasts,year,int64,school year (0 = before the first episode)
+data/processed/phase5/<tag>/neural_contrasts,mechanism,str,"plasticity mechanism A, B, C or D (eq. 29-33)"
+data/processed/phase5/<tag>/neural_contrasts,network,str,Yeo-7 network of the Schaefer-400 parcels
+data/processed/phase5/<tag>/neural_contrasts,mean,float64,"mean (over learners, or across draws in summary tables)"
+data/processed/phase5/<tag>/neural_contrasts,sd,float64,SD over learners
+data/processed/phase5/<tag>/neural_contrasts,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+data/processed/phase5/<tag>/neural_contrasts,d,float64,"standardised neural contrast, mean / SD of the learner-level paired difference (eq. 44)"
+data/processed/phase5/<tag>/weekly_means,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/weekly_means,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/weekly_means,week,int64,instructional week within the year
+data/processed/phase5/<tag>/weekly_means,year,int64,school year (0 = before the first episode)
+data/processed/phase5/<tag>/weekly_means,K,float64,knowledge (eq. 22)
+data/processed/phase5/<tag>/weekly_means,D,float64,dependence on support (eq. 26)
+data/processed/phase5/<tag>/weekly_means,first_try,float64,first-attempt correctness rate
+data/processed/phase5/<tag>/weekly_means,far,float64,far-transfer accuracy (unaided test)
+data/processed/phase5/<tag>/yearly_subsample,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/yearly_subsample,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/yearly_subsample,learner_id,int64,learner index within the draw (the same person across scenarios)
+data/processed/phase5/<tag>/yearly_subsample,year,int64,school year (0 = before the first episode)
+data/processed/phase5/<tag>/yearly_subsample,stratum,int64,"prior-knowledge stratum 0 low, 1 medium, 2 high (eq. 15)"
+data/processed/phase5/<tag>/yearly_subsample,K,float32,knowledge (eq. 22)
+data/processed/phase5/<tag>/yearly_subsample,M,float32,metacognitive monitoring (eq. 23)
+data/processed/phase5/<tag>/yearly_subsample,R,float32,retrieval strength (eq. 25)
+data/processed/phase5/<tag>/yearly_subsample,C,float32,calibration (eq. 24)
+data/processed/phase5/<tag>/yearly_subsample,D,float32,dependence on support (eq. 26)
+data/processed/phase5/<tag>/yearly_subsample,K_after_break,float32,K after the summer break
+data/processed/phase5/<tag>/yearly_subsample,M_after_break,float32,M after the summer break
+data/processed/phase5/<tag>/yearly_subsample,unaided,float32,unaided accuracy on trained items (end-of-year test)
+data/processed/phase5/<tag>/yearly_subsample,far,float32,far-transfer accuracy (unaided test)
+data/processed/phase5/<tag>/yearly_subsample,p_request,float32,model-implied probability of requesting help after an error
+data/processed/phase5/<tag>/yearly_subsample,retention,float32,accuracy after the break (retention test)
+data/processed/phase5/<tag>/yearly_subsample,help_rate,float32,help requests per episode over the year
+data/processed/phase5/<tag>/yearly_subsample,N_A_Vis,float32,"model-implied network state N, mechanism A, network Vis (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_SomMot,float32,"model-implied network state N, mechanism A, network SomMot (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_DorsAttn,float32,"model-implied network state N, mechanism A, network DorsAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_SalVentAttn,float32,"model-implied network state N, mechanism A, network SalVentAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_Limbic,float32,"model-implied network state N, mechanism A, network Limbic (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_Cont,float32,"model-implied network state N, mechanism A, network Cont (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_A_Default,float32,"model-implied network state N, mechanism A, network Default (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_Vis,float32,"model-implied network state N, mechanism B, network Vis (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_SomMot,float32,"model-implied network state N, mechanism B, network SomMot (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_DorsAttn,float32,"model-implied network state N, mechanism B, network DorsAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_SalVentAttn,float32,"model-implied network state N, mechanism B, network SalVentAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_Limbic,float32,"model-implied network state N, mechanism B, network Limbic (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_Cont,float32,"model-implied network state N, mechanism B, network Cont (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_B_Default,float32,"model-implied network state N, mechanism B, network Default (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_Vis,float32,"model-implied network state N, mechanism C, network Vis (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_SomMot,float32,"model-implied network state N, mechanism C, network SomMot (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_DorsAttn,float32,"model-implied network state N, mechanism C, network DorsAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_SalVentAttn,float32,"model-implied network state N, mechanism C, network SalVentAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_Limbic,float32,"model-implied network state N, mechanism C, network Limbic (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_Cont,float32,"model-implied network state N, mechanism C, network Cont (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_C_Default,float32,"model-implied network state N, mechanism C, network Default (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_Vis,float32,"model-implied network state N, mechanism D, network Vis (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_SomMot,float32,"model-implied network state N, mechanism D, network SomMot (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_DorsAttn,float32,"model-implied network state N, mechanism D, network DorsAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_SalVentAttn,float32,"model-implied network state N, mechanism D, network SalVentAttn (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_Limbic,float32,"model-implied network state N, mechanism D, network Limbic (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_Cont,float32,"model-implied network state N, mechanism D, network Cont (eq. 29-33, 7)"
+data/processed/phase5/<tag>/yearly_subsample,N_D_Default,float32,"model-implied network state N, mechanism D, network Default (eq. 29-33, 7)"
+data/processed/phase5/<tag>/contrast_hist,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/contrast_hist,year,int64,school year (0 = before the first episode)
+data/processed/phase5/<tag>/contrast_hist,outcome,str,outcome name (see the outcome rows of this dictionary)
+data/processed/phase5/<tag>/contrast_hist,bin,int64,histogram bin index
+data/processed/phase5/<tag>/contrast_hist,bin_low,float64,lower edge of the bin
+data/processed/phase5/<tag>/contrast_hist,bin_high,float64,upper edge of the bin
+data/processed/phase5/<tag>/contrast_hist,count,int64,"learners in the bin, summed over draws"
+data/processed/phase5/<tag>/episodes_central,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+data/processed/phase5/<tag>/episodes_central,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+data/processed/phase5/<tag>/episodes_central,learner_id,int64,learner index within the draw (the same person across scenarios)
+data/processed/phase5/<tag>/episodes_central,episode,int64,0-based episode index
+data/processed/phase5/<tag>/episodes_central,unit_id,str,curriculum unit
+data/processed/phase5/<tag>/episodes_central,difficulty,float64,"unit difficulty (logit scale, eq. 17)"
+data/processed/phase5/<tag>/episodes_central,stratum,int64,"prior-knowledge stratum 0 low, 1 medium, 2 high (eq. 15)"
+data/processed/phase5/<tag>/episodes_central,protocol,str,instructional protocol that actually ran (in free choice: the one chosen)
+data/processed/phase5/<tag>/episodes_central,first_correct,int8,first answer correct
+data/processed/phase5/<tag>/episodes_central,transfer_correct,int8,near-transfer answer correct
+data/processed/phase5/<tag>/episodes_central,help_requests,int8,help requests in the episode
+data/processed/phase5/<tag>/episodes_central,reveal,int8,the answer was provided
+data/processed/phase5/<tag>/episodes_central,effort,float64,effort E (eq. 19)
+data/processed/phase5/<tag>/episodes_central,effectiveness,float64,effectiveness F (eq. 20)
+data/processed/phase5/<tag>/episodes_central,p_correct,float64,eq. 17-18 probability of a correct answer
+data/processed/phase5/<tag>/episodes_central,K,float64,knowledge (eq. 22)
+data/processed/phase5/<tag>/episodes_central,D,float64,dependence on support (eq. 26)
+data/processed/<tag>/learner_state.parquet,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+data/processed/<tag>/learner_state.parquet,protocol,str,instructional protocol that actually ran (in free choice: the one chosen)
+data/processed/<tag>/learner_state.parquet,learner_id,int64,learner index within the draw (the same person across scenarios)
+data/processed/<tag>/learner_state.parquet,time,int64,episode index (the learner's clock)
+data/processed/<tag>/learner_state.parquet,unit_id,str,curriculum unit
+data/processed/<tag>/learner_state.parquet,K,float64,knowledge (eq. 22)
+data/processed/<tag>/learner_state.parquet,M,float64,metacognitive monitoring (eq. 23)
+data/processed/<tag>/learner_state.parquet,R,float64,retrieval strength (eq. 25)
+data/processed/<tag>/learner_state.parquet,C,float64,calibration (eq. 24)
+data/processed/<tag>/learner_state.parquet,D,float64,dependence on support (eq. 26)
+data/processed/<tag>/learner_state.parquet,effort,float64,effort E (eq. 19)
+data/processed/<tag>/learner_state.parquet,effectiveness,float64,effectiveness F (eq. 20)
+data/processed/<tag>/learner_state.parquet,support,float64,support level received
+data/processed/<tag>/learner_state.parquet,correctness,int64,"answer correctness (0/1), or unit correctness score in units.csv"
+data/processed/<tag>/learner_state.parquet,retrieval,float64,retrieval proxy of the episode (eq. 21)
+data/processed/<tag>/learner_state.parquet,offloading,float64,offloading proxy of the episode
+data/processed/<tag>/learner_state.parquet,pe,float64,prediction error of the first answer
+data/processed/<tag>/learner_state.parquet,resolution,int64,error resolved within the episode
+data/processed/<tag>/learner_state.parquet,answer_provided,int64,the answer was shown by the protocol
+data/processed/<tag>/learner_state.parquet,hint_depth,int64,deepest hint or tutor turn reached
+data/processed/<tag>/learner_state.parquet,help_requests,int64,help requests in the episode
+data/processed/<tag>/learner_state.parquet,attempts,int64,answer attempts
+data/processed/<tag>/learner_state.parquet,transfer_correct,int64,near-transfer answer correct
+data/processed/<tag>/learner_state.parquet,tutor_calls,int64,LLM tutor calls
+data/processed/<tag>/learner_state.parquet,tutor_leaked,int64,tutor turns rejected by the leakage check
+data/processed/<tag>/responses.csv,learner_id,int64,learner index within the draw (the same person across scenarios)
+data/processed/<tag>/responses.csv,episode,int64,0-based episode index
+data/processed/<tag>/responses.csv,episode_id,str,unique episode key
+data/processed/<tag>/responses.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+data/processed/<tag>/responses.csv,protocol,str,instructional protocol that actually ran (in free choice: the one chosen)
+data/processed/<tag>/responses.csv,stage,str,"turn stage (approach, first, help, retry, transfer)"
+data/processed/<tag>/responses.csv,turn,int64,turn index within the episode
+data/processed/<tag>/responses.csv,prompt,str,text shown to the learner model
+data/processed/<tag>/responses.csv,response,str,learner model output
+data/processed/<tag>/responses.csv,answer,float64,option chosen
+data/processed/<tag>/responses.csv,confidence,float64,"1-5 confidence rating (tracks the record, not the answer; CLAUDE.md)"
+data/processed/<tag>/responses.csv,correctness,float64,"answer correctness (0/1), or unit correctness score in units.csv"
+data/processed/<tag>/responses.csv,latency_proxy,float64,simulated time on task
+data/processed/<tag>/responses.csv,token_count,int64,tokens in the prompt
+data/processed/<tag>/responses.csv,requested_support,int64,help was requested at this turn
+data/processed/<tag>/responses.csv,explanation,str,rule behind the chosen option (options are rule-generated)
+data/processed/<tag>/responses.csv,hint_depth,int64,deepest hint or tutor turn reached
+data/processed/<tag>/responses.csv,support,float64,support level received
+data/processed/<tag>/responses.csv,p_correct,float64,eq. 17-18 probability of a correct answer
+data/processed/<tag>/responses.csv,layout,str,option order shown
+data/processed/<tag>/checkpoints.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+data/processed/<tag>/checkpoints.csv,learner_id,int64,learner index within the draw (the same person across scenarios)
+data/processed/<tag>/checkpoints.csv,checkpoint_episode,int64,episode after which the §7.7 checkpoint ran
+data/processed/<tag>/checkpoints.csv,stratum,int64,"prior-knowledge stratum 0 low, 1 medium, 2 high (eq. 15)"
+data/processed/<tag>/checkpoints.csv,unaided_accuracy_trained,float64,unaided accuracy on trained items
+data/processed/<tag>/checkpoints.csv,supported_accuracy_trained,float64,supported accuracy on trained items
+data/processed/<tag>/checkpoints.csv,support_gap,float64,supported - unaided accuracy
+data/processed/<tag>/checkpoints.csv,near_transfer_accuracy,float64,near-transfer accuracy
+data/processed/<tag>/checkpoints.csv,far_transfer_accuracy,float64,far-transfer accuracy
+data/processed/<tag>/checkpoints.csv,retention_accuracy,float64,accuracy on items last practised >= retention_interval episodes ago
+data/processed/<tag>/checkpoints.csv,n_retention_items,int64,retention items available
+data/processed/<tag>/checkpoints.csv,brier_score,float64,"Brier score of confidence (measures the record for Centaur, CLAUDE.md)"
+data/processed/<tag>/checkpoints.csv,expected_calibration_error,float64,ECE of confidence
+data/processed/<tag>/checkpoints.csv,dependence_request_rate,float64,help requests per opportunity
+data/processed/<tag>/checkpoints.csv,K,float64,knowledge (eq. 22)
+data/processed/<tag>/checkpoints.csv,M,float64,metacognitive monitoring (eq. 23)
+data/processed/<tag>/checkpoints.csv,R,float64,retrieval strength (eq. 25)
+data/processed/<tag>/checkpoints.csv,C,float64,calibration (eq. 24)
+data/processed/<tag>/checkpoints.csv,D,float64,dependence on support (eq. 26)
+data/processed/units.csv,unit_id,str,curriculum unit
+data/processed/units.csv,domain,str,MBA domain
+data/processed/units.csv,concept,str,concept (15; two units each)
+data/processed/units.csv,difficulty,int64,"unit difficulty (logit scale, eq. 17)"
+data/processed/units.csv,prerequisites,str,prerequisite units
+data/processed/units.csv,reference_answer,float64,correct answer
+data/processed/units.csv,near_transfer_answer,float64,near-transfer correct answer
+data/processed/units.csv,transfer_answer,float64,far-transfer correct answer
+data/processed/units.csv,misconception_answer,float64,answer produced by the misconception
+data/processed/units.csv,misconception,str,the misconception rule
+data/processed/units.csv,correctness,float64,"answer correctness (0/1), or unit correctness score in units.csv"
+data/processed/units.csv,coverage,float64,"semantic coverage (not computed, 1.0)"
+data/processed/stimuli.csv,stimulus_id,str,stimulus key (unit x condition)
+data/processed/stimuli.csv,unit_id,str,curriculum unit
+data/processed/stimuli.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+data/processed/stimuli.csv,variant,str,stimulus variant (one per unit and condition)
+data/processed/stimuli.csv,text,str,stimulus text (the TRIBE input)
+data/processed/stimuli.csv,modality,str,stimulus modality (text)
+data/processed/stimuli.csv,example_count,int64,worked examples
+data/processed/stimuli.csv,word_count,int64,words
+data/processed/stimuli.csv,sentence_count,int64,sentences
+data/processed/stimuli.csv,character_count,int64,characters
+data/processed/stimuli.csv,readability,float64,readability score
+data/processed/stimuli.csv,equation_count,int64,equations
+data/processed/stimuli.csv,lexical_diversity,float64,type-token ratio
+data/processed/stimuli.csv,duration,float64,reading time in s at 220 wpm (eq. 4)
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,stimulus_id,str,stimulus key (unit x condition)
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,unit_id,str,curriculum unit
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,level,str,"`parcel`, `network` or `stimulus`"
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,key,str,parcel id or network name
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,metric,str,TRIBE metric (gate-19 definitions)
+data/tribe/<run>/wpm<speed>/tribe_metrics.parquet,value,float64,"metric value (predicted response, a.u.)"
+outputs/tables/choice_rule_fit.csv,feature,str,
+outputs/tables/choice_rule_fit.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/choice_rule_fit.csv,ci_low,float64,
+outputs/tables/choice_rule_fit.csv,ci_high,float64,
+outputs/tables/choice_rule_validation_by_episode.csv,episodes,str,
+outputs/tables/choice_rule_validation_by_episode.csv,approach,str,
+outputs/tables/choice_rule_validation_by_episode.csv,centaur,float64,
+outputs/tables/choice_rule_validation_by_episode.csv,rule,float64,
+outputs/tables/choice_rule_validation_by_episode.csv,n,int64,draws (or units) in the summary
+outputs/tables/corpus_balance.csv,feature,str,
+outputs/tables/corpus_balance.csv,mean_traditional,float64,
+outputs/tables/corpus_balance.csv,sd_traditional,float64,
+outputs/tables/corpus_balance.csv,mean_ai_scaffolding,float64,
+outputs/tables/corpus_balance.csv,sd_ai_scaffolding,float64,
+outputs/tables/corpus_balance.csv,mean_ai_substitution,float64,
+outputs/tables/corpus_balance.csv,sd_ai_substitution,float64,
+outputs/tables/corpus_balance.csv,smd_S-T,float64,
+outputs/tables/corpus_balance.csv,diff_S-T,float64,
+outputs/tables/corpus_balance.csv,tost_p_S-T,float64,
+outputs/tables/corpus_balance.csv,smd_U-T,float64,
+outputs/tables/corpus_balance.csv,diff_U-T,float64,
+outputs/tables/corpus_balance.csv,tost_p_U-T,float64,
+outputs/tables/corpus_balance.csv,smd_S-U,float64,
+outputs/tables/corpus_balance.csv,diff_S-U,float64,
+outputs/tables/corpus_balance.csv,tost_p_S-U,float64,
+outputs/tables/corpus_balance.csv,within_target,bool,
+outputs/tables/engine_comparison.csv,section,str,
+outputs/tables/engine_comparison.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/engine_comparison.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/engine_comparison.csv,centaur,float64,
+outputs/tables/engine_comparison.csv,logistic,float64,
+outputs/tables/engine_comparison.csv,difference,float64,
+outputs/tables/engine_comparison.csv,ci_low,float64,
+outputs/tables/engine_comparison.csv,ci_high,float64,
+outputs/tables/engine_comparison.csv,n_learners,int64,
+outputs/tables/engine_free_choice_shares.csv,K_tercile,str,
+outputs/tables/engine_free_choice_shares.csv,protocol,str,instructional protocol that actually ran (in free choice: the one chosen)
+outputs/tables/engine_free_choice_shares.csv,share,float64,
+outputs/tables/engine_free_choice_shares.csv,engine,str,
+outputs/tables/fig3_network_responses.csv,network,str,Yeo-7 network of the Schaefer-400 parcels
+outputs/tables/fig3_network_responses.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/fig3_network_responses.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/fig3_network_responses.csv,ci_low,float64,
+outputs/tables/fig3_network_responses.csv,ci_high,float64,
+outputs/tables/fig3_network_responses.csv,n_units,int64,
+outputs/tables/fig4_rdm.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/fig4_rdm.csv,unit_a,str,
+outputs/tables/fig4_rdm.csv,unit_b,str,
+outputs/tables/fig4_rdm.csv,dissimilarity,float64,
+outputs/tables/fig5_trajectories_v_main.csv,panel,str,
+outputs/tables/fig5_trajectories_v_main.csv,variable,str,
+outputs/tables/fig5_trajectories_v_main.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig5_trajectories_v_main.csv,time,int64,episode index (the learner's clock)
+outputs/tables/fig5_trajectories_v_main.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/fig5_trajectories_v_main.csv,p05,float64,
+outputs/tables/fig5_trajectories_v_main.csv,p95,float64,
+outputs/tables/fig5b_trajectory_model_v_main.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig5b_trajectory_model_v_main.csv,episode,int64,0-based episode index
+outputs/tables/fig5b_trajectory_model_v_main.csv,p_correct,float64,eq. 17-18 probability of a correct answer
+outputs/tables/fig5b_trajectory_model_v_main.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/fig5b_trajectory_model_v_main.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/fig7a_phase_diagram.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig7a_phase_diagram.csv,a,float64,
+outputs/tables/fig7a_phase_diagram.csv,e,float64,
+outputs/tables/fig7a_phase_diagram.csv,o,float64,
+outputs/tables/fig7a_phase_diagram.csv,f,float64,
+outputs/tables/fig7a_phase_diagram.csv,median_G,float64,
+outputs/tables/fig7a_phase_diagram.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/fig7a_phase_diagram.csv,n,int64,draws (or units) in the summary
+outputs/tables/fig7a_phase_diagram.csv,lo90,float64,5th percentile across draws
+outputs/tables/fig7a_phase_diagram.csv,hi90,float64,95th percentile across draws
+outputs/tables/fig7a_phase_diagram.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/fig7a_phase_diagram.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/fig7a_phase_diagram.csv,share_beneficial_eps0.01,float64,drawn value of the config leaf `share_beneficial_eps0.01` (A1)
+outputs/tables/fig7a_phase_diagram.csv,class_eps0.01,str,drawn value of the config leaf `class_eps0.01` (A1)
+outputs/tables/fig7a_phase_diagram.csv,share_beneficial_eps0.02,float64,drawn value of the config leaf `share_beneficial_eps0.02` (A1)
+outputs/tables/fig7a_phase_diagram.csv,class_eps0.02,str,drawn value of the config leaf `class_eps0.02` (A1)
+outputs/tables/fig7a_phase_diagram.csv,share_beneficial_eps0.05,float64,drawn value of the config leaf `share_beneficial_eps0.05` (A1)
+outputs/tables/fig7a_phase_diagram.csv,class_eps0.05,str,drawn value of the config leaf `class_eps0.05` (A1)
+outputs/tables/fig7b_neural_diagram.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig7b_neural_diagram.csv,half_life_weeks,float64,
+outputs/tables/fig7b_neural_diagram.csv,lambda_O,float64,
+outputs/tables/fig7b_neural_diagram.csv,network,str,Yeo-7 network of the Schaefer-400 parcels
+outputs/tables/fig7b_neural_diagram.csv,median_d,float64,
+outputs/tables/fig7b_neural_diagram.csv,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+outputs/tables/fig7b_neural_diagram.csv,n_draws,int64,
+outputs/tables/fig8a_spec_curve_G.csv,tag,str,
+outputs/tables/fig8a_spec_curve_G.csv,form,str,
+outputs/tables/fig8a_spec_curve_G.csv,forgetting,str,
+outputs/tables/fig8a_spec_curve_G.csv,epw,int64,
+outputs/tables/fig8a_spec_curve_G.csv,effort,str,effort E (eq. 19)
+outputs/tables/fig8a_spec_curve_G.csv,outcome_weights,str,
+outputs/tables/fig8a_spec_curve_G.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig8a_spec_curve_G.csv,tier,int64,specification-curve tier (highest rank among its levels)
+outputs/tables/fig8a_spec_curve_G.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/fig8a_spec_curve_G.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/fig8a_spec_curve_G.csv,n,int64,draws (or units) in the summary
+outputs/tables/fig8a_spec_curve_G.csv,lo90,float64,5th percentile across draws
+outputs/tables/fig8a_spec_curve_G.csv,hi90,float64,95th percentile across draws
+outputs/tables/fig8a_spec_curve_G.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/fig8a_spec_curve_G.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/fig8b_spec_curve_neural.csv,tag,str,
+outputs/tables/fig8b_spec_curve_neural.csv,form,str,
+outputs/tables/fig8b_spec_curve_neural.csv,forgetting,str,
+outputs/tables/fig8b_spec_curve_neural.csv,epw,int64,
+outputs/tables/fig8b_spec_curve_neural.csv,effort,str,effort E (eq. 19)
+outputs/tables/fig8b_spec_curve_neural.csv,wpm,int64,
+outputs/tables/fig8b_spec_curve_neural.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/fig8b_spec_curve_neural.csv,winsorize,bool,
+outputs/tables/fig8b_spec_curve_neural.csv,network_weights,str,
+outputs/tables/fig8b_spec_curve_neural.csv,mechanism,str,"plasticity mechanism A, B, C or D (eq. 29-33)"
+outputs/tables/fig8b_spec_curve_neural.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/fig8b_spec_curve_neural.csv,network,str,Yeo-7 network of the Schaefer-400 parcels
+outputs/tables/fig8b_spec_curve_neural.csv,tier,int64,specification-curve tier (highest rank among its levels)
+outputs/tables/fig8b_spec_curve_neural.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/fig8b_spec_curve_neural.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/fig8b_spec_curve_neural.csv,n,int64,draws (or units) in the summary
+outputs/tables/fig8b_spec_curve_neural.csv,lo90,float64,5th percentile across draws
+outputs/tables/fig8b_spec_curve_neural.csv,hi90,float64,95th percentile across draws
+outputs/tables/fig8b_spec_curve_neural.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/fig8b_spec_curve_neural.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/gate18_checks.csv,check,str,
+outputs/tables/gate18_checks.csv,rule,str,
+outputs/tables/gate18_checks.csv,value,str,"metric value (predicted response, a.u.)"
+outputs/tables/gate18_checks.csv,pass,str,
+outputs/tables/gate19_metric_definitions.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/gate19_metric_definitions.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/gate19_metric_definitions.csv,definition,str,
+outputs/tables/gate19_metric_definitions.csv,units,str,
+outputs/tables/gate19_metric_definitions.csv,direction,str,
+outputs/tables/parcel_contrasts_auc.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/parcel_contrasts_auc.csv,key,int64,parcel id or network name
+outputs/tables/parcel_contrasts_auc.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/parcel_contrasts_auc.csv,contrast,str,
+outputs/tables/parcel_contrasts_auc.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/parcel_contrasts_auc.csv,se,float64,
+outputs/tables/parcel_contrasts_auc.csv,ci_low,float64,
+outputs/tables/parcel_contrasts_auc.csv,ci_high,float64,
+outputs/tables/parcel_contrasts_auc.csv,n_units,int64,
+outputs/tables/parcel_contrasts_auc.csv,p,float64,
+outputs/tables/parcel_contrasts_auc.csv,q_fdr,float64,
+outputs/tables/rsa_condition_agreement.csv,condition_a,str,
+outputs/tables/rsa_condition_agreement.csv,condition_b,str,
+outputs/tables/rsa_condition_agreement.csv,spearman,float64,
+outputs/tables/rsa_condition_agreement.csv,p_perm,float64,
+outputs/tables/rsa_condition_agreement.csv,n_perm,int64,
+outputs/tables/rsa_differentiation.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/rsa_differentiation.csv,differentiation,float64,
+outputs/tables/rsa_differentiation.csv,within_consistency,float64,
+outputs/tables/rsa_differentiation.csv,between_distance,float64,
+outputs/tables/table1_conditions.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/table1_conditions.csv,lesson,str,
+outputs/tables/table1_conditions.csv,help after a wrong answer,str,
+outputs/tables/table1_conditions.csv,answer provided,str,
+outputs/tables/table1_conditions.csv,adaptation (eq. 20),float64,drawn value of the config leaf `adaptation (eq. 20)` (A1)
+outputs/tables/table1_conditions.csv,help turns (persistent),int64,
+outputs/tables/table1_conditions.csv,mean words,float64,
+outputs/tables/table1_conditions.csv,mean duration s (220 wpm),float64,
+outputs/tables/table1_conditions.csv,mean equations,float64,
+outputs/tables/table1_conditions.csv,mean sentences,float64,
+outputs/tables/table1_conditions.csv,held fixed across conditions,str,
+outputs/tables/table1_conditions.csv,varies by design,str,
+outputs/tables/table2_components.csv,component,str,
+outputs/tables/table2_components.csv,inputs,str,
+outputs/tables/table2_components.csv,outputs,str,
+outputs/tables/table2_components.csv,key assumptions,str,
+outputs/tables/table2_components.csv,validation,str,
+outputs/tables/table3_parameters.csv,parameter,str,
+outputs/tables/table3_parameters.csv,low,float64,
+outputs/tables/table3_parameters.csv,medium,str,
+outputs/tables/table3_parameters.csv,high,float64,
+outputs/tables/table3_parameters.csv,phase V draw,str,
+outputs/tables/table3_parameters.csv,source,str,
+outputs/tables/table4_cortical_contrasts.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/table4_cortical_contrasts.csv,key,str,parcel id or network name
+outputs/tables/table4_cortical_contrasts.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/table4_cortical_contrasts.csv,contrast,str,
+outputs/tables/table4_cortical_contrasts.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/table4_cortical_contrasts.csv,se,float64,
+outputs/tables/table4_cortical_contrasts.csv,ci_low,float64,
+outputs/tables/table4_cortical_contrasts.csv,ci_high,float64,
+outputs/tables/table4_cortical_contrasts.csv,n_units,int64,
+outputs/tables/table4_cortical_contrasts.csv,p,float64,
+outputs/tables/table4_cortical_contrasts.csv,q_fdr,float64,
+outputs/tables/table4_cortical_contrasts.csv,ci_excludes_0,bool,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,key,str,parcel id or network name
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,contrast,str,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,se,float64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,ci_low,float64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,ci_high,float64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,n_units,int64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,p,float64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,q_fdr,float64,
+outputs/tables/table4_cortical_contrasts_matched_covariates.csv,ci_excludes_0,bool,
+outputs/tables/table4_eq42_mixed_model.csv,term,str,
+outputs/tables/table4_eq42_mixed_model.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/table4_eq42_mixed_model.csv,se,float64,
+outputs/tables/table4_eq42_mixed_model.csv,ci_low,float64,
+outputs/tables/table4_eq42_mixed_model.csv,ci_high,float64,
+outputs/tables/table4_eq42_mixed_model.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/table4_eq42_mixed_model.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/table4_eq42_mixed_model.csv,n_obs,int64,
+outputs/tables/table4_eq42_mixed_model.csv,n_units,int64,
+outputs/tables/table4_eq42_mixed_model.csv,unit_intercept_var,float64,
+outputs/tables/table4_reading_speed_robustness.csv,level,str,"`parcel`, `network` or `stimulus`"
+outputs/tables/table4_reading_speed_robustness.csv,key,str,parcel id or network name
+outputs/tables/table4_reading_speed_robustness.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/table4_reading_speed_robustness.csv,contrast,str,
+outputs/tables/table4_reading_speed_robustness.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/table4_reading_speed_robustness.csv,se,float64,
+outputs/tables/table4_reading_speed_robustness.csv,ci_low,float64,
+outputs/tables/table4_reading_speed_robustness.csv,ci_high,float64,
+outputs/tables/table4_reading_speed_robustness.csv,n_units,int64,
+outputs/tables/table4_reading_speed_robustness.csv,p,float64,
+outputs/tables/table4_reading_speed_robustness.csv,q_fdr,float64,
+outputs/tables/table4_reading_speed_robustness.csv,ci_excludes_0,bool,
+outputs/tables/table4_reading_speed_robustness.csv,wpm,int64,
+outputs/tables/table5_neural_d_v_main.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/table5_neural_d_v_main.csv,network,str,Yeo-7 network of the Schaefer-400 parcels
+outputs/tables/table5_neural_d_v_main.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/table5_neural_d_v_main.csv,mechanism,str,"plasticity mechanism A, B, C or D (eq. 29-33)"
+outputs/tables/table5_neural_d_v_main.csv,d_mean,float64,
+outputs/tables/table5_neural_d_v_main.csv,d_median,float64,
+outputs/tables/table5_neural_d_v_main.csv,d_n,int64,
+outputs/tables/table5_neural_d_v_main.csv,d_lo90,float64,
+outputs/tables/table5_neural_d_v_main.csv,d_hi90,float64,
+outputs/tables/table5_neural_d_v_main.csv,d_lo95,float64,
+outputs/tables/table5_neural_d_v_main.csv,d_hi95,float64,
+outputs/tables/table5_neural_d_v_main.csv,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+outputs/tables/table5_scenario_contrasts_v_main.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/table5_scenario_contrasts_v_main.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/table5_scenario_contrasts_v_main.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/table5_scenario_contrasts_v_main.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/table5_scenario_contrasts_v_main.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/table5_scenario_contrasts_v_main.csv,n,int64,draws (or units) in the summary
+outputs/tables/table5_scenario_contrasts_v_main.csv,lo90,float64,5th percentile across draws
+outputs/tables/table5_scenario_contrasts_v_main.csv,hi90,float64,95th percentile across draws
+outputs/tables/table5_scenario_contrasts_v_main.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/table5_scenario_contrasts_v_main.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/table5_scenario_contrasts_v_main.csv,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+outputs/tables/table5_scenario_contrasts_v_main.csv,share_draws_positive,float64,
+outputs/tables/table6_falsification.csv,criterion,str,
+outputs/tables/table6_falsification.csv,indicator,str,
+outputs/tables/table6_falsification.csv,threshold,str,
+outputs/tables/table6_falsification.csv,value,str,"metric value (predicted response, a.u.)"
+outputs/tables/table6_falsification.csv,verdict,str,
+outputs/tables/table6_negative_controls.csv,control,str,
+outputs/tables/table6_negative_controls.csv,implementation,str,
+outputs/tables/table6_negative_controls.csv,expected,str,
+outputs/tables/table6_negative_controls.csv,value,str,"metric value (predicted response, a.u.)"
+outputs/tables/table6_negative_controls.csv,as_expected,bool,
+outputs/tables/tableS_exposure.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/tableS_exposure.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_exposure.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_exposure.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_exposure.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/tableS_exposure.csv,n,int64,draws (or units) in the summary
+outputs/tables/tableS_exposure.csv,lo90,float64,5th percentile across draws
+outputs/tables/tableS_exposure.csv,hi90,float64,95th percentile across draws
+outputs/tables/tableS_exposure.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/tableS_exposure.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/tableS_exposure.csv,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+outputs/tables/tableS_exposure.csv,share_draws_positive,float64,
+outputs/tables/tableS_exposure.csv,episodes_per_week,int64,
+outputs/tables/tableS_exposure.csv,run,str,
+outputs/tables/tableS_incorrect_control.csv,key,str,parcel id or network name
+outputs/tables/tableS_incorrect_control.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tableS_incorrect_control.csv,incorrect_minus_correct,float64,
+outputs/tables/tableS_incorrect_control.csv,ci_low,float64,
+outputs/tables/tableS_incorrect_control.csv,ci_high,float64,
+outputs/tables/tableS_incorrect_control.csv,n_units,int64,
+outputs/tables/tableS_incorrect_control.csv,max_abs_condition_contrast,float64,
+outputs/tables/tableS_incorrect_control.csv,ratio_to_contrast,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/tableS_mechanism_decomposition.csv,mediator,str,
+outputs/tables/tableS_mechanism_decomposition.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_mechanism_decomposition.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_mechanism_decomposition.csv,sc_full_median,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,sc_held_median,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,contribution,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,per_draw_median,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,per_draw_lo90,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,per_draw_hi90,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,per_draw_lo95,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,per_draw_hi95,float64,
+outputs/tables/tableS_mechanism_decomposition.csv,small_full_sc,bool,
+outputs/tables/tableS_regeneration_change.csv,key,str,parcel id or network name
+outputs/tables/tableS_regeneration_change.csv,abs_change,float64,
+outputs/tables/tableS_regeneration_change.csv,max_abs_condition_contrast,float64,
+outputs/tables/tableS_regeneration_change.csv,ratio_regeneration_to_contrast,float64,
+outputs/tables/tableS_regeneration_change.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tableS_regeneration_contrasts.csv,key,str,parcel id or network name
+outputs/tables/tableS_regeneration_contrasts.csv,contrast,str,
+outputs/tables/tableS_regeneration_contrasts.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tableS_regeneration_contrasts.csv,primary,float64,
+outputs/tables/tableS_regeneration_contrasts.csv,min,float64,
+outputs/tables/tableS_regeneration_contrasts.csv,max,float64,
+outputs/tables/tableS_regeneration_contrasts.csv,sd_regeneration,float64,
+outputs/tables/tableS_regeneration_contrasts.csv,same_sign_all_9,bool,
+outputs/tables/tableS_regeneration_contrasts.csv,claim_allowed,bool,
+outputs/tables/tableS_semantic_coverage.csv,text,str,stimulus text (the TRIBE input)
+outputs/tables/tableS_semantic_coverage.csv,variant,str,stimulus variant (one per unit and condition)
+outputs/tables/tableS_semantic_coverage.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_semantic_coverage.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_semantic_coverage.csv,min,float64,
+outputs/tables/tableS_semantic_coverage.csv,n,int64,draws (or units) in the summary
+outputs/tables/tableS_semantic_coverage.csv,n_below_threshold,int64,
+outputs/tables/tableS_semantic_coverage.csv,threshold,float64,
+outputs/tables/tableS_semantic_coverage_review.csv,stimulus_id,str,stimulus key (unit x condition)
+outputs/tables/tableS_semantic_coverage_review.csv,unit_id,str,curriculum unit
+outputs/tables/tableS_semantic_coverage_review.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_semantic_coverage_review.csv,variant,str,stimulus variant (one per unit and condition)
+outputs/tables/tableS_semantic_coverage_review.csv,text,str,stimulus text (the TRIBE input)
+outputs/tables/tableS_semantic_coverage_review.csv,cosine,float64,
+outputs/tables/tableS_sign_flip_null.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/tableS_sign_flip_null.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_sign_flip_null.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_sign_flip_null.csv,observed_sc,float64,
+outputs/tables/tableS_sign_flip_null.csv,null_mean,float64,
+outputs/tables/tableS_sign_flip_null.csv,null_sd,float64,
+outputs/tables/tableS_sign_flip_null.csv,share_null_as_extreme,float64,
+outputs/tables/tableS_sign_flip_null.csv,n_pairs,int64,
+outputs/tables/tableS_tipping_points.csv,line,str,
+outputs/tables/tableS_tipping_points.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_tipping_points.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_tipping_points.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_tipping_points.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/tableS_tipping_points.csv,n,int64,draws (or units) in the summary
+outputs/tables/tableS_tipping_points.csv,lo90,float64,5th percentile across draws
+outputs/tables/tableS_tipping_points.csv,hi90,float64,95th percentile across draws
+outputs/tables/tableS_tipping_points.csv,lo95,float64,2.5th percentile across draws
+outputs/tables/tableS_tipping_points.csv,hi95,float64,97.5th percentile across draws
+outputs/tables/tableS_tipping_points.csv,share_no_sign_change,float64,
+outputs/tables/tableS_tipping_points.csv,n_draws,int64,
+outputs/tables/tableS_tipping_points_per_draw.csv,line,str,
+outputs/tables/tableS_tipping_points_per_draw.csv,draw_id,int64,"parameter draw (-1 = the central draw, every leaf at medium)"
+outputs/tables/tableS_tipping_points_per_draw.csv,tipping_point,float64,
+outputs/tables/tableS_trajectory_model_v_main.csv,term,str,
+outputs/tables/tableS_trajectory_model_v_main.csv,estimate,float64,mean over learners (level) or mean paired difference (contrast)
+outputs/tables/tableS_trajectory_model_v_main.csv,se_cluster,float64,
+outputs/tables/tableS_trajectory_model_v_main.csv,ci_low,float64,
+outputs/tables/tableS_trajectory_model_v_main.csv,ci_high,float64,
+outputs/tables/tableS_variance_decomposition.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_variance_decomposition.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_variance_decomposition.csv,component,str,
+outputs/tables/tableS_variance_decomposition.csv,variance,float64,
+outputs/tables/tableS_variance_decomposition.csv,share,float64,
+outputs/tables/tableS_variance_decomposition.csv,n_scenarios,int64,
+outputs/tables/tableS_variance_decomposition.csv,n_draws,int64,
+outputs/tables/tableS_variance_decomposition.csv,n_learners,int64,
+outputs/tables/tableS_variance_decomposition.csv,n_replicates,int64,
+outputs/tables/tableS_z_controls.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
+outputs/tables/tableS_z_controls.csv,year,int64,school year (0 = before the first episode)
+outputs/tables/tableS_z_controls.csv,network,str,Yeo-7 network of the Schaefer-400 parcels
+outputs/tables/tableS_z_controls.csv,mechanism,str,"plasticity mechanism A, B, C or D (eq. 29-33)"
+outputs/tables/tableS_z_controls.csv,main_contrast,float64,
+outputs/tables/tableS_z_controls.csv,permuted_units_median_ratio,float64,
+outputs/tables/tableS_z_controls.csv,permuted_units_share_as_large,float64,
+outputs/tables/tableS_z_controls.csv,permuted_conditions_median_ratio,float64,
+outputs/tables/tableS_z_controls.csv,permuted_conditions_share_as_large,float64,
+outputs/tables/tableS_z_controls.csv,reading speed 180 wpm change ratio,float64,
+outputs/tables/tableS_z_controls.csv,reading speed 260 wpm change ratio,float64,
+outputs/tables/tableS_z_controls.csv,unwinsorised Z change ratio,float64,
+outputs/tables/tribe_shuffle_controls.csv,control,str,
+outputs/tables/tribe_shuffle_controls.csv,key,str,parcel id or network name
+outputs/tables/tribe_shuffle_controls.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tribe_shuffle_controls.csv,abs_change,float64,
+outputs/tables/tribe_shuffle_controls.csv,max_abs_condition_contrast,float64,
+outputs/tables/tribe_shuffle_controls.csv,ratio_shuffle_to_contrast,float64,
+simulation_draws (outcome values),G,,net advantage (eq. 39) = wK dK + wR dR + wM dM - wD dD
+simulation_draws (outcome values),near_bound_share,,share of learners within 0.01 of a state bound
+simulation_draws (outcome values),clips,,state updates clipped at a bound
+simulation_draws (outcome values),support_gap,,supported - unaided accuracy
+simulation_draws (outcome values),retention_below_share,,share with retention below end-of-year accuracy
+simulation_draws (outcome values),difficulty_slope,,slope of expected accuracy on unit difficulty
+simulation_draws (outcome values),share_traditional,,free choice: share of episodes on traditional

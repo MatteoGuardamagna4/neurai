@@ -1,0 +1,12 @@
+check,rule,value,pass
+G1 prior knowledge monotone (brief §10.2),"baseline unaided accuracy low <= medium <= high on average over draws, every scenario",mean low / medium / high 0.401 / 0.553 / 0.717,True
+"G1b prior knowledge at year 1 (PLAN.md S8, informational)",year-1 unaided accuracy low < medium < high in >= 95% of draws,min share 0.176 (scaffolding_nofade); mean high - low +0.0020: strata converge within weeks,not met (informational)
+G2 difficulty lowers accuracy,slope of expected accuracy on difficulty < 0 in 100% of draws,max slope -0.0618,True
+G3 support helps,support gap > 0 for every learner-year,min gap 0.0100,True
+G4 forgetting,retention < end-of-year accuracy for >= 99% of learners; longer breaks lower retention,"min share of learners forgetting 1.000; retention strictly falls over breaks of [4, 12, 24] weeks: True",True
+G5 fading lowers dependence,year-1 D: rapid fade < no fade in >= 95% of draws,share 1.000,True
+G6 zero plasticity,every neural contrast exactly 0,max |mean| 0 over 2352 rows,True
+G7 zero effort sensitivity,E constant at logistic(a0); |SC_K(substitution)| smaller than in the pilot,E range 0.268941-0.268941 (logistic(a0) = 0.268941); |SC_K| 0.0069 vs 0.0777,True
+G8 common random numbers,traditional vs a relabelled traditional: every contrast exactly 0,max |SC| 0 over 189 rows,True
+G9 no bound effects,zero clips; < 5% of learners within 0.01 of a bound at year 1,clips 0; max near-bound share 0.003,True
+G10 equivalence,T1 (vectorised step = reference loop) green on the current commit,commit 405a99b: 1 passed in 28.25s,True

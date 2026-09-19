@@ -1,0 +1,13 @@
+metric,level,definition,units,direction
+mean,"parcel, network",mean_t B_t over the reading window,a.u.,higher = more predicted response on average; independent of stimulus length
+auc,"parcel, network","eq. 8, trapezoidal integral of B over time (dt = 1 s)",a.u. x s,"higher = more predicted response mass; grows with duration, so condition contrasts are also shown with duration and word count as covariates (F1)"
+peak,"parcel, network",max_t of B after a centred 3-s moving average,a.u.,higher = a stronger maximum predicted response
+time_to_peak,"parcel, network",argmax_t of the smoothed B,s,larger = the maximum comes later in the text; depends on where the dense content sits
+sustained,"parcel, network",share of seconds with B above the stimulus's median over all its keys and seconds (ASSUMED baseline),share,higher = the region spends more of the window above the stimulus-wide median
+dispersion,stimulus,variance across parcels of the window-mean pattern,a.u.^2,higher = a more uneven spatial pattern
+entropy,stimulus,"eq. 9, normalised entropy of the positive part of the window-mean parcel pattern",0-1,"1 = predicted response spread evenly over parcels, lower = concentrated in few"
+integration,stimulus,mean pairwise Pearson correlation of the 7 network time courses,-1 to 1,higher = networks co-fluctuate more over the reading window
+rdm,units x units per condition,"eq. 14, 1 - corr of window-mean parcel patterns",0-2,larger = two units' predicted patterns differ more
+differentiation,condition,"eq. 34, mean between-concept minus mean within-concept RDM distance",0-2,higher = units of the same concept look more alike than units of different concepts
+Z,unit x condition x parcel,"eq. 28, AUC standardised per parcel over the 90 stimuli, winsorised at the global 1st/99th percentiles",SD,the input to plasticity eq. 29-33: which parcels a stimulus drives more than the corpus average
+N,learner x parcel or network,"eq. 29-33, decayed sum of behaviour-weighted Z",a.u.,"model-implied accumulated functional recruitment, never a predicted future brain state; only contrasts and d (eq. 44) are interpreted"

@@ -1,0 +1,13 @@
+control,implementation,expected,value,as_expected
+zero plasticity,"v_z0_10y: eta = 0, 10 years, 50 x 500",every neural contrast exactly 0,max |mean network contrast| 0,True
+zero effort sensitivity,"v_e0_10y: effort fixed, 10 years, 50 x 500",E constant; effort-mediated contrasts shrink,effort range 0; |SC_K(substitution)| 0.0112 vs 0.1461 in the main run,True
+permuted TRIBE across units (irrelevant content),"post hoc on v_main, 200 derangements, mechanism D","network contrasts unchanged (ratio ~ 1): they come from each condition's shared text profile, not from unit-specific content",median ratio 1.00 (max 3.49) over 28 scenario-networks,True
+permuted condition labels within units,"post hoc on v_main, 200 permutations, mechanism D","|control| well below |main| (ratio < 0.5, A15)",median ratio 0.30 (max 9.38); 8 of 28 scenario-networks >= 0.5,True
+harmless variation: reading speed 180 wpm,post hoc on v_main,change small against the condition contrast,median |change| / |main| 0.64,False
+harmless variation: reading speed 260 wpm,post hoc on v_main,change small against the condition contrast,median |change| / |main| 0.23,True
+harmless variation: unwinsorised Z,post hoc on v_main,change small against the condition contrast,median |change| / |main| 0.02,True
+sentence-shuffled texts,"notebook controls, 30 units x 3 conditions, AUC per network",network change below the intact condition contrast,median ratio 0.81 (max 4.58),True
+word-shuffled texts,"notebook controls, 30 units x 3 conditions, AUC per network",network change below the intact condition contrast,median ratio 7.08 (max 7.77),False
+reworded texts (two stylistic regenerations),"text-controls TRIBE run, 30 units, AUC per network",network change below the condition contrast,median ratio 0.50 (max 5.25),False
+incorrect-but-fluent texts (traditional),"text-controls TRIBE run, 30 units, AUC per network",network change below the condition contrast,median ratio 0.43 (max 1.17),True
+behavioural label permutation,"sign flips within learner, 1,000, year-10 unaided / far / retention",null SC centred at 0,max |null mean| 5.4e-05 (null sd up to 0.0049),True

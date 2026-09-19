@@ -12,8 +12,10 @@ data/processed/*
 !data/processed/units.csv
 !data/processed/stimuli.csv
 
-# run outputs (call logs, run logs, tables)
-outputs/
+# run outputs: logs stay local; tables and figures are the committed deliverable (report all rebuilds them)
+outputs/*
+!outputs/tables/
+!outputs/figures/
 
 data/tribe
 data/tribe/*
