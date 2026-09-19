@@ -3,7 +3,8 @@
     python -m neurotutorsim.report phase12                 # Tables 1-4, Figures 1-4, gate-19 definitions
     python -m neurotutorsim.report gate18 --pilot v_pilot --zero-plasticity v_pilot_z0 --zero-effort v_pilot_e0
     python -m neurotutorsim.report engines                 # §10.2: centaur_main vs logistic_40 (Figure S1)
-    python -m neurotutorsim.report phase5 --run v_main     # Table 5, Figures 5-6 for one Phase V run
+    python -m neurotutorsim.report phase5 --run v_main     # Table 5, Figures 5-6 (+ v_main_fcc's sixth scenario)
+    python -m neurotutorsim.report exposure|frontier|mechanisms|controls|spec|variance   # S9-S13 outputs
     python -m neurotutorsim.report all
 
 Tables go to outputs/tables/*.csv, figures to outputs/figures/*.png and .pdf. Every figure has a CSV twin.
@@ -433,6 +434,24 @@ def engines(paths: Paths, a_tag: str = "centaur_main", b_tag: str = "logistic_40
     return written + save(fig, paths.figures, "figS1_engine_comparison")
 
 
+def choice_rule_tables(paths: Paths, calib: str = "centaur_free_calib") -> list[Path]:
+    """The fitted choice rule (D18) and its out-of-sample check by episode block, from the saved rule files: the
+    rule refitted on both Centaur runs (`choice_rule.json`) and the `centaur_main`-only fit validated on `calib`."""
+    from . import choice_rule as CR
+
+    d = paths.processed / "choice_rule"
+    if not (d / "choice_rule.json").exists():
+        return []
+    rule = json.loads((d / "choice_rule.json").read_text(encoding="utf-8"))
+    written = [paths.table(pd.DataFrame({"feature": rule["features"], "estimate": rule["params"], "ci_low": rule["ci_low"],
+                                         "ci_high": rule["ci_high"]}), "choice_rule_fit")]
+    first = d / "choice_rule_centaur_main.json"
+    if first.exists() and (paths.processed / calib / "episodes.jsonl").exists():
+        params = np.array(json.loads(first.read_text(encoding="utf-8"))["params"])
+        written.append(paths.table(CR.by_episode(params, CR.decisions(paths.processed / calib)), "choice_rule_validation_by_episode"))
+    return written
+
+
 def gate18_report(paths: Paths, pilot: str, z0: str | None, e0: str | None, crn: str | None, breaks: list[str]) -> list[Path]:
     base = paths.processed / "phase5"
     brk = {}
@@ -532,50 +551,445 @@ def figure6(plt, hist: pd.DataFrame, table5: pd.DataFrame, out: Path, name: str,
     return save(fig, out, f"fig6_distributions_{name}")
 
 
-def phase5(paths: Paths, tag: str) -> list[Path]:
-    """Table 5 (behavioural and neural scenario contrasts at years 1, 5, 10) and Figures 5-6 for one Phase V run."""
+def load_runs(paths: Paths, tags: list[str], table: str) -> pd.DataFrame:
+    """One Phase V table over several runs of the same design (e.g. v_main + v_main_fcc): each later run adds only
+    the scenarios the earlier ones lack, so the shared traditional arm (identical under the same seed) is kept once."""
     from .longitudinal import read_table
 
+    frames, seen = [], set()
+    for tag in tags:
+        run = paths.processed / "phase5" / tag
+        if not (run / "run.json").exists():
+            continue
+        t = read_table(run, table)
+        if len(t) and "scenario" in t:
+            t = t[~t["scenario"].isin(seen)]
+            seen |= set(t["scenario"].unique())
+        frames.append(t)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def phase5(paths: Paths, tag: str, extra: list[str] | None = None) -> list[Path]:
+    """Table 5 (behavioural and neural scenario contrasts at years 1, 5, 10) and Figures 5-6 for one Phase V run,
+    plus the scenarios of `extra` runs with the same design (the sixth scenario, `v_main_fcc`)."""
     plt = plt_setup()
-    run = paths.processed / "phase5" / tag
-    draws = read_table(run, "simulation_draws")
+    tags = [tag] + list(extra or [])
+    draws = load_runs(paths, tags, "simulation_draws")
     years = sorted(int(y) for y in draws["year"].unique() if y > 0)
     target = [y for y in (1, 5, 10) if y in years] or [max(years)]
     t5 = A.scenario_contrasts(draws, outcomes=list(HEADLINE) + ["K", "R", "M", "D"], years=target)
     written = [paths.table(t5, f"table5_scenario_contrasts_{tag}")]
-    neural = read_table(run, "neural_contrasts")
+    neural = load_runs(paths, tags, "neural_contrasts")
     if len(neural):
         written.append(paths.table(A.neural_contrasts_table(neural, "D", target), f"table5_neural_d_{tag}"))
-    fig5, fig5_table = figure5(plt, read_table(run, "weekly_means"), draws, paths.figures, tag)
+    fig5, fig5_table = figure5(plt, load_runs(paths, tags, "weekly_means"), draws, paths.figures, tag)
     written += fig5 + [paths.table(fig5_table, f"fig5_trajectories_{tag}")]
-    hist = read_table(run, "contrast_hist")
+    hist = load_runs(paths, tags, "contrast_hist")
     if len(hist):
         written += figure6(plt, hist, t5, paths.figures, tag, max(target))
     return written
 
 
+# ------------------------------------------------------------------ S9 exposure, supplementary
+def exposure(paths: Paths, tags: dict) -> list[Path]:
+    """Year 1, 5, 10 headline scenario contrasts at 1, 3 and 5 episodes per week (§9.1), one table."""
+    frames = []
+    for epw, tag in tags.items():
+        draws = load_runs(paths, [tag], "simulation_draws")
+        if len(draws):
+            frames.append(A.scenario_contrasts(draws, outcomes=list(HEADLINE) + ["K", "D"]).assign(episodes_per_week=epw, run=tag))
+    return [paths.table(pd.concat(frames, ignore_index=True), "tableS_exposure")] if frames else []
+
+
+# ------------------------------------------------------------------ S10: Figure 7, tipping points
+def figure7(paths: Paths, grid_tag: str = "v_frontier", lines_tag: str = "v_tipping", neural_tag: str = "v_neural") -> list[Path]:
+    """Figure 7a (phase diagram of year-10 G over adaptation a x retained effort e, one panel per substitution
+    probability o), the §9.7 tipping-point table, and Figure 7b (mechanism D's year-10 d, substitution vs
+    traditional, over half-life x lambda_O, one panel per network)."""
+    from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
+
+    plt = plt_setup()
+    cmap = LinearSegmentedColormap.from_list("diverging", DIVERGING)
+    base = paths.processed / "phase5"
+    written = []
+    if (base / grid_tag / "run.json").exists():
+        knobs = json.loads((base / grid_tag / "run.json").read_text(encoding="utf-8"))["scenario_knobs"]
+        pdg = A.phase_diagram(load_runs(paths, [grid_tag], "simulation_draws"), knobs)
+        written.append(paths.table(pdg, "fig7a_phase_diagram"))
+        os_ = sorted(pdg["o"].unique())
+        half = float(pdg["median_G"].abs().max()) or 1.0
+        fig, axes = plt.subplots(1, len(os_), figsize=(4.2 * len(os_), 4.0), squeeze=False)
+        for ax, o in zip(axes[0], os_):
+            g = pdg[pdg["o"] == o].pivot_table(index="a", columns="e", values="median_G")
+            cls = pdg[pdg["o"] == o].pivot_table(index="a", columns="e", values="class_eps0.02", aggfunc="first")
+            im = ax.imshow(g.to_numpy(), origin="lower", cmap=cmap, norm=TwoSlopeNorm(0, -half, half), aspect="auto")
+            for i in range(g.shape[0]):
+                for j in range(g.shape[1]):
+                    mark = {"beneficial": "+", "harmful": "−", "neutral": "·"}[cls.iat[i, j]]
+                    ax.text(j, i, mark, ha="center", va="center", fontsize=9, color=INK)
+            ax.set_xticks(range(g.shape[1]), [f"{v:.2f}" for v in g.columns], fontsize=7)
+            ax.set_yticks(range(g.shape[0]), [f"{v:.2f}" for v in g.index], fontsize=7)
+            ax.set_xlabel("retained effort e")
+            ax.set_ylabel("adaptation a")
+            ax.set_title(f"substitution probability o = {o:.1f}")
+            ax.grid(False)
+        fig.colorbar(im, ax=axes[0].tolist(), shrink=0.8, label="median year-10 G vs traditional")
+        fig.suptitle("Figure 7a. Robustness frontier: scaffolding cells vs traditional, year 10 "
+                     "(+ beneficial, − harmful, · neutral at ε = 0.02)", x=0.01, ha="left", fontsize=10,
+                     fontweight="bold", color=INK)
+        written += save(fig, paths.figures, "fig7a_phase_diagram")
+    if (base / lines_tag / "run.json").exists():
+        knobs = json.loads((base / lines_tag / "run.json").read_text(encoding="utf-8"))["scenario_knobs"]
+        per_draw, summary = A.tipping_points(load_runs(paths, [lines_tag], "simulation_draws"), knobs)
+        written += [paths.table(summary, "tableS_tipping_points"), paths.table(per_draw, "tableS_tipping_points_per_draw")]
+    if (base / neural_tag / "run.json").exists():
+        nd = A.neural_diagram(load_runs(paths, [neural_tag], "neural_diagram"))
+        written.append(paths.table(nd, "fig7b_neural_diagram"))
+        nets = [n for n in NETWORK_LABEL if n in set(nd["network"])]
+        half = float(nd["median_d"].abs().max()) or 1.0
+        fig, axes = plt.subplots(1, len(nets), figsize=(2.3 * len(nets), 3.2), squeeze=False, sharey=True)
+        for ax, net in zip(axes[0], nets):
+            g = nd[nd["network"] == net].pivot_table(index="half_life_weeks", columns="lambda_O", values="median_d")
+            im = ax.imshow(g.to_numpy(), origin="lower", cmap=cmap, norm=TwoSlopeNorm(0, -half, half), aspect="auto")
+            ax.set_xticks(range(g.shape[1]), [f"{v:.2f}" for v in g.columns], fontsize=6.5, rotation=90)
+            ax.set_yticks(range(g.shape[0]), [f"{int(v)}" for v in g.index], fontsize=7)
+            ax.set_xlabel("λ_O")
+            ax.set_title(NETWORK_LABEL[net].replace(" / ", " /\n"), fontsize=8.5)
+            ax.grid(False)
+        axes[0, 0].set_ylabel("half-life (weeks)")
+        fig.colorbar(im, ax=axes[0].tolist(), shrink=0.8, label="median year-10 d")
+        fig.suptitle("Figure 7b. Model-implied neural contrast, substitution vs traditional (mechanism D, year 10)",
+                     x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
+        written += save(fig, paths.figures, "fig7b_neural_diagram")
+    return written
+
+
+# ------------------------------------------------------------------ S11 mechanism decomposition
+def mechanisms(paths: Paths, tag: str = "v_mediation", z_run: str = "v_main") -> list[Path]:
+    """§11.5: contributions of E, F, D (reruns with the mediator held at traditional) and Z (post hoc)."""
+    run = paths.processed / "phase5" / tag
+    if not (run / "run.json").exists():
+        return []
+    knobs = json.loads((run / "run.json").read_text(encoding="utf-8"))["scenario_knobs"]
+    out = A.mechanism_decomposition(load_runs(paths, [tag], "simulation_draws"), knobs,
+                                    load_runs(paths, [tag], "neural_contrasts"))
+    zrun = paths.processed / "phase5" / z_run
+    if (zrun / "run.json").exists():
+        out = pd.concat([out, A.z_mediator(zrun, paths.raw, paths.root)], ignore_index=True)
+    return [paths.table(out, "tableS_mechanism_decomposition")]
+
+
+# ------------------------------------------------------------------ S12: Table 6 and the falsification checklist
+def table6(paths: Paths, main: list[str], z0: str = "v_z0_10y", e0: str = "v_e0_10y", uniform: str = "v_uniform",
+           year: int = 10) -> list[Path]:
+    """Table 6 (§10.3 negative controls, one row each with what was expected and what came out), the per-network
+    permuted-Z table and the §10.6 falsification checklist."""
+    from .longitudinal import read_table
+
+    base = paths.processed / "phase5"
+    run = base / main[0]
+    draws = load_runs(paths, main, "simulation_draws")
+    neural = load_runs(paths, main, "neural_contrasts")
+    zc = A.z_controls(run, paths.raw, paths.root)
+    written = [paths.table(zc, "tableS_z_controls")]
+    zy = zc[zc["year"] == year]
+    rows = []
+
+    def add(control, implementation, expected, value, as_expected):
+        rows.append({"control": control, "implementation": implementation, "expected": expected, "value": value,
+                     "as_expected": as_expected})
+
+    if (base / z0 / "run.json").exists():
+        n0 = read_table(base / z0, "neural_contrasts")
+        m = float(n0["mean"].abs().max())
+        add("zero plasticity", f"{z0}: eta = 0, 10 years, 50 x 500", "every neural contrast exactly 0",
+            f"max |mean network contrast| {m:.3g}", m == 0)
+    if (base / e0 / "run.json").exists():
+        d0 = read_table(base / e0, "simulation_draws")
+        eff = d0[(d0["kind"] == "level") & (d0["outcome"] == "effort") & (d0["year"] > 0)]["estimate"]
+        k0 = A._sc_by_draw(d0, year).get(("substitution", "K"), pd.Series(dtype=float)).median()
+        k1 = A._sc_by_draw(draws, year).get(("substitution", "K"), pd.Series(dtype=float)).median()
+        add("zero effort sensitivity", f"{e0}: effort fixed, 10 years, 50 x 500",
+            "E constant; effort-mediated contrasts shrink", f"effort range {eff.max() - eff.min():.3g}; "
+            f"|SC_K(substitution)| {abs(k0):.4f} vs {abs(k1):.4f} in the main run", bool(eff.max() - eff.min() < 1e-9 and abs(k0) < abs(k1)))
+    if len(zy):
+        r = zy["permuted_units_median_ratio"]
+        add("permuted TRIBE across units (irrelevant content)", f"post hoc on {main[0]}, 200 derangements, mechanism D",
+            "network contrasts unchanged (ratio ~ 1): they come from each condition's shared text profile, not from "
+            "unit-specific content", f"median ratio {r.median():.2f} (max {r.max():.2f}) over {len(r)} scenario-networks",
+            bool(abs(r.median() - 1) < 0.25))
+        r = zy["permuted_conditions_median_ratio"]
+        add("permuted condition labels within units", f"post hoc on {main[0]}, 200 permutations, mechanism D",
+            "|control| well below |main| (ratio < 0.5, A15)", f"median ratio {r.median():.2f} (max {r.max():.2f}); "
+            f"{int((r >= 0.5).sum())} of {len(r)} scenario-networks >= 0.5", bool(r.median() < 0.5))
+        for col in [c for c in zy.columns if c.endswith("change ratio")]:
+            add(f"harmless variation: {col.replace(' change ratio', '')}", f"post hoc on {main[0]}",
+                "change small against the condition contrast", f"median |change| / |main| {zy[col].median():.2f}",
+                bool(zy[col].median() < 0.5))
+    shuffle_p = paths.tables / "tribe_shuffle_controls.csv"
+    shuffle = pd.read_csv(shuffle_p) if shuffle_p.exists() else pd.DataFrame()
+    for ctl, g in shuffle[shuffle["metric"] == "auc"].groupby("control") if len(shuffle) else []:
+        add(f"{ctl}-shuffled texts", "notebook controls, 30 units x 3 conditions, AUC per network",
+            "network change below the intact condition contrast", f"median ratio {g['ratio_shuffle_to_contrast'].median():.2f} "
+            f"(max {g['ratio_shuffle_to_contrast'].max():.2f})", bool(g["ratio_shuffle_to_contrast"].median() < 1))
+    yearly = load_runs(paths, main, "yearly_subsample")
+    if len(yearly):
+        flips = pd.concat([A.sign_flip_null(yearly[yearly["year"] == year], o) for o in ("unaided", "far", "retention")])
+        written.append(paths.table(flips, "tableS_sign_flip_null"))
+        add("behavioural label permutation", "sign flips within learner, 1,000, year-10 unaided / far / retention",
+            "null SC centred at 0", f"max |null mean| {flips['null_mean'].abs().max():.2g} (null sd up to {flips['null_sd'].max():.2g})",
+            bool((flips["null_mean"].abs() < 3 * flips["null_sd"] / np.sqrt(1000)).all()))
+    written.append(paths.table(pd.DataFrame(rows), "table6_negative_controls"))
+    t4 = paths.tables / "table4_cortical_contrasts.csv"
+    t4c = paths.tables / "table4_cortical_contrasts_matched_covariates.csv"
+    if t4.exists() and t4c.exists():
+        uni = load_runs(paths, [uniform], "simulation_draws")
+        fals = A.falsification(pd.read_csv(t4), pd.read_csv(t4c), shuffle, draws, neural, zc,
+                               uni if len(uni) else None, year)
+        print(fals.to_string(index=False))
+        written.append(paths.table(fals, "table6_falsification"))
+    return written
+
+
+# ------------------------------------------------------------------ S13: Figure 8 and the variance decomposition
+def spec_rows(paths: Paths) -> tuple[dict, list[dict]]:
+    spec = yaml.safe_load((paths.root / "config" / "spec_curve.yaml").read_text(encoding="utf-8"))
+    manifest = json.loads((paths.processed / "phase5" / "spec_curve_manifest.json").read_text(encoding="utf-8"))
+    return spec, [s for s in manifest["specifications"] if (paths.processed / "phase5" / s["tag"] / "run.json").exists()]
+
+
+def _spec_panel(fig, gs, frame: pd.DataFrame, dims: list[str], title: str, ylabel: str):
+    """One specification curve: estimates sorted, 95% interval, colour by tier, indicator matrix underneath."""
+    f = frame.sort_values("median").reset_index(drop=True)
+    ax = fig.add_subplot(gs[0])
+    tier_color = {1: SERIES[0], 2: SERIES[3], 3: SERIES[7]}
+    x = np.arange(len(f))
+    for t, g in f.groupby("tier"):
+        ax.vlines(g.index, g["lo95"], g["hi95"], color=tier_color[int(t)], alpha=0.25, lw=0.8 if len(f) < 400 else 0.3)
+        ax.scatter(g.index, g["median"], s=6 if len(f) < 400 else 1.5, color=tier_color[int(t)], label=f"tier {int(t)}", zorder=3)
+    ax.axhline(0, color=INK2, lw=0.8)
+    ax.set_xlim(-1, len(f))
+    ax.set_xticks([])
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.legend(loc="upper left", markerscale=3)
+    mx = fig.add_subplot(gs[1], sharex=ax)
+    labels = []
+    for i, dim in enumerate(dims):
+        for lvl in sorted(f[dim].astype(str).unique()):
+            on = np.flatnonzero(f[dim].astype(str) == lvl)
+            row = len(labels)
+            mx.scatter(on, np.full(len(on), row), s=1.5 if len(f) > 400 else 5, marker="s", color=INK2 if i % 2 else SERIES[6], lw=0)
+            labels.append(f"{dim}: {lvl}")
+    mx.set_yticks(range(len(labels)), labels, fontsize=6)
+    mx.invert_yaxis()
+    mx.set_xticks([])
+    mx.grid(False)
+    return x
+
+
+def figure8(paths: Paths, year: int = 10) -> list[Path]:
+    """Figure 8 (§10.4): (a) year-10 G for every AI scenario, 72 reruns x 3 outcome weights; (b) mechanism d for the
+    control network, substitution vs traditional, 72 reruns x 144 post hoc levels."""
+    from . import plasticity as P
+    from .longitudinal import read_arrays, read_table
+
+    spec, specs = spec_rows(paths)
+    if not specs:
+        return []
+    base = paths.processed / "phase5"
+    gw = paths.raw["phase5"]["G"]["weights"]
+    weight_sets = {"equal": gw, **paths.raw["phase5"]["stakeholder_weights"]}
+    ranks = spec["post_hoc"]
+    runs = [(s, read_table(base / s["tag"], "simulation_draws")) for s in specs]
+    g = A.spec_curve_g(runs, weight_sets, ranks["outcome_weights"], year)
+    written = [paths.table(g, "fig8a_spec_curve_G")]
+    p = paths.raw["plasticity"]
+    tribe_dir = paths.root / p["tribe_dir"]
+    zs = {}
+    for wpm in ranks["reading_speed_wpm"]:
+        for metric in ranks["tribe_metric"]:
+            for wins in ranks["winsorize"]:
+                zs[(wpm, metric, wins)] = P.load_z(tribe_dir, int(wpm), metric, p["winsorize"] if wins in (True, "yes") else None)[0]  # YAML reads yes/no as booleans
+    ws = {w: P.load_networks(tribe_dir, w) for w in ranks["network_weights"]}
+    frames = []
+    for s in specs:
+        run = base / s["tag"]
+        meta = json.loads((run / "run.json").read_text(encoding="utf-8"))
+        lam = read_table(run, "parameter_draws").set_index("draw_id")["plasticity.lambda_O"]
+        frames.append(A.spec_curve_neural(s, read_arrays(run, "accumulators_subsample"), read_arrays(run, "mean_accumulator_diff"),
+                                          lam, meta["scenarios"], zs, ws, p, ranks, year))
+    nd = pd.concat(frames, ignore_index=True)
+    written.append(paths.table(nd, "fig8b_spec_curve_neural"))
+    plt = plt_setup()
+    rerun_dims = ["form", "forgetting", "epw", "effort"]
+    scen = [s for s in SCENARIO_COLOR if s in set(g["scenario"])]
+    fig = plt.figure(figsize=(13, 3.6 * len(scen)))
+    outer = fig.add_gridspec(len(scen), 1, hspace=0.45, top=0.96)
+    for i, s in enumerate(scen):
+        gs = outer[i].subgridspec(2, 1, height_ratios=[1.3, 1], hspace=0.05)
+        _spec_panel(fig, gs, g[g["scenario"] == s], rerun_dims + ["outcome_weights"],
+                    f"{SCENARIO_LABEL[s]}: {len(g[g['scenario'] == s])} specifications", "year-10 G vs traditional")
+    fig.suptitle("Figure 8a. Specification curve: year-10 net advantage G (median and 95% interval across draws)",
+                 x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
+    written += save(fig, paths.figures, "fig8a_spec_curve_G")
+    fig = plt.figure(figsize=(13, 7.5))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1, 1.4], hspace=0.05, top=0.93)
+    _spec_panel(fig, gs, nd, rerun_dims + ["wpm", "metric", "winsorize", "network_weights", "mechanism"],
+                f"Control network, substitution vs traditional: {len(nd)} specifications", "year-10 d")
+    fig.suptitle("Figure 8b. Specification curve: model-implied control-network contrast (median and 95% interval "
+                 "across subsample draws)", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
+    written += save(fig, paths.figures, "fig8b_spec_curve_neural")
+    return written
+
+
+def variance(paths: Paths, tags=("v_repl0", "v_repl1", "v_repl2"), year: int = 10) -> list[Path]:
+    """§10.5 (eq. 41) from the three replicate runs (same parameters and learners, new behaviour stream, D19)."""
+    from . import plasticity as P
+    from .longitudinal import read_arrays, read_table
+
+    base = paths.processed / "phase5"
+    if not all((base / t / "run.json").exists() for t in tags):
+        return []
+    gw = paths.raw["phase5"]["G"]["weights"]
+    paired = [A.paired_learner_values(read_table(base / t, "yearly_subsample"), gw) for t in tags]
+    scen = sorted(set(paired[0]["scenario"]))
+    p = paths.raw["plasticity"]
+    tribe_dir = paths.root / p["tribe_dir"]
+    W, nets = P.load_networks(tribe_dir, p["network_weights"])
+    Z = P.load_z(tribe_dir, int(p["wpm"]), p["metric"], p["winsorize"])[0]
+    lam = read_table(base / tags[0], "parameter_draws").set_index("draw_id")["plasticity.lambda_O"]
+    v_stim = A.stimulus_bootstrap(read_arrays(base / tags[0], "mean_accumulator_diff"), lam, Z, W, nets, p,
+                                  A.neural_scale(paired, "N_D_Cont", year), year)
+    out = A.variance_decomposition(paired, scen, year, v_stimulus=v_stim)
+    print(out.to_string(index=False))
+    return [paths.table(out, "tableS_variance_decomposition")]
+
+
+# ------------------------------------------------------------------ data dictionary (D1 deliverable)
+COLUMN_DOC = {
+    "draw_id": "parameter draw (-1 = the central draw, every leaf at medium)", "scenario": "Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name",
+    "year": "school year (0 = before the first episode)", "kind": "`level` (scenario mean) or `contrast` (paired AI - comparator)",
+    "outcome": "outcome name (see the outcome rows of this dictionary)", "estimate": "mean over learners (level) or mean paired difference (contrast)",
+    "sd": "SD over learners", "median": "median over learners, or across draws in summary tables", "prsup": "PrSup (eq. 38): share of learners with a positive paired difference",
+    "share_neg": "share of learners with a negative paired difference", "mechanism": "plasticity mechanism A, B, C or D (eq. 29-33)",
+    "network": "Yeo-7 network of the Schaefer-400 parcels", "mean": "mean (over learners, or across draws in summary tables)",
+    "d": "standardised neural contrast, mean / SD of the learner-level paired difference (eq. 44)", "week": "instructional week within the year",
+    "K": "knowledge (eq. 22)", "M": "metacognitive monitoring (eq. 23)", "R": "retrieval strength (eq. 25)", "C": "calibration (eq. 24)",
+    "D": "dependence on support (eq. 26)", "first_try": "first-attempt correctness rate", "far": "far-transfer accuracy (unaided test)",
+    "learner_id": "learner index within the draw (the same person across scenarios)", "stratum": "prior-knowledge stratum 0 low, 1 medium, 2 high (eq. 15)",
+    "K_after_break": "K after the summer break", "M_after_break": "M after the summer break", "unaided": "unaided accuracy on trained items (end-of-year test)",
+    "p_request": "model-implied probability of requesting help after an error", "retention": "accuracy after the break (retention test)",
+    "help_rate": "help requests per episode over the year", "bin": "histogram bin index", "bin_low": "lower edge of the bin",
+    "bin_high": "upper edge of the bin", "count": "learners in the bin, summed over draws", "episode": "0-based episode index",
+    "unit_id": "curriculum unit", "difficulty": "unit difficulty (logit scale, eq. 17)", "protocol": "instructional protocol that actually ran (in free choice: the one chosen)",
+    "first_correct": "first answer correct", "transfer_correct": "near-transfer answer correct", "help_requests": "help requests in the episode",
+    "reveal": "the answer was provided", "effort": "effort E (eq. 19)", "effectiveness": "effectiveness F (eq. 20)", "p_correct": "eq. 17-18 probability of a correct answer",
+    "condition": "assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)", "time": "episode index (the learner's clock)",
+    "support": "support level received", "correctness": "answer correctness (0/1), or unit correctness score in units.csv", "retrieval": "retrieval proxy of the episode (eq. 21)",
+    "offloading": "offloading proxy of the episode", "pe": "prediction error of the first answer", "resolution": "error resolved within the episode",
+    "answer_provided": "the answer was shown by the protocol", "hint_depth": "deepest hint or tutor turn reached", "attempts": "answer attempts",
+    "tutor_calls": "LLM tutor calls", "tutor_leaked": "tutor turns rejected by the leakage check", "episode_id": "unique episode key",
+    "stage": "turn stage (approach, first, help, retry, transfer)", "turn": "turn index within the episode", "prompt": "text shown to the learner model",
+    "response": "learner model output", "answer": "option chosen", "confidence": "1-5 confidence rating (tracks the record, not the answer; CLAUDE.md)",
+    "latency_proxy": "simulated time on task", "token_count": "tokens in the prompt", "requested_support": "help was requested at this turn",
+    "explanation": "rule behind the chosen option (options are rule-generated)", "layout": "option order shown", "checkpoint_episode": "episode after which the §7.7 checkpoint ran",
+    "unaided_accuracy_trained": "unaided accuracy on trained items", "supported_accuracy_trained": "supported accuracy on trained items",
+    "support_gap": "supported - unaided accuracy", "near_transfer_accuracy": "near-transfer accuracy", "far_transfer_accuracy": "far-transfer accuracy",
+    "retention_accuracy": "accuracy on items last practised >= retention_interval episodes ago", "n_retention_items": "retention items available",
+    "brier_score": "Brier score of confidence (measures the record for Centaur, CLAUDE.md)", "expected_calibration_error": "ECE of confidence",
+    "dependence_request_rate": "help requests per opportunity", "domain": "MBA domain", "concept": "concept (15; two units each)",
+    "prerequisites": "prerequisite units", "reference_answer": "correct answer", "near_transfer_answer": "near-transfer correct answer",
+    "transfer_answer": "far-transfer correct answer", "misconception_answer": "answer produced by the misconception", "misconception": "the misconception rule",
+    "coverage": "semantic coverage (not computed, 1.0)", "stimulus_id": "stimulus key (unit x condition)", "variant": "stimulus variant (one per unit and condition)",
+    "text": "stimulus text (the TRIBE input)", "modality": "stimulus modality (text)", "example_count": "worked examples", "word_count": "words",
+    "sentence_count": "sentences", "character_count": "characters", "readability": "readability score", "equation_count": "equations",
+    "lexical_diversity": "type-token ratio", "duration": "reading time in s at 220 wpm (eq. 4)", "level": "`parcel`, `network` or `stimulus`",
+    "key": "parcel id or network name", "metric": "TRIBE metric (gate-19 definitions)", "value": "metric value (predicted response, a.u.)",
+    "n": "draws (or units) in the summary", "lo90": "5th percentile across draws", "hi90": "95th percentile across draws",
+    "lo95": "2.5th percentile across draws", "hi95": "97.5th percentile across draws", "tier": "specification-curve tier (highest rank among its levels)",
+}
+OUTCOME_DOC = {"G": "net advantage (eq. 39) = wK dK + wR dR + wM dM - wD dD", "near_bound_share": "share of learners within 0.01 of a state bound",
+               "clips": "state updates clipped at a bound", "support_gap": "supported - unaided accuracy", "retention_below_share": "share with retention below end-of-year accuracy",
+               "difficulty_slope": "slope of expected accuracy on unit difficulty", "share_traditional": "free choice: share of episodes on traditional"}
+
+
+def data_dictionary(paths: Paths, run: str = "v_main") -> list[Path]:
+    """Every column of every table the pipeline writes: the source table, the dtype and what it means."""
+    from .longitudinal import read_table
+
+    def doc(col: str) -> str:
+        if col in COLUMN_DOC:
+            return COLUMN_DOC[col]
+        if col.startswith("N_"):
+            _, m, net = col.split("_", 2)
+            return f"model-implied network state N, mechanism {m}, network {net} (eq. 29-33, 7)"
+        if "." in col:
+            return f"drawn value of the config leaf `{col}` (A1)"
+        return ""
+
+    sources = {}
+    run_dir = paths.processed / "phase5" / run
+    for t in ("simulation_draws", "parameter_draws", "neural_contrasts", "weekly_means", "yearly_subsample", "contrast_hist", "episodes_central"):
+        if (run_dir / "run.json").exists():
+            sources[f"data/processed/phase5/<tag>/{t}"] = read_table(run_dir, t)
+    p3 = paths.processed / "centaur_main"
+    for name in ("learner_state.parquet", "responses.csv", "checkpoints.csv"):
+        if (p3 / name).exists():
+            sources[f"data/processed/<tag>/{name}"] = pd.read_parquet(p3 / name) if name.endswith(".parquet") else pd.read_csv(p3 / name, nrows=50)
+    for name in ("units.csv", "stimuli.csv"):
+        if (paths.processed / name).exists():
+            sources[f"data/processed/{name}"] = pd.read_csv(paths.processed / name, nrows=50)
+    tm = paths.tribe / "wpm220" / "tribe_metrics.parquet"
+    if tm.exists():
+        sources["data/tribe/<run>/wpm<speed>/tribe_metrics.parquet"] = pd.read_parquet(tm).head(50)
+    for f in sorted(paths.tables.glob("*.csv")):
+        if f.stem != "data_dictionary":
+            sources[f"outputs/tables/{f.name}"] = pd.read_csv(f, nrows=50)
+    rows = [{"table": t, "column": c, "dtype": str(df[c].dtype), "description": doc(c)} for t, df in sources.items() for c in df.columns]
+    rows += [{"table": "simulation_draws (outcome values)", "column": o, "dtype": "", "description": d} for o, d in OUTCOME_DOC.items()]
+    return [paths.table(pd.DataFrame(rows), "data_dictionary")]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("what", choices=("phase12", "engines", "gate18", "phase5", "all"))
+    ap.add_argument("what", choices=("phase12", "engines", "gate18", "phase5", "exposure", "frontier", "mechanisms",
+                                     "controls", "spec", "variance", "dictionary", "all"))
     ap.add_argument("--root", default=".")
     ap.add_argument("--n-boot", type=int, default=2000, dest="n_boot")
-    ap.add_argument("--pilot", default="v_pilot")
-    ap.add_argument("--zero-plasticity", default="v_pilot_z0", dest="z0")
-    ap.add_argument("--zero-effort", default="v_pilot_e0", dest="e0")
-    ap.add_argument("--crn", default=None)
-    ap.add_argument("--breaks", nargs="*", default=[], help="WEEKS=TAG runs of the central draw, e.g. 4=v_break4 24=v_break24")
-    ap.add_argument("--run", default="v_main", help="Phase V tag for `phase5`")
+    ap.add_argument("--pilot", default="g18_pilot")
+    ap.add_argument("--zero-plasticity", default="g18_z0", dest="z0")
+    ap.add_argument("--zero-effort", default="g18_e0", dest="e0")
+    ap.add_argument("--crn", default="g18_crn")
+    ap.add_argument("--breaks", nargs="*", default=["4=g18_break4", "12=g18_pilot", "24=g18_break24"],
+                    help="WEEKS=TAG runs of the central draw")
+    ap.add_argument("--run", default="v_main", help="Phase V tag for `phase5` and `controls`")
+    ap.add_argument("--extra", nargs="*", default=["v_main_fcc"], help="runs adding scenarios to --run (same design)")
     args = ap.parse_args(argv)
     paths = Paths(Path(args.root).resolve())
     written = []
     if args.what in ("phase12", "all"):
         written += phase12(paths, args.n_boot)
     if args.what in ("engines", "all") and (paths.processed / "centaur_main" / "learner_state.parquet").exists():
-        written += engines(paths)
+        written += engines(paths) + choice_rule_tables(paths)
     if args.what in ("gate18", "all") and (paths.processed / "phase5" / args.pilot / "run.json").exists():
         written += gate18_report(paths, args.pilot, args.z0, args.e0, args.crn, args.breaks)
     if args.what in ("phase5", "all") and (paths.processed / "phase5" / args.run / "run.json").exists():
-        written += phase5(paths, args.run)
+        written += phase5(paths, args.run, args.extra)
+    if args.what in ("exposure", "all"):
+        written += exposure(paths, {1: "v_epw1", 3: args.run, 5: "v_epw5"})
+    if args.what in ("frontier", "all"):
+        written += figure7(paths)
+    if args.what in ("mechanisms", "all"):
+        written += mechanisms(paths, z_run=args.run)
+    if args.what in ("controls", "all") and (paths.processed / "phase5" / args.run / "run.json").exists():
+        written += table6(paths, [args.run] + args.extra)
+    if args.what in ("spec", "all"):
+        written += figure8(paths)
+    if args.what in ("variance", "all"):
+        written += variance(paths)
+    if args.what in ("dictionary", "all"):
+        written += data_dictionary(paths, args.run)
     for p in written:
         print(p.relative_to(paths.root))
     return 0

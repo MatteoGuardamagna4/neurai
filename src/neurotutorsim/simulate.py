@@ -65,9 +65,19 @@ def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
-def append_jsonl(path: Path, record: dict) -> None:
-    with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(record, default=lambda o: o.item() if hasattr(o, "item") else str(o)) + "\n")
+def append_jsonl(path: Path, record: dict, retries: int = 10) -> None:
+    """Append one record. On Windows another process (an editor, a scanner, a `wc` on the file) can hold it for a
+    moment; that stopped centaur_free_calib three times with PermissionError, so the append waits and retries."""
+    line = json.dumps(record, default=lambda o: o.item() if hasattr(o, "item") else str(o)) + "\n"
+    for attempt in range(retries):
+        try:
+            with path.open("a", encoding="utf-8") as f:
+                f.write(line)
+            return
+        except PermissionError:
+            if attempt == retries - 1:
+                raise
+            time.sleep(0.5 * (attempt + 1))
 
 
 def forecasts_of(record: dict) -> list[tuple[float, float]]:

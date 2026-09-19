@@ -20,6 +20,24 @@ free-choice calibration batch `centaur_free_calib` (queued by `outputs/logs/cent
 S7 (after Centaur), the final choice-rule fit and validation, S9, S10-S13 runs, S12 code, the Phase V part of S14,
 S15. The table below is the 2026-09-16 state.
 
+**Update 2026-09-19.** **Every run is done**; what is left is code and the freeze. Overnight, all exit 0 and
+complete: S12 controls `v_z0_10y`, `v_e0_10y`, `v_uniform`; S11 `v_mediation`; S13 `v_repl0-2` and all 72 `spec_*`
+runs (420 min, not the 1.5-2 h estimated); S9 `v_epw1`, `v_epw5`; `centaur_free_calib` (4,800 episodes, 80 x 60, no
+gaps; three restarts on a transient `PermissionError` while appending to `episodes.jsonl`, no episode lost). The
+`centaur_main` choice rule validates out of sample (cross-entropy 1.041 vs 1.080 for constant shares, argmax agreement
+70%); refitted on both runs (6,000 decisions) and used by `v_main_fcc` (traditional + `free_choice_centaur`,
+501/501 draws; its traditional arm equals `v_main`'s to 3e-16).
+
+Report layer for S9-S13 written (`report exposure|frontier|mechanisms|controls|spec|variance`, all in `report all`):
+Table 5 and Figures 5-6 from `v_main` + `v_main_fcc` (six scenarios), `tableS_exposure`, Figure 7a/7b +
+`tableS_tipping_points`, `tableS_mechanism_decomposition` (E, F, D reruns + Z post hoc), Table 6
+(`table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`), Figure 8a/8b,
+`tableS_variance_decomposition`. D20 records three rule fixes made on first contact with the results.
+
+Also done: `data_dictionary.csv` (`report dictionary`: every column of every table, 226 data columns, none
+undocumented), the append retry in `simulate.py` (the `PermissionError` above). **S14 done criterion met:** `report all` rebuilds every table and figure into empty `outputs/tables` and `outputs/figures` in 3.5 min, exit 0 (the choice-rule tables included). Still to do: §11.3 mixed model on the
+Figure 5 data (cut-list item 2), S15.
+
 **Update 2026-09-18 (23:30).** Done overnight: `v_main` (5 scenarios, 500 x 2,000 x 10 years, 69 min), `v_frontier`,
 `v_tipping`, `v_neural` (S10 runs). `centaur_free_calib` at 3,926 / 4,800 episodes. Every remaining laptop run is now
 in two scripts (below); what is left after them is code (the Phase V part of S14, the report wiring for the new tags)
@@ -78,6 +96,7 @@ Measured today, and used below:
 | D17 | (2026-09-18) The specification-curve ranks in `config/spec_curve.yaml` are approved as drafted from S13, before any Phase V result. |
 | D18 | (2026-09-18) Centaur extension. The three assigned arms are not extended (Centaur only makes help and confidence choices there; measured on the 40 paired learners, it adds +0.07 to +0.09 help requests per episode, lowers C by 0.07-0.09, and leaves every learning outcome and every eq. 10-12 contrast unchanged). The free-choice arm is where it matters (after 7 learners: substitution 50% vs 28% under the softmax-in-D rule on the same learners), so: fit a transparent rule to Centaur's free-choice probabilities (`choice_rule.py`), validate it out of sample on a free-choice-only batch (`centaur_free_calib`: 80 new learners x 60 episodes on Colab), and add it to Phase V as a sixth scenario, `free_choice_centaur`, next to the assumed rule. |
 | D19 | (2026-09-18) `--seed-offset` moves only the behavioural random stream (`Draws`); parameter draws and the learner population keep the base master seed, so §10.5 replicates differ in behaviour alone (V_behavior is identified). No existing run used an offset. |
+| D20 | (2026-09-19) Three analysis rules fixed on first contact with the results, before reading any as a finding: (1) F4 judges the typical draw (the worst scenario's median near-bound share) and lists the share of draws above 10%, instead of the single most extreme draw; (2) F5 uses only the condition-label permutation, the null for a condition contrast (permuting units within a condition keeps each condition's mean text profile, so that ratio is ~1 by construction; it stays in Table 6 as a content control); (3) the variance decomposition treats scenarios as fixed (population variance of the means), which closes the decomposition (residual ~0). |
 
 ## 3. Assumptions I set (change them before the step that uses them)
 
@@ -743,6 +762,21 @@ and `outputs/figures` with no manual step.
 - 2026-09-18 23:30: `v_main` done (69 min), then `v_frontier` (36 min), `v_tipping` (28 min), `v_neural` (4 min),
   all exit 0. D19 (seed offset). `scripts/run_remaining.ps1` (S9 exposure, S11, S12 controls, S13 replicates and
   spec curve) and `scripts/run_centaur_rule.ps1` (validate, refit, `v_main_fcc`) written.
+- 2026-09-19: every overnight run done and verified (draw counts, 72/72 spec runs, calib 4,800 with no gaps). S14
+  Phase V report layer written (D20). First results: year-10 G vs traditional is negative for substitution (-0.20)
+  and both free-choice rules, ~+0.014 for scaffolding without fading; the frontier is neutral at o = 0 and harmful
+  for o >= 0.5 at any a and e; on the tipping lines G never changes sign in e, f or forgetting, and turns negative at
+  o ~ 0.10 [0.06, 0.14]. Mechanisms: the scaffolding advantage runs through F (contribution 1.0), the substitution
+  deficit mostly through E (0.97 of the K contrast). Falsification: F1 no claim for 3 network contrasts, F3 for 4,
+  F4 no claim (scaffolding_rapid: 12% of learners near a bound in the median draw), F5 for 8 of 28, F6 claim allowed.
+  Spec curve: G keeps its sign in all 216 specifications of every scenario (scaffolding positive, substitution and
+  free choice negative); the control-network d of substitution does not (58% of 10,368 specifications positive; the
+  tier-1 specification -0.21 [-0.74, 0.42]; mechanism A and C positive, B negative). Bug fixed before reading it:
+  YAML parses the winsorize levels yes/no as booleans, so both levels had used unwinsorised Z. Variance
+  decomposition: year-10 G is 68% scenario, 29% learner, 2% parameters, 1% behaviour; the control-network d is
+  34% scenario, 41% plasticity mechanism, 10% parameters, 8% learner, 7% stimuli.
+  Refitted choice rule (6,000 decisions, `choice_rule_fit.csv`): habit 0.84 [0.82, 0.86], payoff 0.16 [0.10, 0.21],
+  tried 0.24, scaffolding -0.26 and substitution +0.05 vs traditional.
 
 ## 9. Not blocking now; decide by S15
 

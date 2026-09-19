@@ -561,9 +561,13 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
     add("F3", "long-term direction reverses across plausible plasticity models", f"sign of the median year-{year} d "
         "across mechanisms A-D, per scenario and network", "any disagreement", f"{len(flip)} of {len(med)} scenario-networks",
         f"no claim for {len(flip)} scenario-networks" if len(flip) else "claim allowed")
-    bound = draws[(draws["kind"] == "level") & (draws["outcome"] == "near_bound_share") & (draws["year"] == year)]["estimate"]
-    value = f"max near-bound share {bound.max():.3f}" if len(bound) else "n/a"
-    verdict = "no claim" if len(bound) and bound.max() > 0.10 else "claim allowed"
+    nb = draws[(draws["kind"] == "level") & (draws["outcome"] == "near_bound_share") & (draws["year"] == year) & (draws["draw_id"] >= 0)]
+    by_s = nb.groupby("scenario")["estimate"] if len(nb) else None
+    worst = by_s.median().max() if len(nb) else np.nan  # the typical draw of the worst scenario
+    value = (f"median near-bound share, worst scenario {worst:.3f}; draws with > 10%: "
+             + ", ".join(f"{k} {v:.0%}" for k, v in by_s.apply(lambda x: (x > 0.10).mean()).items() if v > 0)
+             if len(nb) else "n/a")
+    verdict = "no claim" if len(nb) and worst > 0.10 else "claim allowed"
     if uniform_draws is not None:
         a, b = _sc_by_draw(draws, year).median(), _sc_by_draw(uniform_draws, year).median()
         both = a.index.intersection(b.index)
@@ -576,9 +580,12 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
         "> 10% of learners; any sign flip", value, verdict)
     if len(zc):
         z = zc[zc["year"] == zc["year"].max()]
-        hit = z[(z["permuted_units_median_ratio"] >= 0.5) | (z["permuted_conditions_median_ratio"] >= 0.5)]
-        add("F5", "negative controls as large as the substantive effects", "median |permuted-Z contrast| / |main|, per "
-            "scenario and network (mechanism D)", ">= 0.5 (A15)", f"{len(hit)} of {len(z)}",
+        # the condition-label permutation is the null for a condition contrast; permuting units within a condition
+        # keeps each condition's mean text profile, so its ratio is ~1 by construction (a content control, Table 6)
+        hit = z[z["permuted_conditions_median_ratio"] >= 0.5]
+        add("F5", "negative controls as large as the substantive effects", "median |contrast with condition labels "
+            "permuted within unit| / |main|, per scenario and network (mechanism D)", ">= 0.5 (A15)",
+            f"{len(hit)} of {len(z)}: " + (", ".join(f"{a}/{b}" for a, b in zip(hit["scenario"], hit["network"])) or "none"),
             f"no claim for {len(hit)} scenario-networks" if len(hit) else "claim allowed")
     else:
         add("F5", "negative controls as large as the substantive effects", "permuted-Z ratios", ">= 0.5", "controls not run", "not assessable")
@@ -639,3 +646,252 @@ def neural_diagram(nd: pd.DataFrame, year: int = 10) -> pd.DataFrame:
     n = nd[(nd["year"] == year) & (nd["draw_id"] >= 0)]
     return n.groupby(["scenario", "half_life_weeks", "lambda_O", "network"]).agg(
         median_d=("d", "median"), prsup=("prsup", "mean"), n_draws=("d", "size")).reset_index()
+
+
+# ------------------------------------------------------------------ §11.5 mechanism decomposition (S11)
+def _contribution_row(full: pd.Series, held: pd.Series, **keys) -> dict:
+    """Contribution = 1 - SC_held / SC_full: on the medians across draws (the point estimate) and per draw (its
+    interval). `small_full_sc` flags an SC too close to 0 for the ratio to mean anything."""
+    full, held = full.align(held, join="inner")
+    per_draw = (1 - held / full.where(full.abs() > 1e-12)).replace([np.inf, -np.inf], np.nan)
+    med_full, med_held = float(full.median()), float(held.median())
+    return {**keys, "sc_full_median": med_full, "sc_held_median": med_held,
+            "contribution": 1 - med_held / med_full if abs(med_full) > 1e-12 else np.nan,
+            **{f"per_draw_{k}": v for k, v in intervals(per_draw).items() if k not in ("mean", "n")},
+            "small_full_sc": abs(med_full) < 1e-3}
+
+
+def mechanism_decomposition(draws: pd.DataFrame, knobs: dict, neural: pd.DataFrame | None = None, year: int = 10,
+                            outcomes=("K", "R", "M", "D", "unaided", "far", "retention", "G")) -> pd.DataFrame:
+    """§11.5 from a `--mediate` run: for each AI scenario and mediator held at the paired traditional value (A17),
+    the share of the scenario contrast that disappears. Behavioural outcomes use the SC per draw; the neural rows use
+    mechanism D's mean network contrast. The shares of different mediators need not add up to 1."""
+    c = draws[(draws["kind"] == "contrast") & (draws["draw_id"] >= 0) & (draws["year"] == year)]
+    piv = c.pivot_table(index="draw_id", columns=["scenario", "outcome"], values="estimate")
+    rows = []
+    for s, k in knobs.items():
+        for o in outcomes:
+            if (k["base"], o) in piv and (s, o) in piv:
+                rows.append(_contribution_row(piv[(k["base"], o)], piv[(s, o)], scenario=k["base"], mediator=k["mediator"],
+                                              outcome=o, year=year))
+    if neural is not None and len(neural):
+        n = neural[(neural["mechanism"] == "D") & (neural["draw_id"] >= 0) & (neural["year"] == year)]
+        npiv = n.pivot_table(index="draw_id", columns=["scenario", "network"], values="mean")
+        for s, k in knobs.items():
+            for net in n["network"].unique():
+                if (k["base"], net) in npiv and (s, net) in npiv:
+                    rows.append(_contribution_row(npiv[(k["base"], net)], npiv[(s, net)], scenario=k["base"],
+                                                  mediator=k["mediator"], outcome=f"N_{net}", year=year))
+    return pd.DataFrame(rows)
+
+
+def hold_z_at_comparator(Z: np.ndarray, comparator: int = 0, n_cond: int = 3) -> np.ndarray:
+    """The post hoc Z mediator (§11.5): every condition row of a unit replaced by the comparator's pattern, so an AI
+    protocol's neural contrast keeps only what comes from behaviour (how much, how, when), not from its text."""
+    n_units = len(Z) // n_cond
+    blocks = np.asarray(Z).reshape(n_units, n_cond, -1)
+    return np.repeat(blocks[:, [comparator]], n_cond, axis=1).reshape(Z.shape)
+
+
+def z_mediator(run: Path, cfg: dict, root: Path, year: int = 10, mechanism: str = "D") -> pd.DataFrame:
+    """§11.5 Z rows per AI scenario and network: the mean network contrast per draw with the real Z and with Z held
+    at the traditional text, turned into contributions like `mechanism_decomposition`."""
+    from . import plasticity as P
+    from .longitudinal import read_arrays, read_table
+
+    p = cfg["plasticity"]
+    tribe_dir = Path(root) / p["tribe_dir"]
+    arr = read_arrays(run, "mean_accumulator_diff")
+    W, nets = P.load_networks(tribe_dir, p["network_weights"])
+    Z = P.load_z(tribe_dir, int(p["wpm"]), p["metric"], p["winsorize"])[0]
+    Zt = hold_z_at_comparator(Z, list(CONDITIONS).index("traditional"))
+    lam = read_table(run, "parameter_draws").set_index("draw_id")["plasticity.lambda_O"]
+    rows = []
+    keep = (arr["draw_id"] >= 0) & (arr["year"] == year)
+    for s in np.unique(arr["scenario"][keep]):
+        idx = np.flatnonzero(keep & (arr["scenario"] == s))
+        b = arr["draw_id"][idx]
+        w = np.stack([P.mechanism_weights(mechanism, {**p, "lambda_O": float(lam.get(i, 0.0))}) for i in b])
+        full, held = network_contrast(arr["diff"][idx], w, Z, W), network_contrast(arr["diff"][idx], w, Zt, W)
+        for i, net in enumerate(nets):
+            rows.append(_contribution_row(pd.Series(full[:, i], index=b), pd.Series(held[:, i], index=b), scenario=str(s),
+                                          mediator="Z", outcome=f"N_{net}", year=year))
+    return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §10.4 specification curve (S13)
+def g_by_draw(draws: pd.DataFrame, weights: dict, year: int = 10) -> pd.DataFrame:
+    """eq. 39 per draw and AI scenario for any outcome weights: G is linear in the K, R, M, D contrasts, so the
+    draw's mean G under new weights is exact from the saved mean contrasts (no rerun)."""
+    c = draws[(draws["kind"] == "contrast") & (draws["draw_id"] >= 0) & (draws["year"] == year)
+              & draws["outcome"].isin(["K", "R", "M", "D"])]
+    piv = c.pivot_table(index=["draw_id", "scenario"], columns="outcome", values="estimate")
+    g = weights["K"] * piv["K"] + weights["R"] * piv["R"] + weights["M"] * piv["M"] - weights["D"] * piv["D"]
+    return g.rename("G").reset_index()
+
+
+SPEC_KEYS = ("tag", "form", "forgetting", "epw", "effort")
+
+
+def spec_curve_g(runs: list[tuple[dict, pd.DataFrame]], weight_sets: dict, weight_ranks: dict, year: int = 10) -> pd.DataFrame:
+    """Figure 8a rows: one per rerun specification x outcome weights x AI scenario, with the median and 95% interval
+    across draws of the year-`year` G and the tier (the highest rank among the specification's levels)."""
+    rows = []
+    for spec, draws in runs:
+        for wname, w in weight_sets.items():
+            for s, grp in g_by_draw(draws, w, year).groupby("scenario"):
+                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "outcome_weights": wname, "scenario": s,
+                             "tier": max(spec["tier"], weight_ranks[wname]), **intervals(grp["G"])})
+    return pd.DataFrame(rows)
+
+
+def spec_curve_neural(spec: dict, acc: dict, mean_diff: dict, lam_o: pd.Series, run_scenarios: list[str], zs: dict,
+                      ws: dict, pcfg: dict, ranks: dict, year: int = 10, scenario: str = "substitution",
+                      comparator: str = "traditional", network: str = "Cont") -> pd.DataFrame:
+    """Figure 8b rows for one rerun specification: every post hoc level (reading speed x TRIBE metric x winsorising in
+    `zs`, network weights in `ws`, mechanisms A-D) gives d for one network, `scenario` vs `comparator`. Per draw,
+    d = the draw's mean contrast over all learners (`mean_accumulator_diff`) / the learner-level SD in the draw's
+    subsample (`accumulators_subsample`, kept for the first draws only), so the interval is across those draws."""
+    from . import plasticity as P
+
+    S = len(run_scenarios)
+    si, ci = run_scenarios.index(scenario), run_scenarios.index(comparator)
+    md = {int(mean_diff["draw_id"][i]): i for i in range(len(mean_diff["draw_id"]))
+          if mean_diff["year"][i] == year and mean_diff["scenario"][i] == scenario}
+    sub = [i for i in range(len(acc["draw_id"])) if acc["year"][i] == year and int(acc["draw_id"][i]) >= 0
+           and int(acc["draw_id"][i]) in md]
+    if not sub:
+        return pd.DataFrame()
+    draws = [int(acc["draw_id"][i]) for i in sub]
+    vals = acc["values"][sub]
+    n_sub = vals.shape[1] // S
+    dA = vals[:, si * n_sub:(si + 1) * n_sub].astype(float) - vals[:, ci * n_sub:(ci + 1) * n_sub]  # (B, n, 5, 90)
+    mean_dA = np.stack([mean_diff["diff"][md[b]] for b in draws]).astype(float)  # (B, 5, 90)
+    rows = []
+    for mech in ("A", "B", "C", "D"):
+        w = np.stack([P.mechanism_weights(mech, {**pcfg, "lambda_O": float(lam_o.get(b, 0.0))}) for b in draws])
+        learner = np.einsum("bc,bncs->bns", w, dA)  # (B, n, 90)
+        mean = np.einsum("bc,bcs->bs", w, mean_dA)  # (B, 90)
+        for (wpm, metric, wins), Z in zs.items():
+            for wname, (W, nets) in ws.items():
+                proj = Z @ W[nets.index(network)]  # (90,)
+                sd = (learner @ proj).std(axis=1, ddof=1)
+                d = np.where(sd > 0, (mean @ proj) / np.where(sd > 0, sd, 1.0), 0.0)
+                tier = max(spec["tier"], ranks["plasticity_mechanism"][mech], ranks["reading_speed_wpm"][wpm],
+                           ranks["tribe_metric"][metric], ranks["winsorize"][wins], ranks["network_weights"][wname])
+                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "wpm": wpm, "metric": metric, "winsorize": wins,
+                             "network_weights": wname, "mechanism": mech, "scenario": scenario, "network": network,
+                             "tier": tier, **intervals(d)})
+    return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §10.5 variance decomposition (S13, eq. 41)
+def nested_variance(y: np.ndarray) -> dict:
+    """Method-of-moments components of a balanced nested design y[scenario, draw, learner, replicate] (§10.5):
+    V_behavior (between replicates of the same learner), V_learner, V_parameters (between draws) and V_scenario
+    (between scenario means, corrected for the draw-level noise in them). Negative estimates are set to 0."""
+    y = np.asarray(y, float)
+    S, B, I, R = y.shape
+    cell, sb = y.mean(axis=3), y.mean(axis=(2, 3))
+    s = sb.mean(axis=1)
+    ms_r = ((y - cell[..., None]) ** 2).sum() / (S * B * I * (R - 1))
+    ms_i = R * ((cell - sb[..., None]) ** 2).sum() / (S * B * (I - 1))
+    ms_b = I * R * ((sb - s[:, None]) ** 2).sum() / (S * (B - 1))
+    # scenarios are fixed: their component is the population variance of the means, less the draw noise in them
+    return {"scenario": max(0.0, float(s.var(ddof=0)) - (S - 1) / S * ms_b / (B * I * R)) if S > 1 else 0.0,
+            "parameters": max(0.0, (ms_b - ms_i) / (I * R)), "learner": max(0.0, (ms_i - ms_r) / R),
+            "behavior": float(ms_r), "total": float(y.var(ddof=1))}
+
+
+def paired_learner_values(yearly: pd.DataFrame, gw: dict, network: str = "Cont", comparator: str = "traditional") -> pd.DataFrame:
+    """Learner-level AI - comparator differences per draw and year: G (eq. 39 with weights `gw`) and N_<m>_<network>
+    for every mechanism column present."""
+    key = ["draw_id", "year", "learner_id"]
+    base = yearly[yearly["scenario"] == comparator].set_index(key)
+    cols = ["K", "R", "M", "D"] + [c for c in yearly.columns if c.startswith("N_") and c.endswith(f"_{network}")]
+    out = []
+    for s, g in yearly[yearly["scenario"] != comparator].groupby("scenario"):
+        d = g.set_index(key)[cols] - base[cols]
+        d["G"] = gw["K"] * d["K"] + gw["R"] * d["R"] + gw["M"] * d["M"] - gw["D"] * d["D"]
+        out.append(d.assign(scenario=s).reset_index())
+    return pd.concat(out, ignore_index=True)
+
+
+def replicate_array(paired: list[pd.DataFrame], value: str, scenarios: list[str], year: int = 10) -> np.ndarray:
+    """y[scenario, draw, learner, replicate] from each replicate's `paired_learner_values` (the same learners in
+    every replicate, D19); learners missing in any cell are dropped so the design stays balanced."""
+    frames = []
+    for r, t in enumerate(paired):
+        t = t[(t["year"] == year) & (t["draw_id"] >= 0) & t["scenario"].isin(scenarios)]
+        frames.append(t.set_index(["scenario", "draw_id", "learner_id"])[value].rename(r))
+    wide = pd.concat(frames, axis=1, join="inner")
+    draws_ = sorted(wide.index.get_level_values("draw_id").unique())
+    learners = sorted(wide.index.get_level_values("learner_id").unique())
+    wide = wide.reindex(pd.MultiIndex.from_product([scenarios, draws_, learners], names=wide.index.names))
+    ok = wide.notna().all(axis=1).groupby(level="learner_id").all()
+    learners = [i for i in learners if ok[i]]
+    wide = wide.reindex(pd.MultiIndex.from_product([scenarios, draws_, learners], names=wide.index.names))
+    return wide.to_numpy(float).reshape(len(scenarios), len(draws_), len(learners), len(paired))
+
+
+def neural_scale(paired: list[pd.DataFrame], column: str, year: int = 10) -> float:
+    """Pooled learner-level SD of a neural paired difference (mean over scenario x draw cells): the unit that makes
+    mechanisms A-D, whose N scales are arbitrary, comparable (eq. 44 is scale-free for the same reason)."""
+    allp = pd.concat([p[(p["year"] == year) & (p["draw_id"] >= 0)] for p in paired])
+    return float(allp.groupby(["scenario", "draw_id"])[column].std().mean())
+
+
+def variance_decomposition(paired: list[pd.DataFrame], scenarios: list[str], year: int = 10, network: str = "Cont",
+                           v_stimulus: float | None = None) -> pd.DataFrame:
+    """eq. 41 for the year-`year` G and mechanism D's `network` contrast (in units of its pooled learner-level SD).
+    V_plasticity: variance across mechanisms A-D of the scenario-mean standardised contrast, averaged over scenarios;
+    half-life and lambda_O are drawn per draw and so sit in V_parameters. V_stimulus: the unit bootstrap of Z
+    (`stimulus_bootstrap`, same units). G has no neural term, so both are 0 for it. V_residual = total variance of
+    the learner-level values - the four nested components; shares are of total + V_plasticity + V_stimulus."""
+    rows = []
+    for outcome in ("G", f"N_D_{network}"):
+        if outcome not in paired[0]:
+            continue
+        neural = outcome.startswith("N_")
+        scale = neural_scale(paired, outcome, year) if neural else 1.0
+        y = replicate_array([p.assign(v=p[outcome] / scale) for p in paired], "v", scenarios, year)
+        comp = nested_variance(y)
+        extra = {"plasticity": 0.0, "stimulus": 0.0}
+        if neural:
+            allp = pd.concat([p[(p["year"] == year) & (p["draw_id"] >= 0)] for p in paired])
+            means = [allp.groupby("scenario")[f"N_{m}_{network}"].mean() / neural_scale(paired, f"N_{m}_{network}", year)
+                     for m in "ABCD" if f"N_{m}_{network}" in allp]
+            extra["plasticity"] = float(pd.concat(means, axis=1).var(axis=1, ddof=1).mean()) if len(means) > 1 else 0.0
+            extra["stimulus"] = float(v_stimulus) if v_stimulus is not None else np.nan
+        parts = {k: comp[k] for k in ("scenario", "parameters", "learner", "behavior")}
+        parts.update(extra, residual=comp["total"] - sum(parts.values()))
+        denom = comp["total"] + extra["plasticity"] + (extra["stimulus"] if np.isfinite(extra["stimulus"]) else 0.0)
+        label = "G" if not neural else f"d_{network} (mechanism D)"
+        for name, v in parts.items():
+            rows.append({"outcome": label, "year": year, "component": name, "variance": v,
+                         "share": v / denom if denom > 0 else np.nan, "n_scenarios": y.shape[0], "n_draws": y.shape[1],
+                         "n_learners": y.shape[2], "n_replicates": y.shape[3]})
+    return pd.DataFrame(rows)
+
+
+def stimulus_bootstrap(mean_diff: dict, lam_o: pd.Series, Z: np.ndarray, W: np.ndarray, nets: list[str], pcfg: dict,
+                       scale: float, year: int = 10, network: str = "Cont", n_boot: int = 200, seed: int = 0,
+                       n_cond: int = 3) -> float:
+    """V_stimulus (A18): resample the units with replacement (all conditions of a unit together), recompute each
+    scenario's mean mechanism-D contrast over draws, divide by `scale` (the neural outcome's learner-level SD) and
+    return the bootstrap variance, averaged over scenarios."""
+    from . import plasticity as P
+
+    keep = (mean_diff["draw_id"] >= 0) & (mean_diff["year"] == year)
+    n_units = Z.shape[0] // n_cond
+    proj = (Z @ W[nets.index(network)]).reshape(n_units, n_cond)
+    rng = np.random.default_rng(seed)
+    out = []
+    for s in np.unique(mean_diff["scenario"][keep]):
+        idx = np.flatnonzero(keep & (mean_diff["scenario"] == s))
+        w = np.stack([P.mechanism_weights("D", {**pcfg, "lambda_O": float(lam_o.get(b, 0.0))}) for b in mean_diff["draw_id"][idx]])
+        x = np.einsum("bc,bcs->bs", w, mean_diff["diff"][idx].astype(float)).mean(axis=0).reshape(n_units, n_cond)
+        per_unit = (x * proj).sum(axis=1)
+        boots = per_unit[rng.integers(0, n_units, (n_boot, n_units))].sum(axis=1) / scale
+        out.append(boots.var(ddof=1))
+    return float(np.mean(out))

@@ -149,7 +149,7 @@ def test_falsification_verdicts_on_constructed_inputs():
     neural = pd.DataFrame([{"draw_id": b, "year": 10, "scenario": "substitution", "network": "Cont", "mechanism": m,
                             "d": (-1 if m == "B" else 1) * 0.3} for b in range(5) for m in "ABCD"])
     zc = pd.DataFrame({"year": 10, "scenario": "substitution", "network": ["Cont", "Vis"],
-                       "permuted_units_median_ratio": [0.1, 0.7], "permuted_conditions_median_ratio": [0.2, 0.1]})
+                       "permuted_units_median_ratio": [0.1, 0.1], "permuted_conditions_median_ratio": [0.2, 0.7]})
     f = A.falsification(t_plain, t_cov, shuffle, draws, neural, zc).set_index(f"criterion")["verdict"]
     assert f.filter(like="F1").iloc[0].startswith("no claim for 1")
     assert f.filter(like="F2").iloc[0].startswith("not assessable")
@@ -174,3 +174,42 @@ def test_phase_diagram_and_tipping_points_on_constructed_draws():
     assert summary["share_no_sign_change"].iloc[0] == 0 and summary["median"].iloc[0] == pytest.approx(0.495)
     pdg = A.phase_diagram(draws, {"grid_cell": knobs["grid_cell"]}).iloc[0]
     assert pdg["class_eps0.02"] == "beneficial" and pdg["class_eps0.05"] == "neutral" and pdg["share_beneficial_eps0.01"] == 1.0
+
+
+def test_nested_variance_recovers_known_components():
+    rng = np.random.default_rng(3)
+    S, B, I, R = 4, 60, 80, 3
+    scen = np.array([0.0, 1.0, 2.0, 3.0])  # variance 1.667
+    y = (scen[:, None, None, None] + rng.normal(0, 0.5, (S, B, 1, 1)) + rng.normal(0, 0.8, (S, B, I, 1))
+         + rng.normal(0, 0.3, (S, B, I, R)))
+    v = A.nested_variance(y)
+    assert v["scenario"] == pytest.approx(scen.var(ddof=0), rel=0.1)
+    assert v["parameters"] == pytest.approx(0.25, rel=0.15)
+    assert v["learner"] == pytest.approx(0.64, rel=0.05)
+    assert v["behavior"] == pytest.approx(0.09, rel=0.05)
+
+
+def test_g_by_draw_matches_eq39_and_spec_rows_carry_tiers():
+    rows = [{"draw_id": b, "year": 10, "kind": "contrast", "scenario": "substitution", "outcome": o, "estimate": val + b}
+            for b in range(3) for o, val in {"K": 0.1, "R": 0.2, "M": 0.3, "D": 0.4}.items()]
+    draws = pd.DataFrame(rows)
+    g = A.g_by_draw(draws, {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25})
+    assert np.allclose(g.sort_values("draw_id")["G"], 0.25 * (0.1 + 0.2 + 0.3 - 0.4) + 0.5 * np.arange(3))
+    spec = {"tag": "t", "form": "bounded", "forgetting": "weekly_break_0.25", "epw": 3, "effort": "drawn", "tier": 2}
+    out = A.spec_curve_g([(spec, draws)], {"equal": {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25},
+                                           "autonomy_first": {"K": 0.2, "R": 0.3, "M": 0.1, "D": 0.4}},
+                         {"equal": 1, "autonomy_first": 3})
+    assert len(out) == 2 and dict(zip(out["outcome_weights"], out["tier"])) == {"equal": 2, "autonomy_first": 3}
+
+
+def test_mechanism_decomposition_and_z_hold():
+    knobs = {"substitution|hold_E": {"base": "substitution", "mediator": "E"}}
+    rows = []
+    for b in range(10):
+        rows.append({"draw_id": b, "year": 10, "kind": "contrast", "scenario": "substitution", "outcome": "K", "estimate": -0.2})
+        rows.append({"draw_id": b, "year": 10, "kind": "contrast", "scenario": "substitution|hold_E", "outcome": "K", "estimate": -0.05})
+    out = A.mechanism_decomposition(pd.DataFrame(rows), knobs, outcomes=("K",)).iloc[0]
+    assert out["contribution"] == pytest.approx(0.75) and out["per_draw_median"] == pytest.approx(0.75)
+    Z = np.arange(12, dtype=float).reshape(6, 2)  # 2 units x 3 conditions
+    held = A.hold_z_at_comparator(Z)
+    assert (held[0] == Z[0]).all() and (held[1] == Z[0]).all() and (held[5] == Z[3]).all()
