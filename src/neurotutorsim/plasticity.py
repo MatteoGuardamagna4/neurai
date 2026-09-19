@@ -168,7 +168,8 @@ def differentiation(values: np.ndarray, w: np.ndarray, Z: np.ndarray, units: lis
     per_unit = a.reshape(a.shape[0], len(units), len(CONDITIONS))  # S = units x conditions, unit-major
     Zu = Z.reshape(len(units), len(CONDITIONS), -1)
     patterns = np.einsum("nuc,ucp->nup", per_unit, Zu)
-    return np.array([_differentiation(patterns[i], concepts)["differentiation"] for i in range(len(patterns))])
+    with np.errstate(invalid="ignore", divide="ignore"):  # a unit not yet seen has a constant (zero) pattern
+        return np.array([_differentiation(patterns[i], concepts)["differentiation"] for i in range(len(patterns))])
 
 
 def integration(sum_x: np.ndarray, sum_xx: np.ndarray, count: int) -> np.ndarray:
@@ -257,6 +258,90 @@ def apply_to_run(processed: Path, cfg: dict, root: Path | None = None, subsample
             "subsample_learners": subsample_learners, "recorded_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     (Path(processed) / "plasticity.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return meta
+
+
+# ------------------------------------------------------------------ §8.7 outcomes on a finished run (post hoc)
+def run_metrics(processed: Path, cfg: dict, root: Path | None = None, subsample: int = 100,
+                mechanism: str = "D") -> tuple[pd.DataFrame, pd.DataFrame]:
+    """The five derived §8.7 outcomes for one Phase III run, from the Phase IV tables it already wrote plus one
+    cheap accumulator pass for eq. 34. Returns (learner-level, population-level).
+
+    Concentration and the efficiency proxy come from `neural_state.parquet` / `neural_network.parquet` at the
+    checkpoint episodes, integration from the whole episode series, differentiation from a fresh accumulator run
+    over the first `subsample` learners per condition (the per-unit patterns are not stored), and alignment is one
+    correlation across learners per condition and network. `mechanism` selects eq. 29-33; D is the main one (§8.6).
+
+    Eq. 34 is NaN until a learner has met every unit at least once (an unseen unit has a constant pattern), so
+    differentiation is reported at the last checkpoint of a run that covers the curriculum, not at the early ones.
+    """
+    processed = Path(processed)
+    p = cfg["plasticity"]
+    tribe_dir = Path(p["tribe_dir"]) if root is None else Path(root) / p["tribe_dir"]
+    Z, keys, parcel_ids = load_z(tribe_dir, int(p["wpm"]), p["metric"], p["winsorize"])
+    units = sorted({u for u, _ in keys})
+    net = pd.read_parquet(processed / "neural_network.parquet", filters=[("mechanism", "==", mechanism)])
+    nets = list(net["network"].cat.categories) if hasattr(net["network"], "cat") else sorted(net["network"].unique())
+    rows = []
+
+    # cross-network integration: mean |covariance| over network pairs, across every episode of the run
+    for (condition,), g in net.groupby(["condition"], observed=True):
+        g = g.sort_values(["learner_id", "time", "network"])
+        learners = np.sort(g["learner_id"].unique())
+        times = np.sort(g["time"].unique())
+        x = g["state_value"].to_numpy(np.float64).reshape(len(learners), len(times), len(nets))
+        integ = integration(x.sum(axis=1), np.einsum("ltn,ltm->lnm", x, x), len(times))
+        rows.append(pd.DataFrame({"condition": condition, "learner_id": learners, "time": -1,
+                                  "metric": "integration", "value": integ}))
+
+    # concentration (parcel level) and the efficiency proxy / alignment (control network) at the checkpoints
+    parcels = pd.read_parquet(processed / "neural_state.parquet", filters=[("mechanism", "==", mechanism)])
+    for (condition, t), g in parcels.groupby(["condition", "time"], observed=True):
+        w = g.pivot_table(index="learner_id", columns="parcel_id", values="state_value")
+        rows.append(pd.DataFrame({"condition": condition, "learner_id": w.index.to_numpy(), "time": int(t),
+                                  "metric": "concentration", "value": concentration(w.to_numpy())}))
+    ck = pd.read_csv(processed / "checkpoints.csv") if (processed / "checkpoints.csv").exists() else pd.DataFrame()
+    pop = []
+    if len(ck):
+        cont = net[net["network"] == "Cont"].rename(columns={"time": "checkpoint_episode"})
+        m = ck.merge(cont[["condition", "learner_id", "checkpoint_episode", "state_value"]],
+                     on=["condition", "learner_id", "checkpoint_episode"], how="inner")
+        rows.append(pd.DataFrame({"condition": m["condition"], "learner_id": m["learner_id"],
+                                  "time": m["checkpoint_episode"], "metric": "efficiency",
+                                  "value": efficiency(m["unaided_accuracy_trained"], m["state_value"])}))
+        last = int(ck["checkpoint_episode"].max())
+        wide = net[net["time"] == last].pivot_table(index=["condition", "learner_id"], columns="network",
+                                                    values="state_value", observed=True)
+        far = ck[ck["checkpoint_episode"] == last].set_index(["condition", "learner_id"])["far_transfer_accuracy"]
+        for condition, g in wide.groupby("condition", observed=True):
+            y = far.reindex(g.index).to_numpy(float)
+            pop.append(pd.DataFrame({"condition": condition, "network": list(g.columns), "time": last,
+                                     "metric": "alignment", "value": alignment(g.to_numpy(float), y)}))
+
+    # differentiation (eq. 34): one accumulator pass over a subsample, because per-unit patterns are not stored
+    unit_csv = next((p for p in (processed.parent / "units.csv", tribe_dir / "units.csv") if p.exists()), None)
+    concepts = (pd.read_csv(unit_csv).set_index("unit_id")["concept"].reindex(units).to_numpy() if unit_csv is not None
+                else np.array([u.rsplit("_", 1)[0] for u in units]))  # unit ids are <concept>_<nnn> (data/CLAUDE.md)
+    state = pd.read_parquet(processed / "learner_state.parquet")
+    decay = decay_per_episode(p["half_life_weeks"], cfg["calendar"]["episodes_per_week"])
+    w_mech = mechanism_weights(mechanism, p)
+    checkpoints = sorted(set(int(e) for e in ck["checkpoint_episode"].unique())) if len(ck) else [int(state["time"].max())]
+    for condition, g in state.groupby("condition", sort=True):
+        learners = np.sort(g["learner_id"].unique())[:subsample]
+        g = g[g["learner_id"].isin(learners)].sort_values(["time", "learner_id"])
+        acc = Accumulator(len(learners), len(keys))
+        for t, e in g.groupby("time", sort=True):
+            e = e.set_index("learner_id").reindex(learners)
+            acc.step(stimulus_index(e["unit_id"], e["protocol"], units),
+                     channel_values(e["effort"], e["pe"], e["resolution"], e["retrieval"], e["offloading"]), decay)
+            if int(t) in checkpoints:
+                d = differentiation(acc.values(), w_mech, Z, units, concepts)
+                rows.append(pd.DataFrame({"condition": condition, "learner_id": learners, "time": int(t),
+                                          "metric": "differentiation", "value": d}))
+    learner_level = pd.concat(rows, ignore_index=True)
+    learner_level["mechanism"] = mechanism
+    population = pd.concat(pop, ignore_index=True) if pop else pd.DataFrame(columns=["condition", "network", "time", "metric", "value"])
+    population["mechanism"] = mechanism
+    return learner_level, population
 
 
 def main(argv=None) -> int:

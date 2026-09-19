@@ -404,6 +404,100 @@ def free_choice_shares(processed: Path) -> pd.DataFrame:
     return pd.concat([overall, by], ignore_index=True)[["K_tercile", "protocol", "share"]]
 
 
+# ------------------------------------------------------------------ Phase III results at the §7.1 population size
+PHASE3_OUTCOMES = ("unaided_accuracy_trained", "near_transfer_accuracy", "far_transfer_accuracy", "retention_accuracy",
+                   "supported_accuracy_trained", "support_gap", "brier_score", "expected_calibration_error",
+                   "dependence_request_rate", "K", "M", "R", "C", "D")
+PHASE3_PAIRS = dict(PAIRS, **{"F-T": ("free_choice", "traditional")})  # the free-choice arm against the comparator
+
+
+def phase3_outcomes(processed: Path, outcomes=PHASE3_OUTCOMES, n_boot: int = 2000, seed: int = 0) -> pd.DataFrame:
+    """The brief's §7.7 test outcomes of one Phase III run: per condition and checkpoint the mean and SD over
+    learners, and the eq. 10-12 paired contrasts (plus free choice vs traditional). Learners meet identical random
+    draws in every arm (the condition is not in the episode seed), so the contrasts are within-learner."""
+    ck = pd.read_csv(Path(processed) / "checkpoints.csv")
+    present = [o for o in outcomes if o in ck.columns]
+    rows = []
+    for (cond, ep), g in ck.groupby(["condition", "checkpoint_episode"]):
+        for o in present:
+            x = g[o].to_numpy(float)
+            x = x[~np.isnan(x)]
+            rows.append({"section": "level", "condition": cond, "checkpoint_episode": int(ep), "outcome": o,
+                         "mean": float(x.mean()) if len(x) else np.nan, "sd": float(x.std(ddof=1)) if len(x) > 1 else np.nan,
+                         "n_learners": int(len(x))})
+    wide = ck.set_index(["learner_id", "checkpoint_episode", "condition"])[present].unstack("condition")
+    for name, (c1, c2) in PHASE3_PAIRS.items():
+        for ep, g in wide.groupby("checkpoint_episode"):
+            for o in present:
+                if (o, c1) not in g.columns or (o, c2) not in g.columns:
+                    continue
+                d = (g[(o, c1)] - g[(o, c2)]).to_numpy(float)
+                lo, hi = bootstrap_ci(d, n_boot, seed)
+                d = d[~np.isnan(d)]
+                rows.append({"section": "contrast", "condition": name, "checkpoint_episode": int(ep), "outcome": o,
+                             "mean": float(d.mean()) if len(d) else np.nan,
+                             "sd": float(d.std(ddof=1)) if len(d) > 1 else np.nan, "n_learners": int(len(d)),
+                             "ci_low": lo, "ci_high": hi, "prsup": float((d > 0).mean()) if len(d) else np.nan})
+    out = pd.DataFrame(rows)
+    return out[out["n_learners"] > 0].reset_index(drop=True)  # retention has no items at the first checkpoint
+
+
+def phase3_settings(dirs: dict[str, Path], outcomes=PHASE3_OUTCOMES) -> pd.DataFrame:
+    """The §7.2 sensitivity arms side by side: each parameter setting is a separate population (eq. 15-16 draws
+    differ), so the settings are compared as means and as the within-setting contrast against traditional, never
+    paired across settings."""
+    rows = []
+    for setting, d in dirs.items():
+        path = Path(d) / "checkpoints.csv"
+        if not path.exists():
+            continue
+        frame = phase3_outcomes(path.parent, outcomes, n_boot=200)
+        last = frame["checkpoint_episode"].max()
+        rows.append(frame[frame["checkpoint_episode"] == last].assign(setting=setting))
+    if not rows:
+        return pd.DataFrame()
+    out = pd.concat(rows, ignore_index=True)
+    return out[["setting", "section", "condition", "checkpoint_episode", "outcome", "mean", "sd", "n_learners"]]
+
+
+def neural_metrics_table(learner_level: pd.DataFrame, population: pd.DataFrame, n_boot: int = 2000,
+                         seed: int = 0) -> pd.DataFrame:
+    """§8.7 outcomes per condition: the mean and median over learners with a bootstrap interval, the paired contrast
+    against traditional for the learner-level metrics, and the alignment correlations (one per condition, unpaired).
+
+    Read the efficiency proxy at the median: it divides by |N_Cont|, so a learner whose control-network state is near
+    zero makes the mean explode (A14 puts a floor on performance, not on the denominator)."""
+    rows = []
+    for (metric, t, cond), g in learner_level.groupby(["metric", "time", "condition"], observed=True):
+        x = g["value"].to_numpy(float)
+        x = x[~np.isnan(x)]
+        if not len(x):
+            continue
+        lo, hi = bootstrap_ci(x, n_boot, seed)
+        rows.append({"metric": metric, "time": int(t), "condition": cond, "mean": float(x.mean()),
+                     "median": float(np.median(x)), "sd": float(x.std(ddof=1)) if len(x) > 1 else np.nan,
+                     "ci_low": lo, "ci_high": hi, "n": int(len(x))})
+    wide = learner_level.pivot_table(index=["metric", "time", "learner_id"], columns="condition", values="value", observed=True)
+    for (metric, t), g in wide.groupby(["metric", "time"]):
+        for name, (c1, c2) in PHASE3_PAIRS.items():
+            if c1 not in g.columns or c2 not in g.columns:
+                continue
+            d = (g[c1] - g[c2]).to_numpy(float)
+            lo, hi = bootstrap_ci(d, n_boot, seed)
+            d = d[~np.isnan(d)]
+            if not len(d):
+                continue
+            rows.append({"metric": metric, "time": int(t), "condition": name, "mean": float(d.mean()),
+                         "median": float(np.median(d)), "sd": float(d.std(ddof=1)) if len(d) > 1 else np.nan,
+                         "ci_low": lo, "ci_high": hi, "n": int(len(d)), "contrast": True})
+    for _, r in population.iterrows():
+        rows.append({"metric": f"{r['metric']} ({r['network']})", "time": int(r["time"]), "condition": r["condition"],
+                     "mean": float(r["value"]), "n": np.nan})
+    out = pd.DataFrame(rows)
+    out["contrast"] = out.get("contrast", pd.Series(False, index=out.index)).fillna(False)
+    return out.sort_values(["metric", "time", "contrast", "condition"]).reset_index(drop=True)
+
+
 # ------------------------------------------------------------------ gate 18 (S8)
 def _levels(draws: pd.DataFrame, outcome: str, year: int = 1) -> pd.DataFrame:
     d = draws[(draws["kind"] == "level") & (draws["outcome"] == outcome) & (draws["year"] == year)]

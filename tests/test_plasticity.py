@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from neurotutorsim import corpus, plasticity as P, simulate, tribe
+from neurotutorsim import analysis as A, corpus, plasticity as P, simulate, tribe
 from tests.conftest import ROOT
 
 PCFG = {"eta": 1.0, "lambda": {"A": 0.5, "PE": 0.3, "R": 0.2}, "lambda_O": 0.25}
@@ -171,3 +171,27 @@ def test_apply_to_run_on_a_small_logistic_run(tmp_path, units):
     assert np.allclose(got.reindex(nets).to_numpy(), expected)
     assert (processed / "plasticity.json").exists()
     assert P.main(["--config", str(tmp_path / "config" / "default.yaml"), "--run", str(processed), "--subsample", "1"]) == 0
+
+
+def test_run_metrics_derives_the_eight_seven_outcomes(tmp_path, units):
+    """§8.7 on a finished run: every metric present, concentration in [0.25, 1], integration non-negative, and the
+    alignment correlations inside [-1, 1]. Differentiation is NaN while units are still unseen (eq. 34 needs them)."""
+    for folder in ("config", "data/units", "stimuli"):
+        shutil.copytree(ROOT / folder, tmp_path / folder)
+    write_fake_tribe(tmp_path / "data" / "tribe" / "tribe_main", list(units))
+    assert simulate.main(["--config", str(tmp_path / "config" / "default.yaml"), "--engine", "logistic", "--tutor", "fake",
+                          "--learners", "4", "--episodes", "6"]) == 0
+    processed = tmp_path / "data" / "processed" / "logistic"
+    cfg = simulate.load_config(tmp_path / "config" / "default.yaml")
+    cfg["checkpoints"]["episodes"] = [2]
+    P.apply_to_run(processed, cfg, tmp_path, subsample_learners=4)
+    learner_level, population = P.run_metrics(processed, cfg, tmp_path, subsample=4)
+    assert set(learner_level["metric"]) == {"concentration", "integration", "efficiency", "differentiation"}
+    conc = learner_level.query("metric == 'concentration'")["value"]
+    assert conc.between(0.25, 1.0).all() and len(conc)
+    assert (learner_level.query("metric == 'integration'")["value"] >= 0).all()
+    assert set(population["metric"]) == {"alignment"}
+    al = population["value"].dropna()
+    assert al.between(-1, 1).all() and len(al)
+    table = A.neural_metrics_table(learner_level, population, n_boot=50)
+    assert {"metric", "condition", "mean", "contrast"} <= set(table.columns) and table["contrast"].any()

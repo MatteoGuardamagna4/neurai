@@ -420,6 +420,30 @@ def build_tables(units: dict[str, Unit], stimuli: dict[tuple[str, str], Stimulus
     return {"rows": rows, "caliper": report}
 
 
+NEAR_DUPLICATE = 0.50  # §5.5: 5-gram Jaccard above this is a near duplicate (threshold set before any pair was scored)
+
+
+def _shingles(text: str, n: int = 5) -> set[tuple[str, ...]]:
+    w = re.findall(r"[a-z0-9]+", text.lower())
+    return {tuple(w[i:i + n]) for i in range(max(0, len(w) - n + 1))}
+
+
+def near_duplicates(stimuli: dict[tuple[str, str], "Stimulus"], threshold: float = NEAR_DUPLICATE) -> list[dict]:
+    """§5.5 duplicate screening: 5-gram Jaccard overlap between the traditional text of every pair of units.
+    The two units of a concept teach the same method with a different surface form, so they are expected to sit
+    above the rest; the check is that no pair is a near copy."""
+    texts = {uid: _shingles(s.body) for (uid, c), s in sorted(stimuli.items()) if c == "traditional"}
+    ids = sorted(texts)
+    out = []
+    for i, a in enumerate(ids):
+        for b in ids[i + 1:]:
+            union = texts[a] | texts[b]
+            j = len(texts[a] & texts[b]) / len(union) if union else 0.0
+            out.append({"unit_a": a, "unit_b": b, "jaccard_5gram": round(j, 4),
+                        "same_concept": a.rsplit("_", 1)[0] == b.rsplit("_", 1)[0], "near_duplicate": j >= threshold})
+    return sorted(out, key=lambda r: -r["jaccard_5gram"])
+
+
 def main(argv=None) -> int:
     root = Path(argv[0]) if argv else Path.cwd()
     units = load_units(root / "data" / "units")
@@ -431,12 +455,17 @@ def main(argv=None) -> int:
         print(f"{r['stimulus_id']:32} {r['word_count']:>6} {r['readability']:>5} {r['equation_count']:>3} {r['duration']:>6}")
     for (uid, condition), c in result["caliper"].items():
         print(f"caliper {uid} {condition}: {c['relative_difference']:.1%} vs traditional -> {'ok' if c['passed'] else 'FAIL'}")
-    print("SMD / Mahalanobis matching (§5.3) needs >= 10 units; not computed.")
+    print("SMD table (§5.3, eq. 3): `python -m neurotutorsim.report phase12` -> outputs/tables/corpus_balance.csv")
     controls = load_text_controls(root / "stimuli", units, stimuli)
     n_var = sum(1 for k in controls if k[2].startswith("reworded"))
     n_inc = sum(1 for k in controls if k[2] == "incorrect")
     print(f"text controls validated: {n_var} / {len(units) * len(CONDITIONS) * len(REWORDED)} reworded variants, "
           f"{n_inc} / {len(units)} incorrect-but-fluent")
+    dup = near_duplicates(stimuli)
+    flagged = [d for d in dup if d["near_duplicate"]]
+    print(f"near-duplicate screen (§5.5): max 5-gram Jaccard {dup[0]['jaccard_5gram']:.3f} "
+          f"({dup[0]['unit_a']} vs {dup[0]['unit_b']}, same concept: {dup[0]['same_concept']}); "
+          f"{len(flagged)} pair(s) at or above {NEAR_DUPLICATE} -> {'FAIL' if flagged else 'ok'}")
     return 0
 
 

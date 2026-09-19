@@ -507,6 +507,49 @@ outputs/tables/tableS_mechanism_decomposition.csv,per_draw_hi90,float64,
 outputs/tables/tableS_mechanism_decomposition.csv,per_draw_lo95,float64,
 outputs/tables/tableS_mechanism_decomposition.csv,per_draw_hi95,float64,
 outputs/tables/tableS_mechanism_decomposition.csv,small_full_sc,bool,
+outputs/tables/tableS_near_duplicates.csv,unit_a,str,
+outputs/tables/tableS_near_duplicates.csv,unit_b,str,
+outputs/tables/tableS_near_duplicates.csv,jaccard_5gram,float64,
+outputs/tables/tableS_near_duplicates.csv,same_concept,bool,
+outputs/tables/tableS_near_duplicates.csv,near_duplicate,bool,
+outputs/tables/tableS_neural_metrics_centaur_main.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tableS_neural_metrics_centaur_main.csv,time,int64,episode index (the learner's clock)
+outputs/tables/tableS_neural_metrics_centaur_main.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_neural_metrics_centaur_main.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_neural_metrics_centaur_main.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/tableS_neural_metrics_centaur_main.csv,sd,float64,SD over learners
+outputs/tables/tableS_neural_metrics_centaur_main.csv,ci_low,float64,
+outputs/tables/tableS_neural_metrics_centaur_main.csv,ci_high,float64,
+outputs/tables/tableS_neural_metrics_centaur_main.csv,n,float64,draws (or units) in the summary
+outputs/tables/tableS_neural_metrics_centaur_main.csv,contrast,bool,
+outputs/tables/tableS_neural_metrics_population_logistic.csv,metric,str,TRIBE metric (gate-19 definitions)
+outputs/tables/tableS_neural_metrics_population_logistic.csv,time,int64,episode index (the learner's clock)
+outputs/tables/tableS_neural_metrics_population_logistic.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_neural_metrics_population_logistic.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_neural_metrics_population_logistic.csv,median,float64,"median over learners, or across draws in summary tables"
+outputs/tables/tableS_neural_metrics_population_logistic.csv,sd,float64,SD over learners
+outputs/tables/tableS_neural_metrics_population_logistic.csv,ci_low,float64,
+outputs/tables/tableS_neural_metrics_population_logistic.csv,ci_high,float64,
+outputs/tables/tableS_neural_metrics_population_logistic.csv,n,float64,draws (or units) in the summary
+outputs/tables/tableS_neural_metrics_population_logistic.csv,contrast,bool,
+outputs/tables/tableS_phase3_outcomes.csv,section,str,
+outputs/tables/tableS_phase3_outcomes.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_phase3_outcomes.csv,checkpoint_episode,int64,episode after which the §7.7 checkpoint ran
+outputs/tables/tableS_phase3_outcomes.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_phase3_outcomes.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_phase3_outcomes.csv,sd,float64,SD over learners
+outputs/tables/tableS_phase3_outcomes.csv,n_learners,int64,
+outputs/tables/tableS_phase3_outcomes.csv,ci_low,float64,
+outputs/tables/tableS_phase3_outcomes.csv,ci_high,float64,
+outputs/tables/tableS_phase3_outcomes.csv,prsup,float64,PrSup (eq. 38): share of learners with a positive paired difference
+outputs/tables/tableS_phase3_settings.csv,setting,str,
+outputs/tables/tableS_phase3_settings.csv,section,str,
+outputs/tables/tableS_phase3_settings.csv,condition,str,"assigned arm (traditional, ai_scaffolding, ai_substitution, free_choice)"
+outputs/tables/tableS_phase3_settings.csv,checkpoint_episode,int64,episode after which the §7.7 checkpoint ran
+outputs/tables/tableS_phase3_settings.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
+outputs/tables/tableS_phase3_settings.csv,mean,float64,"mean (over learners, or across draws in summary tables)"
+outputs/tables/tableS_phase3_settings.csv,sd,float64,SD over learners
+outputs/tables/tableS_phase3_settings.csv,n_learners,int64,
 outputs/tables/tableS_regeneration_change.csv,key,str,parcel id or network name
 outputs/tables/tableS_regeneration_change.csv,abs_change,float64,
 outputs/tables/tableS_regeneration_change.csv,max_abs_condition_contrast,float64,

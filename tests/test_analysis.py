@@ -71,6 +71,32 @@ def test_engine_comparison_of_a_run_with_itself_is_zero(tmp_path):
     assert shares.query("K_tercile == 'all'")["share"].sum() == pytest.approx(1.0)
 
 
+def test_phase3_outcomes_and_settings_on_a_tiny_run(tmp_path):
+    """§7.7 levels and the eq. 10-12 contrasts of a real (tiny) Phase III run; a run against itself has no contrast."""
+    from neurotutorsim import simulate
+
+    for folder in ("config", "data/units", "stimuli"):
+        shutil.copytree(ROOT / folder, tmp_path / folder)
+    assert simulate.main(["--config", str(tmp_path / "config" / "default.yaml"), "--engine", "logistic", "--tutor", "fake",
+                          "--learners", "6", "--episodes", "12"]) == 0
+    run = tmp_path / "data" / "processed" / "logistic"
+    out = A.phase3_outcomes(run, n_boot=200)
+    levels = out[out["section"] == "level"]
+    assert set(levels["condition"]) == {"traditional", "ai_scaffolding", "ai_substitution", "free_choice"}
+    assert (out["n_learners"] > 0).all(), "cells with no items are dropped"
+    contrasts = out[out["section"] == "contrast"]
+    assert set(contrasts["condition"]) == {"S-T", "U-T", "S-U", "F-T"}
+    # every contrast is the difference of the two levels it names, at the same checkpoint
+    lv = levels.set_index(["condition", "checkpoint_episode", "outcome"])["mean"]
+    for _, r in contrasts.iterrows():
+        c1, c2 = A.PHASE3_PAIRS[r["condition"]]
+        key1, key2 = (c1, r["checkpoint_episode"], r["outcome"]), (c2, r["checkpoint_episode"], r["outcome"])
+        if key1 in lv.index and key2 in lv.index:
+            assert r["mean"] == pytest.approx(lv[key1] - lv[key2], abs=1e-9)
+    arms = A.phase3_settings({"medium": run, "missing": tmp_path / "nowhere"})
+    assert set(arms["setting"]) == {"medium"} and len(arms)
+
+
 def test_gate18_on_a_tiny_pilot(tmp_path, units):
     for folder in ("config", "data/units", "stimuli"):
         shutil.copytree(ROOT / folder, tmp_path / folder)

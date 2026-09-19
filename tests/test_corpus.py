@@ -98,3 +98,15 @@ def test_text_controls_are_complete_and_their_checks_bite(units, stimuli):
     leaked = corpus.Stimulus(wrong.stimulus_id, wrong.unit_id, wrong.condition, wrong.variant,
                              {**wrong.sections, "Hints": wrong.sections["Hints"] + " The answer is 6,000 units."}, wrong.path)
     assert any("must not appear" in e for e in corpus.check_text_control(leaked, primary, units["be_001"]))
+
+
+def test_near_duplicate_screen_flags_a_copy_and_passes_the_corpus(units, stimuli):
+    """§5.5: no pair of units is a near copy; the two units of one concept are the closest pair, by design."""
+    rows = corpus.near_duplicates(stimuli)
+    assert len(rows) == len(units) * (len(units) - 1) // 2
+    assert not any(r["near_duplicate"] for r in rows), [r for r in rows if r["near_duplicate"]][:3]
+    assert rows[0]["same_concept"], "the closest pair should be two units of the same concept"
+    # a text compared with itself is a perfect duplicate, so the screen would catch one
+    one = next(iter(stimuli.values()))
+    assert corpus._shingles(one.body) == corpus._shingles(one.body)
+    assert len(corpus._shingles(one.body)) > 50

@@ -805,6 +805,16 @@ and `outputs/figures` with no manual step.
   Refitted choice rule (6,000 decisions, `choice_rule_fit.csv`): habit 0.84 [0.82, 0.86], payoff 0.16 [0.10, 0.21],
   tried 0.24, scaffolding -0.26 and substitution +0.05 vs traditional.
 - 2026-09-19 (afternoon): eq. 43 cheap form (Figure 5b). 210 text controls written and validated; notebook `SESSION = "text_controls"`; D21-D22, A19. Found on the way: a new regex in `corpus.py` had shadowed the one `contains_number` uses (renamed before any result depended on it); the incorrect-text check compares magnitudes, because a loss is written without a minus sign.
+- 2026-09-20 (later): audit of runs against outputs. Every run is complete (27 Phase V tags + 72 `spec_*`, all draws done;
+  the six Phase III tags at their full episode counts), but three things that had been **run were never reported**, now
+  built: (1) `report phase3` - the §7.7 outcomes of `population_logistic` (1,667 learners x 4 arms) with the eq. 10-12
+  contrasts, the §7.2 low/medium/high arms and Figure S3; (2) the five derived §8.7 outcomes (`plasticity.run_metrics`,
+  post hoc on the Phase IV tables of `population_logistic` and `centaur_main`); (3) the §5.5 near-duplicate screen
+  (`corpus.near_duplicates`, 5-gram Jaccard, threshold 0.50 set before scoring: max 0.172, cac_001 vs cac_002, 0 flagged).
+  Phase III results: scaffolding beats traditional slightly (unaided +0.008, far +0.011), substitution loses badly
+  (unaided -0.075, far -0.105, D +0.066), free choice sits between (-0.015 unaided); the ordering holds in all three
+  §7.2 settings. §8.7: differentiation (eq. 34) 0.66 scaffolding vs 0.27 substitution (median), concentration and
+  integration highest under scaffolding; read efficiency at the median (its denominator can be near zero).
 - 2026-09-20: S15 freeze. F4 scoped per scenario (D23): `no claim for scaffolding_rapid`, the other scenarios' year-10
   claims stand. Audit against the brief: fixed the stale "semantic coverage not computed" labels (Table 2, Figure 2, the
   dictionary), recounted the §5.5 limitation (8 of 9 features miss |SMD| < 0.10; duration caliper 7.9%), added the missing

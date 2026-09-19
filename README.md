@@ -103,12 +103,13 @@ rather than blended. In order, with the wall clock measured here:
 | Phase III, logistic | `simulate --engine logistic --tutor fake --tag population_logistic` (and `--setting low/high --tag population_low/high`; `--learners 40 --episodes 30 --tag logistic_40`) | ~16 min each |
 | Phase III, Centaur | `notebooks/serve_models.ipynb`, then `scripts/centaur_loop.ps1 -Remote` (`centaur_main`, then `centaur_free_calib`) | ~1 day on Colab |
 | Phase IV | `plasticity --run data/processed/<tag>` | minutes |
+| Phase III results | `report phase3` (§7.7 outcomes, §7.2 arms, §8.7 metrics, Figure S3) | seconds |
 | Gate 18 | `scripts/run_gate18.ps1` | minutes |
 | Phase V main | `longitudinal --tag v_main --years 10 --draws 500 --learners 2000 --scenarios traditional scaffolding_rapid scaffolding_nofade substitution free_choice` | ~70 min |
 | Frontier | `scripts/run_frontier.ps1` (`v_frontier`, `v_tipping`, `v_neural`) | ~70 min |
 | Controls, mediation, replicates, exposure, spec curve | `scripts/run_remaining.ps1` | ~9 h (spec curve 7 h) |
 | Centaur choice rule + sixth scenario | `scripts/run_centaur_rule.ps1` (validate, refit, `v_main_fcc`) | ~80 min |
-| Tables and figures | `uv run python -m neurotutorsim.report all` | ~4 min |
+| Tables and figures | `uv run python -m neurotutorsim.report all` | ~5 min |
 
 All commands run through `uv run python -m neurotutorsim.<module>`; the PowerShell scripts do this themselves.
 Keep `outputs/logs/*.jsonl` and `episodes.jsonl`: Centaur scores are not bitwise reproducible, so a Centaur run is
@@ -121,7 +122,8 @@ reproduced from its logs, never re-derived.
 | Tables 1-3 (conditions, components, parameters with source or "assumption") | `table1_conditions`, `table2_components`, `table3_parameters` |
 | Table 4, §6.6 cortical contrasts (+ covariates, eq. 42, reading speed) | `table4_*`, `parcel_contrasts_auc`, Figures 3, S2 |
 | §6.7 RSA | `rsa_*`, Figure 4 |
-| §5.5 corpus balance, §5.4 coverage | `corpus_balance`, Figure 2, `tableS_semantic_coverage*` |
+| §5.5 corpus balance, coverage, duplicate screen | `corpus_balance`, Figure 2, `tableS_semantic_coverage*`, `tableS_near_duplicates` |
+| §7.7 learner outcomes at the population size, §7.2 arms, §8.7 metrics | `tableS_phase3_outcomes`, `tableS_phase3_settings`, `tableS_neural_metrics_*`, Figure S3 |
 | §10.2 Centaur vs logistic | `engine_comparison`, `engine_free_choice_shares`, Figure S1, `choice_rule_*` |
 | Gate 18, gate 19 | `gate18_checks`, `gate19_metric_definitions` |
 | Table 5, Figures 5-6 (scenario contrasts, trajectories, eq. 43) | `table5_*`, `fig5*`, `fig6*`, `tableS_trajectory_model_v_main` |

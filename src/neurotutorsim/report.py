@@ -2,6 +2,7 @@
 
     python -m neurotutorsim.report phase12                 # Tables 1-4, Figures 1-4, gate-19 definitions
     python -m neurotutorsim.report gate18 --pilot v_pilot --zero-plasticity v_pilot_z0 --zero-effort v_pilot_e0
+    python -m neurotutorsim.report phase3                 # §7.7 outcomes and §8.7 metrics on the population runs
     python -m neurotutorsim.report engines                 # §10.2: centaur_main vs logistic_40 (Figure S1)
     python -m neurotutorsim.report phase5 --run v_main     # Table 5, Figures 5-6 (+ v_main_fcc's sixth scenario)
     python -m neurotutorsim.report exposure|frontier|mechanisms|controls|spec|variance   # S9-S13 outputs
@@ -383,6 +384,9 @@ def phase12(paths: Paths, n_boot: int = 2000) -> list[Path]:
     else:
         balance = A.corpus_balance(stimuli)
     written.append(paths.table(balance, "corpus_balance"))
+    from .corpus import load_stimuli, load_units, near_duplicates  # §5.5 duplicate screen, on the authored texts
+    u = load_units(paths.root / "data" / "units")
+    written.append(paths.table(pd.DataFrame(near_duplicates(load_stimuli(paths.root / "stimuli", u))), "tableS_near_duplicates"))
     t4 = A.table4(metrics, n_boot=n_boot)
     written.append(paths.table(t4, "table4_cortical_contrasts"))
     t4c = A.table4(metrics, covariates=A.matching_covariates(stimuli), n_boot=n_boot)
@@ -439,6 +443,55 @@ def engines(paths: Paths, a_tag: str = "centaur_main", b_tag: str = "logistic_40
     ax.legend(loc="lower right")
     ax.set_title("Figure S1. Centaur-chosen behaviour versus the logistic baseline on the same learners (descriptive)")
     return written + save(fig, paths.figures, "figS1_engine_comparison")
+
+
+def phase3(paths: Paths, tag: str = "population_logistic", settings: tuple[str, ...] = ("population_low", "population_high"),
+           neural_tags: tuple[str, ...] = ("population_logistic", "centaur_main")) -> list[Path]:
+    """Phase III results at the §7.1 population size (D4): the §7.7 outcomes by condition and checkpoint with the
+    eq. 10-12 paired contrasts, the §7.2 low / medium / high arms, the §8.7 derived neural outcomes, and Figure S3.
+    Everything is model-implied: the engine is the logistic baseline, so no result here is a measured effect."""
+    from . import plasticity as P
+    from .simulate import load_config
+
+    run = paths.processed / tag
+    if not (run / "checkpoints.csv").exists():
+        return []
+    out = A.phase3_outcomes(run)
+    written = [paths.table(out, "tableS_phase3_outcomes")]
+    dirs = {"medium": run, **{s.rsplit("_", 1)[-1]: paths.processed / s for s in settings}}
+    arms = A.phase3_settings({k: v for k, v in dirs.items() if (Path(v) / "checkpoints.csv").exists()})
+    if len(arms):
+        written.append(paths.table(arms, "tableS_phase3_settings"))
+    cfg = load_config(paths.root / "config" / "default.yaml", None)
+    for t in neural_tags:  # §8.7, post hoc on the Phase IV tables of a run that has them
+        d = paths.processed / t
+        if (d / "neural_network.parquet").exists() and (d / "neural_state.parquet").exists():
+            learner_level, population = P.run_metrics(d, cfg, paths.root)
+            written.append(paths.table(A.neural_metrics_table(learner_level, population), f"tableS_neural_metrics_{t}"))
+    plt = plt_setup()
+    show = ["unaided_accuracy_trained", "far_transfer_accuracy", "retention_accuracy", "dependence_request_rate"]
+    conds = list(CONDITIONS) + ["free_choice"]
+    colours = dict(COND_COLOR, free_choice=SERIES[3])
+    levels = out[out["section"] == "level"]
+    eps = sorted(levels["checkpoint_episode"].unique())
+    fig, axes = plt.subplots(1, len(show), figsize=(13, 3.6), constrained_layout=True)
+    for ax, o in zip(np.atleast_1d(axes), show):
+        for c in conds:
+            d = levels[(levels["condition"] == c) & (levels["outcome"] == o)].set_index("checkpoint_episode").reindex(eps)
+            se = d["sd"] / np.sqrt(d["n_learners"])
+            ax.errorbar(eps, d["mean"], yerr=1.96 * se, fmt="o-", ms=4, lw=1.4, color=colours[c],
+                        label=COND_LABEL.get(c, "Free choice"))
+        ax.set_title(o.replace("_", " ").replace("accuracy trained", "accuracy"), fontsize=9)
+        ax.set_xlabel("checkpoint episode")
+        ax.set_xticks(eps)
+    np.atleast_1d(axes)[0].set_ylabel("mean over learners (95% CI)")
+    np.atleast_1d(axes)[-1].legend(loc="best", fontsize=8)
+    n = int(levels["n_learners"].max())
+    fig.suptitle(f"Figure S3. Simulated learner outcomes by condition, {tag} ({n:,} learners per arm, logistic engine).\n"
+                 "Each checkpoint probes the units studied most recently, so compare conditions within a checkpoint, "
+                 "not levels across them.",
+                 x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
+    return written + save(fig, paths.figures, "figS3_phase3_outcomes")
 
 
 def choice_rule_tables(paths: Paths, calib: str = "centaur_free_calib") -> list[Path]:
@@ -893,8 +946,9 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
         gs = outer[i].subgridspec(2, 1, height_ratios=[1.3, 1], hspace=0.05)
         _spec_panel(fig, gs, g[g["scenario"] == s], rerun_dims + ["outcome_weights"],
                     f"{SCENARIO_LABEL[s]}: {len(g[g['scenario'] == s])} specifications", "year-10 G vs traditional")
-    fig.suptitle("Figure 8a. Specification curve: year-10 net advantage G (median and 95% interval across draws)",
-                 x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
+    fig.suptitle("Figure 8a. Specification curve: year-10 net advantage G (median and 95% interval across draws).\n"
+                 "The scenarios are those of the 72 reruns; free_choice_centaur is absent because its rule was fitted "
+                 "after them (PLAN.md D18).", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
     written += save(fig, paths.figures, "fig8a_spec_curve_G")
     fig = plt.figure(figsize=(13, 7.5))
     gs = fig.add_gridspec(2, 1, height_ratios=[1, 1.4], hspace=0.05, top=0.93)
@@ -1023,7 +1077,7 @@ def data_dictionary(paths: Paths, run: str = "v_main") -> list[Path]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("what", choices=("phase12", "engines", "gate18", "phase5", "exposure", "frontier", "mechanisms",
+    ap.add_argument("what", choices=("phase12", "phase3", "engines", "gate18", "phase5", "exposure", "frontier", "mechanisms",
                                      "controls", "spec", "variance", "dictionary", "textctl", "all"))
     ap.add_argument("--root", default=".")
     ap.add_argument("--n-boot", type=int, default=2000, dest="n_boot")
@@ -1040,6 +1094,8 @@ def main(argv=None) -> int:
     written = []
     if args.what in ("phase12", "all"):
         written += phase12(paths, args.n_boot)
+    if args.what in ("phase3", "all"):
+        written += phase3(paths)
     if args.what in ("engines", "all") and (paths.processed / "centaur_main" / "learner_state.parquet").exists():
         written += engines(paths) + choice_rule_tables(paths)
     if args.what in ("gate18", "all") and (paths.processed / "phase5" / args.pilot / "run.json").exists():
