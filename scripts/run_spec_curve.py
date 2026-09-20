@@ -1,6 +1,6 @@
 """Run the specification curve's rerun levels (brief §10.4, PLAN.md S13): one Phase V run per combination.
 
-    uv run python scripts/run_spec_curve.py --dry-run          # list the 72 runs and their tags
+    uv run python scripts/run_spec_curve.py --dry-run          # list the 216 cells and their tags
     uv run python scripts/run_spec_curve.py                    # run them one after another (each resumable)
 
 The levels and their plausibility ranks come from config/spec_curve.yaml, which must be approved (the ranks are fixed
@@ -23,11 +23,15 @@ ROOT = Path(__file__).resolve().parents[1]
 BREAK_SCALE = {"weekly_break_0.25": "0.25", "weekly_break_0.1": "0.1", "weekly_break_1.0": "1.0"}
 EFFORT_SETS = {"drawn": [], "fixed_low": ["effort.a1=0.9", "effort.a2=0.6", "effort.a3=0.7", "effort.a4=1.5"],
                "fixed_high": ["effort.a1=1.5", "effort.a2=1.0", "effort.a3=1.3", "effort.a4=2.5"]}
-# eq. 20 adaptation per protocol (PLAN.md D25). `authored` is the config's own value and therefore emits NO override
-# and NO tag suffix, so the 72 runs made before this dimension existed are exactly its 72 `authored` cells.
-# `halved` moves each protocol half its distance to the three-protocol mean 0.4833; `none` puts all three at the mean,
-# which removes the contrast while leaving the mean level of F alone.
-MAIN_ADAPTATION = "authored"
+# eq. 20 adaptation per protocol (PLAN.md D25). `authored` emits no override because it IS the config's value;
+# `halved` moves each protocol half its distance to the three-protocol mean 0.4833; `none` puts all three at the
+# mean, removing the contrast while leaving the mean level of F alone.
+#
+# Every level carries a tag suffix, `authored` included (D29). It did not at first, so that the 72 runs predating
+# this dimension could serve as its `authored` cells - but those 72 ran five scenarios, before `free_choice_centaur`
+# was fitted (D18), and a cell that lacks a scenario the others have cannot sit on the same curve. Runs are
+# append-only, and `longitudinal.py` refuses a resume whose scenarios changed, so the authored level is re-run under
+# its own tags rather than extended. The old unsuffixed runs stay on disk as superseded records.
 ADAPTATION_SETS = {
     "authored": [],
     "halved": ["support.adaptation.traditional=0.42", "support.adaptation.ai_scaffolding=0.69",
@@ -42,7 +46,7 @@ def specifications(spec: dict) -> list[dict]:
     "per_episode_no_breaks" is the Phase III convention: no summer break, and forgetting per episode whatever the
     exposure (reference_episodes_per_week = the run's own episodes per week)."""
     r = spec["reruns"]
-    adaptation = r.get("adaptation", {MAIN_ADAPTATION: 1})
+    adaptation = r.get("adaptation", {"authored": 1})
     out = []
     for form, forget, epw, effort, adapt in itertools.product(r["update_form"], r["forgetting"], r["exposure_per_week"],
                                                               r["effort_function"], adaptation):
@@ -56,8 +60,7 @@ def specifications(spec: dict) -> list[dict]:
             sets = ["calendar.break_weeks=0", f"calendar.reference_episodes_per_week={epw}"] + sets
         if sets:
             args += ["--set"] + sets
-        # the main level keeps the pre-D25 tag, so its 72 completed runs are reused rather than redone
-        tag = f"spec_{form}_{forget}_epw{epw}_{effort}" + ("" if adapt == MAIN_ADAPTATION else f"_adapt_{adapt}")
+        tag = f"spec_{form}_{forget}_epw{epw}_{effort}_adapt_{adapt}"  # every level suffixed (D29)
         out.append({"tag": tag, "form": form, "forgetting": forget, "epw": epw, "effort": effort,
                     "adaptation": adapt, "tier": max(ranks), "ranks": ranks, "args": args})
     return out

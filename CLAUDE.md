@@ -27,13 +27,19 @@ analysis layer.
   rapid fade (`immediate_withdrawal`); scaffolding no fade (`persistent`); substitution (`persistent`);
   `free_choice` (logistic softmax-in-D approach rule, labelled as an assumption). The brief's gradual fade is
   dropped as a named scenario; `fade_base` is still swept on the §9.6 frontier. A **sixth**, `free_choice_centaur`
-  (the rule fitted to Centaur's picks), was added 2026-09-18 (D18) and is in Table 5 and Figures 5-6, but not in the
-  72 pre-D18 specification runs. Phase V adds no new units: it reuses the 30 units and their TRIBE patterns with
-  difficulty rising over the years.
+  (the rule fitted to Centaur's picks), was added 2026-09-18 (D18) and is in Table 5, Figures 5-6 and - since D29 -
+  the specification curve, whose cells all run the full six. Phase V adds no new units: it reuses the 30 units and
+  their TRIBE patterns with difficulty rising over the years.
 - **`support.adaptation` is the only term separating scaffolding from traditional** (eq. 20's f_3 input; the tutor's
   text is numerically inert). Set the three protocols equal and their year-10 G contrast is exactly 0. It is a fixed
   leaf, so no parameter draw touches it; D25 makes it a specification-curve dimension instead. Never present the
   scaffolding advantage as derived rather than assumed.
+- **Every specification-curve cell must run the same scenarios.** `analysis.spec_curve_g` drops any scenario missing
+  from some cells and names it in the Figure 8a caption, because a scenario present at only some levels confounds
+  that dimension with which cells included it. `config/spec_curve.yaml` pins `design.scenarios`; changing it means
+  re-running every cell under new tags (D29), never extending old ones - `longitudinal.py` refuses such a resume.
+- **Anchoring never changes a value** (D27). `config/parameter_sources.yaml` records provenance; a parameter outside
+  its published range is a reported calibration finding, because re-parameterising invalidates every completed run.
 - **Phase IV-V design (user decisions 2026-09-16) lives in `PLAN.md` §2-3:** soft limits on M, R, D in Phase V
   only (Phase III keeps eq. 22/23/25 so `centaur_main` stays consistent), forgetting per calendar week with 12
   break weeks at 1/4 of the term rate, two frontier diagrams (behavioural G, neural), headline outcomes, eq. 42 with
@@ -132,7 +138,34 @@ near-transfer question -> "That took you about N minutes." -> eq. 19-25 update. 
 lifetime totals, recent form, topic experience and, in `free_choice`, what it picked and how the follow-up went.
 Far transfer is used only by the §7.7 checkpoints.
 
-## Where this stands (2026-09-19)
+## Where this stands (2026-09-20)
+
+**Code and results are complete except one compute batch.** `report all` rebuilds every table and figure (exit 0),
+122 tests pass, and the data dictionary documents all 673 columns. Five commits today, none pushed; the
+`results-2026-09-25` tag still points at an older commit.
+
+Running now, then one more batch: the §10.4 specification curve gained an **adaptation** dimension (D25) and
+**`free_choice_centaur`** (D29), so the design is 216 cells x 6 scenarios. The `halved` and `none` cells are in
+flight; the 72 `authored` cells are then re-run under `*_adapt_authored` tags, because the runs that predated the
+dimension used five scenarios and `spec_curve_g` drops any scenario a cell lacks. ~13 h of compute in total.
+`PLAN.md` §1 has the command list (N0-N7).
+
+**Three results the write-up must not overstate**, all established today:
+
+- **The scaffolding-vs-traditional advantage is one assumed constant.** `support.adaptation` is the only term
+  separating them anywhere in the model; set the three protocols equal and year-10 G is exactly 0. `scaffolding_rapid`
+  survives that test and `substitution` and `free_choice` keep their sign, so the rapid-fade benefit rests on support
+  withdrawal, a mechanism, not on the constant (`tableS_sign_stability`).
+- **The learner is slower and more forgetful than the literature** (D27): 0.035 of the gap to mastery closed per
+  episode against BKT's 0.10-0.22, 0.38 retained per year against Custers (2010)'s 0.65-0.75, plateau K* = 0.59
+  against 0.99. Report the substitution direction as robust and its magnitude as an upper bound.
+- **The neural side stays exploratory**: F2 leaves only scaffolding's DorsAttn / SalVentAttn / SomMot contrasts.
+
+Also new: `scripts/archive_tribe.py` makes deliverable D3 citable (D26, tracked `MANIFEST.sha256` + a 14 MB bundle
+that rebuilds every output on its own; upload and DOI still to do), and `judge.py` is the §5.4 contradiction judge
+(D28), validated on 9 texts and awaiting its full 90-text pass.
+
+## Earlier status (2026-09-19)
 
 **Every run is done and `report all` rebuilds every table and figure (exit 0); what is left is the S15 freeze.**
 `PLAN.md` §1 and §8 (log) hold the detail, decisions D1-D22 and the limitations (§7). On disk: the logistic population

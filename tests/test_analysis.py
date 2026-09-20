@@ -359,8 +359,8 @@ def test_scenario_contrasts_derive_the_tie_share_from_share_neg():
 
 
 def test_spec_curve_adaptation_dimension_reuses_the_pre_d25_tags():
-    """D25 adds a 4th rerun dimension. The `authored` level must keep the old tag, or the 72 completed runs would be
-    re-run; and every non-main level must carry the eq. 20 overrides."""
+    """D25 adds a 4th rerun dimension; D29 gives every level its own tag, `authored` included, because the 72 runs
+    that predated the dimension ran five scenarios and a cell missing a scenario cannot sit on the same curve."""
     import importlib.util
     import yaml
 
@@ -374,13 +374,16 @@ def test_spec_curve_adaptation_dimension_reuses_the_pre_d25_tags():
     for s in specs:
         by_level.setdefault(s["adaptation"], []).append(s)
     assert set(by_level) == {"authored", "halved", "none"} and all(len(v) == 72 for v in by_level.values())
-    for s in by_level["authored"]:  # the pre-D25 tag and no eq. 20 override
-        assert "_adapt_" not in s["tag"] and not any("support.adaptation" in a for a in s["args"])
+    for s in by_level["authored"]:  # its own tag (D29), but no override: authored IS the config's value
+        assert s["tag"].endswith("_adapt_authored")
+        assert not any("support.adaptation" in a for a in s["args"])
     for level in ("halved", "none"):
         for s in by_level[level]:
             assert s["tag"].endswith(f"_adapt_{level}")
             sets = [a for a in s["args"] if a.startswith("support.adaptation")]
             assert len(sets) == 3, sets  # one override per protocol
+    # every cell runs the same scenarios, free_choice_centaur included (D29), or the curve drops it
+    assert spec["design"]["scenarios"][-1] == "free_choice_centaur"
     # the `none` level really removes the contrast: all three protocols equal
     vals = {a.split("=")[1] for a in by_level["none"][0]["args"] if a.startswith("support.adaptation")}
     assert len(vals) == 1

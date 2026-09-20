@@ -36,8 +36,9 @@ post_hoc:
     autonomy_first: 2
 
 # Rerun levels change the simulated behaviour: one Phase V run per combination, 2 x 4 x 3 x 3 x 3 = 216 runs.
-# The `adaptation: authored` level carries no tag suffix, so the 72 runs made before that dimension existed ARE its
-# 72 cells and are reused; only the 144 `halved` / `none` cells need new runs.
+# Every cell runs `design.scenarios` below, all six of them. The 72 runs that predate the adaptation dimension ran
+# only five (no `free_choice_centaur`, fitted after them, D18), so they are superseded rather than reused: the
+# `authored` level has its own `_adapt_authored` tags (D29).
 reruns:
   update_form:                            # PLAN.md D3: soft limits main; the literal eq. 22/23/25 pin states at bounds
     bounded: 1
@@ -75,12 +76,10 @@ design:
   draws: 50
   learners: 300
   years: 10
-  # Pinned so a restarted batch cannot silently change what a cell runs. This is the config's full list, which is
-  # what the D25 cells are running. The 72 pre-D25 cells ran the same list WITHOUT `free_choice_centaur`, whose rule
-  # was fitted after them (D18), so that scenario exists only at the `halved` and `none` adaptation levels.
-  # `analysis.spec_curve_g` therefore restricts the curve to the scenarios every cell has: a scenario present in only
-  # some levels would confound the adaptation dimension with which cells happened to include it. To put
-  # `free_choice_centaur` on the curve, all 216 cells must run it, i.e. the 72 authored cells must be re-run.
+  # Pinned so a restarted batch cannot silently change what a cell runs. All six, so `free_choice_centaur` is on the
+  # curve (user decision 2026-09-20, D29). `analysis.spec_curve_g` still restricts the curve to the scenarios every
+  # cell ran, which is the guard that made the five-vs-six mismatch visible in the first place; once the authored
+  # level is re-run it drops nothing.
   scenarios: [traditional, scaffolding_rapid, scaffolding_nofade, substitution, free_choice, free_choice_centaur]
 outputs:                                  # the two panels of Figure 8; each reports the runs actually on disk
   - year-10 G, every AI scenario vs traditional (216 reruns x 3 outcome weights = 648 specifications; 216 before

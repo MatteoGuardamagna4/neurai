@@ -261,9 +261,10 @@ probes are 3 trained / 2 transfer items, and most paired differences are exactly
 - **Checkpoint levels are not comparable across checkpoints**: each probes the units studied most recently.
 - **The specification ranks were frozen before results** (D17). The parcellation (D24) and adaptation (D25)
   dimensions were added after results existed, with their levels ranked before being computed; describe them that way.
-- **The curve reports the cells on disk**, not the full design, and restricts itself to the scenarios every cell ran -
-  the D25 cells run six scenarios, the pre-D25 cells ran five. Quote `n_specifications` from
-  `tableS_sign_stability` rather than the design size.
+- **The curve reports the cells on disk**, not the full design, and restricts itself to the scenarios every cell ran.
+  Quote `n_specifications` from `tableS_sign_stability` rather than the design size, and check the Figure 8a caption:
+  if it names a dropped scenario, some cell is missing and the curve is a subset. Since D29 every cell runs all six
+  scenarios, so the caption should name none.
 - **Anchoring never changes a value** (D27). `config/parameter_sources.yaml` documents provenance; a parameter outside
   its published range is a reported calibration finding, because re-parameterising would invalidate every run.
 
@@ -294,7 +295,7 @@ A section-by-section suggestion, with what to cite:
 | Results: immediate | condition contrasts and RSA | Table 4, Figures 3-4 |
 | Results: learners | one term at the population scale | `tableS_phase3_outcomes`, Figure S3 |
 | Results: ten years | contrasts, distributions, frontier, tipping points | Table 5, Figures 5-7 |
-| Results: robustness | specification curve, controls, variance, falsification | Figure 8, Table 6, `tableS_sign_stability`, `tableS_variance_decomposition` |
+| Results: robustness | specification curve (216 cells x 6 scenarios x 3 outcome weights), controls, variance, falsification | Figure 8, Table 6, `tableS_sign_stability`, `tableS_variance_decomposition` |
 | Data availability | the D3 archive and its manifest | `scripts/archive_tribe.py`, `data/tribe/MANIFEST.sha256`, the deposit DOI |
 | Discussion | which assumptions drive the divergence, and what to measure empirically | `tableS_variance_decomposition`, `tableS_tipping_points` |
 | Limitations | verbatim from `PLAN.md` §7 | — |

@@ -15,15 +15,19 @@ Deadline: **Fri 2026-09-25, code and results** (paper and presentation later). P
 first. Code and results are complete except for one batch in flight. Four commits today: D26 (archive), the audit
 follow-up (D25, D27 and the robustness fixes), `guide.md`, D28 (the judge). Nothing is pushed.
 
-**In flight.** `scripts/run_spec_curve.py` is running the D25 adaptation dimension: **50 of 144 new cells done**,
-~282 s each, so roughly **7 h left**. It is resumable and skips what is finished, so an interrupt costs at most the
-current cell. Its 72 `authored` cells were already done and are reused. Do not run heavy work beside it - LM Studio
-and the report layer both compete for the CPU on this laptop.
+**In flight.** `scripts/run_spec_curve.py` is running the D25 `halved` and `none` cells: ~50 of 144 done at the time
+of writing, ~282 s each. It is resumable and skips what is finished, so an interrupt costs at most the current cell.
+Do not run heavy work beside it - LM Studio and the report layer both compete for the CPU on this laptop.
+
+**Then a second batch (D29).** Because `free_choice_centaur` now joins the curve, the 72 `authored` cells must be
+re-run under their own `*_adapt_authored` tags with all six scenarios: **+72 cells, ~5.6 h**. Re-running the same
+script picks them up; it skips everything already complete. Budget roughly **13 h of compute in total** from now.
 
 **Blocked on that batch, in order:**
 
 | # | Step | Command | Time |
 |---|---|---|---|
+| N0 | The D29 second batch: the 72 `authored` cells with all six scenarios | `uv run python scripts/run_spec_curve.py` | ~5.6 h |
 | N1 | Rebuild the curve and the robustness verdicts | `uv run python -m neurotutorsim.report spec` | ~2 min |
 | N2 | Check `tableS_sign_stability` again with all 216 cells: `first_failing` should reduce to `adaptation=none` alone (the `form` and `forgetting` entries today are artifacts of partial coverage) | read the table | 5 min |
 | N3 | Full §5.4 judge pass over the 90 primary texts (D28) | `uv run python -m neurotutorsim.judge` | ~30 min |
@@ -37,10 +41,10 @@ and the report layer both compete for the CPU on this laptop.
 | N6 | Write the paper (D7) | you | `guide.md` §13 is the section-by-section map, updated for D25-D28 |
 | N7 | Push the four commits and re-tag | either | the `results-2026-09-25` tag currently points at an older commit |
 
-**One decision outstanding.** Whether `free_choice_centaur` joins the specification curve. It is absent from the 72
-`authored` cells because its rule was fitted after them (D18), so `spec_curve_g` drops it from the curve and the
-Figure 8a caption says so. Putting it on the curve means re-running those 72 cells with it (~6 h) and would close the
-§8 open item "Figure 8a covers 4 of the 6 scenarios". Decide after N1: if the curve reads well without it, leave it.
+**Decided (D29):** `free_choice_centaur` joins the curve, so Figure 8a will cover all five AI scenarios against
+traditional rather than four. The cost is the 72-cell re-run above. After it, `tableS_sign_stability` should show
+`dropped_scenarios` empty in the Figure 8a caption; if it still names a scenario, a cell is missing and the curve is
+reporting a subset.
 
 **Out of reach before the deadline, and correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI
 validation (§10.1), and Centaur inside Phase V (~1.2e9 episodes). The learner engine therefore stays out of the
@@ -163,6 +167,7 @@ Measured today, and used below:
 | D25 | (2026-09-20, after the results) The specification curve gains an **adaptation** dimension, because `support.adaptation` (eq. 20's f_3 input) is the only term separating scaffolding from traditional anywhere in the model, and it was neither drawn per parameter draw nor varied in the curve: the year-10 "scaffolding beats traditional" result rested entirely on one fixed number. Three levels, ranked before any was computed: `authored` 0.35/0.90/0.20 (rank 1, brief §3.3), `halved` 0.42/0.69/0.34 (rank 2, each protocol half its distance to the three-protocol mean), `none` 0.48 for all three (rank 3, the contrast removed with the mean level of F preserved). 72 -> 216 reruns; the `authored` level carries no tag suffix, so the 72 completed runs **are** its cells and only 144 new runs are needed. Drawing the parameter instead was considered and rejected: a triangular draw around 0.90 vs 0.35 preserves the ordering in every draw, so it adds variance the sign cannot respond to. Like D24, the dimension was added after results existed: say so in the paper. Measured on a pilot at the `none` level, scaffolding-no-fade vs traditional gives G = 0.000000 exactly, while substitution keeps -0.10; in the Phase V step the two take the identical branch, so **the scaffolding advantage is that constant and nothing else**, whereas the substitution deficit runs through effort and is independent of it. |
 | D27 | (2026-09-20) **Four parameters get empirical anchors** (`config/parameter_sources.yaml`, `analysis.parameter_anchors`, `tableS_parameter_anchors`): alpha against BKT learn rates, delta against Custers (2010) retention, omega against the ITS meta-analyses, eta_M against the testing-effect meta-analyses (cited only; M is not on an accuracy scale). **Anchoring documents provenance and does NOT change any value**: `default.yaml` is untouched and every completed run stays valid, so a parameter outside its published range is reported as a calibration finding, never tuned away. Result: omega is consistent (d = 0.41 in [0.35, 0.76]); alpha and delta are both outside, and in the same direction of effect. See §7. |
 | D28 | (2026-09-20) The **§5.4 contradiction judge** is implemented (`judge.py`), closing the last reachable D22 gap. It does NOT re-check arithmetic - `corpus.py` owns that deterministically and a 3B model would only add noise - but asks three things a validator cannot see: does the prose contradict the unit's own reference, assert something the inputs do not support, or make an unlicensed causal claim. The judge is Qwen2.5-3B, a different model from the one that wrote the stimuli (Claude), which is the independence §5.4 asks for; it is not independent of the tutor, harmlessly, since the tutor never writes stimuli. Because it is small its verdicts are a **screen that routes texts to manual review (§5.5)**, never an acceptance criterion: an unparsed reply is queued, never passed by default. Verdicts are cached per (stimulus, prompt hash) and append-only. Validated on 9 texts: 9/9 parsed, 0 flagged, 18 s/call, so all 90 is roughly half an hour. |
+| D29 | (2026-09-20, user decision) **`free_choice_centaur` joins the specification curve**, so every cell runs all six scenarios. It could not before: the 72 cells predating the adaptation dimension ran five, its rule having been fitted after them (D18), and `spec_curve_g` drops any scenario not present in every cell. Runs are append-only and `longitudinal.py` refuses a resume whose scenarios changed, so those 72 are **superseded, not extended**: every adaptation level now carries a tag suffix and the authored level is re-run as `*_adapt_authored` (+72 cells, ~5.6 h). The old unsuffixed runs stay on disk as records and are simply no longer in the manifest. This also closes the §8 open item "Figure 8a covers 4 of the 6 scenarios". |
 | D26 | (2026-09-20) Deliverable D3 is made citable by `scripts/archive_tribe.py`: a tracked `data/tribe/MANIFEST.sha256` over all 931 files (8.70 GB) and a ~14 MB bundle of every file the analysis opens. Verified by swapping the real tree for the bundle and rebuilding: `report all` exits 0 and reproduces every table. The vertex predictions (§6.3) and the 180 per-stimulus shuffled-control predictions stay out of the bundle and in the manifest; they are read only through the aggregated tables. The upload (Zenodo/OSF) and the DOI are still to do. |
 | D23 | (2026-09-20, after the results) The F4 verdict names the scenarios it applies to, as F1, F3 and F5 already do: a scenario whose median draw has > 10% of learners near a bound (here `scaffolding_rapid`, 0.121) is reported as bound-driven without blocking the other scenarios' year-10 claims. A sign flip under uniform draws is appended to the verdict instead of replacing it. |
 | D22 | (2026-09-19) User request: close the brief's gaps that matter most. Written: 2 reworded variants per stimulus (§5.2 item 9), incorrect-but-fluent traditional texts (§10.3), semantic coverage (§5.4). Still not done, stated as limitations: the contradiction judge (§5.4), audio (§5.2 item 10), held-out fMRI (§10.1), parcellation and learner engine in the spec curve (§10.4). Coverage is reported as corpus validation and a matching feature; eq. 20 keeps coverage = 1.0 in the simulation, because feeding it in would change every completed run. |
