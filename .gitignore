@@ -17,6 +17,10 @@ data/processed/phase5/**
 !data/processed/phase5/*/
 !data/processed/phase5/*/run.json
 !data/processed/choice_rule/
+!data/processed/judge/
+data/processed/judge/**
+!data/processed/judge/judge_summary.json
+!data/processed/judge/review_queue.json
 
 # run outputs: logs stay local; tables and figures are the committed deliverable (report all rebuilds them)
 outputs/*

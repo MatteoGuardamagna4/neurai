@@ -1,0 +1,25 @@
+{
+  "n_texts": 9,
+  "n_unparsed": 0,
+  "n_review_queue": 0,
+  "n_contradiction": 0,
+  "n_unsupported": 0,
+  "n_causal": 0,
+  "by_condition": {
+    "ai_scaffolding": {
+      "n": 3,
+      "flagged": 0
+    },
+    "ai_substitution": {
+      "n": 3,
+      "flagged": 0
+    },
+    "traditional": {
+      "n": 3,
+      "flagged": 0
+    }
+  },
+  "n_new_calls": 0,
+  "model": "qwen2.5-3b-instruct",
+  "recorded_utc": "2026-09-20T15:00:56Z"
+}

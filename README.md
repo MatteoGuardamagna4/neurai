@@ -62,6 +62,7 @@ uv run python -m neurotutorsim.report phase12          # Tables 1-4, Figures 1-4
 powershell -File scripts/run_gate18.ps1                # decision gate 18 (one-year pilot + controls + table)
 powershell -File scripts/centaur_loop.ps1 -Remote      # a Centaur run against notebooks/serve_models.ipynb
 uv run python scripts/compare_servers.py               # equivalence check before switching a run's server
+uv run python -m neurotutorsim.judge --limit 9          # §5.4 contradiction judge (sample; drop --limit for all 90)
 ```
 
 Phase V writes append-only parts under `data/processed/phase5/<tag>/` and refuses a `--resume` with a changed design.
