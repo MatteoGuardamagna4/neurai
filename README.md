@@ -104,6 +104,7 @@ rather than blended. In order, with the wall clock measured here:
 | Phase III, Centaur | `notebooks/serve_models.ipynb`, then `scripts/centaur_loop.ps1 -Remote` (`centaur_main`, then `centaur_free_calib`) | ~1 day on Colab |
 | Phase IV | `plasticity --run data/processed/<tag>` | minutes |
 | Phase III results | `report phase3` (§7.7 outcomes, §7.2 arms, §8.7 metrics, Figure S3) | seconds |
+| Parcellation level (§10.4) | `uv run --with nibabel --with nilearn python scripts/reparcellate.py --parcels 200 [--wpm 180\|260]` | ~100 s per speed |
 | Gate 18 | `scripts/run_gate18.ps1` | minutes |
 | Phase V main | `longitudinal --tag v_main --years 10 --draws 500 --learners 2000 --scenarios traditional scaffolding_rapid scaffolding_nofade substitution free_choice` | ~70 min |
 | Frontier | `scripts/run_frontier.ps1` (`v_frontier`, `v_tipping`, `v_neural`) | ~70 min |
@@ -130,7 +131,7 @@ reproduced from its logs, never re-derived.
 | §9.6-9.7 frontier and tipping points | Figure 7a/7b, `tableS_tipping_points*`, `tableS_exposure` |
 | §11.5 mechanisms | `tableS_mechanism_decomposition` |
 | Table 6, §10.3 and §10.6 | `table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`, `tribe_shuffle_controls`, `tableS_regeneration_*`, `tableS_incorrect_control` |
-| §10.4 specification curve, §10.5 variance | Figure 8a/8b, `tableS_variance_decomposition` |
+| §10.4 specification curve (216 G + 20,736 neural specifications), §10.5 variance | Figure 8a/8b, `tableS_variance_decomposition` |
 | Every column | `data_dictionary` |
 
 ## Brief Appendix A checklist

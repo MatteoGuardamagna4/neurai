@@ -67,7 +67,10 @@ def z_from_metrics(m: pd.DataFrame, metric: str = "auc", winsorize=(0.01, 0.99)
 def load_networks(tribe_dir: Path, weights: str = "area") -> tuple[np.ndarray, list[str]]:
     """eq. 7 as a row-normalised (n_networks, P) matrix from `parcels_schaefer400.csv`, parcels sorted by id
     (the column order of `load_z`); `weights` = `area` (main) or `equal` (robustness)."""
-    table = pd.read_csv(Path(tribe_dir) / "parcels_schaefer400.csv").sort_values("parcel_id")
+    files = sorted(Path(tribe_dir).glob("parcels_schaefer*.csv"))  # one atlas per run folder (400 main, 200 in the curve)
+    if not files:
+        raise FileNotFoundError(f"no parcels_schaefer*.csv in {tribe_dir}")
+    table = pd.read_csv(files[0]).sort_values("parcel_id")
     if weights not in ("area", "equal"):
         raise ValueError("weights must be 'area' or 'equal'")
     w = table["area"].to_numpy(float) if weights == "area" else np.ones(len(table))

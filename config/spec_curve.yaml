@@ -15,6 +15,9 @@ post_hoc:
   network_weights:                        # eq. 7: area weights are the brief's main analysis
     area: 1
     equal: 2
+  parcellation:                           # §6.4 / §10.4; added 2026-09-20 (PLAN.md D24), ranks fixed before it was
+    schaefer400: 1                        # computed. 400 is the run's atlas (D12); 200 re-aggregates the SAME saved
+    schaefer200: 2                        # vertex predictions (scripts/reparcellate.py), so only the map differs.
   tribe_metric:                           # eq. 28 input: AUC is what the brief standardises
     auc: 1
     mean: 2                               # duration-free, so a check on AUC's length dependence
@@ -53,8 +56,11 @@ reruns:
 
 learner_engine: >-
   logistic only at year 10; the hybrid (Centaur) engine appears only in the 30-episode engine comparison (S7),
-  stated as a limitation, not a level of the curve.
+  stated as a limitation, not a level of the curve. Running Centaur inside Phase V is infeasible by orders of
+  magnitude (about 1.2e9 episodes at 4-15 s each); its behaviour reaches Phase V only through the fitted
+  free-choice rule (D18).
 design: {draws: 50, learners: 300, years: 10}
 outputs:                                  # the two panels of Figure 8
   - year-10 G, every AI scenario vs traditional (72 reruns x 3 outcome weights = 216 specifications)
-  - year-10 mechanism-D control-network d, substitution vs traditional (72 reruns x 144 post hoc = 10,368)
+  - year-10 mechanism-D control-network d, substitution vs traditional (72 reruns x 288 post hoc = 20,736 with
+    both parcellations; 144 post hoc = 10,368 when only the main atlas is on disk)

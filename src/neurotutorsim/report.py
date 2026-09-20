@@ -922,12 +922,20 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     written = [paths.table(g, "fig8a_spec_curve_G")]
     p = paths.raw["plasticity"]
     tribe_dir = paths.root / p["tribe_dir"]
-    zs = {}
-    for wpm in ranks["reading_speed_wpm"]:
-        for metric in ranks["tribe_metric"]:
-            for wins in ranks["winsorize"]:
-                zs[(wpm, metric, wins)] = P.load_z(tribe_dir, int(wpm), metric, p["winsorize"] if wins in (True, "yes") else None)[0]  # YAML reads yes/no as booleans
-    ws = {w: P.load_networks(tribe_dir, w) for w in ranks["network_weights"]}
+    # atlases of the parcellation dimension: the main run's folder, plus <run>_s<parcels> from scripts/reparcellate.py
+    atlases = {"schaefer400": tribe_dir}
+    for name in ranks.get("parcellation", {}):
+        d = tribe_dir if name.endswith("400") else Path(f"{tribe_dir}_s{name.replace('schaefer', '')}")
+        if d.is_dir():
+            atlases[name] = d
+    zs, ws = {}, {}
+    for name, d in atlases.items():
+        for wpm in ranks["reading_speed_wpm"]:
+            for metric in ranks["tribe_metric"]:
+                for wins in ranks["winsorize"]:
+                    zs[(name, wpm, metric, wins)] = P.load_z(d, int(wpm), metric, p["winsorize"] if wins in (True, "yes") else None)[0]  # YAML reads yes/no as booleans
+        for w in ranks["network_weights"]:
+            ws[(name, w)] = P.load_networks(d, w)
     frames = []
     for s in specs:
         run = base / s["tag"]
@@ -952,7 +960,8 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     written += save(fig, paths.figures, "fig8a_spec_curve_G")
     fig = plt.figure(figsize=(13, 7.5))
     gs = fig.add_gridspec(2, 1, height_ratios=[1, 1.4], hspace=0.05, top=0.93)
-    _spec_panel(fig, gs, nd, rerun_dims + ["wpm", "metric", "winsorize", "network_weights", "mechanism"],
+    post_hoc_dims = ["parcellation", "wpm", "metric", "winsorize", "network_weights", "mechanism"]
+    _spec_panel(fig, gs, nd, rerun_dims + [d for d in post_hoc_dims if nd[d].nunique() > 1],
                 f"Control network, substitution vs traditional: {len(nd)} specifications", "year-10 d")
     fig.suptitle("Figure 8b. Specification curve: model-implied control-network contrast (median and 95% interval "
                  "across subsample draws)", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)

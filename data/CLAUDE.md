@@ -26,6 +26,9 @@
   so the vertex files are the archive, not a dependency.
 - `tribe/tribe_textctl/` (gitignored) is the text-controls TRIBE run (210 reworded / incorrect texts, 220 wpm, and
   `coverage/semantic_coverage.csv`). Copy the Drive tag folder **inside** `data/tribe/`; `report textctl` reads it there.
+- `tribe/tribe_main_s200/` (gitignored) is the same run re-aggregated onto Schaefer-200 by `scripts/reparcellate.py`
+  (`wpm220|180|260/tribe_metrics.parquet`, `tribe_patterns.parquet`, `parcels_schaefer200.csv`, `reparcellation.json`):
+  the parcellation level of the specification curve. The vertex predictions are shared, so only the map differs.
 - `processed/<tag>/neural_network.parquet` / `neural_state.parquet` / `plasticity.json` are Phase IV's post hoc
   outputs on a Phase III run (`python -m neurotutorsim.plasticity --run ...`).
 - `processed/phase5/<tag>/` is one Phase V run: `run.json` (design, seeds, `draws_done`, the part list) and one

@@ -1007,8 +1007,10 @@ def spec_curve_g(runs: list[tuple[dict, pd.DataFrame]], weight_sets: dict, weigh
 def spec_curve_neural(spec: dict, acc: dict, mean_diff: dict, lam_o: pd.Series, run_scenarios: list[str], zs: dict,
                       ws: dict, pcfg: dict, ranks: dict, year: int = 10, scenario: str = "substitution",
                       comparator: str = "traditional", network: str = "Cont") -> pd.DataFrame:
-    """Figure 8b rows for one rerun specification: every post hoc level (reading speed x TRIBE metric x winsorising in
-    `zs`, network weights in `ws`, mechanisms A-D) gives d for one network, `scenario` vs `comparator`. Per draw,
+    """Figure 8b rows for one rerun specification: every post hoc level (parcellation x reading speed x TRIBE metric
+    x winsorising in `zs`, network weights in `ws`, mechanisms A-D) gives d for one network, `scenario` vs
+    `comparator`. `zs` is keyed (parcellation, wpm, metric, winsorize) and `ws` (parcellation, weights), so each Z
+    only meets the network weights of its own atlas. Per draw,
     d = the draw's mean contrast over all learners (`mean_accumulator_diff`) / the learner-level SD in the draw's
     subsample (`accumulators_subsample`, kept for the first draws only), so the interval is across those draws."""
     from . import plasticity as P
@@ -1031,16 +1033,19 @@ def spec_curve_neural(spec: dict, acc: dict, mean_diff: dict, lam_o: pd.Series, 
         w = np.stack([P.mechanism_weights(mech, {**pcfg, "lambda_O": float(lam_o.get(b, 0.0))}) for b in draws])
         learner = np.einsum("bc,bncs->bns", w, dA)  # (B, n, 90)
         mean = np.einsum("bc,bcs->bs", w, mean_dA)  # (B, 90)
-        for (wpm, metric, wins), Z in zs.items():
-            for wname, (W, nets) in ws.items():
-                proj = Z @ W[nets.index(network)]  # (90,)
+        for (parcellation, wpm, metric, wins), Z in zs.items():
+            for (pw, wname), (W, nets) in ws.items():
+                if pw != parcellation:  # network weights belong to the atlas they were built on
+                    continue
+                proj = Z @ W[nets.index(network)]  # (P,)
                 sd = (learner @ proj).std(axis=1, ddof=1)
                 d = np.where(sd > 0, (mean @ proj) / np.where(sd > 0, sd, 1.0), 0.0)
                 tier = max(spec["tier"], ranks["plasticity_mechanism"][mech], ranks["reading_speed_wpm"][wpm],
-                           ranks["tribe_metric"][metric], ranks["winsorize"][wins], ranks["network_weights"][wname])
-                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "wpm": wpm, "metric": metric, "winsorize": wins,
-                             "network_weights": wname, "mechanism": mech, "scenario": scenario, "network": network,
-                             "tier": tier, **intervals(d)})
+                           ranks["tribe_metric"][metric], ranks["winsorize"][wins], ranks["network_weights"][wname],
+                           ranks.get("parcellation", {}).get(parcellation, 1))
+                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "parcellation": parcellation, "wpm": wpm,
+                             "metric": metric, "winsorize": wins, "network_weights": wname, "mechanism": mech,
+                             "scenario": scenario, "network": network, "tier": tier, **intervals(d)})
     return pd.DataFrame(rows)
 
 

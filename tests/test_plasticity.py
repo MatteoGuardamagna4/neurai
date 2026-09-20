@@ -173,6 +173,15 @@ def test_apply_to_run_on_a_small_logistic_run(tmp_path, units):
     assert P.main(["--config", str(tmp_path / "config" / "default.yaml"), "--run", str(processed), "--subsample", "1"]) == 0
 
 
+def test_load_networks_finds_whichever_schaefer_atlas_the_run_used(tmp_path, units):
+    """The spec curve's parcellation dimension re-aggregates into `<run>_s200`, whose table is parcels_schaefer200.csv."""
+    d = tmp_path / "tribe"
+    write_fake_tribe(d, list(units))
+    (d / "parcels_schaefer400.csv").rename(d / "parcels_schaefer200.csv")
+    W, nets = P.load_networks(d, "area")
+    assert W.shape[0] == len(nets) and np.allclose(W.sum(axis=1), 1.0)
+
+
 def test_run_metrics_derives_the_eight_seven_outcomes(tmp_path, units):
     """§8.7 on a finished run: every metric present, concentration in [0.25, 1], integration non-negative, and the
     alignment correlations inside [-1, 1]. Differentiation is NaN while units are still unseen (eq. 34 needs them)."""
