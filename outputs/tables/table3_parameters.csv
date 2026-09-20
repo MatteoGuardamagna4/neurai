@@ -10,10 +10,10 @@ population.state_means.D,,0.4,,fixed,assumption
 population.state_sd,0.1,0.15,0.2,"Triangular(0.1, 0.15, 0.2)",assumption
 population.stratum_k_shift,,"[-0.2, 0.0, 0.2]",,fixed,assumption
 population.stratum_m_shift,,"[-0.1, 0.0, 0.1]",,fixed,assumption
-population.mu_alpha,-2.6,-2.3,-2.0,"Triangular(-2.6, -2.3, -2.0)",assumption
+population.mu_alpha,-2.6,-2.3,-2.0,"Triangular(-2.6, -2.3, -2.0)",Corbett & Anderson (1995); pyBKT / TutorShop defaults [anchor: model BELOW the published range]
 population.sigma_alpha,0.25,0.4,0.55,"Triangular(0.25, 0.4, 0.55)",assumption
 population.a_delta,,2.0,,fixed,assumption
-population.b_delta,120.0,80.0,50.0,"Triangular(50.0, 80.0, 120.0)",assumption
+population.b_delta,120.0,80.0,50.0,"Triangular(50.0, 80.0, 120.0)",Custers (2010) [anchor: model BELOW the published range]
 population.theta_slope,3.0,4.0,5.0,"Triangular(3.0, 4.0, 5.0)",assumption
 population.confidence_bias_sd,0.05,0.1,0.15,"Triangular(0.05, 0.1, 0.15)",assumption
 population.speed_sigma,,0.25,,fixed,assumption
@@ -22,7 +22,7 @@ curriculum.near_b_delta,,0.5,,fixed,assumption
 curriculum.far_b_delta,,1.2,,fixed,assumption
 response.rho,0.7,1.0,1.3,"Triangular(0.7, 1.0, 1.3)",assumption
 response.kappa,0.5,0.8,1.1,"Triangular(0.5, 0.8, 1.1)",assumption
-response.omega,1.5,2.5,3.5,"Triangular(1.5, 2.5, 3.5)",assumption
+response.omega,1.5,2.5,3.5,"Triangular(1.5, 2.5, 3.5)",Kulik & Fletcher (2016); Ma et al. (2014); VanLehn (2011) [anchor: consistent]
 response.request_intercept,,-1.0,,fixed,assumption
 response.request_dependence_slope,,2.0,,fixed,assumption
 response.request_ability_slope,,0.5,,fixed,assumption
@@ -41,7 +41,7 @@ effectiveness.f4,1.2,1.5,1.8,"Triangular(1.2, 1.5, 1.8)",assumption
 effectiveness.coverage_default,,1.0,,fixed,assumption
 effectiveness.correctness_default,,1.0,,fixed,assumption
 updates.m_decay_scale,,1.0,,fixed,assumption
-updates.eta_M,0.01,0.015,0.025,"Triangular(0.01, 0.015, 0.025)",assumption
+updates.eta_M,0.01,0.015,0.025,"Triangular(0.01, 0.015, 0.025)",Rowland (2014); Adesope et al. (2017) [anchor: not compared (see model_quantity)]
 updates.eta_C,0.01,0.015,0.025,"Triangular(0.01, 0.015, 0.025)",assumption
 updates.eta_R,0.003,0.005,0.008,"Triangular(0.003, 0.005, 0.008)",assumption
 updates.eta_O,0.003,0.005,0.008,"Triangular(0.003, 0.005, 0.008)",assumption

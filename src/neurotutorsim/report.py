@@ -139,8 +139,16 @@ BRIEF_SOURCED = {  # config paths whose value the brief fixes; everything else i
 }
 
 
-def table3(raw: dict) -> pd.DataFrame:
-    """Every numeric parameter: low / medium / high or its fixed value, how Phase V draws it, and its source label."""
+def table3(raw: dict, anchors: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Every numeric parameter: low / medium / high or its fixed value, how Phase V draws it, and its source.
+
+    `source` is the brief where the brief fixes the value, the published work where `config/parameter_sources.yaml`
+    anchors it (D27), and `assumption` otherwise - which is still most of the table. An anchored row also carries
+    whether the configured value lands inside the range that source reports; `outside` is reported, never tuned away
+    (`tableS_parameter_anchors` has the derivation)."""
+    anchored = {}
+    if anchors is not None and len(anchors):
+        anchored = {r["parameter"]: (r.get("cite") or r["source"], r["verdict"]) for _, r in anchors.iterrows()}
     rows = []
 
     def walk(node, path):
@@ -161,6 +169,9 @@ def table3(raw: dict) -> pd.DataFrame:
         for key, label in BRIEF_SOURCED.items():
             if path == key or path.startswith(key + "."):
                 return label
+        if path in anchored:
+            cite, verdict = anchored[path]
+            return f"{cite} [anchor: {verdict}]"
         return "assumption"
 
     for block in ("population", "curriculum", "response", "effort", "effectiveness", "updates", "calendar", "plasticity",
@@ -361,6 +372,49 @@ def figure_parcels(plt, parcels: pd.DataFrame, parcel_table: pd.DataFrame, out: 
     return save(fig, out, "figS2_parcel_contrasts")
 
 
+def parameter_anchors(paths: Paths, run: str = "population_logistic") -> tuple[pd.DataFrame, dict]:
+    """Table S: each anchored parameter's model-implied quantity against the range its source reports (D27).
+
+    Everything on the model side is read off the configuration and a finished Phase III run - nothing is simulated,
+    and no configured value is changed. Returns (table, measured) so callers can reuse the measured quantities.
+    """
+    spec = yaml.safe_load((paths.root / "config" / "parameter_sources.yaml").read_text(encoding="utf-8"))
+    raw, pop, upd = paths.raw, paths.raw["population"], paths.raw["updates"]
+    cal = paths.raw["calendar"]
+    # alpha's median is exp(mu) for a lognormal; delta's mean is a / (a + b) for Beta(a, b), per arm
+    alpha_median = float(np.exp(pop["mu_alpha"]["medium"]))
+    delta = {arm: float(pop["a_delta"]) / (float(pop["a_delta"]) + float(pop["b_delta"][arm]))
+             for arm in ("low", "medium", "high")}
+    d = paths.processed / run
+    state = pd.read_parquet(d / "learner_state.parquet", columns=["effort", "effectiveness"])         if (d / "learner_state.parquet").exists() else pd.DataFrame({"effort": [np.nan], "effectiveness": [np.nan]})
+    ck = pd.read_csv(d / "checkpoints.csv") if (d / "checkpoints.csv").exists() else pd.DataFrame()
+    gap_d = np.nan
+    if len(ck) and {"support_gap", "unaided_accuracy_trained"} <= set(ck.columns):
+        sd = ck["unaided_accuracy_trained"].std(ddof=1)
+        gap_d = float(ck["support_gap"].mean() / sd) if sd > 0 else np.nan
+    measured = {"alpha_median": alpha_median, "effort": float(state["effort"].mean()),
+                "effectiveness": float(state["effectiveness"].mean()), "delta": delta,
+                "episodes_per_week": float(cal["reference_episodes_per_week"]),
+                "break_decay_scale": float(cal["break_decay_scale"]), "support_gap_d": gap_d, "run": run}
+    table = A.parameter_anchors(spec["anchors"], measured)
+    # the two rates only matter jointly: eq. 21's plateau K* = alpha E F / (alpha E F + delta)
+    gain = A.learn_rate_per_opportunity(alpha_median, measured["effort"], measured["effectiveness"])
+    lit_gain = float(np.mean(spec["anchors"]["population.mu_alpha"]["published_range"]))
+    lit_ret = float(np.mean(spec["anchors"]["population.b_delta"]["published_range"]))
+    lit_delta = 1.0 - lit_ret ** (1.0 / (52.0 * measured["episodes_per_week"]))
+    table = pd.concat([table, pd.DataFrame([{
+        "parameter": "population.mu_alpha + population.b_delta (jointly)",
+        "quantity": "steady-state knowledge K* of eq. 21 at constant E and F",
+        "model_value": A.equilibrium_knowledge(gain, delta["medium"]),
+        "published_low": A.equilibrium_knowledge(lit_gain, lit_delta), "published_high": np.nan,
+        "verdict": "derived: the plateau the two rates imply together",
+        "model_detail": f"model gain {gain:.4f} vs delta {delta['medium']:.4f}; literature midpoints "
+                        f"gain {lit_gain:.3f} vs delta {lit_delta:.5f} (from {lit_ret:.2f} retained per year)",
+        "source": "derived from the two rows above", "reported": "", "model_quantity": "alpha E F / (alpha E F + delta)"}])],
+        ignore_index=True)
+    return table, measured
+
+
 def phase12(paths: Paths, n_boot: int = 2000) -> list[Path]:
     """Everything that needs only the corpus (Phase I) and the TRIBE run (Phase II)."""
     plt = plt_setup()
@@ -373,7 +427,9 @@ def phase12(paths: Paths, n_boot: int = 2000) -> list[Path]:
 
     written.append(paths.table(table1(stimuli, paths.raw), "table1_conditions"))
     written.append(paths.table(table2(), "table2_components"))
-    written.append(paths.table(table3(paths.raw), "table3_parameters"))
+    anchors, _ = parameter_anchors(paths)
+    written.append(paths.table(table3(paths.raw, anchors), "table3_parameters"))
+    written.append(paths.table(anchors, "tableS_parameter_anchors"))
     written.append(paths.table(A.metric_definitions(), "gate19_metric_definitions"))
     coverage_csv = text_controls_dir(paths) / "coverage" / "semantic_coverage.csv"
     if coverage_csv.exists():  # §5.4 coverage joins the matching features of eq. 1 once computed
@@ -871,7 +927,10 @@ def table6(paths: Paths, main: list[str], z0: str = "v_z0_10y", e0: str = "v_e0_
 def spec_rows(paths: Paths) -> tuple[dict, list[dict]]:
     spec = yaml.safe_load((paths.root / "config" / "spec_curve.yaml").read_text(encoding="utf-8"))
     manifest = json.loads((paths.processed / "phase5" / "spec_curve_manifest.json").read_text(encoding="utf-8"))
-    return spec, [s for s in manifest["specifications"] if (paths.processed / "phase5" / s["tag"] / "run.json").exists()]
+    out = [s for s in manifest["specifications"] if (paths.processed / "phase5" / s["tag"] / "run.json").exists()]
+    for s in out:  # a manifest written before D25 has no adaptation key; those runs are the `authored` level
+        s.setdefault("adaptation", "authored")
+    return spec, out
 
 
 def _spec_panel(fig, gs, frame: pd.DataFrame, dims: list[str], title: str, ylabel: str):
@@ -905,8 +964,10 @@ def _spec_panel(fig, gs, frame: pd.DataFrame, dims: list[str], title: str, ylabe
 
 
 def figure8(paths: Paths, year: int = 10) -> list[Path]:
-    """Figure 8 (§10.4): (a) year-10 G for every AI scenario, 72 reruns x 3 outcome weights; (b) mechanism d for the
-    control network, substitution vs traditional, 72 reruns x 144 post hoc levels."""
+    """Figure 8 (§10.4): (a) year-10 G for every AI scenario, one row per rerun specification x outcome weights;
+    (b) mechanism d for the control network, substitution vs traditional, rerun x post hoc levels. Both panels report
+    the specifications whose runs are on disk, so a dimension that is only partly run (PLAN.md D25) shrinks the curve
+    rather than blocking it; the panel titles state the count."""
     from . import plasticity as P
     from .longitudinal import read_arrays, read_table
 
@@ -920,6 +981,8 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     runs = [(s, read_table(base / s["tag"], "simulation_draws")) for s in specs]
     g = A.spec_curve_g(runs, weight_sets, ranks["outcome_weights"], year)
     written = [paths.table(g, "fig8a_spec_curve_G")]
+    # the §10.6 robustness claim, computed rather than asserted, over whatever cells are on disk
+    written.append(paths.table(A.sign_stability(g), "tableS_sign_stability"))
     p = paths.raw["plasticity"]
     tribe_dir = paths.root / p["tribe_dir"]
     # atlases of the parcellation dimension: the main run's folder, plus <run>_s<parcels> from scripts/reparcellate.py
@@ -946,22 +1009,26 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     nd = pd.concat(frames, ignore_index=True)
     written.append(paths.table(nd, "fig8b_spec_curve_neural"))
     plt = plt_setup()
-    rerun_dims = ["form", "forgetting", "epw", "effort"]
+    rerun_dims = ["form", "forgetting", "epw", "effort", "adaptation"]
     scen = [s for s in SCENARIO_COLOR if s in set(g["scenario"])]
     fig = plt.figure(figsize=(13, 3.6 * len(scen)))
     outer = fig.add_gridspec(len(scen), 1, hspace=0.45, top=0.96)
+    g_dims = [d for d in rerun_dims + ["outcome_weights"] if g[d].nunique() > 1]  # a level not yet run adds no row
     for i, s in enumerate(scen):
         gs = outer[i].subgridspec(2, 1, height_ratios=[1.3, 1], hspace=0.05)
-        _spec_panel(fig, gs, g[g["scenario"] == s], rerun_dims + ["outcome_weights"],
+        _spec_panel(fig, gs, g[g["scenario"] == s], g_dims,
                     f"{SCENARIO_LABEL[s]}: {len(g[g['scenario'] == s])} specifications", "year-10 G vs traditional")
+    dropped = g.attrs.get("dropped_scenarios") or []
     fig.suptitle("Figure 8a. Specification curve: year-10 net advantage G (median and 95% interval across draws).\n"
-                 "The scenarios are those of the 72 reruns; free_choice_centaur is absent because its rule was fitted "
-                 "after them (PLAN.md D18).", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
+                 + (f"Restricted to the scenarios every specification ran; {', '.join(dropped)} "
+                    "not run by all of them (PLAN.md D18, D25)." if dropped
+                    else "Every specification ran the same scenarios."),
+                 x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
     written += save(fig, paths.figures, "fig8a_spec_curve_G")
     fig = plt.figure(figsize=(13, 7.5))
     gs = fig.add_gridspec(2, 1, height_ratios=[1, 1.4], hspace=0.05, top=0.93)
     post_hoc_dims = ["parcellation", "wpm", "metric", "winsorize", "network_weights", "mechanism"]
-    _spec_panel(fig, gs, nd, rerun_dims + [d for d in post_hoc_dims if nd[d].nunique() > 1],
+    _spec_panel(fig, gs, nd, [d for d in rerun_dims + post_hoc_dims if nd[d].nunique() > 1],
                 f"Control network, substitution vs traditional: {len(nd)} specifications", "year-10 d")
     fig.suptitle("Figure 8b. Specification curve: model-implied control-network contrast (median and 95% interval "
                  "across subsample draws)", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
@@ -1041,6 +1108,190 @@ COLUMN_DOC = {
     "key": "parcel id or network name", "metric": "TRIBE metric (gate-19 definitions)", "value": "metric value (predicted response, a.u.)",
     "n": "draws (or units) in the summary", "lo90": "5th percentile across draws", "hi90": "95th percentile across draws",
     "lo95": "2.5th percentile across draws", "hi95": "97.5th percentile across draws", "tier": "specification-curve tier (highest rank among its levels)",
+    # specification-curve dimensions (§10.4): one column per modelling choice, values are the levels in spec_curve.yaml
+    "tag": "the Phase V run this specification came from", "form": "state-update form: bounded (D3) or brief (eq. 22/23/25)",
+    "forgetting": "forgetting model: weekly_break_<scale> or per_episode_no_breaks (D4, A3)",
+    "epw": "episodes per week (§9.1 exposure)", "effort": "eq. 19 coefficients: drawn per draw, or fixed_low / fixed_high",
+    "adaptation": "eq. 20 adaptation per protocol (D25): authored 0.35/0.90/0.20, halved, or none (all equal)",
+    "outcome_weights": "eq. 39 weights: equal, learning_first or autonomy_first (A9)",
+    "parcellation": "cortical atlas: schaefer400 (the run's own) or schaefer200 re-aggregated from the same vertex predictions (D24)",
+    "wpm": "reading speed of the TRIBE run (§6.2)", "winsorize": "Z winsorised at the 1st/99th percentiles (§8.2) or not",
+    "network_weights": "eq. 7 parcel weights: area (main) or equal",
+    # --- column descriptions added 2026-09-20 (deliverable D1: data dictionaries)
+    "n_specifications": "specifications on disk for this scenario (the curve reports the cells actually run)",
+    "median_sign_constant": "the median year-10 contrast keeps one sign across every specification",
+    "n_intervals_including_0": "specifications whose 95% interval across draws includes 0",
+    "claim": "robust only if the sign is constant AND no interval includes 0; otherwise not robust",
+    "median_min": "smallest median contrast over the specifications",
+    "median_max": "largest median contrast over them",
+    "first_failing": "the dimension levels where the sign is lost, so the failure is attributable, not just counted",
+    "answer provided": "whether the protocol ever hands the learner the finished answer",
+    "n_scenarios": "scenarios entering the decomposition",
+    "panel": "which panel of the figure the row belongs to",
+    "share": "share of the whole that this row accounts for",
+    "share_draws_positive": "share of parameter draws whose mean contrast is positive",
+    "threshold": "the pre-set threshold the indicator is judged against",
+    "variable": "the quantity the row describes",
+    "unit_intercept_var": "estimated variance of the unit random intercept in eq. 42 (D8)",
+    "reading speed 180 wpm change ratio": "contrast at 180 wpm over the contrast at the main 220 wpm",
+    "reading speed 260 wpm change ratio": "contrast at 260 wpm over the contrast at the main 220 wpm",
+    "unwinsorised Z change ratio": "contrast on unwinsorised Z over the winsorised one (§8.2 robustness)",
+    "ci_low": "lower end of the interval named by the table (cluster bootstrap, Wald, or percentile across draws)",
+    "ci_high": "upper end of that interval",
+    "ci_excludes_0": "the 95% interval lies wholly above or below 0",
+    "se": "standard error (cluster bootstrap over units unless the table says otherwise)",
+    "se_cluster": "standard error with errors clustered on the simulated learner",
+    "p": "descriptive p from the bootstrap SE; on simulated data magnitude and robustness carry the argument (SS11.3)",
+    "q_fdr": "Benjamini-Hochberg adjusted p across the tests in its family",
+    "p_perm": "permutation p: share of label permutations at least as extreme as the observed value",
+    "n_perm": "permutations drawn",
+    "n_obs": "rows entering the fit",
+    "n_units": "units entering the estimate",
+    "n_pairs": "pairs entering the estimate",
+    "n_draws": "parameter draws",
+    "n_learners": "simulated learners",
+    "n_replicates": "behavioural replicate runs (SS10.5)",
+    "component": "variance component of eq. 41, or a model component in Table 2",
+    "variance": "estimated variance of that component",
+    "term": "model coefficient",
+    "estimate": "the estimated quantity named by `outcome` or `term`",
+    "min": "minimum over the rows summarised",
+    "max": "maximum over them",
+    "p05": "5th percentile",
+    "p95": "95th percentile",
+    "median_d": "median standardised contrast across draws",
+    "median_G": "median net advantage G (eq. 39) across draws",
+    "difference": "first named column minus the second",
+    "expected": "what the control was expected to produce",
+    "as_expected": "the control behaved as expected",
+    "implementation": "how the control was constructed",
+    "note": "caveat attached to this row",
+    "lesson": "what the learner reads before attempting the problem",
+    "held fixed across conditions": "features matched across the three conditions (brief SS5.3)",
+    "help after a wrong answer": "what support the protocol offers once a first attempt has failed",
+    "help turns (persistent)": "help turns available under the persistent support policy",
+    "mean words": "mean words per stimulus",
+    "mean sentences": "mean sentences per stimulus",
+    "mean equations": "mean `=` signs per stimulus (the equation-count proxy of eq. 1)",
+    "mean duration s (220 wpm)": "mean reading time in seconds at the main speed (eq. 4)",
+    "inputs": "what the component consumes",
+    "outputs": "what it produces",
+    "key assumptions": "assumptions the component rests on",
+    "validation": "the test that exercises it",
+    "parameter": "configuration path of the parameter",
+    "low": "value in the low sensitivity arm (brief SS7.2)",
+    "medium": "value in the medium arm (the main specification)",
+    "high": "value in the high arm",
+    "phase V draw": "how Phase V draws this leaf per parameter draw (A1)",
+    "source": "brief section, published citation, or `assumption`",
+    "definition": "what the metric is",
+    "direction": "what a larger value means (gate 19)",
+    "check": "gate-18 check",
+    "rule": "the rule the check applies",
+    "pass": "whether the check passed",
+    "feature": "matching feature of eq. 1, or a choice-rule feature",
+    "mean_traditional": "feature mean, traditional",
+    "sd_traditional": "feature SD, traditional",
+    "mean_ai_scaffolding": "feature mean, AI scaffolding",
+    "sd_ai_scaffolding": "feature SD, AI scaffolding",
+    "mean_ai_substitution": "feature mean, AI substitution",
+    "sd_ai_substitution": "feature SD, AI substitution",
+    "smd_S-T": "standardised mean difference, eq. 3 (scaffolding vs traditional)",
+    "smd_U-T": "standardised mean difference (substitution vs traditional)",
+    "smd_S-U": "standardised mean difference (scaffolding vs substitution)",
+    "diff_S-T": "raw mean difference (scaffolding vs traditional)",
+    "diff_U-T": "raw mean difference (substitution vs traditional)",
+    "diff_S-U": "raw mean difference (scaffolding vs substitution)",
+    "tost_p_S-T": "equivalence-test p, a descriptive diagnostic only (SS11.1)",
+    "tost_p_U-T": "equivalence-test p, descriptive only",
+    "tost_p_S-U": "equivalence-test p, descriptive only",
+    "within_target": "the feature meets the |SMD| < 0.10 target of SS5.5",
+    "unit_a": "first unit of the pair",
+    "unit_b": "second unit of the pair",
+    "jaccard_5gram": "5-gram Jaccard similarity of the two units' texts (SS5.5 duplicate screen)",
+    "same_concept": "the pair teaches the same concept, whose two units are expected to be closer",
+    "near_duplicate": "flagged at or above the pre-set 0.50 threshold",
+    "cosine": "cosine similarity of the explanation to the unit's worked solution (SS5.4 coverage, A19)",
+    "n_below_threshold": "texts below the pre-set coverage threshold",
+    "contrast": "condition contrast: S-T, U-T or S-U (eq. 10-12)",
+    "condition_a": "first condition of the RDM comparison",
+    "condition_b": "second condition",
+    "spearman": "Spearman correlation of the two conditions' RDM upper triangles (eq. 14)",
+    "dissimilarity": "1 - corr between two units' parcel patterns (eq. 14)",
+    "differentiation": "between-concept minus within-concept distance (eq. 34)",
+    "within_consistency": "mean correlation between units teaching the same concept",
+    "between_distance": "mean distance between units teaching different concepts",
+    "control": "which negative control (SS10.3)",
+    "criterion": "falsification criterion F1-F6 (SS10.6)",
+    "indicator": "what is measured for that criterion",
+    "verdict": "claim allowed, no claim, or not assessable",
+    "abs_change": "absolute change in the metric under the control",
+    "main_contrast": "the substantive contrast the control is compared against",
+    "max_abs_condition_contrast": "largest absolute condition contrast for that network",
+    "ratio_shuffle_to_contrast": "shuffled-text change over the condition contrast",
+    "ratio_to_contrast": "control effect over the largest condition contrast; >= 0.5 is 'similar size' (A15)",
+    "ratio_regeneration_to_contrast": "spread across reworded versions over the primary contrast",
+    "sd_regeneration": "SD of the contrast across the reworded versions (F2)",
+    "same_sign_all_9": "the contrast keeps its sign in all 9 primary x reworded combinations (F2, D21)",
+    "claim_allowed": "the contrast survives the regeneration check",
+    "primary": "the contrast computed on the primary texts",
+    "incorrect_minus_correct": "incorrect-but-fluent text minus the correct one (F5)",
+    "permuted_conditions_median_ratio": "median |contrast| with condition labels permuted, over the real one: the null for a condition contrast",
+    "permuted_units_median_ratio": "same with units permuted within a condition, a content control that is ~1 by construction (D20)",
+    "permuted_conditions_share_as_large": "share of permutations at least as large as the real contrast",
+    "permuted_units_share_as_large": "same for the unit permutation",
+    "null_mean": "mean of the sign-flip null",
+    "null_sd": "SD of that null",
+    "share_null_as_extreme": "share of the null at least as extreme as the observed contrast",
+    "observed_sc": "the observed scenario contrast the null is compared against",
+    "a": "personalisation quality: `support.adaptation` of both AI protocols (A10)",
+    "e": "retained learner effort: scales the answer-provided penalty to a4 (1 - e) (A10)",
+    "o": "answer substitution: chance an AI episode runs substitution instead of scaffolding (A10)",
+    "f": "support fading: gradual_fading with fade_base = 1 - f (A10)",
+    "line": "which one-at-a-time tipping line (e, o, f or forgetting)",
+    "tipping_point": "parameter value at which G changes sign (eq. 40)",
+    "per_draw_median": "median across draws of the per-draw quantity",
+    "per_draw_lo90": "5th percentile across draws",
+    "per_draw_hi90": "95th percentile across draws",
+    "per_draw_lo95": "2.5th percentile across draws",
+    "per_draw_hi95": "97.5th percentile across draws",
+    "share_no_sign_change": "share of draws in which G never changes sign along the line",
+    "half_life_weeks": "neural-state half-life of the diagram axis (A4)",
+    "lambda_O": "offloading penalty of eq. 33 (A5)",
+    "d_mean": "mean standardised neural contrast (eq. 44)",
+    "d_median": "median of it across draws",
+    "d_n": "draws behind it",
+    "d_lo90": "5th percentile across draws",
+    "d_hi90": "95th percentile across draws",
+    "d_lo95": "2.5th percentile across draws",
+    "d_hi95": "97.5th percentile across draws",
+    "mediator": "mediator held at the comparator's value (SS11.5: E, F, D or Z)",
+    "contribution": "1 - SC(held) / SC(full): share of the contrast travelling through that mediator",
+    "sc_full_median": "median scenario contrast with nothing held",
+    "sc_held_median": "median with the mediator held",
+    "small_full_sc": "the full contrast is too small for the ratio to be meaningful",
+    "engine": "response engine: the Centaur-driven hybrid, or the transparent logistic baseline",
+    "centaur": "value under the Centaur-driven hybrid engine",
+    "logistic": "value under the logistic baseline",
+    "K_tercile": "tercile of the learner's knowledge K at the time of the free choice",
+    "approach": "protocol the learner picked in the free-choice arm",
+    "episodes": "episodes behind the row",
+    "episodes_per_week": "exposure arm (SS9.1)",
+    "setting": "parameter arm of the run: low, medium or high (brief SS7.2)",
+    "section": "part of the table: level, contrast, or a named comparison",
+    "run": "the run the row came from",
+    "units": "units of the quantity",
+    "varies by design": "what the design varies for this component",
+    "model_value": "the model-implied quantity, computed on the scale the source reports (D27)",
+    "published_low": "low end of the range the source reports", "published_high": "high end of that range",
+    "model_detail": "how the model value was derived", "reported": "what the source measured",
+    "model_quantity": "why the two are comparable", "cite": "short citation",
+    "quantity": "the quantity being compared, and its units",
+    "share_tied": "share of learners whose paired difference is exactly 0 (PrSup counts these as not-superior)",
+    "prsup_untied": "PrSup among non-tied pairs: share positive of those that differ at all",
+    "covariates": "matching features adjusted for in eq. 13 (F1)",
+    "covariate_rank": "matching features actually adjusted for: dimensions the covariate block spans after within-unit demeaning, treating singular values below 1% of the largest as rounding noise (duration is collinear with word_count)",
+    "covariate_max_abs_corr": "largest absolute pairwise correlation among those covariates",
 }
 OUTCOME_DOC = {"G": "net advantage (eq. 39) = wK dK + wR dR + wM dM - wD dD", "near_bound_share": "share of learners within 0.01 of a state bound",
                "clips": "state updates clipped at a bound", "support_gap": "supported - unaided accuracy", "retention_below_share": "share with retention below end-of-year accuracy",

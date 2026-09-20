@@ -1,0 +1,91 @@
+# Empirical anchors for the parameters that drive the long-run results (brief §7.2, Appendix A "every parameter has a
+# source, rationale, or explicit assumption label"; PLAN.md D27).
+#
+# WHAT THIS IS AND IS NOT. These entries do NOT set any value: `config/default.yaml` is unchanged and every completed
+# run stays valid. Each entry names a published quantity, the model quantity that is comparable to it, and the range
+# the literature reports. `analysis.parameter_anchors` computes the model quantity from the configuration and the
+# finished runs and reports whether it falls inside that range. A parameter that lands outside is reported as such -
+# a calibration finding and a limitation, not something to be quietly tuned away.
+#
+# COMPARABILITY IS THE HARD PART, so each entry states it explicitly in `model_quantity`. Where the model quantity is
+# not on the same scale as the published one, the entry is `compare: cited_only`: the source is recorded for Table 3
+# but no verdict is claimed.
+
+status: drafted
+drafted: 2026-09-20
+
+anchors:
+
+  population.mu_alpha:
+    label: alpha (knowledge acquisition rate, eq. 16 and 21)
+    cite: Corbett & Anderson (1995); pyBKT / TutorShop defaults
+    source: >-
+      Corbett & Anderson (1995), Bayesian Knowledge Tracing; parameter defaults as shipped by pyBKT (Badrinath,
+      Wang & Pardos, EDM 2021) and CMU's TutorShop.
+    reported: >-
+      p(T), the probability that a skill moves to the mastered state per practice opportunity. Common EM
+      initialisation is 0.10; TutorShop ships p_learn = 0.22; fitted values vary widely across skills.
+    published_range: [0.10, 0.22]
+    units: fraction of the remaining gap to mastery closed per practice opportunity
+    model_quantity: >-
+      alpha_i * E * F. Eq. 21's gain term is alpha * E * F * (1 - K), the same "close a fraction of the remaining
+      gap" form as BKT's P(L_t+1) = P(L_t) + p(T) * (1 - P(L_t)), so the two are on one scale. E and F are the mean
+      effort and effectiveness actually realised in the reference run, not their maxima.
+    compare: learn_rate_per_opportunity
+
+  population.b_delta:
+    label: delta (forgetting rate, eq. 16, 21 and 22)
+    cite: Custers (2010)
+    source: >-
+      Custers, E. J. F. M. (2010). Long-term retention of basic science knowledge: a review study.
+      Advances in Health Sciences Education 15(1), 109-128.
+    reported: >-
+      Roughly two-thirds to three-quarters of taught knowledge is retained one year after instruction (25-35% lost),
+      falling to somewhat below one half by the second year. Measured on classroom material without further
+      instruction, which is the right comparison here: the lab forgetting curve for nonsense syllables is far
+      steeper and does not describe taught content.
+    published_range: [0.65, 0.75]
+    units: fraction of knowledge retained after one year without practice
+    model_quantity: >-
+      (1 - delta)^n, the eq. 21 decay compounded over a year of no practice. A16 makes delta a per-episode rate at
+      `reference_episodes_per_week`, so a year is 52 * reference_episodes_per_week episode-equivalents at the term
+      rate, or that times `break_decay_scale` at the break rate (D4). Both are reported; the break rate is the one
+      the simulation ever actually applies over a long gap.
+    compare: retention_one_year
+
+  response.omega:
+    label: omega (effect of available support on the eq. 18 response)
+    cite: Kulik & Fletcher (2016); Ma et al. (2014); VanLehn (2011)
+    source: >-
+      Kulik, J. A. & Fletcher, J. D. (2016), Review of Educational Research 86(1), 42-78 (median effect 0.66, g
+      about 0.62); Ma, W., Adesope, O. O., Nesbit, J. C. & Liu, Q. (2014), Journal of Educational Psychology 106(4),
+      901-918 (g about 0.35-0.44 depending on the comparison); VanLehn, K. (2011), Educational Psychologist 46(4),
+      197-221 (step-based tutoring about 0.76 against no tutoring).
+    reported: >-
+      Standardised gain in test performance from tutoring support relative to unsupported instruction. The three
+      meta-analyses disagree by more than a factor of two, so the range below is deliberately wide.
+    published_range: [0.35, 0.76]
+    units: Cohen's d on unaided-test accuracy
+    model_quantity: >-
+      (supported accuracy - unaided accuracy) / SD(unaided accuracy) at the §7.7 checkpoints, where `supported` is
+      one hint (support h = 1/3, A12). This is the model's own support gap (eq. 26) expressed as a standardised
+      effect, which is what the meta-analyses report.
+    compare: support_gap_d
+
+  updates.eta_M:
+    label: eta_M (retrieval -> memory strength, eq. 22)
+    cite: Rowland (2014); Adesope et al. (2017)
+    source: >-
+      Rowland, C. A. (2014), Psychological Bulletin 140(6), 1432-1463 (g = 0.50); Adesope, O. O., Trevisan, D. A. &
+      Sundararajan, N. (2017), Review of Educational Research 87(3), 659-701 (g = 0.61, 217 studies).
+    reported: >-
+      Standardised retention advantage of retrieval practice over restudying (the testing effect), stronger for more
+      complex material and more effortful retrieval, both of which describe this corpus.
+    published_range: [0.50, 0.61]
+    units: Hedges' g on delayed retention
+    model_quantity: >-
+      NOT COMPUTED. M is a latent memory strength on [0, 1] that enters accuracy only through kappa * M in eq. 17,
+      so eta_M has no direct expression as a standardised retention effect without a dedicated paired run
+      (retrieval-heavy vs retrieval-light episodes at matched K). Recorded so Table 3 carries the source, with no
+      consistency verdict claimed.
+    compare: cited_only

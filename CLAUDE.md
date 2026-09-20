@@ -23,11 +23,17 @@ analysis layer.
 - **Phases IV and V** (`plasticity.py`, `longitudinal.py`) read per episode what `learner_state.parquet` carries:
   `effort` (E), `pe`, `retrieval`, `offloading`, `resolution`, `unit_id`, `condition`. The support-persistence policy
   and the low/medium/high parameter arms are the §9.2-9.3 scenario knobs.
-- **Phase V scenarios (user decision 2026-09-16): five, not the brief's five.** traditional; scaffolding
+- **Phase V scenarios (user decision 2026-09-16): five of our own, not the brief's five.** traditional; scaffolding
   rapid fade (`immediate_withdrawal`); scaffolding no fade (`persistent`); substitution (`persistent`);
-  `free_choice` (logistic softmax-in-D approach rule, labelled as an assumption). Gradual fade is dropped as a
-  named scenario; `fade_base` is still swept on the §9.6 frontier. Phase V adds no new units: it reuses the
-  30 units and their TRIBE patterns with difficulty rising over the years.
+  `free_choice` (logistic softmax-in-D approach rule, labelled as an assumption). The brief's gradual fade is
+  dropped as a named scenario; `fade_base` is still swept on the §9.6 frontier. A **sixth**, `free_choice_centaur`
+  (the rule fitted to Centaur's picks), was added 2026-09-18 (D18) and is in Table 5 and Figures 5-6, but not in the
+  72 pre-D18 specification runs. Phase V adds no new units: it reuses the 30 units and their TRIBE patterns with
+  difficulty rising over the years.
+- **`support.adaptation` is the only term separating scaffolding from traditional** (eq. 20's f_3 input; the tutor's
+  text is numerically inert). Set the three protocols equal and their year-10 G contrast is exactly 0. It is a fixed
+  leaf, so no parameter draw touches it; D25 makes it a specification-curve dimension instead. Never present the
+  scaffolding advantage as derived rather than assumed.
 - **Phase IV-V design (user decisions 2026-09-16) lives in `PLAN.md` §2-3:** soft limits on M, R, D in Phase V
   only (Phase III keeps eq. 22/23/25 so `centaur_main` stays consistent), forgetting per calendar week with 12
   break weeks at 1/4 of the term rate, two frontier diagrams (behavioural G, neural), headline outcomes, eq. 42 with

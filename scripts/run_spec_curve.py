@@ -23,6 +23,18 @@ ROOT = Path(__file__).resolve().parents[1]
 BREAK_SCALE = {"weekly_break_0.25": "0.25", "weekly_break_0.1": "0.1", "weekly_break_1.0": "1.0"}
 EFFORT_SETS = {"drawn": [], "fixed_low": ["effort.a1=0.9", "effort.a2=0.6", "effort.a3=0.7", "effort.a4=1.5"],
                "fixed_high": ["effort.a1=1.5", "effort.a2=1.0", "effort.a3=1.3", "effort.a4=2.5"]}
+# eq. 20 adaptation per protocol (PLAN.md D25). `authored` is the config's own value and therefore emits NO override
+# and NO tag suffix, so the 72 runs made before this dimension existed are exactly its 72 `authored` cells.
+# `halved` moves each protocol half its distance to the three-protocol mean 0.4833; `none` puts all three at the mean,
+# which removes the contrast while leaving the mean level of F alone.
+MAIN_ADAPTATION = "authored"
+ADAPTATION_SETS = {
+    "authored": [],
+    "halved": ["support.adaptation.traditional=0.42", "support.adaptation.ai_scaffolding=0.69",
+               "support.adaptation.ai_substitution=0.34"],
+    "none": ["support.adaptation.traditional=0.48", "support.adaptation.ai_scaffolding=0.48",
+             "support.adaptation.ai_substitution=0.48"],
+}
 
 
 def specifications(spec: dict) -> list[dict]:
@@ -30,10 +42,13 @@ def specifications(spec: dict) -> list[dict]:
     "per_episode_no_breaks" is the Phase III convention: no summer break, and forgetting per episode whatever the
     exposure (reference_episodes_per_week = the run's own episodes per week)."""
     r = spec["reruns"]
+    adaptation = r.get("adaptation", {MAIN_ADAPTATION: 1})
     out = []
-    for form, forget, epw, effort in itertools.product(r["update_form"], r["forgetting"], r["exposure_per_week"], r["effort_function"]):
-        ranks = [r["update_form"][form], r["forgetting"][forget], r["exposure_per_week"][epw], r["effort_function"][effort]]
-        sets = list(EFFORT_SETS[effort])
+    for form, forget, epw, effort, adapt in itertools.product(r["update_form"], r["forgetting"], r["exposure_per_week"],
+                                                              r["effort_function"], adaptation):
+        ranks = [r["update_form"][form], r["forgetting"][forget], r["exposure_per_week"][epw],
+                 r["effort_function"][effort], adaptation[adapt]]
+        sets = list(EFFORT_SETS[effort]) + list(ADAPTATION_SETS[adapt])
         args = ["--form", str(form), "--epw", str(epw)]
         if forget in BREAK_SCALE:
             args += ["--break-scale", BREAK_SCALE[forget]]
@@ -41,30 +56,40 @@ def specifications(spec: dict) -> list[dict]:
             sets = ["calendar.break_weeks=0", f"calendar.reference_episodes_per_week={epw}"] + sets
         if sets:
             args += ["--set"] + sets
-        out.append({"tag": f"spec_{form}_{forget}_epw{epw}_{effort}", "form": form, "forgetting": forget, "epw": epw,
-                    "effort": effort, "tier": max(ranks), "ranks": ranks, "args": args})
+        # the main level keeps the pre-D25 tag, so its 72 completed runs are reused rather than redone
+        tag = f"spec_{form}_{forget}_epw{epw}_{effort}" + ("" if adapt == MAIN_ADAPTATION else f"_adapt_{adapt}")
+        out.append({"tag": tag, "form": form, "forgetting": forget, "epw": epw, "effort": effort,
+                    "adaptation": adapt, "tier": max(ranks), "ranks": ranks, "args": args})
     return out
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--scenarios", nargs="+", help="Phase V scenarios (default: the config's)")
+    ap.add_argument("--scenarios", nargs="+", help="Phase V scenarios (default: design.scenarios in spec_curve.yaml, "
+                                                   "which pins what the pre-D25 runs used - not the config's list)")
     ap.add_argument("--only-tier", type=int, help="run only specifications of this tier")
+    ap.add_argument("--only-adaptation", choices=tuple(ADAPTATION_SETS), help="run only this adaptation level (D25)")
     args = ap.parse_args(argv)
     spec = yaml.safe_load((ROOT / "config" / "spec_curve.yaml").read_text(encoding="utf-8"))
     if spec.get("status") != "approved" or not spec.get("approved"):
         print("config/spec_curve.yaml is not approved: the ranks must be fixed before any result (brief §10.4)", file=sys.stderr)
         return 2
     design = spec["design"]
-    specs = [s for s in specifications(spec) if args.only_tier is None or s["tier"] == args.only_tier]
+    # the manifest always describes the WHOLE design; --only-* filters what is executed now, never what is recorded
+    every = specifications(spec)
+    specs = [s for s in every if (args.only_tier is None or s["tier"] == args.only_tier)
+             and (args.only_adaptation is None or s["adaptation"] == args.only_adaptation)]
     manifest = ROOT / "data" / "processed" / "phase5" / "spec_curve_manifest.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(json.dumps({"approved": str(spec["approved"]), "design": design, "specifications": specs}, indent=2),
+    manifest.write_text(json.dumps({"approved": str(spec["approved"]), "design": design, "specifications": every}, indent=2),
                         encoding="utf-8")
+    # every cell must run the same scenarios, or the curve's dimensions are confounded with which scenarios a cell
+    # included; design.scenarios pins what the pre-D25 runs used (see spec_curve.yaml)
+    scenarios = args.scenarios or design.get("scenarios")
     for i, s in enumerate(specs):
         cmd = [sys.executable, "-m", "neurotutorsim.longitudinal", "--tag", s["tag"], "--years", str(design["years"]),
-               "--draws", str(design["draws"]), "--learners", str(design["learners"]), "--flush-every", "10"] + s["args"] + (["--scenarios"] + args.scenarios if args.scenarios else [])
+               "--draws", str(design["draws"]), "--learners", str(design["learners"]), "--flush-every", "10"] + s["args"] + (["--scenarios"] + list(scenarios) if scenarios else [])
         run_json = ROOT / "data" / "processed" / "phase5" / s["tag"] / "run.json"
         if run_json.exists():
             done = json.loads(run_json.read_text(encoding="utf-8"))["draws_done"]

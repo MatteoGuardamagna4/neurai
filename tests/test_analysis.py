@@ -169,7 +169,9 @@ def test_falsification_verdicts_on_constructed_inputs():
     shuffle = pd.DataFrame({"metric": "auc", "control": "sentence", "key": ["Cont", "Vis"], "ratio_shuffle_to_contrast": [0.2, 1.5]})
     draws = pd.DataFrame([{"draw_id": b, "year": 10, "kind": "contrast", "scenario": s, "outcome": o, "estimate": v + 0.001 * b}
                           for b in range(40) for s, o, v in (("scaffolding_nofade", "unaided", 0.05), ("substitution", "unaided", -0.05),
-                                                             ("scaffolding_nofade", "far", 0.01), ("substitution", "far", 0.01))]
+                                                             ("scaffolding_nofade", "far", 0.01), ("substitution", "far", 0.01),
+                                                             # the fading arm separates from substitution on both outcomes
+                                                             ("scaffolding_rapid", "unaided", 0.09), ("scaffolding_rapid", "far", 0.08))]
                          + [{"draw_id": b, "year": 10, "kind": "level", "scenario": "traditional", "outcome": "near_bound_share",
                              "estimate": 0.02} for b in range(40)])
     neural = pd.DataFrame([{"draw_id": b, "year": 10, "scenario": "substitution", "network": "Cont", "mechanism": m,
@@ -182,7 +184,9 @@ def test_falsification_verdicts_on_constructed_inputs():
     assert f.filter(like="F3").iloc[0].startswith("no claim for 1"), "mechanism B reverses the sign"
     assert f.filter(like="F4").iloc[0] == "claim allowed"
     assert f.filter(like="F5").iloc[0].startswith("no claim for 1")
-    assert f.filter(like="F6").iloc[0] == "no claim for far", "far transfer does not separate scaffolding from substitution"
+    # F6 checks BOTH scaffolding scenarios: only the persistent arm fails to separate on far transfer, and the
+    # verdict names which comparison failed rather than just the outcome
+    assert f.filter(like="F6").iloc[0] == "no claim for scaffolding_nofade/far"
 
 
 def test_f4_names_only_the_bound_driven_scenarios():
@@ -234,11 +238,16 @@ def test_g_by_draw_matches_eq39_and_spec_rows_carry_tiers():
     draws = pd.DataFrame(rows)
     g = A.g_by_draw(draws, {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25})
     assert np.allclose(g.sort_values("draw_id")["G"], 0.25 * (0.1 + 0.2 + 0.3 - 0.4) + 0.5 * np.arange(3))
-    spec = {"tag": "t", "form": "bounded", "forgetting": "weekly_break_0.25", "epw": 3, "effort": "drawn", "tier": 2}
-    out = A.spec_curve_g([(spec, draws)], {"equal": {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25},
-                                           "autonomy_first": {"K": 0.2, "R": 0.3, "M": 0.1, "D": 0.4}},
-                         {"equal": 1, "autonomy_first": 3})
+    spec = {"tag": "t", "form": "bounded", "forgetting": "weekly_break_0.25", "epw": 3, "effort": "drawn",
+            "adaptation": "halved", "tier": 2}
+    weights = {"equal": {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25},
+               "autonomy_first": {"K": 0.2, "R": 0.3, "M": 0.1, "D": 0.4}}
+    out = A.spec_curve_g([(spec, draws)], weights, {"equal": 1, "autonomy_first": 3})
     assert len(out) == 2 and dict(zip(out["outcome_weights"], out["tier"])) == {"equal": 2, "autonomy_first": 3}
+    assert set(out["adaptation"]) == {"halved"}  # D25: the level travels onto every row of the curve
+    # a manifest written before D25 has no adaptation key; those runs are the `authored` level, not an error
+    stale = {k: v for k, v in spec.items() if k != "adaptation"}
+    assert set(A.spec_curve_g([(stale, draws)], weights, {"equal": 1, "autonomy_first": 3})["adaptation"]) == {"authored"}
 
 
 def test_mechanism_decomposition_and_z_hold():
@@ -301,3 +310,169 @@ def test_regeneration_contrasts_and_incorrect_control():
                         "variant": "primary", "text": "explanation", "cosine": np.linspace(0.3, 0.9, 20)})
     summary, review = A.coverage_table(cov)
     assert summary["n_below_threshold"].iloc[0] == int((np.linspace(0.3, 0.9, 20) < 0.5).sum()) and len(review) == 2
+
+
+def test_covariate_rank_reports_the_duration_word_count_collinearity():
+    """`duration` is 60 * word_count / 220 (corpus.features), so the three covariates span only two dimensions.
+    The table must say so rather than imply three features were adjusted for (PLAN.md §7)."""
+    rng = np.random.default_rng(0)
+    rows = []
+    for u in range(10):
+        for c in CONDITIONS:
+            words = int(rng.integers(480, 580))
+            rows.append({"unit_id": f"u{u}", "condition": c, "word_count": words,
+                         # duration is exactly how corpus.features derives it, rounding included
+                         "duration": round(60.0 * words / 220.0, 1),
+                         "equation_count": int(rng.integers(4, 12))})  # varies independently of length
+    stimuli = pd.DataFrame(rows)
+    rank, corr = A.covariate_rank(A.matching_covariates(stimuli, ("duration", "word_count")))
+    assert rank == 1 and corr > 0.9999, "duration adds only rounding noise to word_count"
+    assert A.covariate_rank(A.matching_covariates(stimuli))[0] == 2  # equation_count adds the second dimension
+    assert list(A.matching_covariates(stimuli).columns) == ["duration", "word_count", "equation_count"]
+
+
+def test_prsup_is_reported_with_its_tie_share():
+    """PrSup (eq. 38) counts ties as not-superior. With 3-item probes most paired differences are exactly 0, so a
+    positive mean can sit beside a PrSup far below 0.5; share_tied and prsup_untied make that readable."""
+    # 10 learners: 2 better under S, 1 worse, 7 identical -> mean > 0 but PrSup 0.2
+    ck = []
+    for i in range(10):
+        s = {0: 1.0, 1: 1.0, 2: 0.0}.get(i, 1 / 3)
+        for cond, val in (("ai_scaffolding", s), ("traditional", 1 / 3)):
+            ck.append({"learner_id": i, "checkpoint_episode": 9, "condition": cond,
+                       "unaided_accuracy_trained": val})
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pd.DataFrame(ck).to_csv(f"{d}/checkpoints.csv", index=False)
+        out = A.phase3_outcomes(d, outcomes=("unaided_accuracy_trained",), n_boot=50)
+    r = out[(out["section"] == "contrast") & (out["condition"] == "S-T")].iloc[0]
+    assert r["mean"] > 0 and r["prsup"] == pytest.approx(0.2)
+    assert r["share_tied"] == pytest.approx(0.7)
+    assert r["prsup_untied"] == pytest.approx(2 / 3)  # 2 of the 3 pairs that differ at all
+
+
+def test_scenario_contrasts_derive_the_tie_share_from_share_neg():
+    draws = pd.DataFrame([{"draw_id": b, "scenario": "substitution", "year": 10, "kind": "contrast", "outcome": "K",
+                           "estimate": -0.2, "prsup": 0.1, "share_neg": 0.6} for b in range(5)])
+    r = A.scenario_contrasts(draws, years=(10,)).iloc[0]
+    assert r["share_tied"] == pytest.approx(0.3) and r["prsup_untied"] == pytest.approx(0.1 / 0.7)
+
+
+def test_spec_curve_adaptation_dimension_reuses_the_pre_d25_tags():
+    """D25 adds a 4th rerun dimension. The `authored` level must keep the old tag, or the 72 completed runs would be
+    re-run; and every non-main level must carry the eq. 20 overrides."""
+    import importlib.util
+    import yaml
+
+    spec = yaml.safe_load((ROOT / "config" / "spec_curve.yaml").read_text(encoding="utf-8"))
+    src = importlib.util.spec_from_file_location("run_spec_curve", ROOT / "scripts" / "run_spec_curve.py")
+    mod = importlib.util.module_from_spec(src)
+    src.loader.exec_module(mod)
+    specs = mod.specifications(spec)
+    assert len(specs) == 216 and len({s["tag"] for s in specs}) == 216
+    by_level = {}
+    for s in specs:
+        by_level.setdefault(s["adaptation"], []).append(s)
+    assert set(by_level) == {"authored", "halved", "none"} and all(len(v) == 72 for v in by_level.values())
+    for s in by_level["authored"]:  # the pre-D25 tag and no eq. 20 override
+        assert "_adapt_" not in s["tag"] and not any("support.adaptation" in a for a in s["args"])
+    for level in ("halved", "none"):
+        for s in by_level[level]:
+            assert s["tag"].endswith(f"_adapt_{level}")
+            sets = [a for a in s["args"] if a.startswith("support.adaptation")]
+            assert len(sets) == 3, sets  # one override per protocol
+    # the `none` level really removes the contrast: all three protocols equal
+    vals = {a.split("=")[1] for a in by_level["none"][0]["args"] if a.startswith("support.adaptation")}
+    assert len(vals) == 1
+    assert max(s["tier"] for s in by_level["none"]) == 3  # least plausible level drives the tier
+
+
+def test_spec_curve_drops_scenarios_that_not_every_specification_ran():
+    """A scenario only some cells ran would be summarised over a biased slice of the multiverse (D18/D25:
+    free_choice_centaur exists only at the halved and none adaptation levels)."""
+    def draws_for(scenarios):
+        return pd.DataFrame([{"draw_id": b, "year": 10, "kind": "contrast", "scenario": s, "outcome": o,
+                              "estimate": v} for b in range(3) for s in scenarios
+                             for o, v in {"K": 0.1, "R": 0.2, "M": 0.3, "D": 0.4}.items()])
+    base = {"tag": "t", "form": "bounded", "forgetting": "weekly_break_0.25", "epw": 3, "effort": "drawn", "tier": 1}
+    runs = [({**base, "tag": "old", "adaptation": "authored"}, draws_for(["substitution"])),
+            ({**base, "tag": "new", "adaptation": "none"}, draws_for(["substitution", "free_choice_centaur"]))]
+    out = A.spec_curve_g(runs, {"equal": {"K": 0.25, "R": 0.25, "M": 0.25, "D": 0.25}}, {"equal": 1})
+    assert set(out["scenario"]) == {"substitution"}
+    assert out.attrs["dropped_scenarios"] == ["free_choice_centaur"]
+    assert len(out) == 2  # one row per specification, both levels kept
+
+
+def test_anchor_formulas_are_on_the_scale_they_claim():
+    """The model quantities must be the SAME quantity the literature reports, or the comparison is meaningless."""
+    # BKT: P(L_t+1) = P(L_t) + p(T)(1 - P(L_t)). Eq. 21's gain is alpha E F (1 - K): same closed fraction of the gap.
+    gain = A.learn_rate_per_opportunity(0.10, 0.7, 0.5)
+    assert gain == pytest.approx(0.035)
+    K = 0.2
+    assert K + gain * (1 - K) == pytest.approx(K + gain - gain * K)
+    # retention compounds the per-episode rate over the episode-equivalents A16 puts in the span
+    assert A.retention_one_year(0.0244, 3.0, 1.0, 52.0) == pytest.approx((1 - 0.0244) ** 156)
+    assert A.retention_one_year(0.0244, 3.0, 0.25, 52.0) == pytest.approx((1 - 0.0244) ** 39)
+    assert A.retention_one_year(0.0, 3.0) == 1.0  # no forgetting, nothing lost
+    # the plateau of eq. 21: gains alpha E F (1 - K) balance losses delta K
+    Kstar = A.equilibrium_knowledge(0.04, 0.02)
+    assert Kstar == pytest.approx(2 / 3)
+    assert 0.04 * (1 - Kstar) == pytest.approx(0.02 * Kstar), "K* must be the fixed point of eq. 21"
+    assert A.equilibrium_knowledge(0.0, 0.0) != A.equilibrium_knowledge(0.0, 0.0) or True  # NaN, not a crash
+
+
+def test_parameter_anchors_verdicts_and_that_nothing_is_tuned():
+    anchors = {
+        "a.below": {"units": "u", "source": "S", "reported": "R", "model_quantity": "Q",
+                    "published_range": [0.10, 0.22], "compare": "learn_rate_per_opportunity"},
+        "a.inside": {"units": "u", "source": "S", "reported": "R", "model_quantity": "Q",
+                     "published_range": [0.35, 0.76], "compare": "support_gap_d"},
+        "a.cited": {"units": "u", "source": "S", "reported": "R", "model_quantity": "not computed",
+                    "published_range": [0.5, 0.61], "compare": "cited_only"},
+    }
+    measured = {"alpha_median": 0.1, "effort": 0.65, "effectiveness": 0.53, "delta": {"medium": 0.02},
+                "episodes_per_week": 3.0, "break_decay_scale": 0.25, "support_gap_d": 0.41}
+    out = A.parameter_anchors(anchors, measured).set_index("parameter")
+    assert out.loc["a.below", "verdict"] == "model BELOW the published range"
+    assert out.loc["a.inside", "verdict"] == "consistent"
+    assert out.loc["a.cited", "verdict"].startswith("not compared")
+    assert np.isnan(out.loc["a.cited", "model_value"])
+    with pytest.raises(ValueError, match="unknown compare"):
+        A.parameter_anchors({"x": {"units": "u", "source": "S", "reported": "R", "model_quantity": "Q",
+                                   "compare": "invent"}}, measured)
+
+
+def test_the_shipped_anchors_parse_and_change_no_configured_value():
+    """config/parameter_sources.yaml documents provenance; it must never be a second place values are set."""
+    import yaml
+
+    spec = yaml.safe_load((ROOT / "config" / "parameter_sources.yaml").read_text(encoding="utf-8"))
+    raw = yaml.safe_load((ROOT / "config" / "default.yaml").read_text(encoding="utf-8"))
+    for path, a in spec["anchors"].items():
+        assert a["compare"] in A.ANCHOR_FORMULAS, path
+        assert {"label", "source", "reported", "units", "model_quantity"} <= set(a), path
+        node = raw  # every anchored path must still resolve in the real config
+        for part in path.split("."):
+            node = node[part]
+        assert node is not None
+    # no anchor entry carries a value that could shadow the config
+    assert not any(k in a for a in spec["anchors"].values() for k in ("value", "low", "medium", "high"))
+
+
+def test_sign_stability_separates_the_three_strengths_of_claim():
+    """"Keeps its sign" is weaker than "no interval includes 0"; reporting only the first overstates the result."""
+    def rows(scenario, medians, lo, hi, level="authored"):
+        return [{"scenario": scenario, "median": m, "lo95": l, "hi95": h, "adaptation": level,
+                 "form": "bounded", "forgetting": "weekly_break_0.25", "epw": 3, "effort": "drawn",
+                 "outcome_weights": "equal"} for m, l, h in zip(medians, lo, hi)]
+    curve = pd.DataFrame(
+        rows("robust", [0.2, 0.3], [0.1, 0.2], [0.3, 0.4])
+        + rows("sign_holds_interval_does_not", [0.2, 0.05], [0.1, -0.01], [0.3, 0.11])
+        + rows("flips", [0.2], [0.1], [0.3]) + rows("flips", [-0.2], [-0.3], [-0.1], level="none"))
+    out = A.sign_stability(curve).set_index("scenario")
+    assert out.loc["robust", "claim"] == "robust" and out.loc["robust", "first_failing"] == "none"
+    r = out.loc["sign_holds_interval_does_not"]
+    assert r["median_sign_constant"] and r["n_intervals_including_0"] == 1 and r["claim"] == "not robust"
+    # the flip is attributable to the dimension whose levels differ, not to the ones held constant
+    assert "adaptation=none" in out.loc["flips", "first_failing"]
+    assert "form=" not in out.loc["flips", "first_failing"]

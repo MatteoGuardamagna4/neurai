@@ -181,13 +181,48 @@ def table4(metrics: pd.DataFrame, covariates: pd.DataFrame | None = None, n_boot
     for _, idx in fe.groupby(["level", "metric", "contrast"]).groups.items():
         fe.loc[idx, "q_fdr"] = bh_fdr(fe.loc[idx, "p"])
     fe["ci_excludes_0"] = (fe["ci_low"] > 0) | (fe["ci_high"] < 0)
+    if covariates is not None:  # say how much adjustment was actually made (duration is collinear with word_count)
+        rank, corr = covariate_rank(covariates)
+        fe["covariates"] = ", ".join(covariates.columns)
+        fe["covariate_rank"], fe["covariate_max_abs_corr"] = rank, round(corr, 6)
     return fe
 
 
-def matching_covariates(stimuli: pd.DataFrame, names=("duration", "word_count")) -> pd.DataFrame:
-    """(unit_id, condition)-indexed covariates for eq. 13, standardised (F1: do effects survive the matching features?)."""
+def matching_covariates(stimuli: pd.DataFrame, names=("duration", "word_count", "equation_count")) -> pd.DataFrame:
+    """(unit_id, condition)-indexed covariates for eq. 13, standardised (F1: do effects survive the matching features?).
+
+    `equation_count` is included because it is by far the worst-matched feature (SMD -1.76, scaffolding vs
+    traditional, against 0.41 for words and duration), so an F1 check without it tests the features that were
+    already balanced. Note that `duration` is a deterministic multiple of `word_count`
+    (`corpus.features`: 60 * words / 220), so these three names span TWO dimensions, not three; the redundancy is
+    harmless for the condition coefficients (`fixed_effects` uses a minimum-norm least squares) and is reported by
+    `covariate_rank` so the table never implies more adjustment than was made.
+
+    The deeper limitation is not fixable here and belongs in the text: the scaffolding stimulus has no `Worked
+    solution` section by construction (`corpus.SECTIONS`, because it may not leak the answer), so part of the S-T
+    contrast is "text containing a worked solution vs text not containing one". No covariate removes a difference
+    that the pedagogy requires.
+    """
     x = stimuli.set_index(["unit_id", "condition"])[list(names)].astype(float)
     return (x - x.mean()) / x.std(ddof=1)
+
+
+def covariate_rank(covariates: pd.DataFrame, rtol: float = 1e-2) -> tuple[int, float]:
+    """(effective rank, largest absolute pairwise correlation) of the covariate block after within-unit demeaning.
+
+    `duration` is `round(60 * word_count / 220, 1)`, so it is collinear with `word_count` up to the rounding at
+    0.1 s: on the real corpus the third singular value is 0.18% of the largest and the correlation is 0.9999975.
+    A direction carrying that little is rounding noise, not adjustment, so singular values below `rtol` x the
+    largest count as zero and the reported rank is the number of features actually adjusted for.
+    """
+    x = covariates.to_numpy(float)
+    blocks = x.reshape(len(x) // len(CONDITIONS), len(CONDITIONS), -1)
+    d = (blocks - blocks.mean(axis=1, keepdims=True)).reshape(x.shape)
+    sv = np.linalg.svd(d, compute_uv=False)
+    rank = int((sv > rtol * sv[0]).sum()) if len(sv) and sv[0] > 0 else 0
+    corr = np.corrcoef(x, rowvar=False)
+    off = np.abs(corr[np.triu_indices(len(corr), 1)]) if len(corr.shape) == 2 and len(corr) > 1 else np.array([0.0])
+    return rank, float(np.nanmax(off)) if off.size else float("nan")
 
 
 def eq42(metrics: pd.DataFrame, units: pd.DataFrame, level: str = "network", metric: str = "auc") -> pd.DataFrame:
@@ -434,10 +469,17 @@ def phase3_outcomes(processed: Path, outcomes=PHASE3_OUTCOMES, n_boot: int = 200
                 d = (g[(o, c1)] - g[(o, c2)]).to_numpy(float)
                 lo, hi = bootstrap_ci(d, n_boot, seed)
                 d = d[~np.isnan(d)]
+                # PrSup (eq. 38) counts ties as not-superior. The §7.7 probes are 3 trained / 2 transfer items, so
+                # most paired differences are exactly 0 and PrSup reads far below 0.5 even where the mean is
+                # positive. Report the tie share and the superiority among non-tied pairs beside it.
+                tied = float((d == 0).mean()) if len(d) else np.nan
+                nz = d[d != 0]
                 rows.append({"section": "contrast", "condition": name, "checkpoint_episode": int(ep), "outcome": o,
                              "mean": float(d.mean()) if len(d) else np.nan,
                              "sd": float(d.std(ddof=1)) if len(d) > 1 else np.nan, "n_learners": int(len(d)),
-                             "ci_low": lo, "ci_high": hi, "prsup": float((d > 0).mean()) if len(d) else np.nan})
+                             "ci_low": lo, "ci_high": hi, "prsup": float((d > 0).mean()) if len(d) else np.nan,
+                             "share_tied": tied,
+                             "prsup_untied": float((nz > 0).mean()) if len(nz) else np.nan})
     out = pd.DataFrame(rows)
     return out[out["n_learners"] > 0].reset_index(drop=True)  # retention has no items at the first checkpoint
 
@@ -594,14 +636,22 @@ def gate18(pilot: Path, zero_plasticity: Path | None = None, zero_effort: Path |
 def scenario_contrasts(draws: pd.DataFrame, outcomes=None, years=(1, 5, 10)) -> pd.DataFrame:
     """Per AI scenario x outcome x year: the SC across draws (mean of each draw's mean paired difference), its
     median and 90/95% simulation intervals, and PrSup pooled over learners and draws (eq. 37-38). The central
-    draw (-1) is excluded from the intervals."""
+    draw (-1) is excluded from the intervals.
+
+    PrSup counts tied learners as not-superior, and for an outcome whose contrast is near zero, or whose states sit
+    at a bound, ties can be most of the sample. `share_tied` (1 - PrSup - share negative, as recorded per draw) and
+    `prsup_untied` are reported beside it so a low PrSup is never read as evidence against a positive SC."""
     c = draws[(draws["kind"] == "contrast") & (draws["draw_id"] >= 0) & draws["year"].isin(years)]
     if outcomes is not None:
         c = c[c["outcome"].isin(outcomes)]
     rows = []
     for (s, o, y), g in c.groupby(["scenario", "outcome", "year"]):
+        prsup = float(g["prsup"].mean())
+        tied = float(np.clip(1.0 - prsup - g["share_neg"].mean(), 0.0, 1.0)) if "share_neg" in g else np.nan
         rows.append({"scenario": s, "outcome": o, "year": y, **intervals(g["estimate"]),
-                     "prsup": float(g["prsup"].mean()), "share_draws_positive": float((g["estimate"] > 0).mean())})
+                     "prsup": prsup, "share_tied": tied,
+                     "prsup_untied": prsup / (1.0 - tied) if tied == tied and tied < 1.0 else np.nan,
+                     "share_draws_positive": float((g["estimate"] > 0).mean())})
     return pd.DataFrame(rows)
 
 
@@ -787,8 +837,12 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
         return set(zip(s["key"], s["contrast"])) - set(zip(s.loc[~s["ci_excludes_0"], "key"], s.loc[~s["ci_excludes_0"], "contrast"]))
 
     gone = sorted(sig(table4_plain) - sig(table4_cov))
+    cov_names = table4_cov["covariates"].iloc[0] if "covariates" in table4_cov and len(table4_cov) else "the matching features"
+    cov_rank = table4_cov["covariate_rank"].iloc[0] if "covariate_rank" in table4_cov and len(table4_cov) else None
     add("F1", "effects disappear after matching content and duration", "network AUC contrasts whose 95% CI excludes 0 "
-        "without covariates but not with duration and word count", "any", ", ".join(f"{k} {c}" for k, c in gone) or "none",
+        f"without covariates but not with {cov_names}"
+        + (f" (spanning {cov_rank} dimensions: duration is collinear with word_count)" if cov_rank else ""),
+        "any", ", ".join(f"{k} {c}" for k, c in gone) or "none",
         f"no claim for {len(gone)} network contrasts" if gone else "claim allowed")
     if regen is not None and len(regen):
         r = regen[regen["metric"] == "auc"]
@@ -848,16 +902,23 @@ def falsification(table4_plain: pd.DataFrame, table4_cov: pd.DataFrame, shuffle:
             "text, per network", ">= 0.5 (A15)", value, verdict)
     else:
         add("F5", "negative controls as large as the substantive effects", "permuted-Z ratios", ">= 0.5", "controls not run", "not assessable")
+    # The criterion is about telling the two regimes apart once the learner is on their own. Every outcome here is
+    # already an unaided test, but "after support is removed" points most directly at the FADING arm, so both
+    # scaffolding scenarios are reported rather than one being picked: rapid fade actually withdraws support,
+    # no fade keeps it available and is the harder test of whether the protocols differ at all.
     sc = _sc_by_draw(draws, year)
-    same = []
-    for o in ("unaided", "far", "retention"):
-        if ("scaffolding_nofade", o) in sc and ("substitution", o) in sc:
-            d = (sc[("scaffolding_nofade", o)] - sc[("substitution", o)]).dropna()
-            lo, hi = np.quantile(d, [0.025, 0.975])
-            if lo <= 0 <= hi:
-                same.append(o)
-    add("F6", "scaffolding and substitution indistinguishable after support removal", f"95% interval across draws of the "
-        f"year-{year} SC(scaffolding, no fade) - SC(substitution)", "includes 0", ", ".join(same) or "none",
+    same, checked = [], []
+    for scaffold in ("scaffolding_rapid", "scaffolding_nofade"):
+        for o in ("unaided", "far", "retention"):
+            if (scaffold, o) in sc and ("substitution", o) in sc:
+                checked.append(f"{scaffold}/{o}")
+                d = (sc[(scaffold, o)] - sc[("substitution", o)]).dropna()
+                lo, hi = np.quantile(d, [0.025, 0.975])
+                if lo <= 0 <= hi:
+                    same.append(f"{scaffold}/{o}")
+    add("F6", "scaffolding and substitution indistinguishable after support removal", f"95% interval across draws of "
+        f"the year-{year} SC(scaffolding) - SC(substitution), for both the fading and the persistent scaffolding "
+        f"scenario ({len(checked)} comparisons)", "includes 0", ", ".join(same) or "none",
         f"no claim for {', '.join(same)}" if same else "claim allowed")
     return pd.DataFrame(rows)
 
@@ -989,19 +1050,39 @@ def g_by_draw(draws: pd.DataFrame, weights: dict, year: int = 10) -> pd.DataFram
     return g.rename("G").reset_index()
 
 
-SPEC_KEYS = ("tag", "form", "forgetting", "epw", "effort")
+SPEC_KEYS = ("tag", "form", "forgetting", "epw", "effort", "adaptation")  # `adaptation` added by PLAN.md D25
+
+
+def spec_key_values(spec: dict) -> dict:
+    """The specification's level on every rerun dimension. A manifest written before a dimension existed has no key
+    for it, and those runs are that dimension's main level (`report.spec_rows` fills it in); default here too so a
+    stale manifest degrades to a smaller curve instead of raising."""
+    default = {"adaptation": "authored"}
+    return {k: spec.get(k, default.get(k)) for k in SPEC_KEYS}
 
 
 def spec_curve_g(runs: list[tuple[dict, pd.DataFrame]], weight_sets: dict, weight_ranks: dict, year: int = 10) -> pd.DataFrame:
     """Figure 8a rows: one per rerun specification x outcome weights x AI scenario, with the median and 95% interval
-    across draws of the year-`year` G and the tier (the highest rank among the specification's levels)."""
+    across draws of the year-`year` G and the tier (the highest rank among the specification's levels).
+
+    Only scenarios present in EVERY specification are kept. A scenario some cells lack would otherwise be summarised
+    over a biased subset of the multiverse: `free_choice_centaur` is the live case, since its rule was fitted after
+    the 72 pre-D25 cells were run (D18) and it exists only at the `halved` and `none` adaptation levels. Dropped
+    scenarios are listed in the returned frame's `attrs["dropped_scenarios"]` so the caller can report them."""
+    per_run = [(spec, g_by_draw(draws, list(weight_sets.values())[0], year)) for spec, draws in runs]
+    common = set.intersection(*[set(g["scenario"]) for _, g in per_run]) if per_run else set()
+    dropped = sorted(set().union(*[set(g["scenario"]) for _, g in per_run]) - common) if per_run else []
     rows = []
     for spec, draws in runs:
         for wname, w in weight_sets.items():
             for s, grp in g_by_draw(draws, w, year).groupby("scenario"):
-                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "outcome_weights": wname, "scenario": s,
+                if s not in common:
+                    continue
+                rows.append({**spec_key_values(spec), "outcome_weights": wname, "scenario": s,
                              "tier": max(spec["tier"], weight_ranks[wname]), **intervals(grp["G"])})
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    out.attrs["dropped_scenarios"] = dropped
+    return out
 
 
 def spec_curve_neural(spec: dict, acc: dict, mean_diff: dict, lam_o: pd.Series, run_scenarios: list[str], zs: dict,
@@ -1043,7 +1124,7 @@ def spec_curve_neural(spec: dict, acc: dict, mean_diff: dict, lam_o: pd.Series, 
                 tier = max(spec["tier"], ranks["plasticity_mechanism"][mech], ranks["reading_speed_wpm"][wpm],
                            ranks["tribe_metric"][metric], ranks["winsorize"][wins], ranks["network_weights"][wname],
                            ranks.get("parcellation", {}).get(parcellation, 1))
-                rows.append({**{k: spec[k] for k in SPEC_KEYS}, "parcellation": parcellation, "wpm": wpm,
+                rows.append({**spec_key_values(spec), "parcellation": parcellation, "wpm": wpm,
                              "metric": metric, "winsorize": wins, "network_weights": wname, "mechanism": mech,
                              "scenario": scenario, "network": network, "tier": tier, **intervals(d)})
     return pd.DataFrame(rows)
@@ -1133,9 +1214,16 @@ def variance_decomposition(paired: list[pd.DataFrame], scenarios: list[str], yea
         denom = comp["total"] + sum(v for v in extra.values() if np.isfinite(v))
         label = "G" if not neural else f"d_{network} (mechanism D)"
         for name, v in parts.items():
+            # A small NEGATIVE residual is a method-of-moments artifact, not a defect: `nested_variance` clamps each
+            # component at 0, so their sum can just exceed the total. Reported as computed, with the size said out
+            # loud, rather than clipped to 0 (which would hide how well the decomposition closes).
+            note = ""
+            if name == "residual" and v < 0:
+                note = (f"negative by {abs(v):.2e} ({abs(v) / denom:.3%} of the total): the components are clamped at "
+                        f"0 before subtraction, so the decomposition closes to within this much rather than exactly")
             rows.append({"outcome": label, "year": year, "component": name, "variance": v,
                          "share": v / denom if denom > 0 else np.nan, "n_scenarios": y.shape[0], "n_draws": y.shape[1],
-                         "n_learners": y.shape[2], "n_replicates": y.shape[3]})
+                         "n_learners": y.shape[2], "n_replicates": y.shape[3], "note": note})
     return pd.DataFrame(rows)
 
 
@@ -1160,3 +1248,96 @@ def stimulus_bootstrap(mean_diff: dict, lam_o: pd.Series, Z: np.ndarray, W: np.n
         boots = per_unit[rng.integers(0, n_units, (n_boot, n_units))].sum(axis=1) / scale
         out.append(boots.var(ddof=1))
     return float(np.mean(out))
+
+
+# ------------------------------------------------------------------ empirical anchors for Table 3 (PLAN.md D27)
+def learn_rate_per_opportunity(alpha_median: float, effort: float, effectiveness: float) -> float:
+    """Eq. 21 closes `alpha * E * F` of the remaining gap to mastery per episode, the same quantity BKT calls p(T)."""
+    return float(alpha_median) * float(effort) * float(effectiveness)
+
+
+def retention_one_year(delta: float, episodes_per_week: float, scale: float = 1.0, weeks: float = 52.0) -> float:
+    """Fraction of K left after `weeks` without practice: (1 - delta) compounded over the episode-equivalents A16
+    puts in that span. `scale` is `break_decay_scale` for a long gap at the break rate, 1.0 at the term rate."""
+    return float((1.0 - float(delta)) ** (float(episodes_per_week) * float(weeks) * float(scale)))
+
+
+def equilibrium_knowledge(gain: float, delta: float) -> float:
+    """Fixed point of eq. 21 at constant E and F: K* = alpha E F / (alpha E F + delta) (the (1-K) gain balances the
+    delta K loss). The level the simulated learner plateaus at, which is what makes the two rates jointly matter."""
+    total = float(gain) + float(delta)
+    return float(gain) / total if total > 0 else float("nan")
+
+
+ANCHOR_FORMULAS = ("learn_rate_per_opportunity", "retention_one_year", "support_gap_d", "cited_only")
+
+
+def parameter_anchors(anchors: dict, measured: dict) -> pd.DataFrame:
+    """Compare each anchored parameter's model-implied quantity with the range its source reports (PLAN.md D27).
+
+    `anchors` is `config/parameter_sources.yaml["anchors"]`; `measured` supplies what the model side needs, all
+    taken from the configuration and from finished runs, never re-simulated:
+    `alpha_median`, `effort`, `effectiveness`, `delta` (dict of arm -> mean rate), `episodes_per_week`,
+    `break_decay_scale`, `support_gap_d`. A verdict of `outside` is a calibration finding, not a defect to fix:
+    nothing here changes a value.
+    """
+    rows = []
+    for path, a in anchors.items():
+        how = a.get("compare", "cited_only")
+        if how not in ANCHOR_FORMULAS:
+            raise ValueError(f"{path}: unknown compare {how!r}; use one of {ANCHOR_FORMULAS}")
+        lo, hi = (a.get("published_range") or [np.nan, np.nan])[:2]
+        value, detail = np.nan, ""
+        if how == "learn_rate_per_opportunity":
+            value = learn_rate_per_opportunity(measured["alpha_median"], measured["effort"], measured["effectiveness"])
+            detail = (f"alpha_median {measured['alpha_median']:.3f} x E {measured['effort']:.3f} "
+                      f"x F {measured['effectiveness']:.3f}")
+        elif how == "retention_one_year":
+            epw, scale = measured["episodes_per_week"], measured["break_decay_scale"]
+            term = {k: retention_one_year(d, epw, 1.0) for k, d in measured["delta"].items()}
+            brk = {k: retention_one_year(d, epw, scale) for k, d in measured["delta"].items()}
+            value = brk["medium"]  # the rate the simulation applies over a long gap (D4)
+            detail = ("one year at the break rate " + ", ".join(f"{k} {v:.3f}" for k, v in brk.items())
+                      + "; at the term rate " + ", ".join(f"{k} {v:.4f}" for k, v in term.items()))
+        elif how == "support_gap_d":
+            value = float(measured["support_gap_d"])
+            detail = "support gap (eq. 26) at the §7.7 checkpoints, standardised by the SD of unaided accuracy"
+        verdict = ("not compared (see model_quantity)" if how == "cited_only" or not np.isfinite(value)
+                   else "consistent" if lo <= value <= hi
+                   else "model BELOW the published range" if value < lo else "model ABOVE the published range")
+        rows.append({"parameter": path, "quantity": a["units"], "model_value": value, "published_low": lo,
+                     "published_high": hi, "verdict": verdict, "model_detail": detail,
+                     "cite": a.get("cite", ""), "source": " ".join(str(a["source"]).split()),
+                     "reported": " ".join(str(a["reported"]).split()),
+                     "model_quantity": " ".join(str(a["model_quantity"]).split())})
+    return pd.DataFrame(rows)
+
+
+def sign_stability(curve: pd.DataFrame, value: str = "median", dims=("form", "forgetting", "epw", "effort",
+                                                                     "adaptation", "outcome_weights")) -> pd.DataFrame:
+    """Per scenario, whether the year-10 contrast survives the multiverse, and where it does not (§10.4, §10.6).
+
+    Three levels of claim, weakest to strongest: the `value` (median across draws) keeps one sign in every
+    specification; no specification's 95% interval includes 0; and both. Reporting only the first overstates the
+    result, which is what "keeps its sign in all N specifications" did before the adaptation dimension existed.
+    `first_failing` names the level of each dimension where the sign is lost, so the failure is attributable rather
+    than just counted.
+    """
+    rows = []
+    for s, d in curve.groupby("scenario"):
+        signs = np.sign(d[value])
+        includes_0 = (d["lo95"] <= 0) & (d["hi95"] >= 0)
+        bad = d[includes_0 | (signs != signs.iloc[0])]
+        where = {}
+        for dim in dims:
+            if dim in bad and len(bad):
+                lv = sorted(set(bad[dim].astype(str)))
+                if len(lv) < d[dim].nunique():  # a dimension is implicated only if some of its levels are spared
+                    where[dim] = ",".join(lv)
+        rows.append({"scenario": s, "n_specifications": int(len(d)),
+                     "median_sign_constant": bool(signs.nunique() == 1),
+                     "n_intervals_including_0": int(includes_0.sum()),
+                     "claim": "robust" if signs.nunique() == 1 and not includes_0.any() else "not robust",
+                     "median_min": float(d[value].min()), "median_max": float(d[value].max()),
+                     "first_failing": "; ".join(f"{k}={v}" for k, v in where.items()) or ("none" if not len(bad) else "all levels")})
+    return pd.DataFrame(rows)

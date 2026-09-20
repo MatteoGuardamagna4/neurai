@@ -51,8 +51,11 @@ Table 5 and Figures 5-6 from `v_main` + `v_main_fcc` (six scenarios), `tableS_ex
 (`table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`), Figure 8a/8b,
 `tableS_variance_decomposition`. D20 records three rule fixes made on first contact with the results.
 
-Also done: `data_dictionary.csv` (`report dictionary`: every column of every table, 226 data columns, none
-undocumented), the append retry in `simulate.py` (the `PermissionError` above). **S14 done criterion met:** `report all` rebuilds every table and figure into empty `outputs/tables` and `outputs/figures` in 3.5 min, exit 0 (the choice-rule tables included). Still to do: §11.3 mixed model on the
+Also done: `data_dictionary.csv` (`report dictionary`: every column of every table, 226 data columns of the
+simulation and corpus tables documented; **corrected 2026-09-20**: the claim "none undocumented" covered those
+tables only - 155 distinct column names of the `outputs/tables/*.csv` still have an empty description, mostly
+self-describing statistics (`se`, `q_fdr`, `p95`) and per-table keys. The specification-curve dimensions were
+documented in the audit follow-up; the rest is open), the append retry in `simulate.py` (the `PermissionError` above). **S14 done criterion met:** `report all` rebuilds every table and figure into empty `outputs/tables` and `outputs/figures` in 3.5 min, exit 0 (the choice-rule tables included). Still to do: §11.3 mixed model on the
 Figure 5 data (cut-list item 2), S15.
 
 **Update 2026-09-18 (23:30).** Done overnight: `v_main` (5 scenarios, 500 x 2,000 x 10 years, 69 min), `v_frontier`,
@@ -116,6 +119,9 @@ Measured today, and used below:
 | D20 | (2026-09-19) Three analysis rules fixed on first contact with the results, before reading any as a finding: (1) F4 judges the typical draw (the worst scenario's median near-bound share) and lists the share of draws above 10%, instead of the single most extreme draw; (2) F5 uses only the condition-label permutation, the null for a condition contrast (permuting units within a condition keeps each condition's mean text profile, so that ratio is ~1 by construction; it stays in Table 6 as a content control); (3) the variance decomposition treats scenarios as fixed (population variance of the means), which closes the decomposition (residual ~0). |
 | D21 | (2026-09-19, before the text-controls TRIBE run) Rules for the new controls. **F2**: each network AUC contrast is recomputed with the 9 combinations of primary and two reworded versions; a claim is allowed only if all 9 share the primary's sign and |primary| > 2 x their SD. **F5** adds the incorrect-but-fluent texts: a network is flagged when |incorrect - correct| >= 0.5 x its largest condition contrast (A15). **eq. 41** gains V_stimulus_generation: the variance of the scenario-mean control-network d across the three versions' Z. |
 | D24 | (2026-09-20) The specification curve gains a **parcellation** dimension: `scripts/reparcellate.py` re-aggregates the saved vertex predictions onto Schaefer-200 (`data/tribe/tribe_main_s200/`, all three speeds), so only the map changes, not the predictions. The ranks (400 = 1, 200 = 2) were written before the levels were computed, but the dimension itself was added after results existed: say so in the paper. Validated first by rebuilding Schaefer-400 locally and reproducing the notebook's parcel table (areas to 6e-14) and a stimulus's metrics (to 1e-14). The **learner engine** stays a stated limitation: Centaur inside Phase V is ~1.2e9 episodes at 4-15 s each. |
+| D25 | (2026-09-20, after the results) The specification curve gains an **adaptation** dimension, because `support.adaptation` (eq. 20's f_3 input) is the only term separating scaffolding from traditional anywhere in the model, and it was neither drawn per parameter draw nor varied in the curve: the year-10 "scaffolding beats traditional" result rested entirely on one fixed number. Three levels, ranked before any was computed: `authored` 0.35/0.90/0.20 (rank 1, brief §3.3), `halved` 0.42/0.69/0.34 (rank 2, each protocol half its distance to the three-protocol mean), `none` 0.48 for all three (rank 3, the contrast removed with the mean level of F preserved). 72 -> 216 reruns; the `authored` level carries no tag suffix, so the 72 completed runs **are** its cells and only 144 new runs are needed. Drawing the parameter instead was considered and rejected: a triangular draw around 0.90 vs 0.35 preserves the ordering in every draw, so it adds variance the sign cannot respond to. Like D24, the dimension was added after results existed: say so in the paper. Measured on a pilot at the `none` level, scaffolding-no-fade vs traditional gives G = 0.000000 exactly, while substitution keeps -0.10; in the Phase V step the two take the identical branch, so **the scaffolding advantage is that constant and nothing else**, whereas the substitution deficit runs through effort and is independent of it. |
+| D27 | (2026-09-20) **Four parameters get empirical anchors** (`config/parameter_sources.yaml`, `analysis.parameter_anchors`, `tableS_parameter_anchors`): alpha against BKT learn rates, delta against Custers (2010) retention, omega against the ITS meta-analyses, eta_M against the testing-effect meta-analyses (cited only; M is not on an accuracy scale). **Anchoring documents provenance and does NOT change any value**: `default.yaml` is untouched and every completed run stays valid, so a parameter outside its published range is reported as a calibration finding, never tuned away. Result: omega is consistent (d = 0.41 in [0.35, 0.76]); alpha and delta are both outside, and in the same direction of effect. See §7. |
+| D26 | (2026-09-20) Deliverable D3 is made citable by `scripts/archive_tribe.py`: a tracked `data/tribe/MANIFEST.sha256` over all 931 files (8.70 GB) and a ~14 MB bundle of every file the analysis opens. Verified by swapping the real tree for the bundle and rebuilding: `report all` exits 0 and reproduces every table. The vertex predictions (§6.3) and the 180 per-stimulus shuffled-control predictions stay out of the bundle and in the manifest; they are read only through the aggregated tables. The upload (Zenodo/OSF) and the DOI are still to do. |
 | D23 | (2026-09-20, after the results) The F4 verdict names the scenarios it applies to, as F1, F3 and F5 already do: a scenario whose median draw has > 10% of learners near a bound (here `scaffolding_rapid`, 0.121) is reported as bound-driven without blocking the other scenarios' year-10 claims. A sign flip under uniform draws is appended to the verdict instead of replacing it. |
 | D22 | (2026-09-19) User request: close the brief's gaps that matter most. Written: 2 reworded variants per stimulus (§5.2 item 9), incorrect-but-fluent traditional texts (§10.3), semantic coverage (§5.4). Still not done, stated as limitations: the contradiction judge (§5.4), audio (§5.2 item 10), held-out fMRI (§10.1), parcellation and learner engine in the spec curve (§10.4). Coverage is reported as corpus validation and a matching feature; eq. 20 keeps coverage = 1.0 in the simulation, because feeding it in would change every completed run. |
 
@@ -758,6 +764,43 @@ and `outputs/figures` with no manual step.
   that Phase V's neural outcome uses. The Phase V neural contrasts are therefore model-implied under the primary texts.
 - The specification curve varies parcellation (D24) but not the learner engine: Phase V is the vectorised logistic
   mirror, and Centaur's behaviour enters it only through the fitted free-choice rule (D18).
+- **The simulated learner is slower and more forgetful than the education literature (D27).** Anchored against
+  published quantities on the same scale (`tableS_parameter_anchors`): the model closes **0.035** of the remaining
+  gap to mastery per episode against BKT learn rates of **0.10-0.22**, and retains **0.38** of knowledge over a year
+  without practice at the break rate (0.02 at the term rate) against the **0.65-0.75** Custers (2010) reports for
+  taught material. The support effect is the one that checks out (d = 0.41 against a meta-analytic 0.35-0.76).
+  Jointly the two rates put eq. 21's plateau at **K\* = 0.59**, where literature-calibrated rates imply **0.99**: the
+  simulated learners live in a forgetting-dominated regime that real classrooms do not. This matters for the
+  headline, because the substitution deficit is precisely a low-effort-into-forgetting story: in a regime where
+  forgetting is this strong relative to learning, that penalty compounds harder than it plausibly would in a
+  classroom, so **the substitution contrast should be read as an upper bound on magnitude, not a point estimate**.
+  The ordering of the scenarios is not what is in doubt here; the size is. No value was changed: the anchors are
+  documentation, and re-parameterising would invalidate every completed run.
+- **The scaffolding-vs-traditional result is one parameter.** `support.adaptation` (0.35 / 0.90 / 0.20) is the only
+  term separating the two anywhere in the model: in the Phase V step they take the identical branch, and the LLM
+  tutor's text is numerically inert (eq. 17-18 never read a transcript, `adaptation` is a per-protocol constant).
+  Set the three protocols equal and G(scaffolding no fade vs traditional) is exactly 0. The substitution deficit is
+  unaffected, because it runs through effort and offloading. D25 puts this in the specification curve; the paper must
+  state it plainly rather than let "positive in every specification" imply the advantage was derived.
+  **Confirmed on the curve** (`tableS_sign_stability`, computed not asserted): with the adaptation dimension
+  partly run, `scaffolding_nofade` is the one scenario that loses its sign - median G is exactly 0 at the
+  `none` level and every interval there includes 0 - while `scaffolding_rapid`, `substitution` and
+  `free_choice` stay robust across all specifications. That `scaffolding_rapid` survives is a positive result
+  worth stating: the rapid-fade benefit does NOT come from the adaptation constant, it comes from support
+  withdrawal itself, so it is the one scaffolding claim that rests on a mechanism rather than a parameter.
+- **Part of the S-T cortical contrast is not matchable.** The scaffolding stimulus has no `Worked solution` section
+  by construction (`corpus.SECTIONS`, because it may not leak the answer), which is why `equation_count` is the worst
+  matched feature (SMD -1.76 vs 0.41 for words and duration). Table 4's covariate check now includes it (F1), but no
+  covariate can remove a difference the pedagogy requires: the S-T contrast is partly "text with a worked solution
+  vs text without one". Also note `duration` is a deterministic multiple of `word_count`, so the covariate block
+  spans two dimensions, not three (`covariate_rank` in the table).
+- PrSup (eq. 38) counts ties as not-superior, and the §7.7 probes are 3 trained / 2 transfer items, so most paired
+  differences are exactly 0 and PrSup reads far below 0.5 where the mean contrast is positive. `share_tied` and
+  `prsup_untied` are reported beside it. Phase III uses sampled probes and Phase V expected probabilities over all
+  30 units (A11): the two phases' "unaided accuracy" are not the same quantity and must not be compared directly.
+- Decision gate 17 checks that the official TRIBE example runs through the released pipeline and returns a
+  finite (15-35) x 20,484 prediction; it does **not** check numerical agreement with a published reference, which the
+  release does not ship. The demo returned 26 time points against a recorded expectation of 24.
 - The corpus meets the per-unit calipers (duration within 7.9%) but not the §5.5 target |SMD| < 0.10: 8 of 9 features
   (semantic coverage included, scaffolding vs traditional 0.35)
   miss it (scaffolding vs traditional: words and duration 0.41, sentences 0.46, lexical diversity 0.52, equations
@@ -799,7 +842,7 @@ and `outputs/figures` with no manual step.
   o ~ 0.10 [0.06, 0.14]. Mechanisms: the scaffolding advantage runs through F (contribution 1.0), the substitution
   deficit mostly through E (0.97 of the K contrast). Falsification: F1 no claim for 3 network contrasts, F3 for 4,
   F4 no claim (scaffolding_rapid: 12% of learners near a bound in the median draw), F5 for 8 of 28, F6 claim allowed.
-  Spec curve: G keeps its sign in all 216 specifications of every scenario (scaffolding positive, substitution and
+  Spec curve (**superseded by D25, see the 2026-09-20 entry**): G keeps its sign in all 216 authored-adaptation specifications of every scenario (scaffolding positive, substitution and
   free choice negative); the control-network d of substitution does not (58% of 10,368 specifications positive; the
   tier-1 specification -0.21 [-0.74, 0.42]; mechanism A and C positive, B negative). Bug fixed before reading it:
   YAML parses the winsorize levels yes/no as booleans, so both levels had used unwinsorised Z. Variance
@@ -827,7 +870,7 @@ and `outputs/figures` with no manual step.
   `.env.example`, and tracked the run records (`outputs/logs/**/run_*.json`, every phase5 `run.json`, the choice-rule fits)
   plus `outputs/tables` and `outputs/figures` as the deliverable. D3 is complete on the laptop (270 vertex files over three
   speeds, 8.1 GB). Open for the paper: Figure 8a covers 4 of the 6 scenarios (the spec runs predate `free_choice_centaur`),
-  and "G keeps its sign" holds for the medians, not every 95% interval.
+  and "G keeps its sign" holds for the medians, not every 95% interval. **Superseded 2026-09-20**: on the 216 authored-only specifications every 95% interval in fact excluded 0, so that caveat was over-cautious; the real exception is the one D25 exposed, below.
 - 2026-09-19 (evening): `tribe_textctl` done on the L4 (09:27-14:54 UTC, 210/210 texts, no inference issues), copied to
   `data/tribe/tribe_textctl/`; `report all` exit 0. **F2: no claim for 15 of 21 network AUC contrasts.** Survive (same sign
   in all 9 primary x reworded combinations and |primary| > 2 SD): DorsAttn, SalVentAttn, SomMot for S-T and S-U. No U-T
@@ -838,6 +881,49 @@ and `outputs/figures` with no manual step.
 - 2026-09-19 (evening): S15 items 1-4 done: README (pipeline with measured times, output map, Appendix A checklist),
   root and `data/` CLAUDE.md, `uv run pytest` 99 passed. Open: commit `outputs/`? (§9), tag `results-2026-09-25`, push.
 
-## 9. Not blocking now; decide by S15
+- 2026-09-20 (audit follow-up): the five changes from the repository audit. (1) **D25**, the adaptation dimension of
+  the specification curve: `config/spec_curve.yaml` + `scripts/run_spec_curve.py` (216 specifications, 72 already
+  complete as the `authored` level, 144 to run); the manifest is now written for the whole design, so `--only-tier`
+  and the new `--only-adaptation` no longer truncate it. (2) `equation_count` added to the eq. 13 covariates with
+  `covariate_rank` recorded, because `duration` is collinear with `word_count`. (3) `share_tied` and `prsup_untied`
+  beside PrSup in the Phase III outcomes and Table 5 (derived from the stored `share_neg`, no rerun). (4) The
+  Appendix A gate-17 row now says what the check actually tests. (5) **D26**, `scripts/archive_tribe.py`:
+  `MANIFEST.sha256` (931 files, 8.70 GB) tracked in git, and a 14.1 MB analysis-sufficient bundle whose sufficiency
+  was verified by rebuilding every output from it alone. Still open: run the 144 new specification runs
+  (`uv run python scripts/run_spec_curve.py`, ~14 h), then `report spec`; upload the bundle and record the DOI.
+- 2026-09-20 (during the D25 batch): the D25 cells run the config's **six** scenarios, the 72 pre-D25 cells ran
+  **five** (`free_choice_centaur` was fitted after them, D18). Caught at cell 31 of 144. The batch was left running:
+  stopping it would have split the design three ways and thrown away the 31 done, whereas as it stands the split is
+  clean (72 x 5, 144 x 6). `spec_curve.yaml` now pins `design.scenarios` so a restarted batch cannot drift, and
+  `analysis.spec_curve_g` restricts the curve to the scenarios **every** cell ran, naming the dropped ones in the
+  Figure 8a caption: a scenario present in only some levels would confound the adaptation dimension with which cells
+  happened to include it. Putting `free_choice_centaur` on the curve needs the 72 authored cells re-run with it
+  (~6 h), which also closes the §8 open item "Figure 8a covers 4 of the 6 scenarios".
 
-- Whether `outputs/tables` and `outputs/figures` should be committed as the deliverable (they are gitignored today).
+## 9. Not blocking now; decide by S15
+- ~~Whether `outputs/tables` and `outputs/figures` should be committed as the deliverable~~ **decided: yes**, they
+  are tracked (93 files) and `.gitignore` re-includes them; `report all` rebuilds them bit-identically except the
+  PDFs, which carry a creation timestamp, and `gate18_checks.csv`, which records the current commit.
+- Open: whether `free_choice_centaur` should join the specification curve (needs the 72 authored cells re-run,
+  ~6 h) or stay off it with the Figure 8a caption naming it as not run by every cell.
+- 2026-09-20 (parameter anchoring, D27): four parameters anchored to published quantities on the same scale, with
+  `config/parameter_sources.yaml` holding the citations and `analysis.parameter_anchors` doing the comparison from the
+  config plus `population_logistic` (no simulation, no value changed). **omega consistent** (support gap d = 0.415 in
+  the meta-analytic 0.35-0.76). **alpha below**: 0.035 of the gap to mastery closed per episode against BKT's
+  0.10-0.22. **delta below**: 0.382 of knowledge retained over a year at the break rate (0.021 at the term rate)
+  against Custers (2010)'s 0.65-0.75 for taught material. eta_M cited only (M is not on an accuracy scale). Jointly,
+  eq. 21's plateau is K* = 0.586 against 0.986 for literature midpoints - the simulated learner is in a
+  forgetting-dominated regime, which is now a stated §7 limitation and bounds how the substitution magnitude
+  should be read.
+- 2026-09-20 (parallel work while the D25 batch runs): (1) `analysis.sign_stability` + `tableS_sign_stability` make
+  the §10.6 robustness claim computed rather than asserted, at three strengths (median sign constant / no interval
+  includes 0 / both) and naming the dimension level where it fails. The old log claims are marked superseded: on the
+  216 authored-only cells every interval did exclude 0, so the "medians, not intervals" caveat was over-cautious;
+  the real exception is `adaptation=none`. (2) **F6 now checks both scaffolding scenarios** against substitution
+  (6 comparisons, all distinguishable) instead of only the persistent arm, since "after support is removed" points
+  at the fading arm. (3) The variance decomposition labels its small negative residual as the method-of-moments
+  artifact it is (components clamped at 0 before subtraction; 0.019% and 0.121% of total) rather than clipping it.
+  (4) The four loose files at the `data/processed` root - an aborted 1-learner smoke run - moved to
+  `_legacy_untagged/` with a README; nothing reads them, and a loose `checkpoints.csv` there invited pointing
+  `plasticity --run` at the root. (5) **Data dictionary complete**: 0 of 673 columns undocumented, was 165 distinct
+  names missing.

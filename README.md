@@ -11,7 +11,12 @@ decides correctness, and an LLM tutor (Qwen2.5-3B-Instruct) runs the two AI prot
 assigned arms plus a `free_choice` arm in which it picks the protocol at every problem. Centaur runs cover 40 + 80
 learners; the full population and all of Phase V use the logistic model, and Phase V's free choice uses either a
 documented softmax in D or a rule fitted to Centaur's picks (`choice_rule.py`). Every result is model-implied
-(brief §15). `PLAN.md` holds the decisions (D1-D22), the limitations (§7) and the run log (§8).
+(brief §15). `PLAN.md` holds the decisions (D1-D26), the limitations (§7) and the run log (§8).
+
+> **Read this before quoting the scaffolding result.** `support.adaptation` (eq. 20) is the only term separating
+> scaffolding from traditional anywhere in the model; set the three protocols equal and their year-10 contrast is
+> exactly 0. It is an assumption, not a finding, and D25 puts it in the specification curve. The substitution
+> deficit is a different matter: it runs through effort and survives that test.
 
 ## Setup
 
@@ -109,6 +114,7 @@ rather than blended. In order, with the wall clock measured here:
 | Phase V main | `longitudinal --tag v_main --years 10 --draws 500 --learners 2000 --scenarios traditional scaffolding_rapid scaffolding_nofade substitution free_choice` | ~70 min |
 | Frontier | `scripts/run_frontier.ps1` (`v_frontier`, `v_tipping`, `v_neural`) | ~70 min |
 | Controls, mediation, replicates, exposure, spec curve | `scripts/run_remaining.ps1` | ~9 h (spec curve 7 h) |
+| Spec-curve adaptation dimension (D25) | `uv run python scripts/run_spec_curve.py` (skips the 72 done; `--only-adaptation halved\|none` to split it) | ~14 h for the 144 new runs |
 | Centaur choice rule + sixth scenario | `scripts/run_centaur_rule.ps1` (validate, refit, `v_main_fcc`) | ~80 min |
 | Tables and figures | `uv run python -m neurotutorsim.report all` | ~5 min |
 
@@ -116,11 +122,33 @@ All commands run through `uv run python -m neurotutorsim.<module>`; the PowerShe
 Keep `outputs/logs/*.jsonl` and `episodes.jsonl`: Centaur scores are not bitwise reproducible, so a Centaur run is
 reproduced from its logs, never re-derived.
 
+### Archiving Phase II (D3)
+
+`data/tribe` is 8.7 GB and is not in git, so without an archive Phase II is the one deliverable the repository
+cannot rebuild (the notebook needs a Colab GPU, ~8 h and a gated Llama licence). `scripts/archive_tribe.py` makes
+it citable:
+
+```bash
+uv run python scripts/archive_tribe.py manifest   # data/tribe/MANIFEST.sha256 over all 931 files (tracked in git)
+uv run python scripts/archive_tribe.py bundle     # dist/neurotutorsim_tribe_d3_<date>.zip (~14 MB)
+uv run python scripts/archive_tribe.py verify     # re-hash the tree against the manifest
+```
+
+The **manifest is committed**, so the exact bytes behind every published number stay identified and any later copy
+can be checked. The **bundle** holds every file the analysis opens; unpacking it into `data/tribe/` of a fresh clone
+is enough for `report all` to rebuild every table and figure (verified 2026-09-20 by swapping the real tree for the
+bundle: exit 0, all outputs reproduced). Left out and covered only by the manifest: the §6.3 per-stimulus vertex
+matrices (~5.1 GB) and the 180 shuffled-control predictions (~3.3 GB), which the analysis reads only through the
+aggregated tables — but `scripts/reparcellate.py` does need the vertex files.
+
+**Still to do:** upload the bundle to Zenodo or OSF and put the DOI here and in the paper's data-availability
+statement. Until then the archive exists but is not yet citable.
+
 ### Output map (`outputs/tables/*.csv`, `outputs/figures/*.png|.pdf`)
 
 | Brief item | Files |
 | --- | --- |
-| Tables 1-3 (conditions, components, parameters with source or "assumption") | `table1_conditions`, `table2_components`, `table3_parameters` |
+| Tables 1-3 (conditions, components, parameters with source or "assumption") | `table1_conditions`, `table2_components`, `table3_parameters`, `tableS_parameter_anchors` |
 | Table 4, §6.6 cortical contrasts (+ covariates, eq. 42, reading speed) | `table4_*`, `parcel_contrasts_auc`, Figures 3, S2 |
 | §6.7 RSA | `rsa_*`, Figure 4 |
 | §5.5 corpus balance, coverage, duplicate screen | `corpus_balance`, Figure 2, `tableS_semantic_coverage*`, `tableS_near_duplicates` |
@@ -131,25 +159,25 @@ reproduced from its logs, never re-derived.
 | §9.6-9.7 frontier and tipping points | Figure 7a/7b, `tableS_tipping_points*`, `tableS_exposure` |
 | §11.5 mechanisms | `tableS_mechanism_decomposition` |
 | Table 6, §10.3 and §10.6 | `table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`, `tribe_shuffle_controls`, `tableS_regeneration_*`, `tableS_incorrect_control` |
-| §10.4 specification curve (216 G + 20,736 neural specifications), §10.5 variance | Figure 8a/8b, `tableS_variance_decomposition` |
+| §10.4 specification curve (design: 216 reruns -> 648 G + 62,208 neural specifications; the figures report the reruns on disk) , §10.5 variance | Figure 8a/8b, `tableS_variance_decomposition` |
 | Every column | `data_dictionary` |
 
 ## Brief Appendix A checklist
 
 | Item | Status |
 | --- | --- |
-| Repository builds from a clean environment | Done: `uv sync` from `uv.lock`; `uv run pytest` (99 tests, offline) |
+| Repository builds from a clean environment | Done: `uv sync` from `uv.lock`; `uv run pytest` (104 tests, offline) |
 | All 120 units have deterministic answer validation | **Limitation**: 30 units (15 concepts x 2, MBA topics); all 30 validated by `corpus` |
 | Three conditions factually equivalent and matched | Done for calipers (duration within 10%); **limitation**: \|SMD\| < 0.10 missed on 8 of 9 features (all but example count), so Table 4 is also reported with covariates (F1) |
 | Scaffolding and substitution pass leakage and compliance tests | Done: numeric leakage check after every tutor call, tested (`test_corpus`, `test_episode`) |
-| Official TRIBE example reproduced | Done (`tribe_main` `tribe_qc.json`) |
+| Official TRIBE example reproduced | **Partial**: the official text demo runs end to end through the released pipeline (gTTS + WhisperX timing, `tribe_qc.json/official_demo`), and the notebook refuses to process the corpus unless it does (gate 17). What is checked is *shape and finiteness* — 20,484 vertices, 15-35 time points, all finite — **not numerical agreement with a released reference output**, which the release does not ship. The demo returned 26 time points where the recorded `expected_shape_official_run` was 24. Treat this as "the pipeline executes the official example correctly", not "the published numbers were reproduced". |
 | TRIBE outputs cached with metadata and timestamps | Done: `run_metadata.json`, `tribe_run_log.jsonl`, checkpoint and atlas hashes |
 | Parcel and network mappings documented | Done: `parcels_schaefer400.csv`, `notebooks/CLAUDE.md` |
 | Learner monotonicity tests pass | Done: `test_learners`, `test_engines` direction tests; gate 18 G1-G10 |
 | Zero-plasticity and shuffled-condition controls null | Zero plasticity exactly 0; permuted conditions median ratio 0.30, but 8 of 28 scenario-networks >= 0.5 (reported as no claim, F5) |
 | One-year pilot sensible before ten years | Done: gate 18 passes (`g18_*`) |
-| Every parameter has a source or "assumption" label | Done: Table 3 |
-| Conclusions survive the robustness set or are indeterminate | Done: the median year-10 G keeps its sign in all 216 specifications per scenario; F4 reports scaffolding-with-rapid-fade as bound-driven, and neural contrasts are no claim where F1-F5 fail (`table6_falsification`) |
+| Every parameter has a source or "assumption" label | Done: Table 3. Four parameters now carry a **published** source rather than the label, checked on the same scale (D27, `tableS_parameter_anchors`): omega is consistent with the ITS meta-analyses; alpha and delta both fall outside their ranges and are **reported as a calibration limitation, not re-tuned** (re-parameterising would invalidate every completed run). The other 75 remain assumptions. |
+| Conclusions survive the robustness set or are indeterminate | `tableS_sign_stability` reports this per scenario, computed rather than asserted, on the specifications actually on disk. With the D25 adaptation dimension part-run: **robust** for substitution, free choice and scaffolding-with-rapid-fade (sign constant, no 95% interval includes 0); **not robust** for scaffolding-without-fading, whose G is exactly 0 once the adaptation advantage is removed. The rapid-fade benefit therefore rests on support withdrawal, not on the adaptation constant. F4 reports scaffolding-with-rapid-fade as bound-driven, and neural contrasts are no claim where F1-F5 fail (`table6_falsification`) |
 | No causal or observed-future-brain claims | Done: §15 wording in all labels |
 | All figures and tables regenerate from scripts | Done: `report all` into empty folders, exit 0 |
 | README lets another team reproduce the pipeline | This file |
@@ -164,8 +192,8 @@ reproduced from its logs, never re-derived.
 | `stimuli/<condition>/` | the static per-condition texts (also the TRIBE inputs); `stimuli/variants/`, `stimuli/incorrect/` the text controls |
 | `src/neurotutorsim/` | `corpus`, `learners`, `engines`, `tutor`, `episode`, `simulate`, `tribe`, `plasticity`, `longitudinal`, `choice_rule`, `analysis`, `report` |
 | `notebooks/` | `tribe_phase2.ipynb` (Phase II) and `serve_models.ipynb` (Centaur + tutor server), both for Colab |
-| `scripts/` | the Centaur run loop, the Phase V run chains, the gate-18 driver and the server equivalence check |
+| `scripts/` | the Centaur run loop, the Phase V run chains, the gate-18 driver, the server equivalence check and the D3 archiver (`archive_tribe.py`) |
 | `tests/` | offline tests; no server or API key needed |
 
 `guide.md` maps the brief's concepts to the files and outputs that implement them; `PLAN.md` holds the decisions
-(D1-D24), assumptions (A1-A19), limitations and run log. See `CLAUDE.md` in each folder for the invariants.
+(D1-D26), assumptions (A1-A19), limitations and run log. See `CLAUDE.md` in each folder for the invariants.
