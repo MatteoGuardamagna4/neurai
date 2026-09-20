@@ -27,7 +27,11 @@ outputs/logs/**
 !outputs/logs/**/
 !outputs/logs/**/run_*.json
 
-data/tribe
+# TRIBE outputs (deliverable D3) are far too large for git and live in the citable archive instead
+# (scripts/archive_tribe.py). The SHA-256 manifest IS tracked: it identifies the exact bytes behind every
+# published number, so a later copy can be proved to be the same data.
 data/tribe/*
+!data/tribe/MANIFEST.sha256
 
-data/tribe_textctl/*
+# the archive bundle itself is a build product; upload it, do not commit it
+dist/
