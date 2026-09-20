@@ -217,18 +217,35 @@ minutes. Every figure has a CSV twin with the same name, so no number in the the
 
 The falsification checklist (`table6_falsification.csv`) is the authority. As things stand:
 
-- **The behavioural results are robust.** The median year-10 G keeps its sign in all 216 specifications of every
-  scenario: scaffolding positive, substitution and free choice negative.
+- **Three of the four behavioural results are robust; one is not.** `tableS_sign_stability` is the authority and is
+  computed, not asserted: substitution, free choice and scaffolding-with-rapid-fade keep the sign of median year-10 G
+  in every specification with no 95% interval including 0. **Scaffolding-without-fading does not**: its G is exactly
+  0 once the adaptation advantage is removed (D25).
+- **The scaffolding-vs-traditional advantage is one assumed constant.** `support.adaptation` (eq. 20) is the only
+  term separating the two anywhere in the model - the LLM tutor's text is numerically inert, and in the Phase V step
+  the two protocols take the identical branch. Set the three protocols equal and the contrast is 0. Say this plainly;
+  do not let "positive in every specification" imply the advantage was derived. The rapid-fade benefit is the one
+  scaffolding claim that survives, and it survives because support *withdrawal* is a real mechanism in the model.
+- **The simulated learner is slower and more forgetful than the literature** (D27, `tableS_parameter_anchors`):
+  0.035 of the gap to mastery closed per episode against BKT's 0.10-0.22, and 0.38 of knowledge retained over a year
+  against Custers (2010)'s 0.65-0.75. Eq. 21's plateau is K* = 0.59 where literature-calibrated rates imply 0.99.
+  Since the substitution deficit is a low-effort-into-forgetting story, report its **direction** as robust and its
+  **magnitude** as an upper bound. The support parameter omega is the one that checks out (d = 0.41).
 - **F2 is the hard constraint on the neural side.** Only scaffolding's dorsal-attention, salience and somatomotor
   contrasts survive rewording. No substitution-vs-traditional contrast does, and neither does the control network,
   which is the one Phase V's neural outcome uses. Present the neural trajectories as exploratory.
 - **F4 flags scaffolding-with-rapid-fade** as bound-driven; the other scenarios' year-10 claims stand.
-- **F1 removes three network contrasts** once duration and word count are covariates.
+- **F1 removes two network contrasts** once duration, word count and equation count are covariates. Note the
+  covariate block spans two dimensions, not three: duration is 60 * words / 220, so it is collinear with word
+  count. And part of the S-T contrast is not matchable at all - the scaffolding stimulus has no worked-solution
+  section by construction, so the contrast is partly "text with a worked solution vs text without one".
 - **Never** describe any of it as causal, as a measured brain effect, or as a prediction of a real student's future.
 
-Two honest asterisks to state: confidence, Brier and C track the learner's record rather than genuine calibration,
-because the transcript model ignores which option it pressed; and the free-choice arm cannot support condition
-contrasts, because the learner selected the condition.
+Three honest asterisks to state: confidence, Brier and C track the learner's record rather than genuine calibration,
+because the transcript model ignores which option it pressed - so those columns are not calibration measures anywhere
+in this study despite their names; the free-choice arm cannot support condition contrasts, because the learner
+selected the condition; and PrSup counts ties as not-superior, so quote it with `share_tied` beside it (the Phase III
+probes are 3 trained / 2 transfer items, and most paired differences are exactly 0).
 
 ## 11. Traps
 
@@ -242,8 +259,13 @@ contrasts, because the learner selected the condition.
   re-derived, which is why `outputs/logs/` matters.
 - **`history_window: 3`.** A longer transcript drowns the payoff line the model is supposed to read.
 - **Checkpoint levels are not comparable across checkpoints**: each probes the units studied most recently.
-- **The specification ranks were frozen before results** (D17). The parcellation dimension was added later (D24) and
-  must be described that way.
+- **The specification ranks were frozen before results** (D17). The parcellation (D24) and adaptation (D25)
+  dimensions were added after results existed, with their levels ranked before being computed; describe them that way.
+- **The curve reports the cells on disk**, not the full design, and restricts itself to the scenarios every cell ran -
+  the D25 cells run six scenarios, the pre-D25 cells ran five. Quote `n_specifications` from
+  `tableS_sign_stability` rather than the design size.
+- **Anchoring never changes a value** (D27). `config/parameter_sources.yaml` documents provenance; a parameter outside
+  its published range is a reported calibration finding, because re-parameterising would invalidate every run.
 
 ## 12. Command crib
 
@@ -267,14 +289,23 @@ A section-by-section suggestion, with what to cite:
 | Methods: corpus | 30 units, matching, validators, text controls | Table 1, Figure 2, `corpus_balance`, `tableS_near_duplicates` |
 | Methods: TRIBE | timing, aggregation, metrics, QC | `run_metadata.json`, `tribe_qc.json`, Table 2 |
 | Methods: learner | eq. 15-25, the engine split, proxies | Table 2, Table 3 |
+| Methods: parameter provenance | which parameters are anchored, which are assumptions, and how the anchors compare | Table 3, `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
 | Methods: plasticity and scenarios | eq. 28-34, the calendar, the six scenarios | Table 3, `PLAN.md` §2-3 |
 | Results: immediate | condition contrasts and RSA | Table 4, Figures 3-4 |
 | Results: learners | one term at the population scale | `tableS_phase3_outcomes`, Figure S3 |
 | Results: ten years | contrasts, distributions, frontier, tipping points | Table 5, Figures 5-7 |
-| Results: robustness | specification curve, controls, variance, falsification | Figure 8, Table 6, `tableS_variance_decomposition` |
+| Results: robustness | specification curve, controls, variance, falsification | Figure 8, Table 6, `tableS_sign_stability`, `tableS_variance_decomposition` |
+| Data availability | the D3 archive and its manifest | `scripts/archive_tribe.py`, `data/tribe/MANIFEST.sha256`, the deposit DOI |
 | Discussion | which assumptions drive the divergence, and what to measure empirically | `tableS_variance_decomposition`, `tableS_tipping_points` |
 | Limitations | verbatim from `PLAN.md` §7 | — |
 
 The discussion has a natural spine: the variance decomposition says year-10 G is 68% scenario and 29% learner, so
 the thing worth measuring empirically is how much cognitive work a real tutor leaves with the student — not the
 plasticity constants, which barely move the behavioural result but dominate the neural one.
+
+The framing that keeps the paper honest is to separate what the model *derived* from what it *assumed*. Derived:
+that withdrawing support raises independent reasoning (scaffolding-with-rapid-fade survives even when the
+adaptation advantage is switched off), and that substituting answers lowers it through the effort channel. Assumed:
+that an adaptive tutor is more effective per episode than fixed instruction — that is `support.adaptation`, one
+number, and the paper should name it as the single most valuable quantity for future empirical work, alongside the
+learning and forgetting rates the anchors show the model gets wrong (D27).
