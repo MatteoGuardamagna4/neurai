@@ -11,6 +11,47 @@ Deadline: **Fri 2026-09-25, code and results** (paper and presentation later). P
 
 ## 1. Where things stand
 
+**Update 2026-09-20 (current state and next steps).** Everything below this block is the earlier record; read this
+first. Code and results are complete except for one batch in flight. Four commits today: D26 (archive), the audit
+follow-up (D25, D27 and the robustness fixes), `guide.md`, D28 (the judge). Nothing is pushed.
+
+**In flight.** `scripts/run_spec_curve.py` is running the D25 adaptation dimension: **50 of 144 new cells done**,
+~282 s each, so roughly **7 h left**. It is resumable and skips what is finished, so an interrupt costs at most the
+current cell. Its 72 `authored` cells were already done and are reused. Do not run heavy work beside it - LM Studio
+and the report layer both compete for the CPU on this laptop.
+
+**Blocked on that batch, in order:**
+
+| # | Step | Command | Time |
+|---|---|---|---|
+| N1 | Rebuild the curve and the robustness verdicts | `uv run python -m neurotutorsim.report spec` | ~2 min |
+| N2 | Check `tableS_sign_stability` again with all 216 cells: `first_failing` should reduce to `adaptation=none` alone (the `form` and `forgetting` entries today are artifacts of partial coverage) | read the table | 5 min |
+| N3 | Full §5.4 judge pass over the 90 primary texts (D28) | `uv run python -m neurotutorsim.judge` | ~30 min |
+| N4 | Rebuild everything and confirm | `uv run python -m neurotutorsim.report all` | ~5 min |
+
+**Independent of the batch, do any time:**
+
+| # | Step | Owner | Note |
+|---|---|---|---|
+| N5 | Upload `dist/neurotutorsim_tribe_d3_*.zip` to Zenodo or OSF; put the DOI in `README.md` and the data-availability statement | you | the archive exists but is not citable until this is done (D26) |
+| N6 | Write the paper (D7) | you | `guide.md` §13 is the section-by-section map, updated for D25-D28 |
+| N7 | Push the four commits and re-tag | either | the `results-2026-09-25` tag currently points at an older commit |
+
+**One decision outstanding.** Whether `free_choice_centaur` joins the specification curve. It is absent from the 72
+`authored` cells because its rule was fitted after them (D18), so `spec_curve_g` drops it from the curve and the
+Figure 8a caption says so. Putting it on the curve means re-running those 72 cells with it (~6 h) and would close the
+§8 open item "Figure 8a covers 4 of the 6 scenarios". Decide after N1: if the curve reads well without it, leave it.
+
+**Out of reach before the deadline, and correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI
+validation (§10.1), and Centaur inside Phase V (~1.2e9 episodes). The learner engine therefore stays out of the
+specification curve; Centaur reaches Phase V only through the fitted free-choice rule (D18).
+
+**What the headline now is**, after today's work, so the paper does not overstate it: the substitution deficit and
+the rapid-fade benefit are robust across every specification; the scaffolding-without-fading advantage is not, being
+exactly the `support.adaptation` constant (D25); and the anchors say the simulated learner is slower and more
+forgetful than the literature, so read the substitution *magnitude* as an upper bound (D27).
+
+
 **Update 2026-09-18 (evening).** Done: S1 (four logistic runs), S2 (TRIBE `tribe_main`, all QC checks pass;
 outputs in `data/tribe/tribe_main/`), S4, S5 (code, and `apply_to_run` on both logistic runs), S6 (T1 green), S8
 (gate 18 passes on the `g18_*` runs, see D16), the S10/S11 run modes (`--frontier grid|lines|neural`,
