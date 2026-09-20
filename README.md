@@ -167,4 +167,5 @@ reproduced from its logs, never re-derived.
 | `scripts/` | the Centaur run loop, the Phase V run chains, the gate-18 driver and the server equivalence check |
 | `tests/` | offline tests; no server or API key needed |
 
-See `CLAUDE.md` files in each folder for the decisions behind the code.
+`guide.md` maps the brief's concepts to the files and outputs that implement them; `PLAN.md` holds the decisions
+(D1-D24), assumptions (A1-A19), limitations and run log. See `CLAUDE.md` in each folder for the invariants.
