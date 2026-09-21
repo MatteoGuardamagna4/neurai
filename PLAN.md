@@ -42,6 +42,7 @@ specifications (sign kept in 59.2%; adaptation irrelevant to it at 0.590 / 0.592
 | N5 | Upload `dist/neurotutorsim_tribe_d3_*.zip`; put the DOI in `README.md` and the data-availability statement | you |
 | N6 | **Write the report (D7), due 2026-09-30.** `REPORT.md` is the specification - structure, the 40-page budget with figures counted, the actual rubric, body-vs-appendix. `guide.md` §13 maps sections to outputs and §10 bounds the claims. Note two things the official guidelines require that the chat guidance missed: a **compulsory 2-4 page Executive Summary** (no defence without it) and an index ending in page count and word count | you |
 | N7 | `git push`, then move the `results-2026-09-25` tag to the freeze commit | either |
+| N9 | The 15-minute defence, **2026-10-15**. Two weeks after the report, so not on the critical path, but 30% of the grade and judged on communication, message and Q&A rather than on the report. `REPORT.md` §8 | you |
 | N8 | Optional, ~5 min: read the one primary in `review_queue.json`. Checked 2026-09-21 - `npv_002_ai_scaffolding` is a bare `UNSUPPORTED: yes` with no reason on an unvalidated check; its worked example (15,000 / 12,500 / 27,500 / 2,500), its reference answer and its leakage check are all correct, so no action was taken | you |
 
 **Out of reach before the deadline, correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI

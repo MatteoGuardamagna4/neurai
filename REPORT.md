@@ -19,8 +19,9 @@ Where they differ, 1 wins: it is the binding document.
 
 | | |
 |---|---|
-| Deliverable | D7, the written report (the 15-minute defence is separate and carries 30% of the grade) |
+| Deliverable | D7, the written report; the defence is a separate deliverable on its own date |
 | Due | **2026-09-30** (the code and results freeze was 2026-09-25) |
+| Defence | **2026-10-15**, 15 minutes, 30% of the grade. Not due with the report; prepare it after |
 | Modality | Empirical: original quantitative work |
 | Scope | **All five phases**: corpus, TRIBE, learners, plasticity and the ten-year scenarios. The reports are individual, one per student (user decision 2026-09-21) |
 | Length | **40 pages including figures and tables**, excluding cover, executive summary, index, bibliography and appendices (user confirmed 2026-09-21 that figures count) |
@@ -177,3 +178,19 @@ in some form:
 
 Brief §15 wording throughout: "predicted cortical response", "simulated learner", "model-implied", "scenario
 contrast". Never "the brain learns", "AI causes", "we demonstrate long-term effects", or "digital twin".
+
+## 8. The defence (2026-10-15)
+
+Two weeks after the report, so it is not on the critical path - but it is **30% of the grade**, more than any other
+single thing, and it is graded on its own three criteria rather than on the report:
+
+- **Communication** (10%): top band is narrative - *"examples, stories that make the presentation something
+  familiar, close or even personal"*. The band below is explicitly *"too rational, monotonous, too much technical
+  and plenty of data"*, which is the obvious failure mode for this project. A specification curve with 62,208 points
+  is not a story; "we set one number and the entire scaffolding advantage vanished" is.
+- **Message** (10%): top band requires the objective to *show benefit for the organization* and the conclusion to
+  summarise accurately. Same content as REPORT.md §6, told rather than listed.
+- **Q&A** (10%): top band is answers that *open new lines of explanation*. The falsification table is the asset
+  here - every question about a weakness already has a measured answer, including the ones that failed.
+
+Nothing to do until the report is submitted. When the time comes, the three results in §7 are the spine.
