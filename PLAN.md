@@ -11,50 +11,41 @@ Deadline: **Fri 2026-09-25, code and results** (paper and presentation later). P
 
 ## 1. Where things stand
 
-**Update 2026-09-20 (current state and next steps).** Everything below this block is the earlier record; read this
-first. Code and results are complete except for one batch in flight. Four commits today: D26 (archive), the audit
-follow-up (D25, D27 and the robustness fixes), `guide.md`, D28 (the judge). Nothing is pushed.
+**Update 2026-09-21 (current state and what is left).** Everything below this block is the earlier record; read
+this first. **All compute is finished and every output is current.** 315 Phase V tags complete with none partial,
+the §10.4 design whole at 216 cells x 6 scenarios, `report all` exit 0, 126 tests pass, the data dictionary complete
+at 680 columns, working tree clean. Eleven commits today and yesterday, **none pushed**.
 
-**In flight.** `scripts/run_spec_curve.py` is running the D25 `halved` and `none` cells: ~50 of 144 done at the time
-of writing, ~282 s each. It is resumable and skips what is finished, so an interrupt costs at most the current cell.
-Do not run heavy work beside it - LM Studio and the report layer both compete for the CPU on this laptop.
+**Done since the last block:** N0 (the 72 `authored` cells, 7.0 h, median 353 s, all verified for 51 draws and 6
+scenarios), N1 (`report spec`, 390 s), N2 (the curve verdicts below), N3 (the judge, D28 then rebuilt as D30), N4
+(`report all` + `pytest`). Decisions D25-D30 record why.
 
-**Then a second batch (D29).** Because `free_choice_centaur` now joins the curve, the 72 `authored` cells must be
-re-run under their own `*_adapt_authored` tags with all six scenarios: **+72 cells, ~5.6 h**. Re-running the same
-script picks them up; it skips everything already complete. Budget roughly **13 h of compute in total** from now.
+**The §10.6 verdict, now computed rather than asserted** (`tableS_sign_stability`, 648 specifications per scenario):
 
-**Blocked on that batch, in order:**
-
-| # | Step | Command | Time |
+| Scenario | Claim | 95% intervals including 0 | Fails at |
 |---|---|---|---|
-| N0 | The D29 second batch: the 72 `authored` cells with all six scenarios | `uv run python scripts/run_spec_curve.py` | ~5.6 h |
-| N1 | Rebuild the curve and the robustness verdicts | `uv run python -m neurotutorsim.report spec` | ~2 min |
-| N2 | Check `tableS_sign_stability` again with all 216 cells: `first_failing` should reduce to `adaptation=none` alone (the `form` and `forgetting` entries today are artifacts of partial coverage) | read the table | 5 min |
-| N3 | Full §5.4 judge pass over the 90 primary texts (D28) | `uv run python -m neurotutorsim.judge` | ~30 min |
-| N4 | Rebuild everything and confirm | `uv run python -m neurotutorsim.report all` | ~5 min |
+| substitution | robust | 0 of 648 | - |
+| free_choice | robust | 0 of 648 | - |
+| free_choice_centaur | robust | 0 of 648 | - |
+| scaffolding_rapid | robust | 0 of 648 | - |
+| scaffolding_nofade | **not robust** | 216 of 648 | `adaptation=none` |
 
-**Independent of the batch, do any time:**
+The 216 failures are exactly the `none` level (72 cells x 3 outcome weights), median **0.000000**: with equal
+adaptation a persistent-support scaffolding arm is numerically the traditional arm. The `form` and `forgetting`
+entries seen at partial coverage were artifacts and vanished. The neural curve is unchanged at 62,208
+specifications (sign kept in 59.2%; adaptation irrelevant to it at 0.590 / 0.592 / 0.593 by level).
 
-| # | Step | Owner | Note |
-|---|---|---|---|
-| N5 | Upload `dist/neurotutorsim_tribe_d3_*.zip` to Zenodo or OSF; put the DOI in `README.md` and the data-availability statement | you | the archive exists but is not citable until this is done (D26) |
-| N6 | Write the paper (D7) | you | `guide.md` §13 is the section-by-section map, updated for D25-D28 |
-| N7 | Push the four commits and re-tag | either | the `results-2026-09-25` tag currently points at an older commit |
+**What is left. None of it is compute:**
 
-**Decided (D29):** `free_choice_centaur` joins the curve, so Figure 8a will cover all five AI scenarios against
-traditional rather than four. The cost is the 72-cell re-run above. After it, `tableS_sign_stability` should show
-`dropped_scenarios` empty in the Figure 8a caption; if it still names a scenario, a cell is missing and the curve is
-reporting a subset.
+| # | Step | Owner |
+|---|---|---|
+| N5 | Upload `dist/neurotutorsim_tribe_d3_*.zip`; put the DOI in `README.md` and the data-availability statement | you |
+| N6 | Write the paper (D7). `guide.md` §13 is the section map, current to D30 | you |
+| N7 | `git push`, then move the `results-2026-09-25` tag to the freeze commit | either |
+| N8 | Optional, ~5 min: read the one primary in `review_queue.json`. Checked 2026-09-21 - `npv_002_ai_scaffolding` is a bare `UNSUPPORTED: yes` with no reason on an unvalidated check; its worked example (15,000 / 12,500 / 27,500 / 2,500), its reference answer and its leakage check are all correct, so no action was taken | you |
 
-**Out of reach before the deadline, and correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI
-validation (§10.1), and Centaur inside Phase V (~1.2e9 episodes). The learner engine therefore stays out of the
-specification curve; Centaur reaches Phase V only through the fitted free-choice rule (D18).
-
-**What the headline now is**, after today's work, so the paper does not overstate it: the substitution deficit and
-the rapid-fade benefit are robust across every specification; the scaffolding-without-fading advantage is not, being
-exactly the `support.adaptation` constant (D25); and the anchors say the simulated learner is slower and more
-forgetful than the literature, so read the substitution *magnitude* as an upper bound (D27).
-
+**Out of reach before the deadline, correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI
+validation (§10.1), and Centaur inside Phase V (~1.2e9 episodes), so the learner engine stays out of the curve.
 
 **Update 2026-09-18 (evening).** Done: S1 (four logistic runs), S2 (TRIBE `tribe_main`, all QC checks pass;
 outputs in `data/tribe/tribe_main/`), S4, S5 (code, and `apply_to_run` on both logistic runs), S6 (T1 green), S8

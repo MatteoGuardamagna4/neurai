@@ -217,10 +217,11 @@ minutes. Every figure has a CSV twin with the same name, so no number in the the
 
 The falsification checklist (`table6_falsification.csv`) is the authority. As things stand:
 
-- **Three of the four behavioural results are robust; one is not.** `tableS_sign_stability` is the authority and is
-  computed, not asserted: substitution, free choice and scaffolding-with-rapid-fade keep the sign of median year-10 G
-  in every specification with no 95% interval including 0. **Scaffolding-without-fading does not**: its G is exactly
-  0 once the adaptation advantage is removed (D25).
+- **Four of the five behavioural results are robust; one is not.** `tableS_sign_stability` is the authority and is
+  computed, not asserted, over the full 216-cell curve: substitution, free choice, free-choice-Centaur and
+  scaffolding-with-rapid-fade keep the sign of median year-10 G in all **648 specifications** each, with no 95%
+  interval including 0. **Scaffolding-without-fading does not**: it fails in exactly 216 of 648, which is the whole
+  `adaptation=none` level, at a median of exactly 0.000000 (D25).
 - **The scaffolding-vs-traditional advantage is one assumed constant.** `support.adaptation` (eq. 20) is the only
   term separating the two anywhere in the model - the LLM tutor's text is numerically inert, and in the Phase V step
   the two protocols take the identical branch. Set the three protocols equal and the contrast is 0. Say this plainly;
@@ -239,6 +240,10 @@ The falsification checklist (`table6_falsification.csv`) is the authority. As th
   covariate block spans two dimensions, not three: duration is 60 * words / 220, so it is collinear with word
   count. And part of the S-T contrast is not matchable at all - the scaffolding stimulus has no worked-solution
   section by construction, so the contrast is partly "text with a worked solution vs text without one".
+- **§5.4's contradiction check is validated, its other two checks are not** (D30, `tableS_contradiction_judge`).
+  Quote the sensitivity (0.90 on texts written to be wrong) and specificity (1.00) beside the finding, never the
+  finding alone: the first version of that judge flagged nothing AND caught nothing, and the two would read the same.
+  The UNSUPPORTED and CAUSAL rows have no ground truth and are a prompt for human reading, not evidence of absence.
 - **Never** describe any of it as causal, as a measured brain effect, or as a prediction of a real student's future.
 
 Three honest asterisks to state: confidence, Brier and C track the learner's record rather than genuine calibration,
@@ -263,8 +268,8 @@ probes are 3 trained / 2 transfer items, and most paired differences are exactly
   dimensions were added after results existed, with their levels ranked before being computed; describe them that way.
 - **The curve reports the cells on disk**, not the full design, and restricts itself to the scenarios every cell ran.
   Quote `n_specifications` from `tableS_sign_stability` rather than the design size, and check the Figure 8a caption:
-  if it names a dropped scenario, some cell is missing and the curve is a subset. Since D29 every cell runs all six
-  scenarios, so the caption should name none.
+  if it names a dropped scenario, some cell is missing and the curve is a subset. As of D29 all 216 cells run all six
+  scenarios and the caption names none - that is the state to preserve.
 - **Anchoring never changes a value** (D27). `config/parameter_sources.yaml` documents provenance; a parameter outside
   its published range is a reported calibration finding, because re-parameterising would invalidate every run.
 

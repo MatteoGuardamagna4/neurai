@@ -138,34 +138,38 @@ near-transfer question -> "That took you about N minutes." -> eq. 19-25 update. 
 lifetime totals, recent form, topic experience and, in `free_choice`, what it picked and how the follow-up went.
 Far transfer is used only by the §7.7 checkpoints.
 
-## Where this stands (2026-09-20)
+## Where this stands (2026-09-21)
 
-**Code and results are complete except one compute batch.** `report all` rebuilds every table and figure (exit 0),
-122 tests pass, and the data dictionary documents all 673 columns. Five commits today, none pushed; the
-`results-2026-09-25` tag still points at an older commit.
+**Every run is done and every output is current.** 315 Phase V tags complete, the §10.4 design whole at
+**216 cells x 6 scenarios**, `report all` exit 0 with every table but the intended ones bit-identical, 126 tests
+pass, the data dictionary documents all 680 columns, and the working tree is clean. Ten commits, **none pushed**;
+the `results-2026-09-25` tag still points at an older commit. `PLAN.md` §1 lists what remains (N5-N7: push, the D3
+DOI, the paper) - none of it is compute.
 
-Running now, then one more batch: the §10.4 specification curve gained an **adaptation** dimension (D25) and
-**`free_choice_centaur`** (D29), so the design is 216 cells x 6 scenarios. The `halved` and `none` cells are in
-flight; the 72 `authored` cells are then re-run under `*_adapt_authored` tags, because the runs that predated the
-dimension used five scenarios and `spec_curve_g` drops any scenario a cell lacks. ~13 h of compute in total.
-`PLAN.md` §1 has the command list (N0-N7).
+**The result the paper leads with** (`tableS_sign_stability`, computed not asserted): four of five AI scenarios keep
+the sign of median year-10 G across all **648 specifications** with no 95% interval including 0 - substitution,
+free choice, free-choice-Centaur and scaffolding with rapid fade. **Scaffolding without fading does not**: it fails
+at `adaptation=none` alone, in exactly 216 specifications (the whole level), median **0.000000**, because with equal
+adaptation a persistent-support scaffolding arm *is* the traditional arm. So the rapid-fade benefit rests on support
+withdrawal, a mechanism; the no-fade advantage is the `support.adaptation` constant and must be reported as such.
 
-**Three results the write-up must not overstate**, all established today:
+**Three standing caveats for the write-up:**
 
-- **The scaffolding-vs-traditional advantage is one assumed constant.** `support.adaptation` is the only term
-  separating them anywhere in the model; set the three protocols equal and year-10 G is exactly 0. `scaffolding_rapid`
-  survives that test and `substitution` and `free_choice` keep their sign, so the rapid-fade benefit rests on support
-  withdrawal, a mechanism, not on the constant (`tableS_sign_stability`).
-- **The learner is slower and more forgetful than the literature** (D27): 0.035 of the gap to mastery closed per
-  episode against BKT's 0.10-0.22, 0.38 retained per year against Custers (2010)'s 0.65-0.75, plateau K* = 0.59
-  against 0.99. Report the substitution direction as robust and its magnitude as an upper bound.
-- **The neural side stays exploratory**: F2 leaves only scaffolding's DorsAttn / SalVentAttn / SomMot contrasts.
+- **Magnitude, not direction, is what the anchors bound** (D27). The simulated learner closes 0.035 of the gap to
+  mastery per episode against BKT's 0.10-0.22 and retains 0.38 of knowledge per year against Custers (2010)'s
+  0.65-0.75; eq. 21's plateau is K* = 0.59 where literature midpoints imply 0.99. The substitution deficit is a
+  low-effort-into-forgetting story, so read its size as an upper bound. omega is the one anchor that checks out.
+- **The neural side stays exploratory.** F2 leaves only scaffolding's DorsAttn / SalVentAttn / SomMot contrasts, and
+  at full coverage the control-network d keeps its sign in 59.2% of 62,208 specifications. Adaptation is irrelevant
+  to it (0.590 / 0.592 / 0.593 by level), so the neural instability is the plasticity mechanism, not the behavioural
+  assumption.
+- **A screen that never fires has not been shown to work** (D30). The §5.4 judge's first version flagged nothing and
+  caught nothing - 0 of 30 texts written to be wrong. Rebuilt as extract-then-compare and made condition-aware, it
+  reaches sensitivity 0.90 and specificity 1.00 (`tableS_contradiction_judge`, which leads with that validation).
+  Its UNSUPPORTED and CAUSAL checks have no ground truth and are marked `unvalidated`: a prompt for human reading,
+  never evidence of absence.
 
-Also new: `scripts/archive_tribe.py` makes deliverable D3 citable (D26, tracked `MANIFEST.sha256` + a 14 MB bundle
-that rebuilds every output on its own; upload and DOI still to do), and `judge.py` is the §5.4 contradiction judge
-(D28), validated on 9 texts and awaiting its full 90-text pass.
-
-## Earlier status (2026-09-19)
+## Earlier status (2026-09-19)## Earlier status (2026-09-19)
 
 **Every run is done and `report all` rebuilds every table and figure (exit 0); what is left is the S15 freeze.**
 `PLAN.md` §1 and §8 (log) hold the detail, decisions D1-D22 and the limitations (§7). On disk: the logistic population
