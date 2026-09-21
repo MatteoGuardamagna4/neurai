@@ -13,17 +13,15 @@ analysis layer.
 
 The code and results are frozen; **what is left is the report, due 2026-09-30**. `REPORT.md` is the specification:
 structure, the 40-page budget with figures counted, the real grading rubric, and what must go in the body rather
-than the appendix. Read it before drafting any prose. Three things it establishes that are easy to get wrong:
+than the appendix. Read it before drafting any prose. Two things it establishes that shape the writing:
 
-- **An Executive Summary of 2-4 pages is compulsory** - the guidelines say no project is admitted for defence
-  without one - and an abstract is not a substitute.
 - **The rubric has no literature-review criterion.** Ten criteria at 10% each; 30% is the oral defence. The
   supervisor's steer is that methods and results carry the most weight.
 - **"Level of difficulty" awards its top band to work whose data had to be created, naming simulations.** The
   report must state plainly that no dataset existed and quantify what was generated.
 
-The report is **individual and covers all five phases** (user decision 2026-09-21); Federica writes her own, and
-overlap is expected.
+Front matter is an executive summary (2-4 pages, compulsory, four required elements) and an abstract; both, they are
+different things. The report is **individual and covers all five phases** (user decision 2026-09-21).
 
 ## Scope decisions (do not re-litigate)
 

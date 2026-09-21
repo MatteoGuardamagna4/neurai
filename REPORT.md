@@ -8,11 +8,10 @@ Sources, in order of authority:
 
 1. `MSc InCompany Project Guidelines 25_26.pdf` and `MSc InCompany grading tables 25_26.pdf` (gitignored, in the
    repository root). These are the binding rules and the actual rubric.
-2. The supervisor's guidance of 2026-09-15, relayed through Federica: structure, weighting, and the ESADE Data
-   Department section.
+2. The supervisor's guidance of 2026-09-15: structure, weighting, and the ESADE Data Department section.
 3. `NeuroTutorSim_Project_Brief.pdf` §13 and §15: the required figures and tables, and the language rules.
 
-**Where 2 and 1 disagree, 1 wins.** Two such conflicts exist and both are recorded below.
+Where they differ, 1 wins: it is the binding document.
 
 ---
 
@@ -23,32 +22,27 @@ Sources, in order of authority:
 | Deliverable | D7, the written report (the 15-minute defence is separate and carries 30% of the grade) |
 | Due | **2026-09-30** (the code and results freeze was 2026-09-25) |
 | Modality | Empirical: original quantitative work |
-| Scope | **All five phases.** The reports are individual, one per student, and this one covers corpus, TRIBE, learners, plasticity and the ten-year scenarios. Some overlap with Federica's is expected and fine (user decision 2026-09-21) |
+| Scope | **All five phases**: corpus, TRIBE, learners, plasticity and the ten-year scenarios. The reports are individual, one per student (user decision 2026-09-21) |
 | Length | **40 pages including figures and tables**, excluding cover, executive summary, index, bibliography and appendices (user confirmed 2026-09-21 that figures count) |
 | Language | English, compulsory, including the annexes and the oral defence |
 | Format | PDF, text and unprotected. A4, Arial or Calibri 11pt, justified, 30 mm left/right and 25 mm top/bottom margins, numbered headings, page numbers at the bottom |
 
-## 2. Two conflicts with the chat guidance — resolve them the guidelines' way
+## 2. Front matter and length
 
-**An Executive Summary is compulsory, and an abstract is not a substitute.** The guidelines are explicit: *"no
-project will be admitted for presentation and defence without the mandatory executive summary."* It is 2-4 pages
-(about 10% of the content), not a 200-word abstract, and it must contain at least four things:
+**Executive Summary, 2-4 pages, compulsory.** It is 10% of the content and must contain at least four things:
 
 1. an introduction or project presentation including the objective,
 2. a brief explanation of the methodology, its steps **and its data sources**,
 3. a reference to the academic framework,
 4. the main conclusions or an explanation of the deliverable.
 
-The chat's "Abstract + Index at the front" is therefore the *minimum* front matter, not the requirement. Write the
-executive summary; add an abstract as well if the supervisor wants an academic-paper shape, since the stated plan is
-to turn this into a paper.
+Write an abstract as well, per the agreed structure: the plan is to turn this into a paper, and a paper needs one.
+They are different things and both belong at the front.
 
-**The guidelines' own length steer is 25-30 pages**, not 40: *"there are no minimum or maximum number of pages ...
-As indication, the ICP report normally should be around 25 to 30 pages plus annexes and executive summary."* The
-40-page ceiling comes from the supervisor. Treat 40 as the hard ceiling and 30 as the target; nothing is gained by
-filling pages, and the rubric grades none of them by length.
+**Length: 40 pages is the supervisor's ceiling; the guidelines' own indication is 25-30** plus annexes and executive
+summary. Target 30, treat 40 as the limit. Nothing is gained by filling pages and no criterion grades length.
 
-Two more formal requirements that are easy to miss and cheap to satisfy:
+Two formal requirements that are easy to miss and cheap to satisfy:
 
 - The index must carry **page numbers and the word count at the end of the index**.
 - **Every graph needs labelled axes with units, and every graph and table needs its data source at the foot.**
@@ -88,10 +82,9 @@ Indicative, for a 38-page body that leaves margin:
 | 5. Discussion and Conclusions | 5-6 | limitations are `PLAN.md` §7, which is written to be lifted |
 | 6. ESADE Data Department | 1-2 | see §6 |
 
-## 4. What is actually graded — and it is not what the chat assumed
+## 4. What is actually graded
 
-**The rubric contains no literature-review criterion at all.** The chat reported that "the grading criteria in the
-doc values a lot the literature review"; the grading tables do not. Ten criteria, 10% each:
+**The rubric contains no literature-review criterion.** Ten criteria, 10% each:
 
 | Who | Criterion | Weight |
 |---|---|---|
@@ -184,9 +177,3 @@ in some form:
 
 Brief §15 wording throughout: "predicted cortical response", "simulated learner", "model-implied", "scenario
 contrast". Never "the brain learns", "AI causes", "we demonstrate long-term effects", or "digital twin".
-
-## 8. Open
-
-- Whether the supervisor wants an abstract **in addition to** the compulsory executive summary. Write the executive
-  summary either way; it is the one that blocks submission.
-- Confirm with Federica which phases her report emphasises, to keep the overlap deliberate rather than accidental.
