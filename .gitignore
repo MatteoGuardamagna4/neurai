@@ -39,3 +39,5 @@ data/tribe/*
 
 # the archive bundle itself is a build product; upload it, do not commit it
 dist/
+
+MSc*
