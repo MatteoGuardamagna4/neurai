@@ -9,6 +9,22 @@ instruction, AI scaffolding and AI substitution. Spec: `NeuroTutorSim_Project_Br
 implements Phases I-V (corpus, TRIBE on Colab, synthetic learners, plasticity, ten-year scenarios) and the §10-§13
 analysis layer.
 
+## The deliverable now being written (D7)
+
+The code and results are frozen; **what is left is the report, due 2026-09-30**. `REPORT.md` is the specification:
+structure, the 40-page budget with figures counted, the real grading rubric, and what must go in the body rather
+than the appendix. Read it before drafting any prose. Three things it establishes that are easy to get wrong:
+
+- **An Executive Summary of 2-4 pages is compulsory** - the guidelines say no project is admitted for defence
+  without one - and an abstract is not a substitute.
+- **The rubric has no literature-review criterion.** Ten criteria at 10% each; 30% is the oral defence. The
+  supervisor's steer is that methods and results carry the most weight.
+- **"Level of difficulty" awards its top band to work whose data had to be created, naming simulations.** The
+  report must state plainly that no dataset existed and quantify what was generated.
+
+The report is **individual and covers all five phases** (user decision 2026-09-21); Federica writes her own, and
+overlap is expected.
+
 ## Scope decisions (do not re-litigate)
 
 - **Corpus: 30 units on MBA topics**, not the brief's 120 in two domains. Built as **15 concepts x 2

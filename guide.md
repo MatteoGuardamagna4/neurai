@@ -7,6 +7,7 @@ Other documents, and when to prefer them:
 
 | File | Use it for |
 | --- | --- |
+| `REPORT.md` | **what the written deliverable has to be**: structure, page budget, the real grading rubric, body vs appendix |
 | `README.md` | setup, the command for each step, the output map, the Appendix A checklist |
 | `PLAN.md` | why things are the way they are: decisions D1-D24, assumptions A1-A19, limitations (§7), the run log (§8) |
 | `CLAUDE.md` (root and per folder) | invariants a contributor must not break |
@@ -286,9 +287,11 @@ uv run python -m neurotutorsim.report phase3|phase12|engines|phase5|frontier|con
 uv run --with nibabel --with nilearn python scripts/reparcellate.py --parcels 200
 ```
 
-## 13. Writing the thesis
+## 13. Writing the report
 
-A section-by-section suggestion, with what to cite:
+**`REPORT.md` is the specification** - due date, structure, the 40-page budget with figures counted, the compulsory
+executive summary, the rubric, and what belongs in the appendix. This section is only the map from report section to
+the outputs that back it. Scope: individual report, all five phases.
 
 | Section | Content | Cite |
 | --- | --- | --- |
@@ -304,6 +307,7 @@ A section-by-section suggestion, with what to cite:
 | Data availability | the D3 archive and its manifest | `scripts/archive_tribe.py`, `data/tribe/MANIFEST.sha256`, the deposit DOI |
 | Discussion | which assumptions drive the divergence, and what to measure empirically | `tableS_variance_decomposition`, `tableS_tipping_points` |
 | Limitations | verbatim from `PLAN.md` §7 | — |
+| Implications for the ESADE Data Department | an application plan, not a compliment: what the department gets, the publication path, what it changes, and the next measurement | `REPORT.md` §6 |
 
 The discussion has a natural spine: the variance decomposition says year-10 G is 68% scenario and 29% learner, so
 the thing worth measuring empirically is how much cognitive work a real tutor leaves with the student — not the
