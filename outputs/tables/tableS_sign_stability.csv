@@ -1,5 +1,6 @@
 scenario,n_specifications,median_sign_constant,n_intervals_including_0,claim,median_min,median_max,first_failing
-free_choice,336,True,0,robust,-0.08996538894431153,-0.012644136589195817,none
-scaffolding_nofade,336,False,60,not robust,0.0,0.027955381050988666,"form=bounded; forgetting=weekly_break_0.1,weekly_break_0.25,weekly_break_1.0; adaptation=none"
-scaffolding_rapid,336,True,0,robust,0.010231818483135424,0.3927910447004379,none
-substitution,336,True,0,robust,-0.24723473112792568,-0.06449264592704249,none
+free_choice,648,True,0,robust,-0.09715879752951967,-0.012644136589195817,none
+free_choice_centaur,648,True,0,robust,-0.08435742766730182,-0.01670881874254413,none
+scaffolding_nofade,648,False,216,not robust,0.0,0.027955381050988666,adaptation=none
+scaffolding_rapid,648,True,0,robust,0.009322901927422338,0.3927910447004379,none
+substitution,648,True,0,robust,-0.24756360708233532,-0.06391303342803056,none
