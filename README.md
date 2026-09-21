@@ -153,7 +153,7 @@ statement. Until then the archive exists but is not yet citable.
 | Tables 1-3 (conditions, components, parameters with source or "assumption") | `table1_conditions`, `table2_components`, `table3_parameters`, `tableS_parameter_anchors` |
 | Table 4, §6.6 cortical contrasts (+ covariates, eq. 42, reading speed) | `table4_*`, `parcel_contrasts_auc`, Figures 3, S2 |
 | §6.7 RSA | `rsa_*`, Figure 4 |
-| §5.5 corpus balance, coverage, duplicate screen | `corpus_balance`, Figure 2, `tableS_semantic_coverage*`, `tableS_near_duplicates` |
+| §5.4-5.5 corpus balance, coverage, duplicate screen, contradiction judge | `corpus_balance`, Figure 2, `tableS_semantic_coverage*`, `tableS_near_duplicates`, `tableS_contradiction_judge` |
 | §7.7 learner outcomes at the population size, §7.2 arms, §8.7 metrics | `tableS_phase3_outcomes`, `tableS_phase3_settings`, `tableS_neural_metrics_*`, Figure S3 |
 | §10.2 Centaur vs logistic | `engine_comparison`, `engine_free_choice_shares`, Figure S1, `choice_rule_*` |
 | Gate 18, gate 19 | `gate18_checks`, `gate19_metric_definitions` |

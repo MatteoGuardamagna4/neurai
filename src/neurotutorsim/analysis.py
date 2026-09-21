@@ -1341,3 +1341,45 @@ def sign_stability(curve: pd.DataFrame, value: str = "median", dims=("form", "fo
                      "median_min": float(d[value].min()), "median_max": float(d[value].max()),
                      "first_failing": "; ".join(f"{k}={v}" for k, v in where.items()) or ("none" if not len(bad) else "all levels")})
     return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ §5.4 contradiction judge (PLAN.md D30)
+def judge_table(verdicts: pd.DataFrame) -> pd.DataFrame:
+    """The §5.4 judge's result as a reportable table: what it found, and what it is worth.
+
+    Two blocks. `validation` first, because the counts mean nothing without it: the screen's sensitivity on the
+    incorrect-but-fluent texts (known wrong) and its specificity on the primaries (known correct, where the check
+    applies). `finding` second. The UNSUPPORTED and CAUSAL checks have no ground truth in the corpus, so they are
+    reported with an explicit `unvalidated` standing rather than as evidence of absence.
+    """
+    v = verdicts.copy()
+    v["is_control"] = v["variant"].astype(str).eq("incorrect")
+    applies = v["contradiction_applicable"].fillna(False).astype(bool) if "contradiction_applicable" in v else True
+    ctrl, prim = v[v["is_control"]], v[~v["is_control"]]
+    ctrl_ok, prim_ok = ctrl[applies[ctrl.index]], prim[applies[prim.index]]
+    rows = [
+        {"block": "validation", "check": "contradiction", "standing": "validated",
+         "quantity": "sensitivity: incorrect-but-fluent texts flagged",
+         "value": float(ctrl_ok["contradiction"].fillna(False).mean()) if len(ctrl_ok) else np.nan,
+         "n": int(len(ctrl_ok)),
+         "note": "texts written to reach the misconception's answer; a screen that misses these proves nothing"},
+        {"block": "validation", "check": "contradiction", "standing": "validated",
+         "quantity": "specificity: correct texts NOT flagged",
+         "value": float(1.0 - prim_ok["contradiction"].fillna(False).mean()) if len(prim_ok) else np.nan,
+         "n": int(len(prim_ok)), "note": "primaries where the condition's text may state a final answer"},
+    ]
+    for check, standing, note in (
+            ("contradiction", "validated", "final answer differs from the unit's reference"),
+            ("unsupported", "unvalidated", "no ground truth in the corpus: a prompt for human reading, not evidence of absence"),
+            ("causal", "unvalidated", "no ground truth in the corpus: a prompt for human reading, not evidence of absence")):
+        sel = prim_ok if check == "contradiction" else prim
+        rows.append({"block": "finding", "check": check, "standing": standing,
+                     "quantity": "primaries flagged", "value": float(sel[check].fillna(False).sum()),
+                     "n": int(len(sel)), "note": note})
+    rows.append({"block": "finding", "check": "any", "standing": "screen",
+                 "quantity": "primaries sent to manual review (§5.5)",
+                 "value": float(sum(1 for _, r in prim.iterrows()
+                                    if any(r.get(c) for c in ("contradiction", "unsupported", "causal"))
+                                    or not r.get("parsed", True))),
+                 "n": int(len(prim)), "note": "a text that could not be judged is queued, never passed"})
+    return pd.DataFrame(rows)

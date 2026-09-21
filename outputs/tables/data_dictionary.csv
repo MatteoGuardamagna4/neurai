@@ -480,6 +480,13 @@ outputs/tables/table6_negative_controls.csv,implementation,str,how the control w
 outputs/tables/table6_negative_controls.csv,expected,str,what the control was expected to produce
 outputs/tables/table6_negative_controls.csv,value,str,"metric value (predicted response, a.u.)"
 outputs/tables/table6_negative_controls.csv,as_expected,bool,the control behaved as expected
+outputs/tables/tableS_contradiction_judge.csv,block,str,validation (is the screen any good?) or finding (what it found)
+outputs/tables/tableS_contradiction_judge.csv,check,str,gate-18 check
+outputs/tables/tableS_contradiction_judge.csv,standing,str,"validated (has a sensitivity check), unvalidated (no ground truth), or screen"
+outputs/tables/tableS_contradiction_judge.csv,quantity,str,"the quantity being compared, and its units"
+outputs/tables/tableS_contradiction_judge.csv,value,float64,"metric value (predicted response, a.u.)"
+outputs/tables/tableS_contradiction_judge.csv,n,int64,draws (or units) in the summary
+outputs/tables/tableS_contradiction_judge.csv,note,str,caveat attached to this row
 outputs/tables/tableS_exposure.csv,scenario,str,Phase V scenario (config phase5.scenarios); in frontier / mediation runs the cell or `base|hold_X` name
 outputs/tables/tableS_exposure.csv,outcome,str,outcome name (see the outcome rows of this dictionary)
 outputs/tables/tableS_exposure.csv,year,int64,school year (0 = before the first episode)

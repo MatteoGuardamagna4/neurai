@@ -479,3 +479,25 @@ def test_sign_stability_separates_the_three_strengths_of_claim():
     # the flip is attributable to the dimension whose levels differ, not to the ones held constant
     assert "adaptation=none" in out.loc["flips", "first_failing"]
     assert "form=" not in out.loc["flips", "first_failing"]
+
+
+def test_judge_table_reports_validation_before_findings():
+    """The §5.4 counts are meaningless without the sensitivity check: the first judge flagged nothing AND caught
+    nothing. The table must carry both, and must not present the unvalidated checks as evidence of absence."""
+    rows = []
+    for i in range(10):  # controls: known wrong, 9 of 10 caught
+        rows.append({"variant": "incorrect", "contradiction_applicable": True, "contradiction": i < 9,
+                     "unsupported": False, "causal": False, "parsed": True})
+    for i in range(20):  # primaries: 10 where the check applies, none falsely flagged
+        rows.append({"variant": "primary", "contradiction_applicable": i < 10,
+                     "contradiction": False if i < 10 else None,
+                     "unsupported": i == 0, "causal": False, "parsed": True})
+    out = A.judge_table(pd.DataFrame(rows)).set_index(["block", "check", "quantity"])
+    sens = out.loc[("validation", "contradiction", "sensitivity: incorrect-but-fluent texts flagged")]
+    spec = out.loc[("validation", "contradiction", "specificity: correct texts NOT flagged")]
+    assert sens["value"] == pytest.approx(0.9) and sens["n"] == 10
+    assert spec["value"] == pytest.approx(1.0) and spec["n"] == 10, "specificity is over applicable primaries only"
+    standing = A.judge_table(pd.DataFrame(rows)).set_index("check")["standing"].to_dict()
+    assert standing["unsupported"] == "unvalidated" and standing["causal"] == "unvalidated"
+    review = out.loc[("finding", "any", "primaries sent to manual review (\u00a75.5)")]
+    assert review["value"] == 1.0, "the one unsupported flag is queued"

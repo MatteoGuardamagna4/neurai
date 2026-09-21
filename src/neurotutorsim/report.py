@@ -838,6 +838,13 @@ def text_controls(paths: Paths) -> list[Path]:
     if cov_path.exists():
         summary, review = A.coverage_table(pd.read_csv(cov_path))
         written += [paths.table(summary, "tableS_semantic_coverage"), paths.table(review, "tableS_semantic_coverage_review")]
+    # §5.4 contradiction judge (D30). Reported with its own validation, because the counts are meaningless
+    # without the sensitivity check: the first version flagged nothing AND caught nothing.
+    verdicts = paths.processed / "judge" / "verdicts.jsonl"
+    if verdicts.exists():
+        rows = [json.loads(line) for line in verdicts.read_text(encoding="utf-8").splitlines() if line.strip()]
+        if rows:
+            written.append(paths.table(A.judge_table(pd.DataFrame(rows)), "tableS_contradiction_judge"))
     return written
 
 
@@ -1118,6 +1125,10 @@ COLUMN_DOC = {
     "wpm": "reading speed of the TRIBE run (§6.2)", "winsorize": "Z winsorised at the 1st/99th percentiles (§8.2) or not",
     "network_weights": "eq. 7 parcel weights: area (main) or equal",
     # --- column descriptions added 2026-09-20 (deliverable D1: data dictionaries)
+    "block": "validation (is the screen any good?) or finding (what it found)",
+    "check": "which §5.4 check: contradiction, unsupported, causal",
+    "standing": "validated (has a sensitivity check), unvalidated (no ground truth), or screen",
+    "quantity": "what the row measures",
     "n_specifications": "specifications on disk for this scenario (the curve reports the cells actually run)",
     "median_sign_constant": "the median year-10 contrast keeps one sign across every specification",
     "n_intervals_including_0": "specifications whose 95% interval across draws includes 0",
