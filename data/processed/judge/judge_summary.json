@@ -1,25 +1,37 @@
 {
-  "n_texts": 9,
+  "n_texts": 120,
   "n_unparsed": 0,
-  "n_review_queue": 0,
-  "n_contradiction": 0,
-  "n_unsupported": 0,
+  "n_review_queue": 28,
+  "by_variant": {
+    "incorrect": {
+      "n": 30,
+      "flagged": 27
+    },
+    "primary": {
+      "n": 90,
+      "flagged": 1
+    }
+  },
+  "sensitivity_on_incorrect_texts": 0.9,
+  "n_contradiction": 27,
+  "n_unsupported": 1,
   "n_causal": 0,
   "by_condition": {
     "ai_scaffolding": {
-      "n": 3,
-      "flagged": 0
+      "n": 30,
+      "flagged": 1
     },
     "ai_substitution": {
-      "n": 3,
+      "n": 30,
       "flagged": 0
     },
     "traditional": {
-      "n": 3,
-      "flagged": 0
+      "n": 60,
+      "flagged": 27
     }
   },
-  "n_new_calls": 0,
+  "n_new_calls": 120,
+  "n_errors": 0,
   "model": "qwen2.5-3b-instruct",
-  "recorded_utc": "2026-09-20T15:00:56Z"
+  "recorded_utc": "2026-09-21T08:42:35Z"
 }
