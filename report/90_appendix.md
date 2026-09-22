@@ -53,10 +53,15 @@ Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
 *Cosine similarity between the text's explanation and the unit's reference worked solution (`all-mpnet-base-v2`).
 Source: own elaboration (`outputs/tables/tableS_semantic_coverage_review.csv`).*
 
-This review is outstanding and will be carried out if time permits. Six of the nine texts belong to two units,
-`pbp_002` and `ltv_002`, which appear here in all three conditions; that concentration suggests, without
-establishing, that the reference worked solutions of those two units are phrased differently from the lessons that
-teach them, which makes them the first candidates for review. <!-- CLAUDE: replace with the outcome once the review
+This review is outstanding and will be carried out if time permits. Two features of the list bear on what it can
+find. First, the scores are not extreme: averaged over the three conditions, unit coverage runs from 0.573
+(`pbp_002`) to 0.786 (`dol_002`), so the lowest decile sits inside a narrow band well above the threshold of 0.50.
+Second, six of the nine texts belong to two units, `pbp_002` and `ltv_002`, each appearing in all three conditions,
+which locates whatever depresses the score in the unit rather than in an individual lesson. Two candidate
+explanations of that were tested against the obvious properties of the reference solution and are not supported:
+the ordering of unit coverage is uncorrelated with the length of the worked solution (*r* = +0.30, *p* = 0.11) and
+with its density of numerals (*r* = +0.27, *p* = 0.15), and both correlations point the opposite way to the
+conjecture that a terse numeric solution depresses similarity. The review therefore has to read the texts. <!-- CLAUDE: replace with the outcome once the review
 is done (per text: adequate or revised, and why). -->
 
 ### A.3 Construction and validation of the contradiction check

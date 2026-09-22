@@ -164,13 +164,14 @@ by the author with Claude, under the author's review; texts drafted with Claude 
 (MBA for business-school students, 30 units for compute); contribution (all the author's own); equations (code
 numbers, written at first use); length (~37 pages).
 
-Answered 2026-09-23: the cover (ESADE Data Department; tutors Carlos Carrasco-Farré and Marc Torrens; confidential);
+Answered 2026-09-23: the cover (ESADE Data Department; tutors Carlos Carrasco-Farré and Marc Arnal Torrens;
+confidentiality left off, not an issue for now);
 the criteria may carry the labels F1-F6 once §3.8 defines them; the manual reviews (the nine texts of Table A2 and
 the flagged `npv_002`) are deferred and reported as outstanding, to be done if time permits.
 
 Still open:
 
 - **Title.** The working title stands unless changed.
-- **Confidentiality.** It is now stated on the cover. Two signed copies of the confidentiality agreement are
-  required by the guidelines, and §6's publication path (the archived dataset with its DOI, and a paper) needs the
+- **Confidentiality.** Left off the cover for now. If it is ever claimed, the guidelines require two signed copies
+  of the agreement, and §6's publication path (the archived dataset with its DOI, and a paper) would need the
   tutors' agreement or an embargo instead.

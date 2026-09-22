@@ -12,9 +12,7 @@ In Company Project, academic year 2025–2026
 
 Organisation: ESADE Data Department
 
-Tutors: Carlos Carrasco-Farré and Marc Torrens
-
-**CONFIDENTIAL**
+Tutors: Carlos Carrasco-Farré and Marc Arnal Torrens
 :::
 
 <!-- CLAUDE: cover fields per the ESADE guidelines (student and master, title, organisation, tutor, confidentiality,
