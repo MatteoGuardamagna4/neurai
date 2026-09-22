@@ -21,7 +21,9 @@ than the appendix. Read it before drafting any prose. Two things it establishes 
   report must state plainly that no dataset existed and quantify what was generated.
 
 Front matter is an executive summary (2-4 pages, compulsory, four required elements) and an abstract; both, they are
-different things. The report is **individual and covers all five phases** (user decision 2026-09-21).
+different things. **The draft lives in `report/`** as Markdown, one file per section (user decision 2026-09-22);
+`report/outline.md` is the plan, carries the binding prose rules under Conventions, and tracks status. The user edits
+the drafts between sections: read their changes with `git diff` and carry the style forward, never overwrite them. The report is **individual and covers all five phases** (user decision 2026-09-21).
 
 ## Scope decisions (do not re-litigate)
 
