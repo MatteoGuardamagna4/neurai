@@ -41,3 +41,5 @@ data/tribe/*
 dist/
 
 MSc*
+# report build output (report/build.py)
+report/build/

@@ -10,8 +10,17 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
 
 ## Conventions
 
-- **Files.** One per top-level section: `01_introduction.md` … `06_esade.md`, `00_front.md` (cover, abstract,
-  executive summary, index), `90_appendix.md`, `references.bib`. Headings carry their numbers in the source.
+- **Files.** One per top-level section: `00_front.md` (cover, abstract, executive summary, declaration, index),
+  `01_introduction.md` … `06_esade.md`, `80_references.md`, `90_appendix.md`, `references.bib`, `apa.csl`.
+  Headings carry their numbers in the source. Undrafted subsections read *In preparation.*
+- **Build.** `uv run --no-project --with pypandoc-binary --with python-docx python report/build.py --pdf` writes
+  `report/build/NeuroTutorSim_report_draft.docx` (and `.pdf`) in the ESADE format; with Word installed it also
+  updates the index and writes the page and word count. Close the document in Word before rebuilding.
+- **Workflow.** The author edits the drafts directly and commits before editing; `git diff` shows their changes.
+  `<!-- MG: … -->` comments are answered in chat, not in the file.
+- **No reference to the project brief** anywhere in the report text: it is an unofficial document. Thresholds,
+  acceptance criteria, falsification criteria and scenario definitions are presented as this study's design and
+  defined where they first matter (the falsification criteria in §3.8); scope is stated positively.
 - **Prose rules (binding).** Formal, analytical register. No rhetoric or filler, no stock adjectives
   ("crucial", "transformative"), no obvious conclusions. Every claim rests on reasoning, a number from
   `outputs/tables`, or a citation. Uncertain or hypothetical quantities carry their limitation in the same sentence.
@@ -20,23 +29,24 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   "AI causes", "digital twin".
 - **Voice.** Impersonal by default; first person singular only for the author's own decisions.
 - **Citations.** Pandoc keys (`[@austin2009]`), rendered in APA from `references.bib`. Only sources checked against
-  Crossref, arXiv or the brief enter the file; each entry records how it was checked.
-- **Equations** keep the brief's numbers, so that they match the code, the tables and the figure labels
-  ("eq. 3"). The numbering therefore has gaps; the Methodology states this once. *(Open question Q4.)*
-- **Exhibits.** Figures keep the brief's numbers (the images carry their titles). Tables are numbered in order of
+  Crossref or arXiv enter the file; the comment above each entry records how.
+- **Equations** keep their code numbers, so that they match the code, the tables and the figure labels ("eq. 3").
+  Each is written out where it first matters, labelled with that number; a forward reference names the section that
+  writes it out. The numbering has gaps and will be renumbered at the end.
+- **Exhibits.** Figures keep their output numbers, 1-8 (the images carry their titles). Tables are numbered in order of
   appearance. Every figure and table ends with a source line: *Source: own elaboration. …* (REPORT.md §2).
-- **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` yours. Neither appears in the built document.
+- **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.
 
 ## Page budget
 
 A4, Arial 11 pt, single spacing with 6 pt before and after, 30/25 mm margins: about 550 words per page of prose.
-Target body **~37 pages** against the 40-page ceiling (figures and tables count). *(Open question Q5.)*
+Target body **~37 pages** against the 40-page ceiling (figures and tables count); agreed 2026-09-22.
 
 | Section | Pages | Of which exhibits | Prose words | Status |
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 5.5 | 0 | ~3,000 | — |
-| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted: 1,865 words, ~4.3 pp with exhibits against ~2.5 |
+| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A) |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
@@ -51,21 +61,23 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 - **Executive Summary.** 2-4 pages, compulsory. Four required elements: objective; methodology with its steps
   **and its data sources** (all generated, quantified); the academic framework; conclusions and the deliverable.
   Written last.
-- **Declaration of assistance.** Required by the guidelines ("any assistance received … should be fully
-  acknowledged"). *(Open question Q1.)*
+- **Declaration of AI assistance.** Required by the guidelines ("any assistance received … should be fully
+  acknowledged"). Facts: the unit records were written by the author with Claude, under the author's review; the
+  lesson texts and text controls were drafted with Claude Opus 5 and Claude Fable 5; code and report drafts had the
+  same assistance. Method components (Centaur, Qwen2.5, TRIBE v2) are described in §3, not here.
 - **Index.** With page numbers, and the page count and word count at its end.
 
 ## 1. Introduction (3 pp)
 
 - **1.1 Motivation.** The cognitive consequences of AI tutoring are uncertain, and the evidence would take a decade
   to arrive; a computational laboratory makes the assumptions explicit in the meantime (brief §15).
-- **1.2 Research questions.** Primary question and five secondary questions, quoted from brief §1.1-1.2.
+- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own.
 - **1.3 Approach and contribution.** A reproducible framework, not a verdict (brief §1.3). **No dataset existed**:
   state what was generated, quantified (30 units, 90 stimuli, 210 text controls, 8.7 GB of predictions, the
   Phase III episode count, 315 Phase V runs, 216 specification cells). This is the top band of *Level of difficulty*.
   <!-- CLAUDE: REPORT.md cites "1.2 million model-implied episodes"; recompute before quoting. -->
-- **1.4 Scope and context.** Deviations from the brief (30 units, MBA topics, five scenarios of our own plus a
-  sixth); the ESADE Data Department context; individual report covering all five phases. *(Q2, Q3.)*
+- **1.4 Scope and context.** MBA topics because the population of interest is business-school students; 30 units
+  because of the computational budget; six scenarios; the ESADE Data Department context; all work the author's own.
 - **1.5 Structure of the report.**
 
 ## 2. Literature Review (5.5 pp)
@@ -89,7 +101,7 @@ Four strands, each ending with what it leaves open for this study. Every citatio
 
 ## 3. Methodology (12.5 pp)
 
-State once, early: equations follow the brief's numbering; every quantity is model-implied.
+State once, early: equation numbers follow the code and will be renumbered; every quantity is model-implied.
 
 | Sub | Content | Exhibits | Sources |
 |---|---|---|---|
@@ -136,22 +148,22 @@ teaching is evaluated; (4) the next measurement: `support.adaptation`, then the 
 
 ## Appendices (not counted)
 
-A. Update equations in full and the Phase V deviations (soft limits, calendar forgetting). B. Table 2 (if not in the
-body), full Table 3, full Table 5, Table 4 at parcel level. C. Supplementary tables (`tableS_*`) and Figures S1-S3.
-D. Specification list and ranks. E. Reproducibility: commands, run tags, the D3 manifest. F. Data dictionary (excerpt
-and pointer).
+Lettered in order of first reference. A. Corpus validation details (**drafted**: equivalence tests, the coverage
+review list, construction of the contradiction check). Planned: update equations in full and the Phase V
+deviations; Table 2 (if not in the body), full Tables 3 and 5, Table 4 at parcel level; supplementary tables and
+Figures S1-S3; specification list and ranks; reproducibility (commands, run tags, the D3 manifest); data dictionary.
 
 ---
 
 ## Open questions
 
-Answer here or in chat; the drafts carry `<!-- CLAUDE: -->` markers where each one matters.
+Answered 2026-09-22: detail level (keep the depth, move validation detail to Appendix A); assistance (units written
+by the author with Claude, under the author's review; texts drafted with Claude Opus 5 and Claude Fable 5); scope
+(MBA for business-school students, 30 units for compute); contribution (all the author's own); equations (code
+numbers, written at first use); length (~37 pages).
 
-- **Q1 Assistance.** How to declare AI assistance (corpus drafting, code, report drafting), and who authored the 30
-  unit records.
-- **Q2 Scope reasons.** Why 30 units instead of 120, and why MBA topics instead of Bayesian reasoning and causal
-  inference. Neither reason is recorded.
-- **Q3 Contribution.** Whether any part of the work (e.g. the classmate's TRIBE video notebook, D12) belongs to
-  someone else and must be credited.
-- **Q4 Equation numbering.** Keep the brief's numbers (gaps, but consistent with code and figures) or renumber.
-- **Q5 Length.** ~37 pages as budgeted, or cut toward the guidelines' 25-30.
+Still open:
+
+- **Cover.** Organisation, tutor, confidentiality, and whether the working title stands.
+- **Coverage review.** The author is reviewing the nine texts of Table A2; Appendix A.2 and §3.2.4 then report the
+  outcome.

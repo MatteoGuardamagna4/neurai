@@ -1,6 +1,8 @@
 # 3. Methodology
 
-<!-- CLAUDE: 3.1 Design overview and data generation - not drafted yet (see outline.md). -->
+## 3.1 Design overview and data generation
+
+*In preparation.*
 
 ## 3.2 Phase I: the matched educational corpus
 
@@ -9,8 +11,14 @@ No corpus of instructional texts matched across traditional, scaffolding and sub
 ### 3.2.1 Curriculum and unit specification
 
 The curriculum comprises 30 units on 15 concepts from core MBA syllabi: managerial accounting (seven concepts, among them break-even quantity, operating leverage and relevant cost), corporate finance (four: net present value, payback period, return on investment and the weighted average cost of capital), pricing (two: markup versus margin and price elasticity) and marketing analytics (two: customer lifetime value and customer-acquisition-cost payback). 
-Each concept is taught twice by applying the same method to a different surface form, and the second encounter is when the learner's concept-level Experience enters the simulated record (Section 3.4). Nine concepts carry one prerequisite link. Units are ordered with prerequisites first and then by difficulty, which ranges from 1 to 4 on the brief's five-point scale <!-- MG:2 questions, 1 is why is it 1 to 4 and not 1 to 5, 2 is where in the codebase can i see this. -->
-; target completion times range from five to eight minutes. <!-- MG: where in the codebase can i see this. -->
+Each concept is taught twice by applying the same method to a different surface form, and the second encounter is when the learner's concept-level Experience enters the simulated record (Section 3.4). Nine concepts carry one prerequisite link. Units are ordered with prerequisites first and then by difficulty, which ranges from 1 to 4 on a five-point scale; <!-- MG:2 questions, 1 is why is it 1 to 4 and not 1 to 5, 2 is where in the codebase can i see this. -->
+target completion times range from five to eight minutes. <!-- MG: where in the codebase can i see this. -->
+
+The MBA curriculum was chosen because the population of interest is business-school students, and every answer in it
+is numerical, so that each can be validated deterministically. The number of units was set by the available computing
+resources: each unit requires 22 predictions of the encoding model (its three lesson texts at three reading speeds and
+13 control texts, Sections 3.2.5 and 3.3), 660 for the corpus. A consequence is that every unit-level inference in
+Phases II to V rests on 30 clusters, which bounds the precision of the cluster bootstrap in Section 3.3.
 
 Each unit is a structured record containing a canonical problem, a near-transfer problem with the same structure and
 changed quantities, a far-transfer problem with a different surface form and context, a documented misconception, two
@@ -30,15 +38,15 @@ and its answer options, the transfer items) and the rule that no help is offered
 They differ in the style of the explanation and in the support that follows an error. The traditional version
 contains a fixed explanation with one worked example, the unit's three prewritten hints and a worked solution. The
 scaffolding version phrases the explanation as guided questions, adds at least one diagnostic question per documented
-wrong answer and presents the same hint ladder, but contains no worked solution: withholding the answer until the
-learner has attempted the problem is the defining feature of scaffolding [@wood1976] and the operational rule of the
-brief. The substitution version walks through the complete solution, the regime in which retrieval and generation are
+wrong answer and presents the same hint ladder, but contains no worked solution. Withholding the answer until the
+learner has attempted the problem operationalises scaffolding as support confined to the parts of a task the learner
+cannot yet complete unaided [@wood1976]. The substitution version walks through the complete solution, the regime in which retrieval and generation are
 offloaded to an external aid [@risko2016].
 
 Structure is enforced mechanically. Each version must contain exactly the sections its condition prescribes, in
 order; the explanation must contain 250 to 400 words; the problem section must reproduce the canonical problem
-verbatim; and the hints must match the unit's ladder. The encoding model reads the full text of each version<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->, whereas
-the simulated learner reads only the explanation before its first attempt and receives support turn by turn
+verbatim; and the hints must match the unit's ladder. The encoding model reads the full text of each version, all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->, whereas
+the simulated learner reads only the explanation and the problem before its first attempt and receives support turn by turn
 thereafter. In the scaffolding and substitution conditions those turns are generated at run time by a language-model
 tutor (Section 3.4) and are never seen by the encoding model. The adaptation values in Table 1 are the per-condition
 constants that enter the instructional-effectiveness term (eq. 20). They are assumptions, not properties of the
@@ -64,9 +72,10 @@ the 90 primary lesson texts (`outputs/tables/table1_conditions.csv`).*
 
 Each lesson text $s$ is described by a vector of observable, non-pedagogical features,
 
-$$ x_s = [\text{words},\ \text{characters},\ \text{sentences},\ \text{reading level},\ \text{equations},\ \text{examples},\ \text{duration},\ \text{lexical diversity},\ \text{semantic coverage}] \qquad (1) $$
+$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right) \qquad (1) $$
 
-where reading level is the Flesch–Kincaid grade [@kincaid1975], equations are counted as equality signs, lexical
+whose nine components are the numbers of words, characters, sentences, equations and worked examples, reading
+level, duration, lexical diversity and semantic coverage. Reading level is the Flesch–Kincaid grade [@kincaid1975], equations are counted as equality signs, lexical
 diversity is the type–token ratio, duration is the reading time at 220 words per minute (the presentation rate of the
 main encoding specification, Section 3.3), and semantic coverage is defined in Section 3.2.4. Balance on feature $k$
 between an AI condition $A$ and the traditional condition $T$ is measured by the standardised mean difference
@@ -74,8 +83,8 @@ between an AI condition $A$ and the traditional condition $T$ is measured by the
 $$ \text{SMD}_k = \frac{\bar{x}_{k,A} - \bar{x}_{k,T}}{\sqrt{\left(s^2_{k,A} + s^2_{k,T}\right)/2}} \qquad (3) $$
 
 against the conventional target $|\text{SMD}| < 0.10$ [@austin2009], complemented by paired two one-sided tests with
-bounds of ±0.10 pooled standard deviations, reported as descriptive diagnostics rather than as evidence of equivalence
-[@schuirmann1987; @lakens2017]. Matching is exact on unit, concept, domain, difficulty, modality and answer
+bounds of ±0.10 pooled standard deviations, reported in Appendix A as descriptive diagnostics rather than as evidence
+of equivalence [@schuirmann1987; @lakens2017]. Matching is exact on unit, concept, domain, difficulty, modality and answer
 correctness, because all three versions derive from one unit record, and caliper-based on duration: every AI version
 lies within 10% of its traditional counterpart, with a maximum deviation of 7.9% (Figure 2, right). Duration is a
 fixed multiple of word count, so the caliper constrains both.
@@ -88,14 +97,11 @@ The SMD target is met in all three pairwise comparisons for one of the nine feat
 at one worked example per text by design (Figure 2, left). The failures have two sources. The first is scale. Texts
 vary little across units (the standard deviation of word count is about 44 words), so the scaffolding texts' mean
 excess of 17.6 words, 3.3% of the traditional mean, registers as an SMD of 0.41; duration (0.41), sentence count
-(0.46), lexical diversity (0.52) and semantic coverage (0.35) exceed the target in the same comparison. Apart from
-example count, which is identical by construction, equivalence at the ±0.10 SD margin is supported only for character
-count between scaffolding and traditional and for equation count between substitution and traditional (TOST
-$p$ = 0.042 and $p$ < 0.001). The second source is structural and cannot be removed by editing. The scaffolding texts
+(0.46), lexical diversity (0.52) and semantic coverage (0.35) exceed the target in the same comparison. The second source is structural and cannot be removed by editing. The scaffolding texts
 contain no worked solution and therefore 3.5 fewer equations on average (SMD −1.76 against traditional, −1.79 against
 substitution), so the scaffolding–traditional contrast is in part a contrast between a text with a worked solution and
 a text without one. Section 3.3 carries this into the cortical analysis, where duration, word count and equation count
-enter as covariates (falsification criterion F1<!--MG: no references to the brief-->); because duration is collinear with word count, that covariate block
+enter as covariates and a contrast that does not survive them is not interpreted (Section 3.8)<!--MG: no references to the brief-->; because duration is collinear with word count, that covariate block
 spans two dimensions rather than three.
 
 ### 3.2.4 Content validation
@@ -110,36 +116,66 @@ Semantic coverage is the cosine similarity between sentence embeddings (the `all
 Sentence-Transformers framework [@reimers2019]) of a text's explanation and the unit's reference worked solution. The
 acceptance threshold of 0.50 was fixed before any similarity was computed. All 90 primary texts exceed it (minimum
 0.53; condition means 0.68 to 0.70), as do all 210 control texts described in Section 3.2.5 (minimum 0.52); the lowest
-decile of primaries was listed for manual review. <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
+decile of primaries (nine texts) is listed for manual review (Appendix A). <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
 5-gram sets [@broder1997] over all 435 pairs of traditional texts, with the threshold of 0.50 fixed before scoring.
 The highest value, 0.17, belongs to the two units of one concept (`cac_001` and `cac_002`), as the paired design
 implies; no pair was flagged. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17-->
 
-Contradiction screening uses a separate judge model, Qwen2.5-3B-Instruct [@qwen2024], distinct from the model used to
-draft the texts. <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section --> A first implementation posed three questions (factual contradiction, unsupported
-assertion, invalid causal statement) in one abstract prompt. It flagged none of the 90 texts and also none of 30 texts
-written to be wrong, so its silence carried no information. The check was rebuilt as extraction followed by
-comparison: the judge states the final answer a text asserts, and that answer is compared with the unit's reference.
-The rebuilt check detects 27 of 30 incorrect-but-fluent texts (sensitivity 0.90) and passes all 60 correct texts in
-the two conditions that state an answer (specificity 1.00); the scaffolding texts, which state none, are recorded as
-not applicable. It flags none of the 60 primary texts. The two remaining checks, unsupported assertion and causal
-language, have no ground truth in the corpus and remain unvalidated. They queued one text (`npv_002`, scaffolding),
-whose worked example, reference answer and leakage check were confirmed correct on inspection; their silence on the
-remaining texts is not evidence that such errors are absent. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
+The deterministic checks establish that the correct answer is present where the condition permits it; they cannot
+establish that the prose around it asserts nothing false. Every primary text was therefore screened by a second
+language model, Qwen2.5-3B-Instruct [@qwen2024], different from the models used to draft the texts. <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section --> It
+answered three questions: whether the final answer the text arrives at differs from the unit's reference answer
+(contradiction), whether the text asserts something the problem's data do not support (unsupported assertion), and
+whether it makes a causal claim the material does not license (causal claim). A screen of this kind is informative
+only if it is shown to fire on texts known to be wrong, and the corpus contains such texts for the first question
+alone: the 30 incorrect-but-fluent texts of Section 3.2.5. On these the contradiction check flags 27 of 30
+(sensitivity 0.90); on the 60 primary texts that state an answer, whose correctness the deterministic validators
+establish, it flags none (specificity 1.00). The scaffolding texts state no answer and fall outside its scope. The
+other two questions have no texts of known status and are therefore reported as unvalidated: they flagged one primary
+(`npv_002`, scaffolding), whose worked example, reference answer and leakage check proved correct on inspection, and
+their silence on the remaining texts is not evidence that such errors are absent. Appendix A documents how the check
+was built, including a first version that was discarded because it flagged no text at all. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
 
 ### 3.2.5 Text controls
 
 Two families of control texts were written for the encoding-model analysis only; the simulated learners never read
 them. The first contains two stylistic rewordings of every primary text (180 texts, one plainer and one more formal),
 which keep the sections, the stated quantities, the canonical problem and the answer placement of the primary, within
-the same 10% duration caliper. They implement stylistic regenerations and support falsification criterion
-F2 <!--MG: again, no reference to the brief we must come up with something else-->: a condition contrast smaller than the variation across harmless rewordings is not interpreted. The second family
+the same 10% duration caliper. They test whether a condition contrast exceeds the variation produced by harmless rewording; a contrast that
+does not is not interpreted (Section 3.8). <!--MG: again, no reference to the brief we must come up with something else--> The second family
 contains 30 incorrect-but-fluent traditional texts that teach the unit's documented misconception as if it were
-correct: they never state the correct answer, and their worked solution reaches the misconception's answer. They serve
-as a content control for the encoding model (criterion F5 <!--MG: same as last comment-->) and as the ground truth of the contradiction check above.
-All 210 control texts pass the same structural validators as the primaries. Both families were drafted by a language
-model rather than by independent human authors, which may limit how far they sample the stylistic range of human-written
+correct: they never state the correct answer, and their worked solution reaches the misconception's answer. They serve as a content control, since a condition contrast
+is not specific to pedagogy if replacing correct content with fluent incorrect content moves the predicted response
+as much (Section 3.8), <!--MG: same as last comment--> and as the ground truth of the contradiction check above.
+All 210 control texts pass the same structural validators as the primaries. Both families were drafted with language
+models rather than by independent human authors, which may limit how far they sample the stylistic range of human-written
 instruction (Section 5.4). The sentence- and word-shuffled controls, which are derived from the primaries rather than
 written, are described with the encoding model in Section 3.3.
 
-<!-- CLAUDE: 3.3-3.9 not drafted yet (see outline.md). -->
+## 3.3 Phase II: predicted cortical response
+
+*In preparation.*
+
+## 3.4 Phase III: the simulated learner
+
+*In preparation.*
+
+## 3.5 Parameter provenance and calibration anchors
+
+*In preparation.*
+
+## 3.6 Phase IV: plasticity
+
+*In preparation.*
+
+## 3.7 Phase V: ten-year scenarios
+
+*In preparation.*
+
+## 3.8 Validation, falsification and robustness
+
+*In preparation.*
+
+## 3.9 Implementation and reproducibility
+
+*In preparation.*
