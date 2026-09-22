@@ -171,7 +171,9 @@ the flagged `npv_002`) are deferred and reported as outstanding, to be done if t
 
 Still open:
 
-- **Title.** The working title stands unless changed.
+- **Coverage review (outstanding, for 2026-09-24).** The nine texts of Table A2 have *not* been read by anyone; the
+  author confirmed on 2026-09-23 that it is still to do, as is the reading of the judge-flagged `npv_002`. §3.2.4 and
+  Appendix A.2 say so and must not be softened until the author reports a verdict.
 - **Confidentiality.** Left off the cover for now. If it is ever claimed, the guidelines require two signed copies
   of the agreement, and §6's publication path (the archived dataset with its DOI, and a paper) would need the
   tutors' agreement or an embargo instead.

@@ -43,7 +43,8 @@ import sys
 import time
 from pathlib import Path
 
-from .corpus import ANSWER_ALLOWED_IN, CONDITIONS, Stimulus, Unit, load_units, load_stimuli, load_text_controls
+from .corpus import (ANSWER_ALLOWED_IN, CONDITIONS, Stimulus, Unit, contains_number, load_stimuli,
+                     load_text_controls, load_units, parse_stimulus)
 from .tutor import Tutor, TutorError
 
 # --- check 1: the contradiction check, as an EXTRACT-THEN-COMPARE task -------------------------------------------
@@ -148,6 +149,51 @@ def answer_check_applies(stim: Stimulus) -> bool:
     return bool(ANSWER_ALLOWED_IN.get(stim.condition, ()))
 
 
+# --- the validation set for UNSUPPORTED and CAUSAL (scripts/build_judge_probes.py) ---------------------------------
+# Those two checks have no ground truth in the corpus, so one is made: a unit's traditional primary with a single
+# sentence appended to its explanation. `unsupported` and `causal` carry a fault the check must catch; `background`
+# is standard domain knowledge a lesson may state, which it must not flag. A probe is accepted only if it differs
+# from its primary by that one sentence, so a verdict can be attributed to the sentence and to nothing else.
+PROBE_KINDS = ("unsupported", "causal", "background")
+PROBE_MUST_FLAG = {"unsupported": "unsupported", "causal": "causal", "background": None}
+
+
+def check_probe(stim: Stimulus, primary: Stimulus, unit: Unit, sentence: str) -> list[str]:
+    """A probe is its primary plus exactly one sentence, in the explanation, and nothing else."""
+    where, errors = stim.path.name, []
+    kind = stim.variant.removeprefix("probe_")
+    if stim.variant not in {f"probe_{k}" for k in PROBE_KINDS}:
+        return [f"{where}: variant {stim.variant!r} is not one of {PROBE_KINDS}"]
+    if tuple(stim.sections) != tuple(primary.sections):
+        return [f"{where}: sections {tuple(stim.sections)} differ from the primary's"]
+    for name, section in stim.sections.items():
+        expected = primary.sections[name] + (" " + sentence if name == "Explanation" else "")
+        if " ".join(section.split()) != " ".join(expected.split()):
+            errors.append(f"{where}: section {name!r} is not the primary's text plus the {kind} sentence")
+    if contains_number(stim.body, unit.problem.answer) != contains_number(primary.body, unit.problem.answer):
+        errors.append(f"{where}: the answer's placement differs from the primary's")
+    return errors
+
+
+def load_probes(stimuli_dir: Path, units: dict[str, Unit], stimuli: dict[tuple[str, str], Stimulus],
+                probes_json: Path) -> dict[tuple[str, str], Stimulus]:
+    """{(unit_id, variant): Stimulus} for every probe on disk, each validated against its primary."""
+    sentences = json.loads(Path(probes_json).read_text(encoding="utf-8"))["probes"]
+    out, errors = {}, []
+    for uid in sorted(units):
+        for kind in PROBE_KINDS:
+            path = Path(stimuli_dir) / "judge_probes" / "traditional" / f"{uid}__probe_{kind}.md"
+            if not path.exists():
+                errors.append(f"missing probe {path}")
+                continue
+            stim = parse_stimulus(path)
+            errors += check_probe(stim, stimuli[(uid, "traditional")], units[uid], sentences[uid][kind])
+            out[(uid, f"probe_{kind}")] = stim
+    if errors:
+        raise ValueError("probe validation failed:\n  " + "\n  ".join(errors))
+    return out
+
+
 def judge_one(tutor: Tutor, unit: Unit, stim: Stimulus) -> dict:
     """Up to two calls: the validated answer comparison where it applies, then the two unvalidated claim checks."""
     contradiction, found, a_reply, seconds, model = None, "", "", None, tutor.cfg.get("model")
@@ -193,6 +239,19 @@ def summarize(rows) -> dict:
     if "incorrect" in by_variant:  # the sensitivity check: the screen must fire on texts known to be wrong
         n_inc, hit = by_variant["incorrect"]
         out["sensitivity_on_incorrect_texts"] = round(hit / n_inc, 3) if n_inc else None
+    for kind in PROBE_KINDS:  # the same discipline for the two checks the corpus cannot validate
+        probes = [r for r in rows if r.get("variant") == f"probe_{kind}"]
+        if not probes:
+            continue
+        check = PROBE_MUST_FLAG[kind]
+        if check:  # a fault of this kind: the named check must fire
+            hit = sum(1 for r in probes if r.get(check))
+            out[f"sensitivity_{check}"] = round(hit / len(probes), 3)
+            out[f"n_probe_{kind}"] = len(probes)
+        else:  # standard background: neither check may fire
+            clean = sum(1 for r in probes if not r.get("unsupported") and not r.get("causal"))
+            out["specificity_on_background_probes"] = round(clean / len(probes), 3)
+            out[f"n_probe_{kind}"] = len(probes)
     for c in CHECKS:
         out[f"n_{c}"] = sum(1 for r in rows if r.get(c))
     by = {}
@@ -221,6 +280,11 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", default="config/default.yaml")
     ap.add_argument("--limit", type=int, help="judge only the first N texts (a server and parser check)")
+    ap.add_argument("--probes", action="store_true",
+                    help="judge the UNSUPPORTED / CAUSAL validation set instead of the corpus "
+                         "(stimuli/judge_probes, built by scripts/build_judge_probes.py): 30 units x "
+                         "{unsupported, causal, background}, the first two carrying a fault the check must catch and "
+                         "the third standard background it must not flag")
     ap.add_argument("--controls", choices=("incorrect", "reworded", "all"),
                     help="also judge text controls. `incorrect` is the SENSITIVITY CHECK: the 30 incorrect-but-fluent "
                          "texts reach the misconception's answer, so a judge with any discriminative power must flag "
@@ -238,6 +302,9 @@ def main(argv=None) -> int:
     units = load_units(root / cfg["run"]["units_dir"])
     stimuli = load_stimuli(root / cfg["run"]["stimuli_dir"], units)
     texts = [(units[u], s) for (u, _), s in sorted(stimuli.items())]
+    if args.probes:
+        texts = [(units[u], s) for (u, _v), s in sorted(load_probes(
+            root / cfg["run"]["stimuli_dir"], units, stimuli, root / "data" / "judge_probes.json").items())]
     if args.controls:
         controls = load_text_controls(root / cfg["run"]["stimuli_dir"], units, stimuli)
         want = {"incorrect": lambda v: v == "incorrect", "reworded": lambda v: v != "incorrect",

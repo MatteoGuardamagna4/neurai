@@ -1,0 +1,163 @@
+{
+  "_readme": [
+    "Validation set for the two §5.4 judge checks that had no ground truth (PLAN.md D30): UNSUPPORTED and CAUSAL.",
+    "One sentence per unit and kind, inserted at the end of the traditional primary's Explanation by",
+    "scripts/build_judge_probes.py, which writes stimuli/judge_probes/ and checks that nothing else changed.",
+    "kinds: `unsupported` asserts a quantity or fact the unit never states and that cannot be derived from it;",
+    "`causal` asserts a causal relation the material does not license; `background` is a hard negative - standard",
+    "domain knowledge a lesson may legitimately state, which the judge must NOT flag. These texts are judge inputs",
+    "only: they are never read by a simulated learner and never predicted by the encoding model."
+  ],
+  "probes": {
+    "be_001": {
+      "unsupported": "The sales team already holds firm orders for 4,200 of those units, so only the remainder is at risk.",
+      "causal": "A lower break-even point causes a company's sales to grow.",
+      "background": "Fixed costs are the costs that do not change with the number of units sold within the range being considered, such as rent or an annual licence."
+    },
+    "be_002": {
+      "unsupported": "The pitch is busiest at lunchtime, when the truck serves about 60 meals an hour.",
+      "causal": "Selling above the break-even quantity causes the ingredient cost of each meal to fall.",
+      "background": "Break-even analysis assumes that the selling price and the variable cost of a unit stay the same across the range of sales considered."
+    },
+    "cac_001": {
+      "unsupported": "About a fifth of these customers arrived through a referral scheme that costs the company nothing.",
+      "causal": "A shorter payback period causes customers to stay loyal for longer.",
+      "background": "The acquisition cost of a customer is the sales and marketing spending of a period divided by the number of customers it brought in."
+    },
+    "cac_002": {
+      "unsupported": "The company also earns EUR 20 a month from each customer through a partner commission that is not part of the margin above.",
+      "causal": "Spending more on marketing causes the gross margin on subscriptions to improve.",
+      "background": "Payback is counted in months of gross margin, so a business with a thin margin recovers its acquisition cost more slowly."
+    },
+    "cm_001": {
+      "unsupported": "Roughly 30% of the subscribers pay a year in advance, which brings the cash in sooner.",
+      "causal": "A higher contribution margin ratio causes subscribers to renew.",
+      "background": "The contribution margin ratio is the share of each euro of revenue that is left once the variable costs of serving it have been paid."
+    },
+    "cm_002": {
+      "unsupported": "The company's largest client accounts for EUR 90,000 of that revenue on its own.",
+      "causal": "Winning more contracts causes the labour cost of each contract to fall.",
+      "background": "Break-even is expressed in revenue rather than in units when a business sells work of differing sizes, where a count of units would mean little."
+    },
+    "dol_001": {
+      "unsupported": "The manufacturer expects its volume to grow by 6% next year.",
+      "causal": "A high degree of operating leverage causes a firm's sales to become volatile.",
+      "background": "Operating leverage measures how strongly profit responds to a change in sales, not how profitable a firm is."
+    },
+    "dol_002": {
+      "unsupported": "About 15% of those licences are renewed monthly rather than annually.",
+      "causal": "Higher fixed costs cause a software firm to sell more licences.",
+      "background": "A firm whose costs are mostly fixed sees its profit swing more sharply in both directions than a firm whose costs move with volume."
+    },
+    "ltv_001": {
+      "unsupported": "Customers who stay beyond their first year spend about 20% more each month.",
+      "causal": "A high lifetime value causes customers to cancel less often.",
+      "background": "When the cancellation rate is steady, the average time a customer stays is the reciprocal of that rate."
+    },
+    "ltv_002": {
+      "unsupported": "The company also charges a one-off joining fee of EUR 15.",
+      "causal": "Improving the gross margin causes the monthly cancellation rate to fall.",
+      "background": "A lifetime value computed before discounting overstates a customer whose margin arrives years from now."
+    },
+    "mix_001": {
+      "unsupported": "Product B sells mainly in the last quarter of the year, when the shop takes about 40% of its revenue.",
+      "causal": "Selling more of product A causes the fixed costs to fall.",
+      "background": "A sales mix is only useful for as long as the proportions in which the products sell stay roughly stable."
+    },
+    "mix_002": {
+      "unsupported": "The bakery throws away about 5% of its loaves unsold each day.",
+      "causal": "Baking more cakes causes the loaves to sell faster.",
+      "background": "With more than one product the break-even point is first found in bundles of the mix and then converted back into individual items."
+    },
+    "mkp_001": {
+      "unsupported": "The retailer's competitors sell the same item for about EUR 95.",
+      "causal": "Charging a higher price causes customers to value an item more.",
+      "background": "Margin is a share of the selling price and markup is a share of the cost, so the two percentages are never equal for the same price."
+    },
+    "mkp_002": {
+      "unsupported": "The boutique marks its jackets down by 20% in the January sale.",
+      "causal": "A higher gross margin causes a boutique to sell more jackets.",
+      "background": "Because margin is a share of the price, the cost is divided by one minus the margin rather than multiplied by one plus it."
+    },
+    "mos_001": {
+      "unsupported": "Sales have fallen short of budget in three of the past five years.",
+      "causal": "A larger margin of safety causes budgeted sales to be achieved.",
+      "background": "The margin of safety shows how far sales can fall before a business stops covering its costs."
+    },
+    "mos_002": {
+      "unsupported": "The hotel runs at about 70% occupancy across the year.",
+      "causal": "Reducing the break-even point causes guests to book earlier.",
+      "background": "Stating the cushion as a share of budgeted revenue keeps the measure comparable across businesses of different sizes."
+    },
+    "npv_001": {
+      "unsupported": "The project would also release EUR 8,000 of working capital at the end of the second year.",
+      "causal": "A positive net present value causes a project to finish on schedule.",
+      "background": "The required return stands for what the same money could earn elsewhere at the same risk."
+    },
+    "npv_002": {
+      "unsupported": "The machine could be resold for about EUR 12,000 at the end of the second year.",
+      "causal": "Discounting the savings causes the machine to last longer.",
+      "background": "A cash flow that arrives later is divided by a higher power of the same factor, one power for each year of waiting."
+    },
+    "pbp_001": {
+      "unsupported": "The equipment is expected to need an overhaul costing EUR 6,000 in its third year.",
+      "causal": "A shorter payback period causes equipment to break down less often.",
+      "background": "Depreciation is an accounting allocation of a cost that has already been paid, not a payment made in the year it is charged."
+    },
+    "pbp_002": {
+      "unsupported": "The hotel also expects the new kitchen to cut its energy bill by EUR 2,000 a year.",
+      "causal": "Recovering an investment sooner causes the kitchen to generate more cash each year.",
+      "background": "Payback ignores everything that happens once the investment has been recovered, including how long the asset goes on working."
+    },
+    "pel_001": {
+      "unsupported": "Most of the customers who stopped buying now go to the shop next door.",
+      "causal": "Raising the price causes customers to value a latte more highly.",
+      "background": "Elasticity compares percentage changes, so its value does not depend on the units in which price and quantity are measured."
+    },
+    "pel_002": {
+      "unsupported": "About 200 of the members who left had joined only the month before.",
+      "causal": "Elastic demand causes a gym to lose members.",
+      "background": "Demand is called elastic when the percentage fall in quantity is larger than the percentage rise in price."
+    },
+    "roi_001": {
+      "unsupported": "The project ran for four years, so that gain is spread across four annual periods.",
+      "causal": "A higher return on investment causes a project to need less capital.",
+      "background": "Return on investment relates the gain to the amount invested and says nothing about how long the money was tied up."
+    },
+    "roi_002": {
+      "unsupported": "The equipment was financed with a loan carrying 4% interest.",
+      "causal": "Buying equipment causes a company's return on investment to rise.",
+      "background": "Because it ignores timing, return on investment cannot distinguish a gain earned in one year from the same gain earned over ten."
+    },
+    "spo_001": {
+      "unsupported": "The customer has indicated that it would place a similar order every year.",
+      "causal": "Winning export orders causes a manufacturer's domestic sales to grow.",
+      "background": "A cost is relevant to a decision only if it changes as a result of that decision."
+    },
+    "spo_002": {
+      "unsupported": "The licence can be reused on two later jobs at no extra cost.",
+      "causal": "Taking on customisation work causes a software firm's overhead to fall.",
+      "background": "Capacity that is already paid for and would otherwise sit idle carries no incremental cost, which is why those hours do not enter the comparison."
+    },
+    "tp_001": {
+      "unsupported": "The company expects to sell about 9,000 units next year before any special effort.",
+      "causal": "Paying a higher rate of tax causes a company to sell more units.",
+      "background": "A profit target set after tax has to be grossed up, because tax is charged on the profit earned before it."
+    },
+    "tp_002": {
+      "unsupported": "The studio's rooms allow it to run at most 700 courses a year.",
+      "causal": "Selling more courses causes the rate of tax to rise.",
+      "background": "Dividing the after-tax target by one minus the tax rate turns it into the pre-tax profit that has to be earned."
+    },
+    "wac_001": {
+      "unsupported": "The firm plans to repay EUR 50 million of that debt next year.",
+      "causal": "Issuing debt causes shareholders to require a lower return.",
+      "background": "Interest is deductible against tax, which is why the cost of debt is counted after tax."
+    },
+    "wac_002": {
+      "unsupported": "The firm's debt matures in three years.",
+      "causal": "A lower weighted average cost of capital causes a firm's projects to succeed.",
+      "background": "The weights are the shares of each source in the firm's total financing, not the amounts themselves."
+    }
+  }
+}
