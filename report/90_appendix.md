@@ -53,8 +53,11 @@ Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
 *Cosine similarity between the text's explanation and the unit's reference worked solution (`all-mpnet-base-v2`).
 Source: own elaboration (`outputs/tables/tableS_semantic_coverage_review.csv`).*
 
-The manual review of these texts is in progress. <!-- CLAUDE: replace with the review's outcome once MG has done it
-(per text: adequate / revised, and why). -->
+This review is outstanding and will be carried out if time permits. Six of the nine texts belong to two units,
+`pbp_002` and `ltv_002`, which appear here in all three conditions; that concentration suggests, without
+establishing, that the reference worked solutions of those two units are phrased differently from the lessons that
+teach them, which makes them the first candidates for review. <!-- CLAUDE: replace with the outcome once the review
+is done (per text: adequate or revised, and why). -->
 
 ### A.3 Construction and validation of the contradiction check
 
@@ -81,8 +84,9 @@ failure. The unsupported-assertion and causal-claim questions were posed in a se
 unit's documented misconception, so that a text warning against the misconception is not read as asserting it.
 
 **Result.** Table A3 reports the validated and unvalidated parts separately. The one text flagged by the unvalidated
-questions (`npv_002`, scaffolding) was returned with an affirmative verdict and no reason; its worked example,
-reference answer and leakage check proved correct on inspection, and it was not changed.
+questions (`npv_002`, scaffolding) was returned with an affirmative verdict and no reason. A check of its worked
+example, reference answer and leakage against the unit record found no error and the text was not changed; a manual
+review of it is outstanding, as for the texts of Section A.2.
 
 Table: **Table A3.** Contradiction screening: validation and findings
 

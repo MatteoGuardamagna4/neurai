@@ -20,7 +20,9 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   `<!-- MG: … -->` comments are answered in chat, not in the file.
 - **No reference to the project brief** anywhere in the report text: it is an unofficial document. Thresholds,
   acceptance criteria, falsification criteria and scenario definitions are presented as this study's design and
-  defined where they first matter (the falsification criteria in §3.8); scope is stated positively.
+  defined where they first matter; scope is stated positively. The labels F1-F6 may be used once §3.8 defines the
+  six falsification criteria as this study's own (author, 2026-09-22), which keeps them aligned with
+  `table6_falsification`. Before that section, a criterion is described rather than named.
 - **Prose rules (binding).** Formal, analytical register. No rhetoric or filler, no stock adjectives
   ("crucial", "transformative"), no obvious conclusions. Every claim rests on reasoning, a number from
   `outputs/tables`, or a citation. Uncertain or hypothetical quantities carry their limitation in the same sentence.
@@ -162,8 +164,13 @@ by the author with Claude, under the author's review; texts drafted with Claude 
 (MBA for business-school students, 30 units for compute); contribution (all the author's own); equations (code
 numbers, written at first use); length (~37 pages).
 
+Answered 2026-09-23: the cover (ESADE Data Department; tutors Carlos Carrasco-Farré and Marc Torrens; confidential);
+the criteria may carry the labels F1-F6 once §3.8 defines them; the manual reviews (the nine texts of Table A2 and
+the flagged `npv_002`) are deferred and reported as outstanding, to be done if time permits.
+
 Still open:
 
-- **Cover.** Organisation, tutor, confidentiality, and whether the working title stands.
-- **Coverage review.** The author is reviewing the nine texts of Table A2; Appendix A.2 and §3.2.4 then report the
-  outcome.
+- **Title.** The working title stands unless changed.
+- **Confidentiality.** It is now stated on the cover. Two signed copies of the confidentiality agreement are
+  required by the guidelines, and §6's publication path (the archived dataset with its DOI, and a paper) needs the
+  tutors' agreement or an embargo instead.

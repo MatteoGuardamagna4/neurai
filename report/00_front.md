@@ -10,11 +10,11 @@ MSc in Business Analytics, ESADE Business School
 
 In Company Project, academic year 2025–2026
 
-Organisation: [to be completed]
+Organisation: ESADE Data Department
 
-Tutor: [to be completed]
+Tutors: Carlos Carrasco-Farré and Marc Torrens
 
-Confidentiality: [to be completed]
+**CONFIDENTIAL**
 :::
 
 <!-- CLAUDE: cover fields per the ESADE guidelines (student and master, title, organisation, tutor, confidentiality,

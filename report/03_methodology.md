@@ -116,7 +116,9 @@ Semantic coverage is the cosine similarity between sentence embeddings (the `all
 Sentence-Transformers framework [@reimers2019]) of a text's explanation and the unit's reference worked solution. The
 acceptance threshold of 0.50 was fixed before any similarity was computed. All 90 primary texts exceed it (minimum
 0.53; condition means 0.68 to 0.70), as do all 210 control texts described in Section 3.2.5 (minimum 0.52); the lowest
-decile of primaries (nine texts) is listed for manual review (Appendix A). <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
+decile of primaries (nine texts, six of which belong to the payback-period and customer-lifetime-value units) is
+listed for manual review in Appendix A.2. That review is outstanding and will be carried out if time permits;
+until it is, the adequacy of those texts rests on the threshold alone. <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
 5-gram sets [@broder1997] over all 435 pairs of traditional texts, with the threshold of 0.50 fixed before scoring.
 The highest value, 0.17, belongs to the two units of one concept (`cac_001` and `cac_002`), as the paired design
 implies; no pair was flagged. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17-->
@@ -132,8 +134,9 @@ alone: the 30 incorrect-but-fluent texts of Section 3.2.5. On these the contradi
 (sensitivity 0.90); on the 60 primary texts that state an answer, whose correctness the deterministic validators
 establish, it flags none (specificity 1.00). The scaffolding texts state no answer and fall outside its scope. The
 other two questions have no texts of known status and are therefore reported as unvalidated: they flagged one primary
-(`npv_002`, scaffolding), whose worked example, reference answer and leakage check proved correct on inspection, and
-their silence on the remaining texts is not evidence that such errors are absent. Appendix A documents how the check
+(`npv_002`, scaffolding); a check of its worked example, reference answer and leakage against the unit record found
+no error, a manual review of it is likewise outstanding, and the silence of these two questions on the remaining
+texts is not evidence that such errors are absent. Appendix A documents how the check
 was built, including a first version that was discarded because it flagged no text at all. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
 
 ### 3.2.5 Text controls

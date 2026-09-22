@@ -97,6 +97,18 @@ def reference_docx(path: Path) -> None:
         run.append(el)
         footer._p.append(run)
 
+    compat = doc.settings.element.find(qn("w:compat"))  # otherwise Word opens the file in compatibility mode
+    if compat is None:
+        compat = OxmlElement("w:compat")
+        doc.settings.element.append(compat)
+    for el in compat.findall(qn("w:compatSetting")):
+        compat.remove(el)
+    setting = OxmlElement("w:compatSetting")
+    setting.set(qn("w:name"), "compatibilityMode")
+    setting.set(qn("w:uri"), "http://schemas.microsoft.com/office/word")
+    setting.set(qn("w:val"), "15")
+    compat.append(setting)
+
     styles = doc.styles
     for name in ("Source", "Cover"):
         if name not in [s.name for s in styles]:
@@ -200,11 +212,17 @@ def main() -> None:
     ref, docx, pdf = OUT / "reference.docx", OUT / f"{NAME}.docx", OUT / f"{NAME}.pdf"
     reference_docx(ref)
     today = dt.date.today()
+    if docx.exists():  # Word holds a lock that os.access does not see
+        try:
+            open(docx, "r+b").close()
+        except PermissionError:
+            raise SystemExit(f"{docx.name} is open in Word. Close it and run the build again.") from None
     pypandoc.convert_text(
         source_text(), "docx", format="markdown", outputfile=str(docx),
         extra_args=["--citeproc", f"--bibliography={HERE / 'references.bib'}", f"--csl={HERE / 'apa.csl'}",
                     f"--reference-doc={ref}", f"--resource-path={HERE}",
                     f"--metadata=date:Draft, {today.day} {today:%B %Y}"])
+    print(docx)
     if word_available():
         ps1 = OUT / "word_post.ps1"
         ps1.write_text(WORD_SCRIPT, encoding="utf-8")
@@ -212,7 +230,6 @@ def main() -> None:
                         "-Docx", str(docx), "-Pdf", str(pdf) if args.pdf else ""], check=True)
     else:
         print("Microsoft Word not found: open the document and update the index (F9); {{COUNTS}} stays unfilled.")
-    print(docx)
 
 
 if __name__ == "__main__":
