@@ -49,7 +49,7 @@ verbatim; and the hints must match the unit's ladder. The encoding model reads t
 the simulated learner reads only the explanation and the problem before its first attempt and receives support turn by turn
 thereafter. In the scaffolding and substitution conditions those turns are generated at run time by a language-model
 tutor (Section 3.4) and are never seen by the encoding model. The adaptation values in Table 1 are the per-condition
-constants that enter the instructional-effectiveness term (eq. 20). They are assumptions, not properties of the
+constants that enter the instructional-effectiveness term (eq. 20, Section 3.4). They are assumptions, not properties of the
 texts, and Section 3.8 treats them as a dimension of the specification curve.
 
 Table: **Table 1.** Instructional conditions and fixed versus varying features
