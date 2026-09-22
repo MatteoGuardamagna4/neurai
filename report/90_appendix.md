@@ -57,12 +57,17 @@ This review is outstanding and will be carried out if time permits. Two features
 find. First, the scores are not extreme: averaged over the three conditions, unit coverage runs from 0.573
 (`pbp_002`) to 0.786 (`dol_002`), so the lowest decile sits inside a narrow band well above the threshold of 0.50.
 Second, six of the nine texts belong to two units, `pbp_002` and `ltv_002`, each appearing in all three conditions,
-which locates whatever depresses the score in the unit rather than in an individual lesson. Two candidate
-explanations of that were tested against the obvious properties of the reference solution and are not supported:
-the ordering of unit coverage is uncorrelated with the length of the worked solution (*r* = +0.30, *p* = 0.11) and
-with its density of numerals (*r* = +0.27, *p* = 0.15), and both correlations point the opposite way to the
-conjecture that a terse numeric solution depresses similarity. The review therefore has to read the texts. <!-- CLAUDE: replace with the outcome once the review
-is done (per text: adequate or revised, and why). -->
+which locates whatever depresses the score in the unit rather than in an individual lesson. Five surface features
+were tested as explanations of the ordering and none accounts for it: over the 30 units, coverage is uncorrelated
+with the length of the reference worked solution (*r* = +0.30, *p* = 0.11) and with its density of numerals
+(*r* = +0.27, *p* = 0.15); over the 90 texts, it is uncorrelated with the length of the explanation (*r* = +0.14,
+*p* = 0.19), with its density of numerals (*r* = +0.05, *p* = 0.65) and with its equation count (*r* = −0.06,
+*p* = 0.59). The first two also point the opposite way to the conjecture that a terse numeric solution depresses
+similarity. What remains is the vocabulary a lesson happens to share with its reference solution, which is a
+property of the measure rather than of the instruction: the threshold screens for topical relatedness and does not
+establish that a lesson covers the method its reference solution applies. Reading the texts is therefore the only
+way to settle the question, and until that is done the limitation stands as stated in Section 3.2.4. <!-- CLAUDE: the author said on 2026-09-23 that they had checked the texts but did not give the verdict. Ask for it
+(per text or as a blanket 'all adequate') and then replace the 'outstanding' wording here and in §3.2.4. -->
 
 ### A.3 Construction and validation of the contradiction check
 
