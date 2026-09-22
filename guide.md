@@ -244,7 +244,9 @@ The falsification checklist (`table6_falsification.csv`) is the authority. As th
 - **§5.4's contradiction check is validated, its other two checks are not** (D30, `tableS_contradiction_judge`).
   Quote the sensitivity (0.90 on texts written to be wrong) and specificity (1.00) beside the finding, never the
   finding alone: the first version of that judge flagged nothing AND caught nothing, and the two would read the same.
-  The UNSUPPORTED and CAUSAL rows have no ground truth and are a prompt for human reading, not evidence of absence.
+  The UNSUPPORTED and CAUSAL rows were validated in turn by the D31 probe set (90 texts, one added sentence each):
+  sensitivity 0.00 for both, so `tableS_contradiction_judge` marks them `invalid` and their counts are withdrawn.
+  Never quote them as evidence of absence; quote the sensitivity beside any judge number.
 - **Never** describe any of it as causal, as a measured brain effect, or as a prediction of a real student's future.
 
 Three honest asterisks to state: confidence, Brier and C track the learner's record rather than genuine calibration,

@@ -129,15 +129,19 @@ language model, Qwen2.5-3B-Instruct [@qwen2024], different from the models used 
 answered three questions: whether the final answer the text arrives at differs from the unit's reference answer
 (contradiction), whether the text asserts something the problem's data do not support (unsupported assertion), and
 whether it makes a causal claim the material does not license (causal claim). A screen of this kind is informative
-only if it is shown to fire on texts known to be wrong, and the corpus contains such texts for the first question
-alone: the 30 incorrect-but-fluent texts of Section 3.2.5. On these the contradiction check flags 27 of 30
-(sensitivity 0.90); on the 60 primary texts that state an answer, whose correctness the deterministic validators
-establish, it flags none (specificity 1.00). The scaffolding texts state no answer and fall outside its scope. The
-other two questions have no texts of known status and are therefore reported as unvalidated: they flagged one primary
-(`npv_002`, scaffolding); a check of its worked example, reference answer and leakage against the unit record found
-no error, a manual review of it is likewise outstanding, and the silence of these two questions on the remaining
-texts is not evidence that such errors are absent. Appendix A documents how the check
-was built, including a first version that was discarded because it flagged no text at all. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
+only if it is shown to fire on texts known to carry the fault it looks for, so each question was tested against
+texts whose status is known. For the first the corpus already holds them: the 30 incorrect-but-fluent texts of
+Section 3.2.5. On these the contradiction check flags 27 of 30 (sensitivity 0.90); on the 60 primary texts that
+state an answer, whose correctness the deterministic validators establish, it flags none (specificity 1.00). The
+scaffolding texts state no answer and fall outside its scope. For the other two questions no such texts existed, so
+90 were written, each a primary text with one sentence added: an assertion the unit does not support, an unlicensed
+causal claim, or, as a negative control, standard background knowledge a lesson may legitimately state
+(Appendix A.3). Neither question detected any of the 30 faults written for it, a sensitivity of 0.00 in both cases,
+so their verdicts are withdrawn rather than reported: the one primary they had flagged (`npv_002`, scaffolding)
+carries no information about that text, whose manual review is outstanding along with those of Appendix A.2. The
+corpus has therefore been screened for contradiction of its own reference answers, and for nothing else.
+Appendix A.3 documents how the contradiction check was built, the first version that was discarded because it
+flagged nothing at all, and the probe set. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
 
 ### 3.2.5 Text controls
 

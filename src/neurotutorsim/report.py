@@ -843,8 +843,14 @@ def text_controls(paths: Paths) -> list[Path]:
     verdicts = paths.processed / "judge" / "verdicts.jsonl"
     if verdicts.exists():
         rows = [json.loads(line) for line in verdicts.read_text(encoding="utf-8").splitlines() if line.strip()]
+        probe_rows = []  # the validation set built for the two checks the corpus cannot validate
+        probe_verdicts = paths.processed / "judge_probes" / "verdicts.jsonl"
+        if probe_verdicts.exists():
+            probe_rows = [json.loads(line) for line in probe_verdicts.read_text(encoding="utf-8").splitlines() if line.strip()]
         if rows:
-            written.append(paths.table(A.judge_table(pd.DataFrame(rows)), "tableS_contradiction_judge"))
+            written.append(paths.table(A.judge_table(pd.DataFrame(rows),
+                                                     pd.DataFrame(probe_rows) if probe_rows else None),
+                                       "tableS_contradiction_judge"))
     return written
 
 

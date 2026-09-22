@@ -1,7 +1,10 @@
 block,check,standing,quantity,value,n,note
 validation,contradiction,validated,sensitivity: incorrect-but-fluent texts flagged,0.9,30,texts written to reach the misconception's answer; a screen that misses these proves nothing
 validation,contradiction,validated,specificity: correct texts NOT flagged,1.0,60,primaries where the condition's text may state a final answer
+validation,unsupported,validated,sensitivity: probes carrying that fault flagged,0.0,30,"one sentence added to a primary: an assertion the unit does not support, or an unlicensed causal claim"
+validation,causal,validated,sensitivity: probes carrying that fault flagged,0.0,30,"one sentence added to a primary: an assertion the unit does not support, or an unlicensed causal claim"
+validation,unsupported + causal,validated,specificity: standard background NOT flagged,1.0,30,hard negatives: domain knowledge a lesson may state; vacuous where sensitivity is 0
 finding,contradiction,validated,primaries flagged,0.0,60,final answer differs from the unit's reference
-finding,unsupported,unvalidated,primaries flagged,1.0,90,"no ground truth in the corpus: a prompt for human reading, not evidence of absence"
-finding,causal,unvalidated,primaries flagged,0.0,90,"no ground truth in the corpus: a prompt for human reading, not evidence of absence"
+finding,unsupported,invalid,primaries flagged,1.0,90,"sensitivity 0.00 on the probes written for this check; the check detects nothing, so this count is withdrawn"
+finding,causal,invalid,primaries flagged,0.0,90,"sensitivity 0.00 on the probes written for this check; the check detects nothing, so this count is withdrawn"
 finding,any,screen,primaries sent to manual review (§5.5),1.0,90,"a text that could not be judged is queued, never passed"

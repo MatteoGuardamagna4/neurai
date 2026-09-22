@@ -1344,13 +1344,15 @@ def sign_stability(curve: pd.DataFrame, value: str = "median", dims=("form", "fo
 
 
 # ------------------------------------------------------------------ §5.4 contradiction judge (PLAN.md D30)
-def judge_table(verdicts: pd.DataFrame) -> pd.DataFrame:
+def judge_table(verdicts: pd.DataFrame, probes: pd.DataFrame | None = None) -> pd.DataFrame:
     """The §5.4 judge's result as a reportable table: what it found, and what it is worth.
 
     Two blocks. `validation` first, because the counts mean nothing without it: the screen's sensitivity on the
     incorrect-but-fluent texts (known wrong) and its specificity on the primaries (known correct, where the check
     applies). `finding` second. The UNSUPPORTED and CAUSAL checks have no ground truth in the corpus, so they are
-    reported with an explicit `unvalidated` standing rather than as evidence of absence.
+    reported with an explicit `unvalidated` standing rather than as evidence of absence - unless `probes` supplies
+    the validation set built for them (`scripts/build_judge_probes.py`), in which case their measured sensitivity
+    decides their standing, and a check that catches none of the faults written for it has its finding withdrawn.
     """
     v = verdicts.copy()
     v["is_control"] = v["variant"].astype(str).eq("incorrect")
@@ -1368,11 +1370,37 @@ def judge_table(verdicts: pd.DataFrame) -> pd.DataFrame:
          "value": float(1.0 - prim_ok["contradiction"].fillna(False).mean()) if len(prim_ok) else np.nan,
          "n": int(len(prim_ok)), "note": "primaries where the condition's text may state a final answer"},
     ]
+    probe_scores = {}
+    if probes is not None and len(probes):
+        p = probes.copy()
+        p["kind"] = p["variant"].astype(str).str.removeprefix("probe_")
+        for check in ("unsupported", "causal"):  # each fault kind is caught by its own check, or by nothing
+            sub = p[p["kind"] == check]
+            if len(sub):
+                probe_scores[check] = float(sub[check].fillna(False).mean())
+                rows.append({"block": "validation", "check": check, "standing": "validated",
+                             "quantity": "sensitivity: probes carrying that fault flagged",
+                             "value": probe_scores[check], "n": int(len(sub)),
+                             "note": "one sentence added to a primary: an assertion the unit does not support, or "
+                                     "an unlicensed causal claim"})
+        bg = p[p["kind"] == "background"]
+        if len(bg):
+            clean = ~(bg["unsupported"].fillna(False) | bg["causal"].fillna(False))
+            rows.append({"block": "validation", "check": "unsupported + causal", "standing": "validated",
+                         "quantity": "specificity: standard background NOT flagged", "value": float(clean.mean()),
+                         "n": int(len(bg)),
+                         "note": "hard negatives: domain knowledge a lesson may state; vacuous where sensitivity is 0"})
+    unvalidated = "no ground truth in the corpus: a prompt for human reading, not evidence of absence"
     for check, standing, note in (
             ("contradiction", "validated", "final answer differs from the unit's reference"),
-            ("unsupported", "unvalidated", "no ground truth in the corpus: a prompt for human reading, not evidence of absence"),
-            ("causal", "unvalidated", "no ground truth in the corpus: a prompt for human reading, not evidence of absence")):
+            ("unsupported", "unvalidated", unvalidated),
+            ("causal", "unvalidated", unvalidated)):
         sel = prim_ok if check == "contradiction" else prim
+        if check in probe_scores:  # measured: a screen that catches none of its own faults reports nothing
+            caught = probe_scores[check]
+            standing = "validated" if caught > 0 else "invalid"
+            note = (f"sensitivity {caught:.2f} on the probes written for this check"
+                    + ("" if caught > 0 else "; the check detects nothing, so this count is withdrawn"))
         rows.append({"block": "finding", "check": check, "standing": standing,
                      "quantity": "primaries flagged", "value": float(sel[check].fillna(False).sum()),
                      "n": int(len(sel)), "note": note})

@@ -182,8 +182,9 @@ withdrawal, a mechanism; the no-fade advantage is the `support.adaptation` const
 - **A screen that never fires has not been shown to work** (D30). The §5.4 judge's first version flagged nothing and
   caught nothing - 0 of 30 texts written to be wrong. Rebuilt as extract-then-compare and made condition-aware, it
   reaches sensitivity 0.90 and specificity 1.00 (`tableS_contradiction_judge`, which leads with that validation).
-  Its UNSUPPORTED and CAUSAL checks have no ground truth and are marked `unvalidated`: a prompt for human reading,
-  never evidence of absence.
+  Its UNSUPPORTED and CAUSAL checks were then given ground truth too (D31, 90 probes): they catch **0 of 30** faults
+  each, so they are `invalid`, not merely unvalidated, and their findings are withdrawn. The corpus has been screened
+  for contradiction of its own reference answers and for nothing else.
 
 ## Earlier status (2026-09-19)## Earlier status (2026-09-19)
 

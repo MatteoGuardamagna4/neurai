@@ -93,19 +93,45 @@ conditions. The check is therefore recorded as not applicable to scaffolding tex
 failure. The unsupported-assertion and causal-claim questions were posed in a separate prompt that supplies the
 unit's documented misconception, so that a text warning against the misconception is not read as asserting it.
 
-**Result.** Table A3 reports the validated and unvalidated parts separately. The one text flagged by the unvalidated
-questions (`npv_002`, scaffolding) was returned with an affirmative verdict and no reason. A check of its worked
-example, reference answer and leakage against the unit record found no error and the text was not changed; a manual
-review of it is outstanding, as for the texts of Section A.2.
+**A validation set for the other two questions.** The corpus holds texts known to state a wrong answer, which is
+what validates the contradiction check, but none known to contain an unsupported assertion or an unlicensed causal
+claim. Ninety were therefore written: for each of the 30 units, its traditional lesson with one sentence appended,
+of one of three kinds. An *unsupported* sentence asserts a quantity or fact about the problem's scenario that the
+unit never states and that cannot be derived from it, such as "The hotel also expects the new kitchen to cut its
+energy bill by EUR 2,000 a year." A *causal* sentence asserts a relation the material does not license, such as
+"A shorter payback period causes equipment to break down less often." A *background* sentence states standard domain
+knowledge that a lesson may legitimately assert, such as "Depreciation is an accounting allocation of a cost that
+has already been paid, not a payment made in the year it is charged." The third kind is the negative control, and it
+matters because the one primary the judge ever flagged was flagged for a sentence of exactly that character. Each
+probe is its primary text plus that one sentence, checked mechanically, so a verdict is attributable to the sentence
+and to nothing else.
 
-Table: **Table A3.** Contradiction screening: validation and findings
+**Result.** Table A3 reports both blocks. The contradiction check performs as Section 3.2.4 states. The other two
+questions flagged none of the 90 probes: neither the 30 carrying an unsupported assertion nor the 30 carrying an
+unlicensed causal claim, a sensitivity of 0.00 in each case. Their perfect specificity on the background probes is
+vacuous, since they flag nothing at all. As posed, the two questions are therefore not merely unvalidated but
+inoperative, and the single primary they had flagged is withdrawn as a finding. The pattern repeats that of the
+discarded first version, and the cause is plausibly the same: asked in the abstract whether a text contains a fault
+of a stated kind, this model answers no. The contradiction check works because it was reposed as a concrete task,
+reading off the final answer and comparing it; reposing these two in the same way is the obvious next step, which
+this study did not take. The one text flagged by the unvalidated questions (`npv_002`, scaffolding) was returned
+with an affirmative verdict and no reason; a check of its worked example, reference answer and leakage against the
+unit record found no error and the text was not changed, and a manual review of it is outstanding, as for the texts
+of Section A.2.
 
-| Question | Standing | Texts | Result |
-|---|---|---|---|
-| Contradiction | Validated | 30 incorrect-but-fluent texts | 27 flagged (sensitivity 0.90) |
-| Contradiction | Validated | 60 primary texts, traditional and substitution | 0 flagged (specificity 1.00) |
-| Contradiction | Not applicable | 30 primary texts, scaffolding | — |
-| Unsupported assertion | Unvalidated | 90 primary texts | 1 flagged |
-| Causal claim | Unvalidated | 90 primary texts | 0 flagged |
+Table: **Table A3.** The §5.4 judge: what was validated, and what each check found
 
-*Source: own elaboration (`outputs/tables/tableS_contradiction_judge.csv`).*
+| Question | Standing | Quantity | Texts | Value |
+|---|---|---|---|---|
+| Contradiction | Validated | sensitivity: incorrect-but-fluent texts flagged | 30 | 0.90 |
+| Contradiction | Validated | specificity: correct texts NOT flagged | 60 | 1.00 |
+| Unsupported assertion | Validated | sensitivity: probes carrying that fault flagged | 30 | 0.00 |
+| Causal claim | Validated | sensitivity: probes carrying that fault flagged | 30 | 0.00 |
+| Both of the above | Validated | specificity: standard background NOT flagged | 30 | 1.00 |
+| Contradiction | Validated | primaries flagged | 60 | 0 |
+| Unsupported assertion | Invalid | primaries flagged | 90 | 1 |
+| Causal claim | Invalid | primaries flagged | 90 | 0 |
+| Any check | Screen | primaries sent to manual review | 90 | 1 |
+
+*Sensitivity and specificity are shares; findings are counts of texts. Source: own elaboration
+(`outputs/tables/tableS_contradiction_judge.csv`).*
