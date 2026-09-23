@@ -168,7 +168,92 @@ written, are described with the encoding model in Section 3.3.
 
 ## 3.3 Phase II: predicted cortical response
 
-*In preparation.*
+No measured cortical responses to these texts exist, and Phase II predicts them with TRIBE v2 [@dascoli2026], an
+encoding model trained on more than 1,000 hours of functional magnetic resonance imaging from 720 participants to
+predict responses to naturalistic video, audio and language. For text, the model takes contextual features of each
+word from the Llama-3.2-3B language model [@grattafiori2024] and maps them onto the 20,484 vertices of the fsaverage5
+cortical surface, one predicted blood-oxygen-level-dependent (BOLD) value per vertex and second. The output is the
+predicted cortical response of an average participant: one per text, identical for every simulated learner, and a
+description of the immediate response to reading rather than of learning, which Phases III to V model separately.
+The released model was run unchanged apart from batch size and numerical precision, with text as its only input;
+Appendix B records the version, the checks on the installation and the determinism of the predictions.
+
+**Timing.** In the released pipeline, the onsets of words presented as text come from synthesised speech. Here each
+text is read at a fixed rate of $r$ words per minute, so that its $j$-th word has onset
+
+$$ t_j = \frac{60\,(j-1)}{r} \qquad (4) $$
+
+seconds and lasts $60/r$ seconds, and each word is encoded in the context of all the text that precedes it. The main
+specification uses $r = 220$, below the meta-analytic average of 238 words per minute for adult silent reading of
+English non-fiction [@brysbaert2019]; 180 and 260 are robustness variants. The sections are read in order without
+their headings, which would identify the condition (a "Diagnostic questions" heading occurs only in scaffolding
+texts). At 220 words per minute the texts last 132 to 188 seconds, and all 53,284 words reach the model. The encoding
+model therefore reads each version in full, including the hints, diagnostic questions and worked solutions that the
+simulated learner meets only after an error (Section 3.2.2).
+
+**Aggregation.** Let $B_{s,v}(t)$ be the predicted response to text $s$ at vertex $v$ and second $t = 1, \dots, T_s$.
+Each of the 400 parcels of the Schaefer atlas [@schaefer2018] takes the mean over its vertices $V_p$,
+
+$$ B_{s,p}(t) = \frac{1}{|V_p|} \sum_{v \in V_p} B_{s,v}(t), \qquad (6) $$
+
+and each of the seven networks of @yeo2011 (visual, somatomotor, dorsal attention, salience/ventral attention,
+limbic, control and default) the mean of its parcels weighted by their surface areas $a_p$,
+
+$$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (7) $$
+
+Equal weights and a 200-parcel version of the atlas are robustness variants (Section 3.8). Each time course is
+summarised by five metrics and each text by three spatial ones (Appendix B). The metric carried forward is the area
+under the curve,
+
+$$ \text{AUC}_{s,k} = \sum_{t=1}^{T_s-1} \frac{B_{s,k}(t) + B_{s,k}(t+1)}{2}\,\Delta t, \qquad \Delta t = 1\ \text{s}, \qquad (8) $$
+
+for a parcel or network $k$. Standardised per parcel over the 90 texts, it is the only channel through which a text
+reaches the plasticity model (Section 3.6). Because it accumulates over the reading window, it grows with duration.
+
+**Condition contrasts.** For a metric $m$ and unit $u$, the three contrasts are the paired differences
+
+$$ \Delta^{S-T}_u = m_{u,S} - m_{u,T}, \qquad \Delta^{U-T}_u = m_{u,U} - m_{u,T}, \qquad \Delta^{S-U}_u = m_{u,S} - m_{u,U}, \qquad (10\text{–}12) $$
+
+where S, U and T denote the scaffolding, substitution and traditional versions. They are estimated jointly by
+
+$$ m_{uc} = \alpha_u + \beta_1\,\mathbb{1}[c = S] + \beta_2\,\mathbb{1}[c = U] + \gamma^{\top} x_{uc} + \varepsilon_{uc}, \qquad (13) $$
+
+in which the unit effect $\alpha_u$ absorbs everything the three versions of a unit share and $x_{uc}$ optionally holds
+the text's standardised duration, word count and equation count. Without covariates, $\hat\beta_1$ and $\hat\beta_2$
+equal the mean paired differences of eq. 10 and 11, and the S–U contrast is $\beta_1 - \beta_2$; with them, the
+adjustment spans two dimensions rather than three, because duration is a fixed multiple of word count. A cluster
+bootstrap resamples the 30 units with all three of their versions (2,000 resamples) and gives percentile 95%
+intervals. P-values computed from the bootstrap standard error are adjusted by the Benjamini–Hochberg procedure
+[@benjamini1995] across the seven networks within each metric and contrast, and across all 1,200 tests of the parcel
+maps. With 30 clusters, tests of this kind tend to over-reject [@cameron2008], so the p-values are read as
+descriptive and the intervals as approximate. Eq. 13 conditions on the 30 units; a mixed model complements it by
+treating them as a sample from the population of possible units [@judd2012]:
+
+$$ y_{ucn} = \mu + \beta_c + \delta\, d_u + \theta_{g(u)} + a_u + \varepsilon_{ucn}, \qquad a_u \sim \mathcal{N}\left(0, \sigma^2_a\right), \qquad (42) $$
+
+where $y_{ucn}$ is the AUC of network $n$ centred on that network's mean, $d_u$ the unit's difficulty, $\theta_{g(u)}$
+the effect of its domain and $a_u$ a unit random intercept, estimated by restricted maximum likelihood. Difficulty and
+domain are constant within a unit, so the unit effects of eq. 13 absorb them; eq. 42 is the model in which they can
+be estimated.
+
+**Representational geometry.** Representational similarity analysis [@kriegeskorte2008] asks whether a condition
+preserves the similarity structure among the units' predicted patterns. With $\bar b_{u,c}$ the pattern of parcel
+responses to unit $u$ in condition $c$, averaged over the reading window, the dissimilarity of two units is
+
+$$ D^{c}_{uu'} = 1 - \operatorname{corr}\left(\bar b_{u,c},\, \bar b_{u',c}\right). \qquad (14) $$
+
+Two conditions are compared by the Spearman correlation of the upper triangles of their 30 × 30 matrices, with a
+permutation test that exchanges condition labels within units (1,000 permutations) and asks whether the two
+geometries are less alike than exchangeable labels would make them.
+
+**Controls.** Three families of control texts, all read at 220 words per minute, test what a contrast responds to.
+The rewordings and the incorrect-but-fluent texts of Section 3.2.5 test whether a contrast exceeds the variation that
+harmless rewording produces and whether it depends on correct content; Section 3.8 states the criteria. The third
+family is derived from the primaries rather than written: in each section of every primary text, either the
+sentences or the words are permuted, which preserves the words and the duration (180 texts). Permuting words changes
+network AUC by 12.9 on average and permuting sentences by 1.5, where the standard deviation of network AUC across the
+90 primaries is about 2.8: the predicted response depends on the order of words within sentences, not only on which
+words are read and when.
 
 ## 3.4 Phase III: the simulated learner
 

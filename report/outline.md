@@ -48,7 +48,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 5.5 | 0 | ~3,000 | — |
-| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected (2026-09-23) |
+| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B (2026-09-23) |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
@@ -88,7 +88,7 @@ Four strands, each ending with what it leaves open for this study. Every citatio
 
 - **2.1 Foundation models of human cognition.** Centaur and Psych-101 [Binz et al., 2025]; LLMs as simulated
   participants and their limits. Sets up why Centaur chooses but does not answer (Section 3.4).
-- **2.2 Foundation models of neural response.** TRIBE v2 [Banville et al., 2026] as an encoding model; shared core
+- **2.2 Foundation models of neural response.** TRIBE v2 [d'Ascoli et al., 2026; checked, arXiv 2605.04326] as an encoding model; shared core
   and readouts [Wang et al., 2025]; cortical parcellations and networks (Schaefer, Yeo). Sets up the non-negotiable
   separation of immediate response from learning.
 - **2.3 Scaffolding and cognitive offloading.** Scaffolding and fading [Wood et al., 1976]; offloading
@@ -151,7 +151,8 @@ teaching is evaluated; (4) the next measurement: `support.adaptation`, then the 
 ## Appendices (not counted)
 
 Lettered in order of first reference. A. Corpus validation details (**drafted**: equivalence tests, the coverage
-review and its verdict, construction of the contradiction check). Planned: update equations in full and the Phase V
+review and its verdict, construction of the contradiction check); B. The encoding-model run (**drafted**:
+configuration and checks, metric definitions with eq. 9). Planned: update equations in full and the Phase V
 deviations; Table 2 (if not in the body), full Tables 3 and 5, Table 4 at parcel level; supplementary tables and
 Figures S1-S3; specification list and ranks; reproducibility (commands, run tags, the D3 manifest); data dictionary.
 

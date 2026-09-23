@@ -141,3 +141,47 @@ Table: **Table A3.** The §5.4 judge: what was validated, and what each check fo
 
 *Sensitivity and specificity are shares; findings are counts of texts. Source: own elaboration
 (`outputs/tables/tableS_contradiction_judge.csv`).*
+
+## Appendix B. The encoding-model run
+
+### B.1 Configuration and checks
+
+TRIBE v2 was installed from its public repository at commit `af58661` (the main branch of 23 June 2026), and its
+checkpoint (`facebook/tribev2`) was verified against the SHA-256 hash published on the model hub. The released
+configuration was kept except for the batch size, the number of data-loading workers and the precision of the text
+encoder (16-bit floating point). Text features come from Llama-3.2-3B at relative depths 0.5, 0.75 and 1.0 of the
+network, sampled at 2 Hz, and the network that maps them onto the cortical surface has 177.2 million parameters. The
+run used one NVIDIA L4 GPU in Google Colab: 2.6 hours for the 90 primaries at 220 words per minute, less than 0.1
+hours for the other two reading speeds, which reuse the cached text features, 5.1 hours for the 180 shuffled
+controls and 5.4 hours for the 210 written controls of Section 3.2.5.
+
+Three checks accompanied the run. First, before any lesson text, the text example distributed with the model was
+run through the pipeline and returned a finite prediction of 26 time points by 20,484 vertices; the release provides
+no reference output, so the check establishes that the installed pipeline runs end to end, not that it reproduces
+published values. Second, one text (`be_001`, traditional) was predicted twice, and the two predictions differ by at
+most 7.1 × 10⁻⁴ at any vertex and second, an effect of the reduced precision. Third, every word of every text reached
+the model at all three reading speeds, and no prediction failed.
+
+### B.2 Metric definitions
+
+Table: **Table B1.** Metrics of the predicted cortical response
+
+| Metric | Level | Definition |
+|---|---|---|
+| Mean | Parcel, network | Mean of $B$ over the reading window |
+| Peak | Parcel, network | Maximum of $B$ after a centred three-second moving average |
+| Time to peak | Parcel, network | Second at which the smoothed $B$ reaches its maximum |
+| AUC | Parcel, network | Trapezoidal integral of $B$ over the reading window (eq. 8) |
+| Sustained engagement | Parcel, network | Share of seconds in which $B$ exceeds the median of all the text's values at that level, an assumed baseline |
+| Dispersion | Text | Variance across parcels of the window-mean pattern $\bar b_s$ |
+| Entropy | Text | Normalised entropy of the positive part of $\bar b_s$ (eq. 9) |
+| Integration | Text | Mean pairwise Pearson correlation of the seven network time courses |
+
+*$B$ is the predicted BOLD response in arbitrary units, one value per second of reading; none of these metrics is a
+measured response. Source: own elaboration; definitions as implemented in `src/neurotutorsim/tribe.py`.*
+
+The entropy of text $s$ is computed on the positive part of its window-mean pattern over the $P = 400$ parcels,
+
+$$ H_s = -\frac{1}{\ln P} \sum_{p=1}^{P} q_{s,p} \ln q_{s,p}, \qquad q_{s,p} = \frac{\max\left(\bar b_{s,p}, 0\right)}{\sum_{p'} \max\left(\bar b_{s,p'}, 0\right)}, \qquad (9) $$
+
+and equals 1 when that part is spread evenly over the parcels and 0 when it is concentrated in one.
