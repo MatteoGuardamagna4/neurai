@@ -48,7 +48,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
-| 3. Methodology | 14.5 | ~3 | ~6,300 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B (2026-09-23) |
+| 3. Methodology | 14.5 | ~3 | ~6,300 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B; 3.4 (~1531 words, Table 3), 3.5 (~480, Table 4) and 3.6 (~556) drafted, learner detail to App. C (2026-09-23) |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
@@ -152,7 +152,8 @@ teaching is evaluated; (4) the next measurement: `support.adaptation`, then the 
 
 Lettered in order of first reference. A. Corpus validation details (**drafted**: equivalence tests, the coverage
 review and its verdict, construction of the contradiction check); B. The encoding-model run (**drafted**:
-configuration and checks, metric definitions with eq. 9). Planned: update equations in full and the Phase V
+configuration and checks, metric definitions with eq. 9); C. The simulated learner (**drafted**: proxies,
+all learner parameters, the development probes of the transcript model). Planned: update equations in full and the Phase V
 deviations; Table 2 (if not in the body), full Tables 3 and 5, Table 4 at parcel level; supplementary tables and
 Figures S1-S3; specification list and ranks; reproducibility (commands, run tags, the D3 manifest); data dictionary.
 

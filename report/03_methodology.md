@@ -257,15 +257,247 @@ words are read and when.
 
 ## 3.4 Phase III: the simulated learner
 
-*In preparation.*
+Phase III simulates learners working through the corpus. Each learner is a state-space model: latent states that
+every episode updates through explicit equations, with behavioural choices made by a language model trained on human
+choices and the correctness of each answer drawn from an explicit response model. Every parameter is an assumption;
+Table 3 lists the central ones, Appendix C the rest, and Section 3.5 compares those for which a published estimate
+exists.
+
+**State and population.** The state of learner $i$ is $\mathbf{s}_i = (K_i, M_i, R_i, C_i, D_i) \in [0,1]^5$:
+knowledge, memory strength, independent reasoning, calibration and dependence on support. Initial states are drawn
+within three prior-knowledge strata $g(i)$ (low, medium and high, with shares 0.30, 0.50 and 0.20) from a
+multivariate normal distribution truncated to the unit cube,
+
+$$ \mathbf{s}_i(0) \sim \mathcal{N}_{[0,1]^5}\left(\boldsymbol{\mu} + \boldsymbol{\Delta}_{g(i)},\ \sigma^2 \boldsymbol{\Sigma}\right), \qquad (15) $$
+
+where the stratum shifts $\boldsymbol{\Delta}_g$ move the means of knowledge and memory and the correlation matrix
+$\boldsymbol{\Sigma}$ makes knowledge, memory and reasoning covary positively with one another and negatively with
+dependence. Each learner also has a learning and a forgetting rate,
+
+$$ \alpha_i \sim \operatorname{LogNormal}\left(\mu_\alpha, \sigma_\alpha^2\right), \qquad \delta_i \sim \operatorname{Beta}\left(a_\delta, b_\delta\right). \qquad (16) $$
+
+The population has 1,667 learners, each of whom completes all four arms (the three conditions and free choice) from
+the same initial state, in the same curriculum order and with the same random numbers, which are indexed by learner
+and episode but not by condition. Contrasts between conditions are therefore within learners, and the three assigned
+arms comprise 5,001 learner-runs.
+
+**The episode.** An episode presents one unit, in an order that places prerequisites first and then rises in
+difficulty; the 40 episodes of a population run cover the 30 units and then the first ten again. The learner reads
+the explanation and the problem and answers without help. A correct first answer leads straight to the near-transfer
+question. After a wrong answer, the traditional protocol shows hint $k$ and lets the learner answer again or request
+the next hint, up to three hints, after which the worked solution is shown. The scaffolding protocol replaces the
+hints with up to three turns of a language-model tutor, each diagnosing the error, asking one question and giving a
+hint of level $k$, and likewise shows the worked solution after the third. The substitution protocol sends one tutor
+message with the complete solution and allows one further answer. Every episode ends with an unaided near-transfer
+question and a statement of the time taken. In the free-choice arm the learner first reads the problem, chooses
+among working through the hints alone, talking it through with the tutor and asking for the complete solution, and
+then receives that protocol's lesson. The tutor is Qwen2.5-3B-Instruct [@qwen2024]. A scaffolding turn that states
+the answer is regenerated once and otherwise replaced by the unit's prewritten hint; in the hybrid run described
+below, none of the 909 scaffolding turns stated the answer and 728 of them (80%) asked a question, while the
+substitution tutor stated the answer in 539 of its 589 messages. The tutor's text enters none of the equations that
+follow: only the choice model reads it.
+
+**Responses.** The correctness of an answer is drawn from a logistic model in the learner's ability
+$\theta_i = \tau (K_i - 0.5)$, the unit's difficulty $b_u$, reasoning and memory,
+
+$$ P(Y = 1) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i\right), \qquad (17) $$
+
+$$ P(Y = 1 \mid h) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i + \omega h\right), \qquad (18) $$
+
+where $\sigma$ is the logistic function, $b_u$ is linear in the unit's difficulty score, and eq. 18 applies after
+support of depth $h$: $k/3$ after $k$ hints or tutor turns and 1 after the complete solution. Near- and far-transfer
+items are harder by 0.5 and 1.2 logits. A wrong answer is the documented misconception with probability 0.67 and the
+other distractor otherwise. When help is offered, the probability of requesting it rises with dependence and falls
+with ability relative to difficulty; confidence is reported on a five-point scale.
+
+**Effort, effectiveness and state updates.** Each episode is summarised by proxies computed from what happened in it
+(Appendix C): the share of independent attempts, whether the first answer was retrieved correctly, the share of the
+solution the learner generated ($1 - k/3$ after $k$ hints, and 0 if the answer was provided) and whether the answer
+was provided. Effort and instructional effectiveness are
+
+$$ E = \sigma\left(a_0 + a_1\,\text{attempt} + a_2\,\text{retrieval} + a_3\,\text{generation} - a_4\,\text{answer}\right), \qquad (19) $$
+
+$$ F = \sigma\left(f_0 + f_1\,\text{correctness} + f_2\,\text{coverage} + f_3\,\text{adaptation} - f_4\,\text{mismatch}\right), \qquad (20) $$
+
+where the correctness and coverage of the lesson are fixed at 1 (the coverage measured in Section 3.2.4 is reported,
+not fed into the model), mismatch is the distance between difficulty and ability, and adaptation is the constant of
+the protocol that ran (Table 1), applied when support was used. The states then update as
+
+$$ K' = K + \alpha_i E F (1 - K) - \delta_i K, \qquad (21) $$
+
+$$ M' = (1 - \delta_i)\, M + \eta_M\,\text{retrieval} + \eta_C\,\text{correction}, \qquad (22) $$
+
+$$ R' = R + \eta_R\, E\,\text{transfer} - \eta_O\,\text{offloading}, \qquad (23) $$
+
+$$ C = 1 - \frac{1}{n} \sum_{j=1}^{n} \left(c_j - y_j\right)^2, \qquad (24) $$
+
+$$ D' = D + \eta_D\,\text{support} - \eta_F\,\text{withdrawal} \times \text{success}, \qquad (25) $$
+
+each clipped to $[0,1]$. Correction marks an initial error that the learner corrected without being given the
+answer, transfer a correct near-transfer answer, offloading the share of the solution not generated, support the
+depth of help used, withdrawal the share of help removed by the support policy and success a correct first answer;
+$C$ is one minus the Brier score of the confidence ratings $c_j$, rescaled to $[0,1]$, against correctness $y_j$ over
+all rated answers so far. Two features of these equations carry the comparison between conditions. Effort and
+effectiveness multiply in the knowledge gain, so substitution, which provides the answer after the first error,
+lowers learning through effort. And in these equations adaptation is the only term that distinguishes scaffolding
+from traditional instruction: the scaffolding advantage is an assumed constant, not a consequence of the tutor's
+text, and Section 3.8 treats it as a dimension of the robustness analysis.
+
+**Who makes the choices.** Two engines implement the model. The logistic engine makes every decision by equation:
+correctness by eq. 17–18, help requests by the model above, confidence as the probability of being correct plus a
+learner-specific bias and noise, and the approach in the free-choice arm by an assumed softmax in dependence, whose
+logits are $s(D - 0.5)$ for substitution, $-s(D - 0.5)$ for traditional instruction and 0 for scaffolding, with
+$s = 2$ the dependence slope of the help-request model. The
+hybrid engine leaves correctness to eq. 17–18 and delegates the behavioural choices (the approach, requests for
+further help and confidence ratings) to Centaur [@binz2025], a language model fine-tuned to predict the next choice in
+transcripts of psychological experiments (more than 10 million choices by more than 60,000 participants in 160
+experiments), used here in its 8-billion-parameter version, quantised to about four bits per weight for serving. The
+division follows from what such a model can and
+cannot do. In probes run during development, Centaur answered these problems correctly with probability 0.35,
+against 1/3 for guessing, and its confidence ratings followed the learner's record rather than the answer just
+given, whereas its choices of approach and of help shifted with the record in the direction a struggling or a coping
+learner would take (Appendix C). The model reads an observable transcript only: a fixed instruction, the current
+episode, a summary of the learner's record (problems solved on the first try, hints requested, recent form,
+experience with the concept and, in the free-choice arm, how often each approach was followed by a correct transfer
+answer) and the three previous episodes. Latent states never enter the prompt, which is checked automatically; the
+initial state reaches it as the record of 20 prior problems whose counts eq. 17 and the help-request model imply.
+Each choice is sampled from the model's probabilities over the response keys with the learner's random-number
+stream, and option letters and order are drawn afresh in every episode. Because the confidence ratings follow the
+record, wherever the hybrid engine is used $C$, and the Brier score and calibration error computed from the same
+ratings, measure consistency with the record rather than calibration.
+
+**Runs.** The logistic engine runs the full population: 1,667 learners in 4 arms for 40 episodes, 266,720 episodes
+per parameter setting, in the three settings of Table 3. Each hybrid episode needs several calls to an
+8-billion-parameter model (about 4 seconds per assigned-arm episode on a cloud GPU), so the hybrid engine runs a
+subsample of 40 learners in
+all four arms for 30 episodes (4,800 episodes), paired with the logistic engine on the same learners for the engine
+comparison of Section 4.2, and 80 further learners in the free-choice arm alone (4,800 episodes), whose choices fit
+the second free-choice rule of Phase V (Section 3.7). In the logistic runs the free-choice arm therefore follows the
+assumed softmax, not Centaur. Phase III comprises 814,560 simulated episodes in all. After the 10th and 20th episodes
+and at the end of each run, a checkpoint tests every learner with support removed and without changing its state:
+unaided accuracy on recently practised items, near and far transfer, retention of items last practised at least ten
+episodes earlier, the support gap (eq. 26: accuracy with one hint minus unaided accuracy), calibration, and the rate
+of help requests.
+
+Table: **Table 3.** Central parameters of the simulated learner, by parameter setting
+
+| Parameter | Symbol | Eq. | Low | Medium | High |
+|--------------------------------|----------|-----|----------------|----------------|----------------|
+| Standard deviation of the initial states | $\sigma$ | 15 | 0.10 | 0.15 | 0.20 |
+| Learning rate, log-mean and log-standard deviation | $\mu_\alpha$, $\sigma_\alpha$ | 16 | −2.6, 0.25 | −2.3, 0.40 | −2.0, 0.55 |
+| Forgetting rate, second Beta parameter | $b_\delta$ | 16 | 120 | 80 | 50 |
+| Ability slope | $\tau$ | 17 | 3 | 4 | 5 |
+| Difficulty slope | $\beta_b$ | 17 | 0.4 | 0.6 | 0.8 |
+| Weights of reasoning and memory | $\rho$, $\kappa$ | 17 | 0.7, 0.5 | 1.0, 0.8 | 1.3, 1.1 |
+| Weight of support | $\omega$ | 18 | 1.5 | 2.5 | 3.5 |
+| Effort weights | $a_1$–$a_4$ | 19 | 0.9, 0.6, 0.7, 1.5 | 1.2, 0.8, 1.0, 2.0 | 1.5, 1.0, 1.3, 2.5 |
+| Weights of adaptation and mismatch | $f_3$, $f_4$ | 20 | 0.9, 1.2 | 1.2, 1.5 | 1.5, 1.8 |
+| Memory gains | $\eta_M$, $\eta_C$ | 22 | 0.010 | 0.015 | 0.025 |
+| Reasoning gain and loss | $\eta_R$, $\eta_O$ | 23 | 0.003 | 0.005 | 0.008 |
+| Dependence gain and loss | $\eta_D$, $\eta_F$ | 25 | 0.006 | 0.010 | 0.016 |
+
+*Fixed in all settings: stratum shares 0.30, 0.50 and 0.20; initial means 0.35 (K), 0.30 (M), 0.30 (R), 0.50 (C) and
+0.40 (D); $a_\delta = 2$; $a_0 = -1.0$; $f_0 = -1.5$, $f_1 = 1.0$, $f_2 = 0.8$; adaptation 0.35 (traditional), 0.90
+(scaffolding) and 0.20 (substitution); misconception share 0.67; three help turns. The medium setting is the main
+specification; low and high are the sensitivity settings of Phase III and the bounds of the triangular parameter
+draws of Phase V (Section 3.7). Source: own elaboration (`config/default.yaml`, `outputs/tables/table3_parameters.csv`);
+Appendix C lists every parameter.*
 
 ## 3.5 Parameter provenance and calibration anchors
 
-*In preparation.*
+No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
+the provenance of each is recorded with the code (`config/parameter_sources.yaml`). Where the literature reports a
+quantity that the model also implies on the same scale, the two were compared once the runs were complete
+(Table 4). The comparison documents the model rather than calibrating it: no value was changed in response, because
+re-parameterising would have invalidated every completed run, and a parameter outside its published range is
+reported as a finding about the model.
+
+Three parameters could be compared directly. The learning rate enters eq. 21 through the gain
+$\alpha_i E F (1 - K)$, which closes a fraction of the remaining gap to mastery at each episode, the same form as the
+per-opportunity learning probability of Bayesian knowledge tracing [@corbett1995], commonly initialised between 0.10
+and 0.22 [@badrinath2021]. In the reference run the realised fraction, the median learning rate times the mean effort
+and effectiveness ($0.100 \times 0.655 \times 0.527$), is 0.035, below that range. The forgetting rate implies that
+0.38 of knowledge survives a year without practice at the rate the simulation applies during breaks, against the
+two-thirds to three-quarters of taught knowledge retained after a year in the review of @custers2010. The support
+weight $\omega$, expressed as the support gap at the checkpoints standardised by the spread of unaided accuracy,
+gives an effect of $d = 0.41$, inside the range of 0.35 to 0.76 spanned by meta-analyses of tutoring
+[@ma2014; @kulik2016; @vanlehn2011]. A fourth parameter, the memory gain from retrieval, has a published
+counterpart in the testing effect [@rowland2014; @adesope2017], a retention advantage of $g$ = 0.50 to 0.61, but no
+model quantity on the same scale, because memory strength enters accuracy only through $\kappa M$ in eq. 17; it is
+recorded without a comparison.
+
+The two rates that fall outside their ranges err in the same direction, and together they set the plateau of
+eq. 21: at constant effort and effectiveness, knowledge settles at $K^{*} = \alpha E F / (\alpha E F + \delta)$,
+which is 0.59 with the model's rates and 0.99 with the midpoints of the published ranges. The simulated learner
+therefore operates in a forgetting-dominated regime that the evidence on taught knowledge does not support. The
+consequence for interpretation is specific: scenario contrasts that operate through forgetting are magnified in such
+a regime, and the substitution deficit, which arises from low effort compounded by forgetting (Section 4.5), is one of
+them. Its direction is the claim; its magnitude is read as an upper bound (Section 5.1).
+
+Table: **Table 4.** Calibration anchors: model-implied quantities against published values
+
+| Quantity | Parameter | Model | Published | Verdict | Source |
+|----------------------------------|----------|-------|----------|------------|---------------------------|
+| Share of the gap to mastery closed per episode | $\alpha$ | 0.035 | 0.10–0.22 | Below | @corbett1995; @badrinath2021 |
+| Share of knowledge retained after a year without practice | $\delta$ | 0.38 | 0.65–0.75 | Below | @custers2010 |
+| Effect of support on test accuracy (Cohen's $d$) | $\omega$ | 0.41 | 0.35–0.76 | Consistent | @ma2014; @kulik2016; @vanlehn2011 |
+| Retention advantage of retrieval practice (Hedges' $g$) | $\eta_M$ | — | 0.50–0.61 | Not comparable | @rowland2014; @adesope2017 |
+| Steady-state knowledge of eq. 21 | $\alpha$, $\delta$ | 0.59 | 0.99 | Below | Derived from the first two rows |
+
+*Model values from the reference run in the medium setting. The published range for $\omega$ spans three
+meta-analyses that disagree by more than a factor of two. Source: own elaboration
+(`outputs/tables/tableS_parameter_anchors.csv`).*
 
 ## 3.6 Phase IV: plasticity
 
-*In preparation.*
+Phases II and III leave two separate objects: a predicted response to each text, identical for every learner, and a
+record of what each learner did. Phase IV joins them in a model-implied functional state that accumulates the
+responses to the lessons a learner actually received, weighted by what the learner did in them. The state is in
+arbitrary units and is not a prediction of a future brain state: it re-weights the predicted responses of Phase II by
+the simulated behaviour of Phase III, inherits the limits of both, and is interpreted only through standardised
+contrasts between scenarios (Section 3.7).
+
+The response to text $s$ in parcel $p$ enters as its area under the curve standardised across the 90 texts,
+
+$$ Z_{s,p} = \frac{\text{AUC}_{s,p} - \overline{\text{AUC}}_{p}}{\operatorname{sd}_{p}\left(\text{AUC}\right)}, \qquad (28) $$
+
+winsorised at the 1st and 99th percentiles of all 36,000 values, so that $Z$ records which parcels a text drives more
+or less than the corpus average. It is the response to the whole text of the protocol that ran, including sections
+that the learner reached only after an error or not at all. With $s_t$ the text of episode $t$, $\delta_N$ a decay per
+episode and $\eta$ a common rate, mechanism A, activation accumulation, adds the text's pattern in proportion to
+effort:
+
+$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta\, E_{it}\, \mathbf{Z}_{s_t}. \qquad (29) $$
+
+Mechanisms B and C keep this form and replace effort by another weight: for prediction-error learning, the error of
+the first answer, $\text{PE}_{it} = \lvert Y_{it} - P(Y_{it} = 1) \rvert$ (eq. 30), counted only when the learner then
+resolved it without being given the answer (eq. 31); for effort-dependent learning, effort times retrieval (eq. 32).
+The hybrid mechanism D, the main specification, combines the three and penalises offloading,
+
+$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta \left(\lambda_A E_{it} + \lambda_{PE}\, \text{PE}_{it}\, \text{res}_{it} + \lambda_R\, \text{retr}_{it} - \lambda_O\, \text{off}_{it}\right) \mathbf{Z}_{s_t}, \qquad (33) $$
+
+with $\lambda_A = \lambda_{PE} = \lambda_R = 1/3$ and $\lambda_O = 1/3$ (0 and 2/3 in the low and high settings). The
+decay follows from a half-life of 20 weeks (8 and 52 weeks in the other settings), which at three episodes a week
+gives $\delta_N = 1 - 0.5^{1/60} \approx 0.011$. Because $\mathbf{N}$ is in arbitrary units and the contrasts of
+Section 3.7 are standardised, $\eta = 1$ fixes only the scale, and $\eta = 0$ serves as the control in which no
+plasticity occurs. Parcel states are aggregated to the seven networks with the area weights of eq. 7.
+
+The recursion is linear in the 90 fixed patterns, which is what makes Phase IV cheap to vary. Each learner carries
+five decayed sums per text, one for each behavioural input (effort, resolved prediction error, effort times
+retrieval, retrieval and offloading), and the state under any mechanism is a weighted projection of those sums onto
+$\mathbf{Z}$. The mechanism, its weights, the response metric, the reading speed, the parcellation and any permutation
+of $\mathbf{Z}$ can therefore be changed after the simulation without rerunning it; only the decay acts inside the
+recursion.
+
+Five quantities describe the state of a learner: its concentration, the share of $\lvert \mathbf{N} \rvert$ held by
+the top quarter of parcels; its representational differentiation,
+
+$$ \text{Diff}_i = \overline{D}^{\,\text{between}}_i - \overline{D}^{\,\text{within}}_i, \qquad (34) $$
+
+the mean dissimilarity (eq. 14) between the state patterns of units that teach different concepts minus that between
+units teaching the same concept; its cross-network integration, the mean absolute covariance between network states
+across episodes; an efficiency proxy, unaided accuracy per unit of control-network state, computed only when
+accuracy exceeds 0.40; and, across learners, the alignment of each network's state with far-transfer accuracy.
 
 ## 3.7 Phase V: ten-year scenarios
 

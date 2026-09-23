@@ -167,7 +167,7 @@ the model at all three reading speeds, and no prediction failed.
 Table: **Table B1.** Metrics of the predicted cortical response
 
 | Metric | Level | Definition |
-|---|---|---|
+|------------------|----------------|------------------------------------------------------------------|
 | Mean | Parcel, network | Mean of $B$ over the reading window |
 | Peak | Parcel, network | Maximum of $B$ after a centred three-second moving average |
 | Time to peak | Parcel, network | Second at which the smoothed $B$ reaches its maximum |
@@ -185,3 +185,133 @@ The entropy of text $s$ is computed on the positive part of its window-mean patt
 $$ H_s = -\frac{1}{\ln P} \sum_{p=1}^{P} q_{s,p} \ln q_{s,p}, \qquad q_{s,p} = \frac{\max\left(\bar b_{s,p}, 0\right)}{\sum_{p'} \max\left(\bar b_{s,p'}, 0\right)}, \qquad (9) $$
 
 and equals 1 when that part is spread evenly over the parcels and 0 when it is concentrated in one.
+
+## Appendix C. The simulated learner
+
+### C.1 Proxies
+
+Every input to eq. 19–25 is computed from what happened in the episode; none is tunable. Table C1 defines them, with
+$k$ the number of hints or tutor turns received (0 to 3).
+
+Table: **Table C1.** Observable proxies of an episode
+
+| Proxy | Definition | Enters |
+|------------------|--------------------------------------------------------------|--------------------|
+| Attempt | Answers given before any answer was provided, divided by 4 | $E$ (eq. 19) |
+| Retrieval | 1 if the first answer was correct, 0.5 otherwise | $E$, $M$ (eq. 19, 22) |
+| Generation | $1 - k/3$, or 0 if the answer was provided | $E$ (eq. 19) |
+| Answer | 1 if the worked or complete solution was shown | $E$ (eq. 19) |
+| Offloading | $1 -$ generation | $R$ (eq. 23) |
+| Correction | 1 if a first error was corrected by a later answer before any answer was provided | $M$ (eq. 22) |
+| Transfer | 1 if the near-transfer answer was correct | $R$ (eq. 23) |
+| Support | $k/3$, or 1 if the answer was provided | $D$ (eq. 25) |
+| Withdrawal | $1 -$ (help turns available under the support policy)$/3$ | $D$ (eq. 25) |
+| Success | 1 if the first answer was correct | $D$ (eq. 25) |
+| Adaptation | 0.35, 0.90 or 0.20 for the protocol that ran if $k > 0$, and 0 otherwise | $F$ (eq. 20) |
+| Mismatch | $\min(1, \lvert b_u - \theta_i \rvert / 3)$ | $F$ (eq. 20) |
+| Correctness, coverage | Fixed at 1 | $F$ (eq. 20) |
+
+*Source: own elaboration; definitions as implemented in `src/neurotutorsim/episode.py`.*
+
+### C.2 Parameters
+
+Table C2 lists every parameter of the simulated learner; the parameters of Phases IV and V are listed with those
+phases.
+
+Table: **Table C2.** Parameters of the simulated learner
+
+| Parameter | Symbol | Low | Medium | High | Source |
+|----------------------------------|--------|---------|-------------|---------|---------------------------|
+| `population.n_learners` |  |  | 1667 |  | Design |
+| `population.prior_problems` |  |  | 20 |  | Assumption |
+| `population.stratum_weights` |  |  | 0.3 / 0.5 / 0.2 |  | Design |
+| `population.state_means.K` |  |  | 0.35 |  | Assumption |
+| `population.state_means.M` |  |  | 0.3 |  | Assumption |
+| `population.state_means.R` |  |  | 0.3 |  | Assumption |
+| `population.state_means.C` |  |  | 0.5 |  | Assumption |
+| `population.state_means.D` |  |  | 0.4 |  | Assumption |
+| `population.state_sd` | $\sigma$ | 0.1 | 0.15 | 0.2 | Assumption |
+| `population.stratum_k_shift` |  |  | −0.2 / 0.0 / 0.2 |  | Assumption |
+| `population.stratum_m_shift` |  |  | −0.1 / 0.0 / 0.1 |  | Assumption |
+| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 4) |
+| `population.sigma_alpha` | $\sigma_\alpha$ | 0.25 | 0.4 | 0.55 | Assumption |
+| `population.a_delta` | $a_\delta$ |  | 2 |  | Assumption |
+| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 4) |
+| `population.theta_slope` | $\tau$ | 3 | 4 | 5 | Assumption |
+| `population.confidence_bias_sd` |  | 0.05 | 0.1 | 0.15 | Assumption |
+| `population.speed_sigma` |  |  | 0.25 |  | Assumption |
+| `curriculum.b_slope` | $\beta_b$ | 0.4 | 0.6 | 0.8 | Assumption |
+| `curriculum.near_b_delta` |  |  | 0.5 |  | Assumption |
+| `curriculum.far_b_delta` |  |  | 1.2 |  | Assumption |
+| `response.rho` | $\rho$ | 0.7 | 1 | 1.3 | Assumption |
+| `response.kappa` | $\kappa$ | 0.5 | 0.8 | 1.1 | Assumption |
+| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 4) |
+| `response.request_intercept` |  |  | −1 |  | Assumption |
+| `response.request_dependence_slope` |  |  | 2 |  | Assumption |
+| `response.request_ability_slope` |  |  | 0.5 |  | Assumption |
+| `response.misconception_share` |  |  | 0.67 |  | Assumption |
+| `response.confidence_noise_sd` |  |  | 0.08 |  | Assumption |
+| `effort.a0` | $a_0$ |  | −1 |  | Assumption |
+| `effort.a1` | $a_1$ | 0.9 | 1.2 | 1.5 | Assumption |
+| `effort.a2` | $a_2$ | 0.6 | 0.8 | 1 | Assumption |
+| `effort.a3` | $a_3$ | 0.7 | 1 | 1.3 | Assumption |
+| `effort.a4` | $a_4$ | 1.5 | 2 | 2.5 | Assumption |
+| `effectiveness.f0` | $f_0$ |  | −1.5 |  | Assumption |
+| `effectiveness.f1` | $f_1$ |  | 1 |  | Assumption |
+| `effectiveness.f2` | $f_2$ |  | 0.8 |  | Assumption |
+| `effectiveness.f3` | $f_3$ | 0.9 | 1.2 | 1.5 | Assumption |
+| `effectiveness.f4` | $f_4$ | 1.2 | 1.5 | 1.8 | Assumption |
+| `effectiveness.coverage_default` |  |  | 1 |  | Assumption |
+| `effectiveness.correctness_default` |  |  | 1 |  | Assumption |
+| `updates.m_decay_scale` |  |  | 1 |  | Assumption |
+| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 4) |
+| `updates.eta_C` | $\eta_C$ | 0.01 | 0.015 | 0.025 | Assumption |
+| `updates.eta_R` | $\eta_R$ | 0.003 | 0.005 | 0.008 | Assumption |
+| `updates.eta_O` | $\eta_O$ | 0.003 | 0.005 | 0.008 | Assumption |
+| `updates.eta_D` | $\eta_D$ | 0.006 | 0.01 | 0.016 | Assumption |
+| `updates.eta_F` | $\eta_F$ | 0.006 | 0.01 | 0.016 | Assumption |
+| `support.max_hints` |  |  | 3 |  | Design |
+| `support.adaptation.traditional` |  |  | 0.35 |  | Assumption |
+| `support.adaptation.ai_scaffolding` |  |  | 0.9 |  | Assumption |
+| `support.adaptation.ai_substitution` |  |  | 0.2 |  | Assumption |
+| `support.mismatch_scale` |  |  | 3 |  | Assumption |
+| `support.fade_base` |  |  | 0.75 |  | Assumption |
+| `support.withdrawal_success_threshold` |  |  | 2 |  | Assumption |
+| `support.latency.base_s` |  |  | 45 |  | Assumption |
+| `support.latency.per_hint_s` |  |  | 20 |  | Assumption |
+| `support.latency.per_attempt_s` |  |  | 30 |  | Assumption |
+| `checkpoints.episodes` |  |  | 9 / 19 / 39 |  | Assumption |
+| `checkpoints.n_trained` |  |  | 3 |  | Assumption |
+| `checkpoints.n_near` |  |  | 2 |  | Assumption |
+| `checkpoints.n_far` |  |  | 2 |  | Assumption |
+| `checkpoints.retention_interval` |  |  | 10 |  | Assumption |
+| `checkpoints.ece_bins` |  |  | 10 |  | Assumption |
+
+*Low and high are the sensitivity settings of Phase III and the bounds of the triangular draws of Phase V; a parameter
+with a single value is fixed. "Design" marks a value fixed by the structure of the study rather than chosen as a
+behavioural assumption. Source: own elaboration (`config/default.yaml`, `outputs/tables/table3_parameters.csv`).*
+
+### C.3 Development probes of the transcript model
+
+The division of labour in the hybrid engine rests on probes run against the locally served model during development,
+between 9 and 11 September 2026. Most presented versions of the same prompt that differ in one element and compared
+the model's probabilities over the response keys. The call logs are kept with the run logs, but the probe analysis is
+not part of the frozen output pipeline, so the values below are development measurements rather than reproducible
+outputs.
+
+Three results shaped the design. First, on the arithmetic of these problems the model chose the correct option with
+probability 0.35, within a band of 0.34 to 0.38 across prompt formats, against 1/3 for guessing, and the probability
+did not respond to the competence stated in the learner's record (a change of +0.004, standard error 0.007).
+Correctness is therefore drawn from eq. 17–18. Second, its confidence ratings rose with the strength of the record
+(+0.866, standard error 0.022, with the same sign in all 11 units probed) but not with whether the option just
+pressed was correct (+0.039, standard error 0.130, the same sign in 6 of the 11), so that confidence in the hybrid
+engine measures the record, as Section 3.4 states. Third, its choice of approach did respond to the record: a record
+describing a struggling rather than a coping learner changed the probability of choosing traditional instruction by
+−0.187, scaffolding by +0.102 and substitution by +0.085 (standard errors 0.012 to 0.017), with the same sign in all
+11 units.
+
+Two further observations fixed the form of the prompt. The choice followed the payoff of each approach more closely
+when the record stated the payoff first (+0.149, against +0.068 for the same facts ordered by frequency; standard
+errors 0.018 and 0.008), which is the phrasing used. And a longer history diluted the record: with eight past
+episodes in the prompt the effect of the payoff on the choice fell from +0.053 to +0.009, consistent with the
+model's tendency to repeat the choices a transcript shows, so the prompt carries three.
