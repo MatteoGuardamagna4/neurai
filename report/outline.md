@@ -47,12 +47,12 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 | Section | Pages | Of which exhibits | Prose words | Status |
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
-| 2. Literature Review | 5.5 | 0 | ~3,000 | — |
-| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B (2026-09-23) |
+| 2. Literature Review | 3.5 | 0 | ~1,900 | — |
+| 3. Methodology | 14.5 | ~3 | ~6,300 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B (2026-09-23) |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
-| **Body** | **37** | **~8.5** | **~15,650** | |
+| **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |
 
 ---
 
@@ -82,7 +82,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
   because of the computational budget; six scenarios; the ESADE Data Department context; all work the author's own.
 - **1.5 Structure of the report.**
 
-## 2. Literature Review (5.5 pp)
+## 2. Literature Review (3.5 pp)
 
 Four strands, each ending with what it leaves open for this study. Every citation is checked before it enters.
 
@@ -101,7 +101,7 @@ Four strands, each ending with what it leaves open for this study. Every citatio
   long-horizon uncertainty propagation; the specification-curve and multiverse literature frames the robustness
   design.
 
-## 3. Methodology (12.5 pp)
+## 3. Methodology (14.5 pp)
 
 State once, early: equation numbers follow the code and will be renumbered; every quantity is model-implied.
 
@@ -169,7 +169,10 @@ Answered 2026-09-23: the cover (ESADE Data Department; tutors Carlos Carrasco-Fa
 confidentiality left off, not an issue for now);
 the criteria may carry the labels F1-F6 once §3.8 defines them; the manual reviews (the nine texts of Table A2 and
 the flagged `npv_002`) were done by the author the same day: all nine teach the method, and the `npv_002` flag was a
-false positive (no unsupported assertion). §3.2.4, A.2 and A.3 report it.
+false positive (no unsupported assertion). §3.2.4, A.2 and A.3 report it. Page budget: two pages move from the
+Literature Review (no rubric criterion) to Methodology, now 3.5 and 14.5 pages. `report.py`'s Table 1 description
+labels ("guided questions", "walks through the complete solution") stay wrong in the code and CSV and are ignored;
+the report's Table 1 is the authority.
 
 Still open:
 
