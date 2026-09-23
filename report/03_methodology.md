@@ -34,14 +34,19 @@ in which each wrong option corresponds to a named error.
 ### 3.2.2 Instructional conditions
 
 Each unit exists in three versions, giving 90 lesson texts (Table 1). The versions share the unit record (the problem
-and its answer options, the transfer items) and the rule that no help is offered before a first independent attempt.
-They differ in the style of the explanation and in the support that follows an error. The traditional version
-contains a fixed explanation with one worked example, the unit's three prewritten hints and a worked solution. The
-scaffolding version phrases the explanation as guided questions, adds at least one diagnostic question per documented
-wrong answer and presents the same hint ladder, but contains no worked solution. Withholding the answer until the
-learner has attempted the problem operationalises scaffolding as support confined to the parts of a task the learner
-cannot yet complete unaided [@wood1976]. The substitution version walks through the complete solution, the regime in which retrieval and generation are
-offloaded to an external aid [@risko2016].
+and its answer options, the transfer items), the rule that no help is offered before a first independent attempt, and
+most of the explanation. Each AI version departs from the traditional explanation in exactly three sentences, its
+first two and its last: it opens in the tutor's voice and closes by announcing the support to come, so a median of
+82% of its sentences (range 79–84%) recur verbatim in the traditional text. The conditions therefore differ in what
+surrounds the explanation. The traditional version asks the learner to work the problem out and contains the unit's
+three prewritten hints and its reference worked solution. The scaffolding version states that the answer will not be
+given, adds three or four diagnostic questions about the learner's working and presents the same hint ladder, but
+contains no worked solution. Withholding the answer until the learner has attempted the problem operationalises
+scaffolding as support confined to the parts of a task the learner cannot yet complete unaided [@wood1976]. The
+substitution version states that the learner need not work the problem out and omits the hints; its worked solution
+adds to the reference solution three to five sentences that restate the procedure and end by telling the learner to
+apply the steps exactly as shown, the regime in which retrieval and generation are offloaded to an external aid
+[@risko2016].
 
 Structure is enforced mechanically. Each version must contain exactly the sections its condition prescribes, in
 order; the explanation must contain 250 to 400 words; the problem section must reproduce the canonical problem
@@ -56,7 +61,7 @@ Table: **Table 1.** Instructional conditions and fixed versus varying features
 
 | | Traditional | AI scaffolding | AI substitution |
 |---|---|---|---|
-| Lesson text | Explanation with one worked example; three hints; worked solution | Explanation as guided questions; diagnostic questions; three hints; no worked solution | Explanation that walks through the complete solution; worked solution |
+| Lesson text | Explanation with one worked example; three hints; worked solution | Same explanation, tutor's opening and closing; three or four diagnostic questions; three hints; no worked solution | Same explanation, tutor's opening and closing; worked solution ending in an instruction to apply it; no hints |
 | Support after a wrong answer | Hint *k*, then answer again or request the next hint | Tutor turn *k*: diagnosis, one question, a level-*k* hint, leakage-checked | One message with the complete solution, then one re-answer |
 | Answer provided | After the third hint | After the third tutor turn | After the first wrong answer |
 | Adaptation, eq. 20 (assumed) | 0.35 | 0.90 | 0.20 |
@@ -65,8 +70,8 @@ Table: **Table 1.** Instructional conditions and fixed versus varying features
 | Equations, mean | 9.27 | 5.73 | 9.33 |
 
 *Held fixed across conditions: unit, concept, domain, difficulty, problem, answer options, near- and far-transfer
-items, the three-option format and the absence of help before a first attempt. Source: own elaboration; computed from
-the 90 primary lesson texts (`outputs/tables/table1_conditions.csv`).*
+items, the three-option format, the absence of help before a first attempt and all but three sentences of the
+explanation. Source: own elaboration; computed from the 90 primary lesson texts (`outputs/tables/table1_conditions.csv`).*
 
 ### 3.2.3 Matching
 
@@ -115,10 +120,12 @@ separately at run time (Section 3.4).
 Semantic coverage is the cosine similarity between sentence embeddings (the `all-mpnet-base-v2` model of the
 Sentence-Transformers framework [@reimers2019]) of a text's explanation and the unit's reference worked solution. The
 acceptance threshold of 0.50 was fixed before any similarity was computed. All 90 primary texts exceed it (minimum
-0.53; condition means 0.68 to 0.70), as do all 210 control texts described in Section 3.2.5 (minimum 0.52); the lowest
-decile of primaries (nine texts, six of which belong to the payback-period and customer-lifetime-value units) is
-listed for manual review in Appendix A.2. That review is outstanding and will be carried out if time permits;
-until it is, the adequacy of those texts rests on the threshold alone. <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
+0.53; condition means 0.68 to 0.70), as do all 210 control texts described in Section 3.2.5 (minimum 0.52). A
+similarity threshold screens for topical relatedness rather than for method, so the lowest decile of primaries (nine
+texts, six of which belong to the payback-period and customer-lifetime-value units) was also read by the author
+against the reference worked solutions, in a single reading that is not independent of the texts: each explanation
+teaches the method its reference solution applies, so the lower scores do not indicate missing content
+(Appendix A.2). <!-- MG: not reviewed--> Near duplication across units was screened by the Jaccard similarity of word
 5-gram sets [@broder1997] over all 435 pairs of traditional texts, with the threshold of 0.50 fixed before scoring.
 The highest value, 0.17, belongs to the two units of one concept (`cac_001` and `cac_002`), as the paired design
 implies; no pair was flagged. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17-->
@@ -137,8 +144,8 @@ scaffolding texts state no answer and fall outside its scope. For the other two 
 90 were written, each a primary text with one sentence added: an assertion the unit does not support, an unlicensed
 causal claim, or, as a negative control, standard background knowledge a lesson may legitimately state
 (Appendix A.3). Neither question detected any of the 30 faults written for it, a sensitivity of 0.00 in both cases,
-so their verdicts are withdrawn rather than reported: the one primary they had flagged (`npv_002`, scaffolding)
-carries no information about that text, whose manual review is outstanding along with those of Appendix A.2. The
+so their verdicts are withdrawn rather than reported. The one primary they had flagged (`npv_002`, scaffolding) was
+read by the author, who found no unsupported assertion in it: the flag was a false positive. Beyond that text, the
 corpus has therefore been screened for contradiction of its own reference answers, and for nothing else.
 Appendix A.3 documents how the contradiction check was built, the first version that was discarded because it
 flagged nothing at all, and the probe set. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->

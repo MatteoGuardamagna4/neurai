@@ -43,7 +43,7 @@ specifications (sign kept in 59.2%; adaptation irrelevant to it at 0.590 / 0.592
 | N6 | **Write the report (D7), due 2026-09-30.** `REPORT.md` is the specification - structure, the 40-page budget with figures counted, the actual rubric, body-vs-appendix. `guide.md` §13 maps sections to outputs and §10 bounds the claims. Note two things the official guidelines require that the chat guidance missed: a **compulsory 2-4 page Executive Summary** (no defence without it) and an index ending in page count and word count | you |
 | N7 | `git push`, then move the `results-2026-09-25` tag to the freeze commit | either |
 | N9 | The 15-minute defence, **2026-10-15**. Two weeks after the report, so not on the critical path, but 30% of the grade and judged on communication, message and Q&A rather than on the report. `REPORT.md` §8 | you |
-| N8 | Optional, ~5 min: read the one primary in `review_queue.json`. Checked 2026-09-21 - `npv_002_ai_scaffolding` is a bare `UNSUPPORTED: yes` with no reason on an unvalidated check; its worked example (15,000 / 12,500 / 27,500 / 2,500), its reference answer and its leakage check are all correct, so no action was taken | you |
+| N8 | ~~Read the one primary in `review_queue.json`~~ **Done 2026-09-23.** `npv_002_ai_scaffolding` is a bare `UNSUPPORTED: yes` with no reason on a check since shown invalid (D31); its worked example, reference answer and leakage check are correct (2026-09-21), and the author read the whole text and found no unsupported assertion: a false positive. With it the author read the nine lowest-coverage texts (A19): all nine teach the method | you |
 
 **Out of reach before the deadline, correctly labelled limitations:** the audio arm (§5.2 item 10), held-out fMRI
 validation (§10.1), and Centaur inside Phase V (~1.2e9 episodes), so the learner engine stays out of the curve.
@@ -190,7 +190,7 @@ Every number here is an assumption in the sense of brief §7.2 and gets that lab
 | A16 | Decay per episode | K and M: δ_i × 3 / episodes_per_week (linear, keeps Phase III identical). N: (1 − δ_N,week)^(1/episodes_per_week) | Exposure arms |
 | A17 | Mediator "held at the traditional distribution" (§11.5) | The paired traditional value of the same learner, draw and episode | None |
 | A18 | Stimulus variance (§10.5) | Bootstrap over the 30 units' Z, plus the variance across the primary and two reworded versions' Z (D21) | None |
-| A19 | Semantic coverage threshold (§5.5) | Cosine (all-mpnet-base-v2) of explanation vs the unit's reference worked solution >= 0.5, set before any coverage was computed; the lowest 10% of primaries listed for manual review | None |
+| A19 | Semantic coverage threshold (§5.5) | Cosine (all-mpnet-base-v2) of explanation vs the unit's reference worked solution >= 0.5, set before any coverage was computed; the lowest 10% of primaries listed for manual review; read by the author 2026-09-23, all nine teach the method | None |
 
 ---
 
@@ -945,6 +945,12 @@ and `outputs/figures` with no manual step.
   (~6 h), which also closes the §8 open item "Figure 8a covers 4 of the 6 scenarios".
 
 - 2026-09-22 (D31): judge probes built and run. 90 texts, 18 s/call, all parsed, no errors. UNSUPPORTED 0/30, CAUSAL 0/30, background 30/30 clean. `analysis.judge_table` gained the probe block and the `invalid` standing; `report textctl` rebuilds the table. Report §3.2.4 and Appendix A.3 state it. The report draft (D7) lives in `report/`; `report/build.py` renders it to Word.
+- 2026-09-23 (report): manual reviews done by the author - the nine lowest-coverage texts (A19) all teach the
+  method, the `npv_002` judge flag is a false positive (N8). Checking the report's condition description against the
+  texts found it wrong: an AI explanation differs from the traditional one in exactly three sentences (its first two
+  and its last; median 82% of sentences verbatim), and the conditions differ in the problem's instruction line and the
+  support sections. §3.2.2 and the report's Table 1 corrected; `report.py`'s Table 1 labels still describe the intended
+  explanation styles ("guided questions", "walks through the complete solution").
 
 ## 9. Not blocking now; decide by S15
 - ~~Whether `outputs/tables` and `outputs/figures` should be committed as the deliverable~~ **decided: yes**, they

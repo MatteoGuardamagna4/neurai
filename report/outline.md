@@ -48,7 +48,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 5.5 | 0 | ~3,000 | — |
-| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A) |
+| 3. Methodology | 12.5 | ~3 | ~5,200 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected (2026-09-23) |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
@@ -151,7 +151,7 @@ teaching is evaluated; (4) the next measurement: `support.adaptation`, then the 
 ## Appendices (not counted)
 
 Lettered in order of first reference. A. Corpus validation details (**drafted**: equivalence tests, the coverage
-review list, construction of the contradiction check). Planned: update equations in full and the Phase V
+review and its verdict, construction of the contradiction check). Planned: update equations in full and the Phase V
 deviations; Table 2 (if not in the body), full Tables 3 and 5, Table 4 at parcel level; supplementary tables and
 Figures S1-S3; specification list and ranks; reproducibility (commands, run tags, the D3 manifest); data dictionary.
 
@@ -167,13 +167,11 @@ numbers, written at first use); length (~37 pages).
 Answered 2026-09-23: the cover (ESADE Data Department; tutors Carlos Carrasco-Farré and Marc Arnal Torrens;
 confidentiality left off, not an issue for now);
 the criteria may carry the labels F1-F6 once §3.8 defines them; the manual reviews (the nine texts of Table A2 and
-the flagged `npv_002`) are deferred and reported as outstanding, to be done if time permits.
+the flagged `npv_002`) were done by the author the same day: all nine teach the method, and the `npv_002` flag was a
+false positive (no unsupported assertion). §3.2.4, A.2 and A.3 report it.
 
 Still open:
 
-- **Coverage review (outstanding, for 2026-09-24).** The nine texts of Table A2 have *not* been read by anyone; the
-  author confirmed on 2026-09-23 that it is still to do, as is the reading of the judge-flagged `npv_002`. §3.2.4 and
-  Appendix A.2 say so and must not be softened until the author reports a verdict.
 - **Confidentiality.** Left off the cover for now. If it is ever claimed, the guidelines require two signed copies
   of the agreement, and §6's publication path (the archived dataset with its DOI, and a paper) would need the
   tutors' agreement or an embargo instead.

@@ -33,7 +33,7 @@ texts (`outputs/tables/corpus_balance.csv`).*
 ### A.2 Texts listed for manual review of semantic coverage
 
 The nine primary texts in the lowest decile of semantic coverage (Section 3.2.4) are listed in Table A2. All exceed
-the acceptance threshold of 0.50. Their review asks whether the explanation teaches the method that the unit's
+the acceptance threshold of 0.50. The review asked whether each explanation teaches the method that its unit's
 reference worked solution applies, irrespective of wording.
 
 Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
@@ -53,8 +53,7 @@ Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
 *Cosine similarity between the text's explanation and the unit's reference worked solution (`all-mpnet-base-v2`).
 Source: own elaboration (`outputs/tables/tableS_semantic_coverage_review.csv`).*
 
-This review is outstanding and will be carried out if time permits. Two features of the list bear on what it can
-find. First, the scores are not extreme: averaged over the three conditions, unit coverage runs from 0.573
+Two features of the list bear on what the review could find. First, the scores are not extreme: averaged over the three conditions, unit coverage runs from 0.573
 (`pbp_002`) to 0.786 (`dol_002`), so the lowest decile sits inside a narrow band well above the threshold of 0.50.
 Second, six of the nine texts belong to two units, `pbp_002` and `ltv_002`, each appearing in all three conditions,
 which locates whatever depresses the score in the unit rather than in an individual lesson. Five surface features
@@ -66,8 +65,15 @@ with the length of the reference worked solution (*r* = +0.30, *p* = 0.11) and w
 similarity. What remains is the vocabulary a lesson happens to share with its reference solution, which is a
 property of the measure rather than of the instruction: the threshold screens for topical relatedness and does not
 establish that a lesson covers the method its reference solution applies. Reading the texts is therefore the only
-way to settle the question, and until that is done the limitation stands as stated in Section 3.2.4. <!-- CLAUDE: the author said on 2026-09-23 that they had checked the texts but did not give the verdict. Ask for it
-(per text or as a blanket 'all adequate') and then replace the 'outstanding' wording here and in §3.2.4. -->
+way to settle the question.
+
+Each of the nine texts was read against its unit's reference worked solution with one question: could a student who
+had read only the explanation carry out the steps of that solution? For all nine the answer is yes. Each explanation
+states the formula its reference solution applies and names the documented misconception as the error to avoid. The
+three texts of a unit share all but three sentences of their explanation (Section 3.2.2), which is why `pbp_002` and
+`ltv_002` appear in all three conditions. The reading was done once, by the author, who helped write the units and
+knew the scores, so it is not an independent check: it establishes that the method is present in each text, not how
+effectively the text teaches it.
 
 ### A.3 Construction and validation of the contradiction check
 
@@ -115,9 +121,9 @@ discarded first version, and the cause is plausibly the same: asked in the abstr
 of a stated kind, this model answers no. The contradiction check works because it was reposed as a concrete task,
 reading off the final answer and comparing it; reposing these two in the same way is the obvious next step, which
 this study did not take. The one text flagged by the unvalidated questions (`npv_002`, scaffolding) was returned
-with an affirmative verdict and no reason; a check of its worked example, reference answer and leakage against the
-unit record found no error and the text was not changed, and a manual review of it is outstanding, as for the texts
-of Section A.2.
+with an affirmative verdict and no reason. A check of its worked example, reference answer and leakage against the
+unit record found no error, and the author, reading the whole text for any statement that the unit does not support
+or that is false, found none. The flag was therefore a false positive, and the text was not changed.
 
 Table: **Table A3.** The §5.4 judge: what was validated, and what each check found
 
