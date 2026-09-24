@@ -293,8 +293,8 @@ behavioural assumption. Source: own elaboration (`config/default.yaml`, `outputs
 
 ### C.3 Development probes of the transcript model
 
-The division of labour in the hybrid engine rests on probes run against the locally served model during development,
-between 9 and 11 September 2026. Most presented versions of the same prompt that differ in one element and compared
+The division of labour in the hybrid engine rests on probes run against the locally served model during development.
+Most presented versions of the same prompt that differ in one element and compared
 the model's probabilities over the response keys. The call logs are kept with the run logs, but the probe analysis is
 not part of the frozen output pipeline, so the values below are development measurements rather than reproducible
 outputs.
