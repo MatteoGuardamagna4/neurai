@@ -609,7 +609,7 @@ value the same learner had under traditional instruction: effort or effectivenes
 dependence in the decision rules; the text's predicted response is exchanged post hoc for the traditional one. A
 mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$. It decomposes the contrast within the model, is
 not a causal mediation analysis, and the contributions need not sum to one. Appendix D lists every Phase V run, with
-its size, and gives the trajectory model of Figure 5 (eq. 43); the 236 runs analysed simulate
+its size, and gives the trajectory model of Figure 5b (eq. 43); the 236 runs analysed simulate
 $4.5 \times 10^{10}$ learner-episodes.
 
 ## 3.8 Validation, falsification and robustness

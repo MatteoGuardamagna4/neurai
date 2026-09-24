@@ -83,8 +83,39 @@ def regex(text: str, pattern: str) -> str:
     return m.group(1)
 
 
+def ci(name: str, est: str, lo: str, hi: str, fmt: str = "{:.3f}", **where) -> str:
+    """'estimate [low, high]' from one row of an output table, as the report's tables write it."""
+    r = row(name, **where)
+    return f"{fmt.format(r[est])} [{fmt.format(r[lo])}, {fmt.format(r[hi])}]"
+
+
+def t4cell(key: str, contrast: str) -> str:
+    """A cell of Table 4, recomputed from the source tables: the network AUC contrast with its interval, in bold when
+    the interval excludes zero and the contrast passes F1, F2 and F5, followed by the marks of the criteria it fails
+    (a: F1, loses significance with covariates; b: F2, not robust to rewording; c: F5, incorrect-text network)."""
+    w = dict(level="network", metric="auc", key=key, contrast=contrast)
+    main, cov = row("table4_cortical_contrasts.csv", **w), row("table4_cortical_contrasts_matched_covariates.csv", **w)
+    reg = row("tableS_regeneration_contrasts.csv", key=key, contrast=contrast, metric="auc")
+    inc = row("tableS_incorrect_control.csv", key=key, metric="auc")
+    marks = ("a" if main["ci_excludes_0"] and not cov["ci_excludes_0"] else "") + \
+            ("b" if not reg["claim_allowed"] else "") + ("c" if inc["ratio_to_contrast"] >= 0.5 else "")
+    s = ci("table4_cortical_contrasts.csv", "estimate", "ci_low", "ci_high", "{:.2f}", **w)
+    if main["ci_excludes_0"] and not marks:
+        s = f"**{s}**"
+    return s + (f"^{marks}^" if marks else "")
+
+
+def hist_quantile(tag: str, scenario: str, outcome: str, year: int, p: float) -> float:
+    """Upper edge of the histogram bin holding the p-quantile of the learner-level paired differences."""
+    h = pd.read_parquet(ROOT / "data" / "processed" / "phase5" / tag / "contrast_hist")
+    g = h[(h.scenario == scenario) & (h.outcome == outcome) & (h.year == year)].sort_values("bin")
+    c = g["count"].cumsum() / g["count"].sum()
+    return float(g["bin_high"][c >= p].iloc[0])
+
+
 ENV = {"T": T, "row": row, "cfg": cfg, "js": js, "runs": runs, "regex": regex, "len": len, "sum": sum, "round": round,
-       "min": min, "max": max, "abs": abs, "pd": pd, "ROOT": ROOT, "glob": glob, "Path": Path}
+       "min": min, "max": max, "abs": abs, "pd": pd, "ROOT": ROOT, "glob": glob, "Path": Path, "ci": ci,
+       "t4cell": t4cell, "hist_quantile": hist_quantile, "all": all, "any": any, "set": set, "sorted": sorted}
 
 
 def fmt(value, spec: str | None) -> str:

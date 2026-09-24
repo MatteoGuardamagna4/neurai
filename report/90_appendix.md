@@ -347,7 +347,7 @@ comparator; those of the tipping-point lines are the 33 points on the lines for 
 forgetting multiplier and the comparator; those of the mechanism decomposition are the five scenarios and twelve
 reruns with one mediator held. Source: own elaboration (`data/processed/phase5/*/run.json`).*
 
-The trajectories of Figure 5 are summarised by a model of first-attempt correctness over the first school year,
+Figure 5b (Appendix E) summarises the first-year trajectories with a model of first-attempt correctness,
 
 $$ \operatorname{logit} P\left(Y_{it} = 1\right) = \beta_0 + f_c(t) + \beta_1\,\text{stratum}_i + \beta_2\,\text{domain}_u + \beta_3\,\text{difficulty}_u, \qquad (43) $$
 
@@ -356,7 +356,7 @@ a population-averaged logistic model with learner-clustered standard errors [@li
 of the central draw, who are the same learners in every scenario. The curves average the model's predictions over
 one fixed sample of 300 covariate rows, so that they show time and scenario rather than the order of the curriculum,
 and their bands come from 300 draws of the coefficients. The bands reflect behavioural noise within one parameter
-setting, not parameter uncertainty, which is the band of Figure 5. No p-values are reported: with simulated data the
+setting, not parameter uncertainty, which is the band of Figure 5 in Section 4.3. No p-values are reported: with simulated data the
 sample size is a choice, and any difference can be made significant.
 
 ### D.2 Behavioural and implementation checks
@@ -439,3 +439,41 @@ Table: **Table D4.** Inputs, outputs, assumptions and validation of each compone
 | Ten-year scenarios (Phase V) | Triangular parameter draws; six scenarios; school calendar | States and test outcomes at years 1, 5 and 10; SC, PrSup, $G$, $d$ | Bounded updates; forgetting per week with breaks; the two free-choice rules | Checks of Table D2; mirror equivalence; common-random-number null |
 
 *Source: own elaboration (`outputs/tables/table2_components.csv`, rewritten).*
+
+## Appendix E. Supplementary figures
+
+![](../outputs/figures/fig4_rdm.png)
+
+*Section 4.1. Source: own elaboration; predicted parcel patterns of TRIBE v2 at 220 words per minute
+(`outputs/tables/fig4_rdm.csv`, `rsa_condition_agreement.csv`, `rsa_differentiation.csv`).*
+
+![](../outputs/figures/fig5b_trajectory_model_v_main.png)
+
+*Appendix D.1, eq. 43. Source: own elaboration; model-implied output of the central draw of the Phase V main run,
+500 learners in their first school year (`outputs/tables/fig5b_trajectory_model_v_main.csv`,
+`tableS_trajectory_model_v_main.csv`).*
+
+![](../outputs/figures/fig7b_neural_diagram.png)
+
+*Section 4.7. Source: own elaboration; model-implied output of the Phase V neural-diagram run, 100 parameter draws
+of 300 learners (`outputs/tables/fig7b_neural_diagram.csv`).*
+
+![](../outputs/figures/fig8b_spec_curve_neural.png)
+
+*Section 4.7. Source: own elaboration; model-implied output of the 216 specification-curve runs, each specification
+evaluated on the stored subsample of 20 parameter draws (`outputs/tables/fig8b_spec_curve_neural.csv`).*
+
+![](../outputs/figures/figS1_engine_comparison.png)
+
+*Section 4.2. Source: own elaboration; the same 40 simulated learners run with the hybrid and the logistic engine,
+30 episodes in each arm (`outputs/tables/engine_comparison.csv`).*
+
+![](../outputs/figures/figS2_parcel_contrasts.png)
+
+*Section 4.1. Source: own elaboration; predicted responses of TRIBE v2, false-discovery correction across all 1,200
+parcel tests (`outputs/tables/parcel_contrasts_auc.csv`).*
+
+![](../outputs/figures/figS3_phase3_outcomes.png)
+
+*Section 4.2. Source: own elaboration; model-implied output of the Phase III population run, 1,667 learners in each
+arm (`outputs/tables/tableS_phase3_outcomes.csv`).*
