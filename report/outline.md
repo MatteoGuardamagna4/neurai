@@ -39,6 +39,21 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   appearance. Every figure and table ends with a source line: *Source: own elaboration. …* (REPORT.md §2).
 - **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.
 
+## Schedule to 2026-09-30 (proposed 2026-09-24)
+
+One chapter per day, drafted in full; the author reviews each evening and commits, and the next session starts from
+that diff.
+
+| Day | Claude drafts | Author |
+|---|---|---|
+| Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**) | Review §3.1, 3.7-3.9 |
+| Fri 25 | §4 Results, all of it (4.1-4.7, Tables 4-6, Figures 3-8) | Review §4 |
+| Sat 26 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
+| Sun 27 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2; Zenodo deposit and DOI, `git push` |
+| Mon 28 | Abstract, Executive Summary, AI declaration; remaining appendices; page pass to ≤ 38 pp | Review front matter |
+| Tue 29 | Every number cross-checked against `outputs/tables` by script; references, cross-references, format checklist | Full read-through |
+| Wed 30 | Fixes from the read-through, final PDF | Submit |
+
 ## Page budget
 
 A4, Arial 11 pt, single spacing with 6 pt before and after, 30/25 mm margins: about 550 words per page of prose.
