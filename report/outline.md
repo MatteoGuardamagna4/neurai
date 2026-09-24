@@ -46,13 +46,17 @@ that diff.
 
 | Day | Claude drafts | Author |
 |---|---|---|
-| Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**) | Review §3.1, 3.7-3.9 |
-| Fri 25 | §4 Results, all of it (4.1-4.7, Tables 4-6, Figures 3-8) | Review §4 |
-| Sat 26 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
-| Sun 27 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2; Zenodo deposit and DOI, `git push` |
-| Mon 28 | Abstract, Executive Summary, AI declaration; remaining appendices; page pass to ≤ 38 pp | Review front matter |
-| Tue 29 | Every number cross-checked against `outputs/tables` by script; references, cross-references, format checklist | Full read-through |
-| Wed 30 | Fixes from the read-through, final PDF | Submit |
+| Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**); claims ledger and `report/verify.py` (**done**); §4 Results and Appendix E (**done**, a day early) | Review §3.1, 3.7-3.9 and §4 |
+| Fri 25 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
+| Sat 26 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2 |
+| Sun 27 | Abstract, Executive Summary, AI declaration; ledger back-filled for §3.2-3.6 | Review front matter; repository public |
+| Mon 28 | Remaining appendices; page pass to ≤ 38 pp; Figure 8a legibility | Full read-through |
+| Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
+| Wed 30 | Final PDF | Submit |
+
+**Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
+`uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
+source, PASS/FAIL). As of 2026-09-24: §3.1, §3.7-3.9 and §4 covered, 239 of 239 pass; §3.2-3.6 to back-fill.
 
 ## Page budget
 
@@ -64,7 +68,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
 | 3. Methodology | 14.5 | ~3 | ~6,300 | **All of §3 drafted (2026-09-24).** 3.1 (Figure 1, Table 1 data generated), 3.7 (~1,050 words), 3.8 (~900), 3.9 (~280) new; Table 3 moved to App. C2, §3.2.4 checker paragraph shortened; App. D drafted. Measured in the build: pages 9-24, ~15.9 pp, 1.4 over budget |
-| 4. Results | 10 | ~5.5 | ~2,500 | — |
+| 4. Results | 10 | ~5.5 | ~2,500 | **Drafted 2026-09-24**, ~9 pp measured (pp. 25-33). Body: Tables 4-7, Figures 3, 5, 6, 7a, 8a; Figures 4, 5b, 7b, 8b, S1-S3 in App. E. Every number in the claims ledger |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
 | **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |

@@ -136,8 +136,11 @@ episode and ~10-15 s per free-choice episode (more calls). Concurrency did not h
 runner**; the run's order also matters for the learner state, which is sequential per learner.
 
 **Centaur vs the logistic baseline, measured on `centaur_main`** (40 paired learners, 2026-09-18): in the
-assigned arms Centaur adds +0.07 to +0.09 help requests per episode and lowers C by 0.07-0.09, and changes
-no learning outcome or eq. 10-12 contrast. In free choice it picks substitution far more often than the
+traditional and scaffolding arms Centaur adds +0.07 to +0.09 help requests per episode, lowers C by 0.07-0.09 in
+every arm, shifts end-of-run states by at most 0.011 (small, but some intervals exclude 0, e.g. K under free choice)
+and checkpoint accuracies by at most 0.025 (all intervals include 0); the eq. 10-12 arm contrasts in K, M, R, D and
+first-try accuracy keep their sign and move by < 0.01 (`engine_comparison.csv`, checked 2026-09-24; the earlier
+wording "changes no learning outcome" overstated it). In free choice it picks substitution far more often than the
 softmax-in-D rule, which is why `choice_rule.py` fits a rule to its picks for Phase V (PLAN.md D18).
 
 **Two-tier run design** (user decision): the full 1667-triplet population runs on `logistic` (~16 min),
