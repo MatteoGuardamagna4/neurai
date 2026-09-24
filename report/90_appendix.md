@@ -233,10 +233,10 @@ Table: **Table C2.** Parameters of the simulated learner
 | `population.state_sd` | $\sigma$ | 0.1 | 0.15 | 0.2 | Assumption |
 | `population.stratum_k_shift` |  |  | −0.2 / 0.0 / 0.2 |  | Assumption |
 | `population.stratum_m_shift` |  |  | −0.1 / 0.0 / 0.1 |  | Assumption |
-| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 4) |
+| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 3) |
 | `population.sigma_alpha` | $\sigma_\alpha$ | 0.25 | 0.4 | 0.55 | Assumption |
 | `population.a_delta` | $a_\delta$ |  | 2 |  | Assumption |
-| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 4) |
+| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 3) |
 | `population.theta_slope` | $\tau$ | 3 | 4 | 5 | Assumption |
 | `population.confidence_bias_sd` |  | 0.05 | 0.1 | 0.15 | Assumption |
 | `population.speed_sigma` |  |  | 0.25 |  | Assumption |
@@ -245,7 +245,7 @@ Table: **Table C2.** Parameters of the simulated learner
 | `curriculum.far_b_delta` |  |  | 1.2 |  | Assumption |
 | `response.rho` | $\rho$ | 0.7 | 1 | 1.3 | Assumption |
 | `response.kappa` | $\kappa$ | 0.5 | 0.8 | 1.1 | Assumption |
-| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 4) |
+| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 3) |
 | `response.request_intercept` |  |  | −1 |  | Assumption |
 | `response.request_dependence_slope` |  |  | 2 |  | Assumption |
 | `response.request_ability_slope` |  |  | 0.5 |  | Assumption |
@@ -264,7 +264,7 @@ Table: **Table C2.** Parameters of the simulated learner
 | `effectiveness.coverage_default` |  |  | 1 |  | Assumption |
 | `effectiveness.correctness_default` |  |  | 1 |  | Assumption |
 | `updates.m_decay_scale` |  |  | 1 |  | Assumption |
-| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 4) |
+| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 3) |
 | `updates.eta_C` | $\eta_C$ | 0.01 | 0.015 | 0.025 | Assumption |
 | `updates.eta_R` | $\eta_R$ | 0.003 | 0.005 | 0.008 | Assumption |
 | `updates.eta_O` | $\eta_O$ | 0.003 | 0.005 | 0.008 | Assumption |
@@ -315,3 +315,127 @@ when the record stated the payoff first (+0.149, against +0.068 for the same fac
 errors 0.018 and 0.008), which is the phrasing used. And a longer history diluted the record: with eight past
 episodes in the prompt the effect of the payoff on the choice fell from +0.053 to +0.009, consistent with the
 model's tendency to repeat the choices a transcript shows, so the prompt carries three.
+
+## Appendix D. The ten-year simulation and its validation
+
+### D.1 Runs and the trajectory model
+
+Table D1 lists the Phase V runs analysed in this report. Each draw count includes the central draw, in which every
+parameter takes its medium value; a learner-episode is one learner completing one episode in one scenario. A further
+79 runs (a first pilot and a benchmark, superseded by the check runs, and 72 specification cells run before the sixth
+scenario existed) are kept on disk as records and are not analysed.
+
+Table: **Table D1.** Phase V runs analysed
+
+| Purpose | Runs | Draws × learners | Arms | Years | Learner-episodes |
+|--------------------------------|------|---------------------|------|-------|-----------------|
+| Main run (Section 3.7) | 2 | 501 × 2,000 | 5 + 2 | 10 | $8.4 \times 10^{9}$ |
+| Exposure of one and five episodes a week | 2 | 201 × 1,000 | 5 | 10 | $2.4 \times 10^{9}$ |
+| Phase diagram | 1 | 101 × 300 | 148 | 10 | $5.4 \times 10^{9}$ |
+| Tipping-point lines | 1 | 201 × 300 | 56 | 10 | $4.1 \times 10^{9}$ |
+| Neural diagram | 1 | 101 × 300 | 2 | 10 | $7.3 \times 10^{7}$ |
+| Mechanism decomposition | 1 | 51 × 500 | 17 | 10 | $5.2 \times 10^{8}$ |
+| Controls: zero plasticity, zero effort sensitivity, uniform draws | 3 | 51 × 500 | 5 | 10 | $4.6 \times 10^{8}$ |
+| Replicates for the variance decomposition | 3 | 51 × 200 | 5 | 10 | $1.8 \times 10^{8}$ |
+| Specification curve (Section 3.8) | 216 | 51 × 300 | 6 | 10 | $2.4 \times 10^{10}$ |
+| Behavioural and implementation checks (Appendix D.2) | 6 | 1 to 51 × 500 to 1,000 | 5 or 6 | 1 | $5.2 \times 10^{7}$ |
+| **Total** | **236** | | | | $4.5 \times 10^{10}$ |
+
+*The main run's second part adds the sixth scenario and repeats traditional instruction, whose results match the
+first part to within $3 \times 10^{-16}$. The arms of the phase diagram are its 147 cells and the traditional
+comparator; those of the tipping-point lines are the 33 points on the lines for $e$, $o$ and $f$, 11 pairs for the
+forgetting multiplier and the comparator; those of the mechanism decomposition are the five scenarios and twelve
+reruns with one mediator held. Source: own elaboration (`data/processed/phase5/*/run.json`).*
+
+The trajectories of Figure 5 are summarised by a model of first-attempt correctness over the first school year,
+
+$$ \operatorname{logit} P\left(Y_{it} = 1\right) = \beta_0 + f_c(t) + \beta_1\,\text{stratum}_i + \beta_2\,\text{domain}_u + \beta_3\,\text{difficulty}_u, \qquad (43) $$
+
+where $f_c(t)$ is a B-spline in the episode with five degrees of freedom, specific to scenario $c$. It is estimated as
+a population-averaged logistic model with learner-clustered standard errors [@liang1986] on the first 500 learners
+of the central draw, who are the same learners in every scenario. The curves average the model's predictions over
+one fixed sample of 300 covariate rows, so that they show time and scenario rather than the order of the curriculum,
+and their bands come from 300 draws of the coefficients. The bands reflect behavioural noise within one parameter
+setting, not parameter uncertainty, which is the band of Figure 5. No p-values are reported: with simulated data the
+sample size is a choice, and any difference can be made significant.
+
+### D.2 Behavioural and implementation checks
+
+Table: **Table D2.** Checks passed by the one-year pilot before any ten-year result was read
+
+| Check | Rule | Value | Passed |
+|----------------------------|------------------------------------------------|--------------------------------------|--------|
+| Prior knowledge | Mean baseline unaided accuracy low ≤ medium ≤ high, in every scenario | 0.401, 0.553, 0.717 | Yes |
+| Prior knowledge at year 1 (stricter, informational) | Year-1 unaided accuracy low < medium < high in ≥ 95% of draws | Lowest share 0.176 (scaffolding without fading); mean high − low +0.002 | No |
+| Difficulty | Slope of expected accuracy on difficulty below 0 in every draw | Largest slope −0.062 | Yes |
+| Support | Support gap above 0 for every learner and year | Smallest gap 0.010 | Yes |
+| Forgetting | Retention below end-of-year accuracy for ≥ 99% of learners; retention falls with break length | Share 1.000; strictly falling over breaks of 4, 12 and 24 weeks | Yes |
+| Fading | Year-1 dependence lower with rapid fading than without in ≥ 95% of draws | Share 1.000 | Yes |
+| Zero plasticity | Every neural contrast exactly 0 | Largest absolute mean 0 over 2,352 contrasts | Yes |
+| Zero effort sensitivity | Effort constant at $\sigma(a_0)$; substitution contrast in $K$ smaller than in the pilot | Effort 0.2689 throughout; 0.0069 against 0.0777 | Yes |
+| Common random numbers | Traditional against a relabelled copy of itself: every contrast exactly 0 | Largest absolute contrast 0 over 189 contrasts | Yes |
+| Bounds | No state clipped; below 5% of learners within 0.01 of a bound at year 1 | 0 clips; largest share 0.003 | Yes |
+| Equivalence | Vectorised step reproduces the reference loop (automated test) | Passed on the analysed version of the code | Yes |
+
+*Source: own elaboration (`outputs/tables/gate18_checks.csv`).*
+
+### D.3 Dimensions of the specification curve
+
+Table: **Table D3.** Dimensions, levels and plausibility ranks of the specification curve
+
+| Dimension | Levels (rank) | Evaluation |
+|---------------------|----------------------------------------------------------------|----------------------|
+| Update form | Bounded (1); literal eq. 22, 23 and 25 (3) | Rerun |
+| Forgetting | Break at 0.25 of the term rate (1); at 0.1 (2); at 1.0 (2); per episode, no breaks (3) | Rerun |
+| Exposure | Three episodes a week (1); one (2); five (2) | Rerun |
+| Effort function | Drawn (1); fixed at the low values (2); fixed at the high values (2) | Rerun |
+| Adaptation | 0.35, 0.90, 0.20 as in Table 2 (1); halved, 0.42, 0.69, 0.34 (2); none, 0.48 for all (3) | Rerun; added after the first results |
+| Reading speed | 220 words per minute (1); 180 (2); 260 (2) | Post hoc |
+| Network weights | Surface area (1); equal (2) | Post hoc |
+| Parcellation | 400 parcels (1); 200 parcels (2) | Post hoc; added after the first results |
+| Response metric | Area under the curve (1); mean (2); peak (3) | Post hoc |
+| Winsorising | Yes (1); no (2) | Post hoc |
+| Plasticity mechanism | D (1); A, B and C (2) | Post hoc |
+| Outcome weights | Equal (1); learning-first (2); autonomy-first (2) | Post hoc |
+
+*A specification's tier is the highest rank among its levels. The ranks of the ten original dimensions were approved
+before any ten-year result existed; the levels of the two added dimensions were ranked before they were computed.
+Source: own elaboration (`config/spec_curve.yaml`).*
+
+### D.4 Rules refined after the first results
+
+Five analysis rules were changed after the first ten-year results existed, and the robustness rule was formalised.
+Each is listed with its reason, so that the reader can judge whether it favours any result.
+
+1. **F4 judges the median draw.** The share of learners near a bound is taken in the median draw of the worst
+   scenario, with the share of draws above 10% listed beside it, rather than in the single most extreme of 500
+   draws, which would let one draw decide the verdict.
+2. **F4 names the scenarios it applies to.** A scenario that is bound-driven in its median draw is reported as such
+   without withdrawing the claims of the other scenarios, as F1, F3 and F5 already did; a sign change under uniform
+   draws is added to the verdict rather than replacing it.
+3. **F5 uses the condition-label permutation as the null.** Permuting the predicted responses across units within a
+   condition keeps each condition's mean text profile, so its ratio to the main contrast is close to 1 by
+   construction. It is kept among the controls as a test of unit-specific content but does not enter F5.
+4. **F6 covers both scaffolding scenarios.** The criterion concerns learners after support is removed, which is the
+   rapid-fading scenario, so both scaffolding scenarios are compared with substitution rather than only the one
+   without fading.
+5. **The variance decomposition treats scenarios as fixed.** Their component is the population variance of the
+   scenario means, which makes the components add up to the total; the residual is below 0.2% of it in absolute
+   value.
+6. **The robustness rule was formalised.** A scenario's direction is called robust only when the median $G$ keeps its
+   sign in every specification and no 95% interval includes zero, computed from the curve rather than read from the
+   figure. It was set when the first complete curve existed and is stricter than a reading of the medians alone.
+
+### D.5 Components of the pipeline
+
+Table: **Table D4.** Inputs, outputs, assumptions and validation of each component
+
+| Component | Inputs | Outputs | Key assumptions | Validation |
+|--------------|------------------|------------------|------------------|------------------|
+| Corpus (Phase I) | 30 unit records on 15 concepts in four MBA domains | 90 lesson texts; 210 control texts; matching features | Semantic coverage reported, not entered into eq. 20 | Answer and distractor validators; section and leakage checks; duration caliper; balance table |
+| Encoding model (Phase II) | Lesson text; word timing of eq. 4 at 220 words per minute (180, 260) | Predicted BOLD response per vertex; 400 parcels; 7 networks; metrics of eq. 8–9 | Text input only; fixed lesson texts, never the live tutor turns | Official example reproduced; determinism within $10^{-3}$; shuffled, reworded and incorrect-text controls |
+| Simulated learner (Phase III) | Population of eq. 15–16; observable history | Choices, correctness, confidence, proxies, states of eq. 19–25 | Every parameter an assumption; Centaur makes choices only | Engine comparison; checkpoints; automated guard against latent states in prompts |
+| Plasticity (Phase IV) | $Z$ of eq. 28; per-episode effort, prediction error, resolution, retrieval, offloading | Model-implied state per parcel and network (eq. 29–33) | The state is not a brain state; half-life, weights and rate assumed | Zero-plasticity null; permuted-response and permuted-condition controls |
+| Ten-year scenarios (Phase V) | Triangular parameter draws; six scenarios; school calendar | States and test outcomes at years 1, 5 and 10; SC, PrSup, $G$, $d$ | Bounded updates; forgetting per week with breaks; the two free-choice rules | Checks of Table D2; mirror equivalence; common-random-number null |
+
+*Source: own elaboration (`outputs/tables/table2_components.csv`, rewritten).*

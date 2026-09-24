@@ -2,7 +2,47 @@
 
 ## 3.1 Design overview and data generation
 
-*In preparation.*
+The study is a computational experiment. No data set existed on how traditional instruction, AI scaffolding and AI
+substitution affect the predicted cortical response to a lesson and the long-term development of a learner, and none
+could be collected within the project, so every quantity analysed here was generated for it: the instructional
+material was written and validated, the cortical responses were predicted by an encoding model, and the behaviour and
+development of the learners were simulated (Table 1). Figure 1 shows how the parts connect.
+
+![](../outputs/figures/fig1_pipeline.png)
+
+*Source: own elaboration.*
+
+Two layers are modelled separately. The first is the immediate response to reading a lesson, predicted for an average
+adult and therefore identical for every simulated learner (Phase II, Section 3.3). The second is learning: what a
+learner does in each episode and how its knowledge, memory, reasoning, calibration and dependence change (Phase III,
+Section 3.4), how the predicted responses of the lessons it received accumulate into a model-implied functional state
+(Phase IV, Section 3.6), and how both evolve over ten years (Phase V, Section 3.7). The layers meet only in Phase IV,
+where the response to each text is weighted by what the learner did with it; no step treats a predicted response as
+evidence of learning.
+
+Table: **Table 1.** Data generated for the study
+
+| Phase | What was generated | Quantity |
+|-------------------------|-----------------------------------------------|---------------------------------------|
+| I. Corpus | Unit records; lesson texts; control texts | 30 units; 90 lesson texts; 210 control texts |
+| II. Predicted response | Predicted BOLD response per vertex and second | 660 text predictions (931 files, 8.70 GB) |
+| III. Simulated learner | Episodes of simulated learners | 814,560 episodes, of which 9,600 with the hybrid engine |
+| IV. Plasticity | Model-implied functional state | One state per learner and episode, derived post hoc |
+| V. Ten-year scenarios | Monte Carlo runs over ten school years | 236 runs; $4.5 \times 10^{10}$ learner-episodes |
+
+*Source: own elaboration; counts from the run records of each phase.*
+
+Three principles govern the design. First, contrasts are within learners: every learner runs every arm from the same
+initial state, in the same curriculum order and with the same random numbers, so that a difference between arms is
+not a difference between people. Second, where realism and transparency conflict, transparency prevails: the
+correctness of every answer comes from an explicit equation, the language model trained on human choices makes only
+the choices it was shown to make in a way that responds to the learner's record, and the full population runs on
+the transparent logistic engine while the hybrid engine runs on a subsample. Third, every assumption is explicit and
+varied: each parameter is documented, compared with published values where they exist (Section 3.5), drawn from a
+range in Phase V and, where a modelling choice could defensibly have been made otherwise, made a dimension of the
+specification curve (Section 3.8). Every long-run quantity is accordingly model-implied, and differences between
+arms are reported as scenario contrasts, never as treatment effects. Equations carry the numbers they have in the
+code and output tables, so their sequence has gaps.
 
 ## 3.2 Phase I: the matched educational corpus
 
@@ -33,7 +73,7 @@ in which each wrong option corresponds to a named error.
 
 ### 3.2.2 Instructional conditions
 
-Each unit exists in three versions, giving 90 lesson texts (Table 1). The versions share the unit record (the problem
+Each unit exists in three versions, giving 90 lesson texts (Table 2). The versions share the unit record (the problem
 and its answer options, the transfer items), the rule that no help is offered before a first independent attempt, and
 most of the explanation. Each AI version departs from the traditional explanation in exactly three sentences, its
 first two and its last: it opens in the tutor's voice and closes by announcing the support to come, so a median of
@@ -53,11 +93,11 @@ order; the explanation must contain 250 to 400 words; the problem section must r
 verbatim; and the hints must match the unit's ladder. The encoding model reads the full text of each version, all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->, whereas
 the simulated learner reads only the explanation and the problem before its first attempt and receives support turn by turn
 thereafter. In the scaffolding and substitution conditions those turns are generated at run time by a language-model
-tutor (Section 3.4) and are never seen by the encoding model. The adaptation values in Table 1 are the per-condition
+tutor (Section 3.4) and are never seen by the encoding model. The adaptation values in Table 2 are the per-condition
 constants that enter the instructional-effectiveness term (eq. 20, Section 3.4). They are assumptions, not properties of the
 texts, and Section 3.8 treats them as a dimension of the specification curve.
 
-Table: **Table 1.** Instructional conditions and fixed versus varying features
+Table: **Table 2.** Instructional conditions and fixed versus varying features
 
 | | Traditional | AI scaffolding | AI substitution |
 |---|---|---|---|
@@ -132,23 +172,16 @@ implies; no pair was flagged. <!--MG: do we care about this? i think we can remo
 
 The deterministic checks establish that the correct answer is present where the condition permits it; they cannot
 establish that the prose around it asserts nothing false. Every primary text was therefore screened by a second
-language model, Qwen2.5-3B-Instruct [@qwen2024], different from the models used to draft the texts. <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section --> It
-answered three questions: whether the final answer the text arrives at differs from the unit's reference answer
-(contradiction), whether the text asserts something the problem's data do not support (unsupported assertion), and
-whether it makes a causal claim the material does not license (causal claim). A screen of this kind is informative
-only if it is shown to fire on texts known to carry the fault it looks for, so each question was tested against
-texts whose status is known. For the first the corpus already holds them: the 30 incorrect-but-fluent texts of
-Section 3.2.5. On these the contradiction check flags 27 of 30 (sensitivity 0.90); on the 60 primary texts that
-state an answer, whose correctness the deterministic validators establish, it flags none (specificity 1.00). The
-scaffolding texts state no answer and fall outside its scope. For the other two questions no such texts existed, so
-90 were written, each a primary text with one sentence added: an assertion the unit does not support, an unlicensed
-causal claim, or, as a negative control, standard background knowledge a lesson may legitimately state
-(Appendix A.3). Neither question detected any of the 30 faults written for it, a sensitivity of 0.00 in both cases,
-so their verdicts are withdrawn rather than reported. The one primary they had flagged (`npv_002`, scaffolding) was
-read by the author, who found no unsupported assertion in it: the flag was a false positive. Beyond that text, the
-corpus has therefore been screened for contradiction of its own reference answers, and for nothing else.
-Appendix A.3 documents how the contradiction check was built, the first version that was discarded because it
-flagged nothing at all, and the probe set. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
+language model, Qwen2.5-3B-Instruct [@qwen2024], different from the models used to draft the texts, <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section --> for
+three faults: a final answer that differs from the unit's reference answer (contradiction), an assertion the
+problem's data do not support, and a causal claim the material does not license. A screen of this kind is
+informative only if it detects texts known to carry the fault, so each check was tested on such texts. The
+contradiction check flags 27 of the 30 incorrect-but-fluent texts of Section 3.2.5 (sensitivity 0.90) and none of
+the 60 primary texts that state an answer (specificity 1.00). The other two checks detected none of the 30 faults
+written into primary texts for each (sensitivity 0.00), so their verdicts are withdrawn; the one primary text they
+had flagged was read by the author and contains no unsupported assertion. The corpus has therefore been screened
+for contradiction of its own reference answers and for nothing else; Appendix A.3 documents the construction of the
+checks and the probe texts. <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
 
 ### 3.2.5 Text controls
 
@@ -260,8 +293,7 @@ words are read and when.
 Phase III simulates learners working through the corpus. Each learner is a state-space model: latent states that
 every episode updates through explicit equations, with behavioural choices made by a language model trained on human
 choices and the correctness of each answer drawn from an explicit response model. Every parameter is an assumption;
-Table 3 lists the central ones, Appendix C the rest, and Section 3.5 compares those for which a published estimate
-exists.
+Table C2 in Appendix C lists them all, and Section 3.5 compares those for which a published estimate exists.
 
 **State and population.** The state of learner $i$ is $\mathbf{s}_i = (K_i, M_i, R_i, C_i, D_i) \in [0,1]^5$:
 knowledge, memory strength, independent reasoning, calibration and dependence on support. Initial states are drawn
@@ -321,7 +353,7 @@ $$ F = \sigma\left(f_0 + f_1\,\text{correctness} + f_2\,\text{coverage} + f_3\,\
 
 where the correctness and coverage of the lesson are fixed at 1 (the coverage measured in Section 3.2.4 is reported,
 not fed into the model), mismatch is the distance between difficulty and ability, and adaptation is the constant of
-the protocol that ran (Table 1), applied when support was used. The states then update as
+the protocol that ran (Table 2), applied when support was used. The states then update as
 
 $$ K' = K + \alpha_i E F (1 - K) - \delta_i K, \qquad (21) $$
 
@@ -367,7 +399,8 @@ record, wherever the hybrid engine is used $C$, and the Brier score and calibrat
 ratings, measure consistency with the record rather than calibration.
 
 **Runs.** The logistic engine runs the full population: 1,667 learners in 4 arms for 40 episodes, 266,720 episodes
-per parameter setting, in the three settings of Table 3. Each hybrid episode needs several calls to an
+per parameter setting, in the three settings of Table C2 (low, medium and high; medium is the main specification).
+Each hybrid episode needs several calls to an
 8-billion-parameter model (about 4 seconds per assigned-arm episode on a cloud GPU), so the hybrid engine runs a
 subsample of 40 learners in
 all four arms for 30 episodes (4,800 episodes), paired with the logistic engine on the same learners for the engine
@@ -379,36 +412,12 @@ unaided accuracy on recently practised items, near and far transfer, retention o
 episodes earlier, the support gap (eq. 26: accuracy with one hint minus unaided accuracy), calibration, and the rate
 of help requests.
 
-Table: **Table 3.** Central parameters of the simulated learner, by parameter setting
-
-| Parameter | Symbol | Eq. | Low | Medium | High |
-|--------------------------------|----------|-----|----------------|----------------|----------------|
-| Standard deviation of the initial states | $\sigma$ | 15 | 0.10 | 0.15 | 0.20 |
-| Learning rate, log-mean and log-standard deviation | $\mu_\alpha$, $\sigma_\alpha$ | 16 | −2.6, 0.25 | −2.3, 0.40 | −2.0, 0.55 |
-| Forgetting rate, second Beta parameter | $b_\delta$ | 16 | 120 | 80 | 50 |
-| Ability slope | $\tau$ | 17 | 3 | 4 | 5 |
-| Difficulty slope | $\beta_b$ | 17 | 0.4 | 0.6 | 0.8 |
-| Weights of reasoning and memory | $\rho$, $\kappa$ | 17 | 0.7, 0.5 | 1.0, 0.8 | 1.3, 1.1 |
-| Weight of support | $\omega$ | 18 | 1.5 | 2.5 | 3.5 |
-| Effort weights | $a_1$–$a_4$ | 19 | 0.9, 0.6, 0.7, 1.5 | 1.2, 0.8, 1.0, 2.0 | 1.5, 1.0, 1.3, 2.5 |
-| Weights of adaptation and mismatch | $f_3$, $f_4$ | 20 | 0.9, 1.2 | 1.2, 1.5 | 1.5, 1.8 |
-| Memory gains | $\eta_M$, $\eta_C$ | 22 | 0.010 | 0.015 | 0.025 |
-| Reasoning gain and loss | $\eta_R$, $\eta_O$ | 23 | 0.003 | 0.005 | 0.008 |
-| Dependence gain and loss | $\eta_D$, $\eta_F$ | 25 | 0.006 | 0.010 | 0.016 |
-
-*Fixed in all settings: stratum shares 0.30, 0.50 and 0.20; initial means 0.35 (K), 0.30 (M), 0.30 (R), 0.50 (C) and
-0.40 (D); $a_\delta = 2$; $a_0 = -1.0$; $f_0 = -1.5$, $f_1 = 1.0$, $f_2 = 0.8$; adaptation 0.35 (traditional), 0.90
-(scaffolding) and 0.20 (substitution); misconception share 0.67; three help turns. The medium setting is the main
-specification; low and high are the sensitivity settings of Phase III and the bounds of the triangular parameter
-draws of Phase V (Section 3.7). Source: own elaboration (`config/default.yaml`, `outputs/tables/table3_parameters.csv`);
-Appendix C lists every parameter.*
-
 ## 3.5 Parameter provenance and calibration anchors
 
 No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
 the provenance of each is recorded with the code (`config/parameter_sources.yaml`). Where the literature reports a
 quantity that the model also implies on the same scale, the two were compared once the runs were complete
-(Table 4). The comparison documents the model rather than calibrating it: no value was changed in response, because
+(Table 3). The comparison documents the model rather than calibrating it: no value was changed in response, because
 re-parameterising would have invalidated every completed run, and a parameter outside its published range is
 reported as a finding about the model.
 
@@ -434,7 +443,7 @@ consequence for interpretation is specific: scenario contrasts that operate thro
 a regime, and the substitution deficit, which arises from low effort compounded by forgetting (Section 4.5), is one of
 them. Its direction is the claim; its magnitude is read as an upper bound (Section 5.1).
 
-Table: **Table 4.** Calibration anchors: model-implied quantities against published values
+Table: **Table 3.** Calibration anchors: model-implied quantities against published values
 
 | Quantity | Parameter | Model | Published | Verdict | Source |
 |----------------------------------|----------|-------|----------|------------|---------------------------|
@@ -501,12 +510,198 @@ accuracy exceeds 0.40; and, across learners, the alignment of each network's sta
 
 ## 3.7 Phase V: ten-year scenarios
 
-*In preparation.*
+Phase V projects the simulated learner over ten school years under six instructional scenarios and propagates
+parameter uncertainty by Monte Carlo simulation. It introduces no new material: the 30 units and their predicted
+responses recur, with difficulty rising from year to year. Its outputs are scenario contrasts under stated
+assumptions, not forecasts of any learner's development. The episode is that of Section 3.4 with the logistic
+engine, implemented as a vectorised numerical mirror that updates arrays of learners at once; an automated test
+requires it to reproduce the state means and per-episode rates of the reference loop within four standard errors.
+Centaur's behaviour therefore reaches Phase V only through the fitted choice rule described below.
+
+**Calendar and forgetting.** A school year has 40 instructional weeks of three episodes (one and five a week are
+exposure variants), followed by a 12-week break without practice. Units recur in curriculum order, and their
+difficulty rises by 0.1 logits a year in the main specification (drawn between 0 and 0.2). The per-episode
+forgetting rate of eq. 16 is rescaled so that forgetting per week does not depend on exposure, and during the break
+knowledge, memory and the neural state of Section 3.6 decay at a quarter of the term rate. Losses of achievement over
+long breaks are documented [@cooper1996]; the rate applied here is an assumption, varied in Section 3.8.
+
+**Bounded updates.** Eq. 22, 23 and 25 have no saturating term, so over 1,200 episodes they would push memory,
+reasoning and dependence against the bounds of $[0,1]$, where clipping rather than the model would set the state.
+Phase V scales each gain by the distance to 1 and each loss by the distance to 0,
+
+$$ M' = M + \left(\eta_M\,\text{retrieval} + \eta_C\,\text{correction}\right)(1 - M) - \delta_i M, \qquad (22') $$
+
+$$ R' = R + \eta_R\, E\,\text{transfer}\,(1 - R) - \eta_O\,\text{offloading}\; R, \qquad (23') $$
+
+$$ D' = D + \eta_D\,\text{support}\,(1 - D) - \eta_F\,\text{success}\; D, \qquad (25') $$
+
+so that dependence also falls after any correct first answer, which was given without support, and not only when the
+support policy has withdrawn help. The literal equations are a level of the specification curve.
+
+**Scenarios.** Each scenario combines a protocol with a policy for the persistence of support. Traditional
+instruction, scaffolding without fading and substitution keep support available in every episode. Scaffolding with
+rapid fading withdraws all help once the learner has answered two consecutive problems correctly at the first
+attempt and restores it after the next error, so that in a withdrawn episode a wrong first answer is followed by
+neither hints nor the solution. Withdrawal as competence grows is part of the definition of scaffolding
+[@wood1976; @puntambekar2005]; without it, the tutor's support becomes permanent. In the two remaining scenarios the
+learner chooses the protocol at every problem, by the softmax in dependence of Section 3.4, an assumption, or by a
+rule fitted to Centaur's choices. The fitted rule is a conditional logit over the three approaches whose inputs are
+only what Centaur reads in its prompt: the share of each approach among the last three choices, the rate at which
+each was followed by a correct transfer answer, whether it has been tried, and recent first-attempt form. Fitted to
+Centaur's probabilities in the 1,200 free-choice decisions of the hybrid run, it predicted the 4,800 decisions of the
+separate free-choice batch with a cross-entropy of 1.041, against 1.080 for constant shares, and matched Centaur's
+most probable choice in 70% of them; it was then refitted on all 6,000, and each parameter draw uses one bootstrap
+replicate of the fit. Gradual fading is not a named scenario; it enters the frontier below.
+
+**Monte Carlo design.** In each draw $b$, every parameter with a low, medium and high value in Table C2 is drawn
+from a triangular distribution with its mode at the medium value and its bounds at the other two,
+
+$$ \Theta^{(b)} \sim p(\Theta), \qquad Y^{(b)} = \text{Simulate}\left(\text{scenario}, \Theta^{(b)}, \text{seed}_b\right), \qquad (35) $$
+
+a population is drawn from eq. 15–16, and every scenario runs on it from the same initial states. The random numbers
+are indexed by draw, episode and learner but not by scenario, the method of common random numbers
+[@glasserman2003], so each contrast compares the same learner meeting the same random events under two scenarios. The quantities that define a
+scenario, including the adaptation constants of Table 2, are not drawn. The main run has 500 draws of 2,000 learners
+and a central draw with every parameter at its medium value.
+
+**Outcomes and contrasts.** At the end of years 1, 5 and 10 the run records $K$, $M$, $R$ and $D$ and four test
+outcomes, computed with support removed as expected probabilities over all 30 units at that year's difficulty:
+unaided accuracy, far-transfer accuracy, the probability of requesting help when it is offered, and retention, the
+unaided accuracy recomputed after the break. Being expected rather than sampled, they are not comparable with the
+checkpoint accuracies of Phase III. For outcome $Y$ in year $t$, the scenario contrast of an AI scenario in draw $b$
+is the mean paired difference from traditional instruction,
+
+$$ \text{SC}^{(b)}_Y(t) = \frac{1}{n} \sum_{i=1}^{n} \left(Y^{\text{AI}}_{i,t} - Y^{\text{T}}_{i,t}\right), \qquad (37) $$
+
+summarised by its mean and median across draws with equal-tailed 90% and 95% simulation intervals. The probability of
+superiority, $\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 38), is the share of paired
+learners, pooled over draws, for whom the AI scenario is ahead [@mcgraw1992]; ties count as not superior, and their
+share is reported beside it. The summary outcome is the net advantage
+
+$$ G = w_K\,\Delta K + w_R\,\Delta R + w_M\,\Delta M - w_D\,\Delta D, \qquad (39) $$
+
+with equal weights of 0.25 in the main specification. A contrast is beneficial if $G > \varepsilon$, harmful if
+$G < -\varepsilon$ and neutral otherwise, with $\varepsilon = 0.02$ on the unit scale of the states (0.01 and 0.05 as
+variants). $G$ has no neural term; the neural contrast is the standardised paired difference of a network's state
+under mechanism D, computed per draw and reported separately,
+
+$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}. \qquad (44) $$
+
+**Frontier and tipping points.** The frontier replaces the named scenarios by an AI protocol with four continuous
+parameters: its adaptation $a$ (0.1 to 1.0); the retained effort $e$, which scales the effort penalty for a provided
+answer to $a_4(1 - e)$; the probability $o$ that an AI episode runs substitution rather than scaffolding; and fading
+$f$, under which a learner on a streak of $k$ first-attempt successes has $\lceil 3(1 - f)^{k} \rceil$ help turns. The
+phase diagram crosses seven values of $a$ with seven of $e$ at $o \in \{0, 0.5, 1\}$ and $f = 0$ and classifies each
+of the 147 cells by the median of $G$ across draws. Tipping points are located on lines of 11 values through the
+scaffolding-without-fading scenario, varying one of $e$, $o$, $f$ or a multiplier of all forgetting rates (0.25 to
+4, applied to both arms). In each draw the tipping point is the first value at which $G$ changes sign,
+
+$$ x^{*} = \inf\left\{x : \operatorname{sign} G(x) \neq \operatorname{sign} G(x_0)\right\}, \qquad (40) $$
+
+with $x_0$ the start of the line, interpolated linearly and summarised by its median, its simulation intervals and
+the share of draws without a sign change. A second diagram crosses the half-life of the neural state (4 to 104 weeks)
+with the offloading weight $\lambda_O$ of eq. 33 for the neural contrast of substitution.
+
+**Mechanism decomposition.** Each AI scenario is rerun with one mediator held, for every learner and episode, at the
+value the same learner had under traditional instruction: effort or effectiveness in the knowledge update, or
+dependence in the decision rules; the text's predicted response is exchanged post hoc for the traditional one. A
+mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$. It decomposes the contrast within the model, is
+not a causal mediation analysis, and the contributions need not sum to one. Appendix D lists every Phase V run, with
+its size, and gives the trajectory model of Figure 5 (eq. 43); the 236 runs analysed simulate
+$4.5 \times 10^{10}$ learner-episodes.
 
 ## 3.8 Validation, falsification and robustness
 
-*In preparation.*
+Four questions precede any claim: whether the simulated learner behaves as a learner model must, whether a contrast
+responds to what it is said to respond to, whether it survives the modelling choices that could defensibly have been
+made otherwise, and where its uncertainty comes from. The six criteria at the end of this section state when no claim
+is made.
+
+**Behavioural checks.** Before any ten-year result was read, a one-year pilot had to pass ten checks (Table D2).
+Five are properties that any model of learning should have: baseline accuracy does not fall with prior knowledge,
+accuracy falls with difficulty, support raises accuracy, retention falls as the break lengthens, and fading lowers
+dependence. Five verify the implementation, among them that a scenario contrasted with a relabelled copy of itself
+gives exactly zero. All ten passed. A stricter version of the first, that the prior-knowledge strata remain ordered
+at the end of the first year, did not: the high and low strata then differ by 0.002 in mean unaided accuracy, because
+eq. 16 draws the learning rate independently of prior knowledge and eq. 21 moves every learner towards the same
+plateau. Differences between strata are therefore a property of the initial state only.
+
+**Negative controls.** A negative control is a variation under which an effect should not appear if it has the
+interpretation claimed [@lipsitch2010]. For the predicted cortical contrasts these are the reworded,
+incorrect-but-fluent and shuffled texts of Sections 3.2.5 and 3.3 and the change of reading speed. For the ten-year
+contrasts they are a run without plasticity ($\eta = 0$) and a run in which effort does not respond to behaviour
+($a_1 = \dots = a_4 = 0$); the predicted responses permuted across units within a condition and the condition labels
+permuted within units, 200 times each and post hoc on the main run; and 1,000 random sign flips of the paired
+differences within learners, the null distribution of a behavioural contrast.
+
+**Specification curve.** A specification curve re-estimates a result under every combination of defensible analytic
+choices [@simonsohn2020; @steegen2016]. Its dimensions, and a plausibility rank for each level (1 for the main
+specification, 2 for a plausible alternative, 3 for the least plausible), were fixed before any ten-year result
+existed (Table D3). Five dimensions change the simulated behaviour and require runs of their own: the update form,
+forgetting, exposure, the effort function and adaptation, whose levels are the constants of Table 2, a halved
+version in which each protocol moves half-way to the three-protocol mean (0.42, 0.69 and 0.34), and none, all three
+at 0.48, which removes the contrast and keeps the mean level of effectiveness. Each of their 216 combinations was run
+with 50 draws of 300 learners in all six scenarios. Seven dimensions change only how the predicted responses enter
+the neural state or how outcomes are weighted, and are evaluated post hoc: reading speed, network weights,
+parcellation, response metric, winsorising, plasticity mechanism, and the weights of eq. 39, equal or tilted towards
+learning (0.4, 0.3, 0.2 and 0.1 for $K$, $R$, $M$ and $D$) or towards autonomy (0.2, 0.3, 0.1 and 0.4). The
+behavioural curve thus has 648 specifications per scenario, and the neural curve, for the control-network contrast
+between substitution and traditional instruction, 62,208. Parcellation and adaptation were added after the first
+results existed, with their levels ranked before they were computed; adaptation was added once it was established
+that it is the only term separating scaffolding from traditional instruction (Section 3.4). The learner engine is not
+a dimension: at the hybrid engine's four seconds per episode, the main ten-year run alone would take about 760 years
+of computation. The direction of a scenario is called robust when the median $G$ has the same sign in every
+specification and no 95% interval across draws includes zero; otherwise the first dimension level at which it fails
+is reported.
+
+**Variance decomposition.** Eq. 41 apportions the variance of a year-10 outcome among its sources,
+
+$$ \operatorname{Var}(Y) = V_{\text{scenario}} + V_{\text{parameters}} + V_{\text{learner}} + V_{\text{behaviour}} + V_{\text{plasticity}} + V_{\text{stimulus}} + V_{\text{residual}}. \qquad (41) $$
+
+The first four components come from a nested analysis of variance by the method of moments [@searle1992] over
+scenarios, draws, learners and replicates, using three runs that share parameters and learners and differ only in
+the random stream of behaviour, with scenarios treated as fixed. $V_{\text{plasticity}}$ is the variance over
+mechanisms, half-lives and offloading weights; $V_{\text{stimulus}}$ combines a bootstrap of the 30 units' predicted
+responses with the variance across the primary and reworded texts; $V_{\text{residual}}$ is the remainder.
+
+**Falsification criteria.** No difference is claimed when any of six conditions holds. The thresholds are this
+study's conventions rather than external standards, and each verdict applies only to the contrasts it names.
+
+- **F1, matching.** A network contrast whose 95% interval excludes zero loses that property once duration, word
+  count and equation count enter eq. 13.
+- **F2, harmless rewording.** Across the nine combinations of each text's primary and two reworded versions, a
+  network contrast changes sign, or its primary value does not exceed twice their standard deviation.
+- **F3, plasticity model.** The sign of the median year-10 neural contrast differs across mechanisms A to D.
+- **F4, parameter bounds.** More than 10% of learners lie within 0.01 of a bound in the median draw, or a contrast
+  changes sign when the triangular parameter draws are replaced by uniform ones.
+- **F5, negative controls.** The contrast with condition labels permuted within units reaches half of the
+  substantive contrast, or the difference between incorrect-but-fluent and correct texts reaches half of the
+  network's largest condition contrast.
+- **F6, indistinguishability.** The 95% interval of the year-10 difference between a scaffolding scenario and
+  substitution in unaided accuracy, far transfer or retention includes zero.
+
+The criteria were set before the ten-year runs, and the rules of F2 and F5 for the text controls before those texts
+were run. Five rules were changed, and the robustness rule was formalised, after the first ten-year results existed;
+Appendix D.4 records each change and its reason.
 
 ## 3.9 Implementation and reproducibility
 
-*In preparation.*
+The pipeline is a Python package with seven runtime dependencies and one module per concern; Table D4 summarises each
+component's inputs, outputs, assumptions and validation. The encoding model ran on a cloud GPU (NVIDIA L4) in half
+precision. Centaur and the tutor were served on the author's laptop and, from episode 3,571 of the hybrid run, from a
+cloud GPU behind a proxy that reproduces the local prompt format; the switch followed a check on 38 prompts captured
+from the local server, on which the two servers gave the same most probable option in every case and option
+probabilities within a median total-variation distance of 0.012. Everything else ran on the laptop's processor, where
+the main ten-year run took 69 minutes.
+
+Every run derives its random numbers from one master seed, indexed by learner and episode in Phase III and by draw
+and episode in Phase V, never by condition, so results do not depend on how learners are batched. Runs are
+append-only and resumable, refuse to resume under a changed configuration, and record the configuration hash, seeds,
+package versions and wall time. Runs with the hybrid engine are not bitwise reproducible, because the served model's
+scores vary slightly with the state of its cache; they are reproduced from their call logs, which are retained. A
+suite of 130 automated tests covers the equations, the corpus validators, the statistics and the equivalence of the
+ten-year mirror with the reference loop, and a single command rebuilds every table and figure from the saved runs.
+A data dictionary documents the 680 columns of the output tables. The encoding-model predictions (931 files,
+8.70 GB) are listed in a SHA-256 manifest, and a 14 MB bundle of the files the analysis reads was verified to
+rebuild every table on its own. <!-- CLAUDE: repository URL and the deposit DOI go here once the archive is uploaded
+and the repository is public (see open questions). -->

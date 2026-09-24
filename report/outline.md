@@ -48,7 +48,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
-| 3. Methodology | 14.5 | ~3 | ~6,300 | 3.2 drafted and revised after review 1 (depth kept, detail to App. A); manual reviews in, §3.2.2 corrected; 3.3 drafted, ~950 words, run detail to App. B; 3.4 (~1531 words, Table 3), 3.5 (~480, Table 4) and 3.6 (~556) drafted, learner detail to App. C (2026-09-23) |
+| 3. Methodology | 14.5 | ~3 | ~6,300 | **All of §3 drafted (2026-09-24).** 3.1 (Figure 1, Table 1 data generated), 3.7 (~1,050 words), 3.8 (~900), 3.9 (~280) new; Table 3 moved to App. C2, §3.2.4 checker paragraph shortened; App. D drafted. Measured in the build: pages 9-24, ~15.9 pp, 1.4 over budget |
 | 4. Results | 10 | ~5.5 | ~2,500 | — |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
@@ -77,7 +77,8 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 - **1.3 Approach and contribution.** A reproducible framework, not a verdict (brief §1.3). **No dataset existed**:
   state what was generated, quantified (30 units, 90 stimuli, 210 text controls, 8.7 GB of predictions, the
   Phase III episode count, 315 Phase V runs, 216 specification cells). This is the top band of *Level of difficulty*.
-  <!-- CLAUDE: REPORT.md cites "1.2 million model-implied episodes"; recompute before quoting. -->
+  <!-- CLAUDE: recomputed 2026-09-24 from the run records: Phase III 814,560 episodes (9,600 hybrid); Phase V 236
+  analysed runs, 4.5e10 learner-episodes (5.2e10 in all 315 runs). REPORT.md's "1.2 million" was wrong. -->
 - **1.4 Scope and context.** MBA topics because the population of interest is business-school students; 30 units
   because of the computational budget; six scenarios; the ESADE Data Department context; all work the author's own.
 - **1.5 Structure of the report.**
@@ -107,11 +108,11 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 
 | Sub | Content | Exhibits | Sources |
 |---|---|---|---|
-| 3.1 Design overview and data generation | Two layers, five phases; what is generated, what is assumed; one learner, four arms, common random numbers; two-tier run design | Figure 1; Table 2 (or appendix) | `guide.md` §1-2, `table2_components` |
+| 3.1 Design overview and data generation | Two layers, five phases; what is generated, what is assumed; one learner, four arms, common random numbers; two-tier run design | Figure 1; Table 1 (data generated); components table in App. D.5 | `guide.md` §1-2, `table2_components` |
 | **3.2 Phase I: the corpus** | Units, conditions, matching, validation, text controls | Table 1, Figure 2 | `table1_conditions`, `corpus_balance`, `tableS_semantic_coverage`, `tableS_near_duplicates`, `tableS_contradiction_judge` |
 | 3.3 Phase II: predicted cortical response | TRIBE v2 on Colab L4, timing (eq. 4), Schaefer-400 / Yeo-7 (eq. 6-7), metrics (eq. 8-9), QC and gate 17, contrasts (eq. 10-13, 42), RSA (eq. 14), shuffled controls | — | `run_metadata.json`, `tribe_qc.json` |
-| 3.4 Phase III: the simulated learner | State (eq. 15-16), episode protocol, response model (eq. 17-18), effort and effectiveness (eq. 19-20), updates (eq. 21-25); hybrid engine: Centaur chooses, eq. 17-18 answers; what the transcript models can and cannot do; observable history only | Table 3 (condensed, full in appendix) | `table3_parameters`, `engine_comparison`, root `CLAUDE.md` measurements |
-| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | anchors table | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
+| 3.4 Phase III: the simulated learner | State (eq. 15-16), episode protocol, response model (eq. 17-18), effort and effectiveness (eq. 19-20), updates (eq. 21-25); hybrid engine: Centaur chooses, eq. 17-18 answers; what the transcript models can and cannot do; observable history only | none (all parameters in Table C2) | `table3_parameters`, `engine_comparison`, root `CLAUDE.md` measurements |
+| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | Table 3 (anchors) | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
 | 3.6 Phase IV: plasticity | Eq. 28-33, hybrid mechanism D as main specification, the accumulator (N linear in Z), §8.7 outcomes | — | `guide.md` §6 |
 | 3.7 Phase V: ten-year scenarios | Calendar and break forgetting (D4), soft limits (D3), six scenarios, Monte Carlo (eq. 35), SC (eq. 37), PrSup (eq. 38), G (eq. 39), frontier and tipping points (eq. 40) | — | `PLAN.md` D1-D7, D18 |
 | 3.8 Validation, falsification and robustness | Gate 18, negative controls, specification curve (216 cells × 6 scenarios × 3 outcome weights; D24, D25 added after results, say so), variance decomposition (eq. 41), F1-F6, mechanism decomposition | — | `config/spec_curve.yaml`, `PLAN.md` D17-D25 |
@@ -153,9 +154,14 @@ teaching is evaluated; (4) the next measurement: `support.adaptation`, then the 
 Lettered in order of first reference. A. Corpus validation details (**drafted**: equivalence tests, the coverage
 review and its verdict, construction of the contradiction check); B. The encoding-model run (**drafted**:
 configuration and checks, metric definitions with eq. 9); C. The simulated learner (**drafted**: proxies,
-all learner parameters, the development probes of the transcript model). Planned: update equations in full and the Phase V
-deviations; Table 2 (if not in the body), full Tables 3 and 5, Table 4 at parcel level; supplementary tables and
-Figures S1-S3; specification list and ranks; reproducibility (commands, run tags, the D3 manifest); data dictionary.
+all learner parameters, the development probes of the transcript model); D. The ten-year simulation and its
+validation (**drafted** 2026-09-24: run inventory and eq. 43, the ten pilot checks, specification-curve dimensions
+and ranks, the rules changed after the first results, the components table). Planned: full Table 5, cortical
+contrasts at parcel level; supplementary tables and Figures S1-S3; reproducibility (commands, run tags, the D3
+manifest); data dictionary.
+
+Body tables so far, numbered in order of appearance: Table 1 data generated (§3.1), Table 2 conditions (§3.2),
+Table 3 calibration anchors (§3.5). Results tables continue from Table 4.
 
 ---
 
