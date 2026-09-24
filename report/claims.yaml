@@ -1,0 +1,83 @@
+# Every number the report quotes, where it comes from and how to recompute it. `uv run python report/verify.py`
+# checks them all and writes report/build/claims_check.md. One entry per claim:
+#   where: report file; says: the text exactly as the report writes it; near: a phrase in the same paragraph
+#   and one source:
+#     from + row + col (+ fmt, scale, regex): a cell of outputs/tables/<from>
+#     cfg (+ file, fmt): a value of config/default.yaml (or another YAML) by dotted path
+#     expr (+ fmt): a Python expression over T(), row(), cfg(), js(), runs(), regex(), glob
+#     code + contains: a file and a snippet one of its lines must contain (for statements about code or records)
+# fmt is a Python format spec ("{:.2f}", "{:.0%}", "{:,}") or "sci" for "4.5 \times 10^{10}".
+
+# ------------------------------------------------------------------ 3.1 Design overview (Table 1)
+- {where: 03_methodology.md, says: "30 units", near: "Unit records; lesson texts", expr: "str(len(glob.glob(str(ROOT/'data/units/*.json')))) + ' units'"}
+- {where: 03_methodology.md, says: "90 lesson texts", near: "Unit records; lesson texts", expr: "str(sum(len(glob.glob(str(ROOT/f'stimuli/{c}/*.md'))) for c in ('traditional','ai_scaffolding','ai_substitution'))) + ' lesson texts'"}
+- {where: 03_methodology.md, says: "210 control texts", near: "Unit records; lesson texts", expr: "str(len(glob.glob(str(ROOT/'stimuli/variants/*/*.md'))) + len(glob.glob(str(ROOT/'stimuli/incorrect/*/*.md')))) + ' control texts'"}
+- {where: 03_methodology.md, says: "660 text predictions", near: "Unit records; lesson texts", note: "3 speeds x 90 texts + 180 shuffled + 210 text controls", expr: "str(sum(js('data/tribe/tribe_main/tribe_qc.json')[f'wpm{w}_events']['n_stimuli'] for w in (180, 220, 260)) + len(glob.glob(str(ROOT/'data/tribe/tribe_main/controls/*__shuffled_*.parquet'))) + len(glob.glob(str(ROOT/'data/tribe/tribe_textctl/text_controls/metrics/*.parquet')))) + ' text predictions'"}
+- {where: 03_methodology.md, says: "931 files, 8.70 GB", near: "Unit records; lesson texts", code: data/tribe/MANIFEST.sha256, contains: "over 931 files, 8.70 GB"}
+- {where: 03_methodology.md, says: "814,560", near: "Unit records; lesson texts", note: "Phase III tags, n_learners x n_episodes x arms", fmt: "{:,}", expr: "sum(d['n_learners'] * d['n_episodes'] * len(d['conditions']) for t in ('population_logistic', 'population_low', 'population_high', 'logistic_40', 'centaur_main', 'centaur_free_calib') for d in runs(f'outputs/logs/{t}/run_*.json'))"}
+- {where: 03_methodology.md, says: "9,600", near: "Unit records; lesson texts", fmt: "{:,}", expr: "sum(d['n_learners'] * d['n_episodes'] * len(d['conditions']) for t in ('centaur_main', 'centaur_free_calib') for d in runs(f'outputs/logs/{t}/run_*.json'))"}
+- {where: 03_methodology.md, says: "236 runs", near: "Unit records; lesson texts", note: "analysed Phase V runs: v_* (not pilots), g18_*, spec_*_adapt_*", expr: "str(len([p for p in glob.glob(str(ROOT/'data/processed/phase5/*/run.json')) if (lambda t: ('_adapt_' in t and t.startswith('spec_')) or t.startswith('g18') or (t.startswith('v_') and not t.startswith(('v_pilot', 'v_break'))))(Path(p).parent.name)])) + ' runs'"}
+- {where: 03_methodology.md, says: "4.5 \\times 10^{10}", near: "Unit records; lesson texts", fmt: sci, note: "draws x learners x arms x years x 40 weeks x episodes a week", expr: "sum(len(d['draws_done']) * d['learners_per_draw'] * len(d['scenarios']) * d['years'] * 40 * ((d.get('options') or {}).get('epw') or 3) for p in glob.glob(str(ROOT/'data/processed/phase5/*/run.json')) for d in [js(p)] if (lambda t: ('_adapt_' in t and t.startswith('spec_')) or t.startswith('g18') or (t.startswith('v_') and not t.startswith(('v_pilot', 'v_break'))))(Path(p).parent.name))"}
+
+# ------------------------------------------------------------------ 3.7 Phase V
+- {where: 03_methodology.md, says: "40 instructional weeks", near: "A school year has", cfg: calendar.weeks_per_year, fmt: "{} instructional weeks"}
+- {where: 03_methodology.md, says: "three episodes", near: "A school year has", cfg: calendar.episodes_per_week, expect: 3}
+- {where: 03_methodology.md, says: "12-week break", near: "A school year has", cfg: calendar.break_weeks, fmt: "{}-week break"}
+- {where: 03_methodology.md, says: "0.1 logits", near: "what rises is the difficulty term", cfg: phase5.ramp_per_year.medium, fmt: "{} logits"}
+- {where: 03_methodology.md, says: "raised for every unit", near: "what rises is the difficulty term", code: src/neurotutorsim/longitudinal.py, contains: "+ ramp * year"}
+- {where: 03_methodology.md, says: "a quarter of the term rate", near: "A school year has", cfg: calendar.break_decay_scale, expect: 0.25}
+- {where: 03_methodology.md, says: "neural state of Section 3.6", near: "A school year has", code: src/neurotutorsim/longitudinal.py, contains: "break_factor_n = (1.0 - decay) ** (sim.epw * cal[\"break_weeks\"] * cal[\"break_decay_scale\"])"}
+- {where: 03_methodology.md, says: "four standard errors", near: "vectorised numerical mirror", code: tests/test_longitudinal.py, contains: "> 4 * se_diff(a, b)"}
+- {where: 03_methodology.md, says: "scales each gain by the distance to 1", near: "Phase V scales each gain", code: src/neurotutorsim/learners.py, contains: "D1 = D + c[\"eta_D\"] * p.support_used * (1.0 - D) - c[\"eta_F\"] * p.independent_success * D"}
+- {where: 03_methodology.md, says: "two consecutive problems", near: "Scaffolding with rapid fading", cfg: support.withdrawal_success_threshold, expect: 2}
+- {where: 03_methodology.md, says: "restores it after the next error", near: "Scaffolding with rapid fading", code: src/neurotutorsim/longitudinal.py, contains: "pop.streak = np.where(first, pop.streak + 1, 0)"}
+- {where: 03_methodology.md, says: "neither hints nor the solution", near: "Scaffolding with rapid fading", code: src/neurotutorsim/longitudinal.py, contains: "reveal |= hint & ~resolved & (depth >= m)"}
+- {where: 03_methodology.md, says: "1,200 free-choice decisions", near: "Fitted to", expr: "(lambda d: d['n_learners'] * d['n_episodes'])(runs('outputs/logs/centaur_main/run_*.json')[0])", fmt: "{:,} free-choice decisions", note: "40 x 30 free-choice episodes of centaur_main"}
+- {where: 03_methodology.md, says: "4,800 decisions", near: "Fitted to", expr: "js('data/processed/choice_rule/validation.json')['out_of_sample']['n']", fmt: "{:,} decisions"}
+- {where: 03_methodology.md, says: "1.041", near: "Fitted to", expr: "js('data/processed/choice_rule/validation.json')['out_of_sample']['cross_entropy']", fmt: "{:.3f}"}
+- {where: 03_methodology.md, says: "1.080", near: "Fitted to", expr: "js('data/processed/choice_rule/validation.json')['out_of_sample']['cross_entropy_fit_sample_shares']", fmt: "{:.3f}"}
+- {where: 03_methodology.md, says: "70%", near: "Fitted to", expr: "js('data/processed/choice_rule/validation.json')['out_of_sample']['argmax_agreement']", fmt: "{:.0%}"}
+- {where: 03_methodology.md, says: "one bootstrap", near: "Fitted to", code: src/neurotutorsim/longitudinal.py, contains: "boot[draw_id % len(boot)]"}
+- {where: 03_methodology.md, says: "500 draws of 2,000 learners", near: "The main run has", expr: "(lambda d: f\"{len(d['draws_done']) - 1} draws of {d['learners_per_draw']:,} learners\")(js('data/processed/phase5/v_main/run.json'))"}
+- {where: 03_methodology.md, says: "triangular distribution", near: "In each draw", cfg: phase5.distribution, fmt: "{} distribution"}
+- {where: 03_methodology.md, says: "not by scenario", near: "a population is drawn from eq. 15", code: src/neurotutorsim/longitudinal.py, contains: "default_rng([self.master, 13, b, t])"}
+- {where: 03_methodology.md, says: "equal weights of 0.25", near: "with equal weights of", cfg: phase5.G.weights.K, fmt: "equal weights of {}"}
+- {where: 03_methodology.md, says: "\\varepsilon = 0.02", near: "with equal weights of", cfg: phase5.G.epsilon, fmt: "\\varepsilon = {}"}
+- {where: 03_methodology.md, says: "0.01 and 0.05", near: "with equal weights of", code: src/neurotutorsim/analysis.py, contains: "epsilons=(0.01, 0.02, 0.05)"}
+- {where: 03_methodology.md, says: "(0.1 to 1.0)", near: "The frontier replaces", code: src/neurotutorsim/longitudinal.py, contains: "np.linspace(0.1, 1.0, 7)"}
+- {where: 03_methodology.md, says: "a_4(1 - e)", near: "The frontier replaces", code: src/neurotutorsim/longitudinal.py, contains: "(1.0 - knobs[\"effort_retained\"]) * p.answer_provided"}
+- {where: 03_methodology.md, says: "o \\in \\{0, 0.5, 1\\}", near: "The frontier replaces", code: src/neurotutorsim/longitudinal.py, contains: "FRONTIER_O = (0.0, 0.5, 1.0)"}
+- {where: 03_methodology.md, says: "147 cells", near: "The frontier replaces", expr: "str(len(T('fig7a_phase_diagram.csv'))) + ' cells'", note: "one row per cell"}
+- {where: 03_methodology.md, says: "lines of 11 values", near: "The frontier replaces", code: src/neurotutorsim/longitudinal.py, contains: "np.linspace(0.0, 1.0, 11)"}
+- {where: 03_methodology.md, says: "(0.25 to 4", near: "The frontier replaces", code: src/neurotutorsim/longitudinal.py, contains: "np.geomspace(0.25, 4.0, 11)"}
+- {where: 03_methodology.md, says: "(4 to 104 weeks)", near: "the start of the line", code: src/neurotutorsim/longitudinal.py, contains: "NEURAL_HALF_LIVES = (4, 8, 13, 20, 32, 52, 104)"}
+
+# ------------------------------------------------------------------ 3.8 Validation
+- {where: 03_methodology.md, says: "ten checks", near: "Before any ten-year result was read", expr: "len([c for c in T('gate18_checks.csv')['check'] if not c.startswith('G1b')])", expect: 10, note: "rows of gate18_checks except the informational G1b"}
+- {where: 03_methodology.md, says: "0.002", near: "Before any ten-year result was read", from: gate18_checks.csv, row: {pass: "not met (informational)"}, col: value, regex: "high - low \\+([0-9.]+)", fmt: "{:.3f}"}
+- {where: 03_methodology.md, says: "200 times each", near: "A negative control is", from: table6_negative_controls.csv, row: {control: "permuted condition labels within units"}, col: implementation, regex: "([0-9]+) permutations", expect: 200}
+- {where: 03_methodology.md, says: "1,000 random sign flips", near: "A negative control is", from: table6_negative_controls.csv, row: {control: "behavioural label permutation"}, col: implementation, regex: "sign flips within learner, ([0-9,]+)", expect: "1,000"}
+- {where: 03_methodology.md, says: "(0.42, 0.69 and 0.34)", near: "A specification curve re-estimates", code: config/spec_curve.yaml, contains: "0.42 / 0.69 / 0.34"}
+- {where: 03_methodology.md, says: "at 0.48", near: "A specification curve re-estimates", code: config/spec_curve.yaml, contains: "all three at 0.48"}
+- {where: 03_methodology.md, says: "216 combinations", near: "A specification curve re-estimates", expr: "str(len(glob.glob(str(ROOT/'data/processed/phase5/spec_*_adapt_*/run.json')))) + ' combinations'"}
+- {where: 03_methodology.md, says: "50 draws of 300 learners", near: "A specification curve re-estimates", expr: "(lambda d: f\"{d['draws']} draws of {d['learners']} learners\")(cfg('design', 'config/spec_curve.yaml'))"}
+- {where: 03_methodology.md, says: "(0.4, 0.3, 0.2 and 0.1", near: "A specification curve re-estimates", expr: "(lambda w: f\"({w['K']}, {w['R']}, {w['M']} and {w['D']}\")(cfg('phase5.stakeholder_weights.learning_first'))"}
+- {where: 03_methodology.md, says: "(0.2, 0.3, 0.1 and 0.4)", near: "A specification curve re-estimates", expr: "(lambda w: f\"({w['K']}, {w['R']}, {w['M']} and {w['D']})\")(cfg('phase5.stakeholder_weights.autonomy_first'))"}
+- {where: 03_methodology.md, says: "648 specifications", near: "A specification curve re-estimates", expr: "str(int(T('tableS_sign_stability.csv')['n_specifications'].unique()[0])) + ' specifications'"}
+- {where: 03_methodology.md, says: "62,208", near: "A specification curve re-estimates", expr: "len(T('fig8b_spec_curve_neural.csv'))", fmt: "{:,}"}
+- {where: 03_methodology.md, says: "760 years", near: "A specification curve re-estimates", note: "v_main learner-episodes x 4 s / seconds per year", expr: "(lambda d: len(d['draws_done']) * d['learners_per_draw'] * len(d['scenarios']) * d['years'] * 120 * 4 / (365.25 * 86400))(js('data/processed/phase5/v_main/run.json'))", fmt: "{:.0f} years", expect: "762 years", note: "the report writes 'at least 760'"}
+- {where: 03_methodology.md, says: "twice their standard deviation", near: "Across the nine combinations", from: table6_falsification.csv, row: {criterion: "F2 TRIBE contrasts smaller than harmless regenerations"}, col: threshold, regex: "<= ([0-9]+) SD", expect: 2}
+- {where: 03_methodology.md, says: "More than 10%", near: "More than 10% of learners", from: table6_falsification.csv, row: {criterion: "F4 result driven by parameter bounds"}, col: threshold, regex: "> ([0-9]+)% of learners", fmt: "More than {:.0f}%"}
+- {where: 03_methodology.md, says: "reaches half", near: "The contrast with condition labels permuted", from: table6_falsification.csv, row: {criterion: "F5 negative controls as large as the substantive effects"}, col: threshold, regex: ">= ([0-9.]+)", expect: 0.5}
+
+# ------------------------------------------------------------------ 3.9 Implementation
+- {where: 03_methodology.md, says: "seven runtime dependencies", near: "The pipeline is a Python package", note: "the dependencies list of pyproject.toml", expr: "(lambda t: ['zero','one','two','three','four','five','six','seven','eight'][len(t['project']['dependencies'])] + ' runtime dependencies')(__import__('tomllib').loads((ROOT/'pyproject.toml').read_text(encoding='utf-8')))"}
+- {where: 03_methodology.md, says: "NVIDIA L4", near: "The pipeline is a Python package", expr: "'NVIDIA ' + js('data/tribe/tribe_main/run_metadata.json')['expected_gpu']"}
+- {where: 03_methodology.md, says: "half precision", near: "The pipeline is a Python package", expr: "{'fp16': 'half precision'}[js('data/tribe/tribe_main/run_metadata.json')['text_precision_requested']]"}
+- {where: 03_methodology.md, says: "3,571", near: "The pipeline is a Python package", code: PLAN.md, contains: "moves to a **Colab GPU** from episode 3,571"}
+- {where: 03_methodology.md, says: "38 prompts", near: "The pipeline is a Python package", code: PLAN.md, contains: "38 captured prompts with identical token counts, median TV 0.012 (p90 0.021), argmax 100%"}
+- {where: 03_methodology.md, says: "0.012", near: "The pipeline is a Python package", code: PLAN.md, contains: "median TV 0.012"}
+- {where: 03_methodology.md, says: "130 automated tests", near: "Every run derives its random numbers", note: "test functions; `uv run pytest` reports 130 passed", expr: "str(sum(open(f, encoding='utf-8').read().count('def test_') for f in glob.glob(str(ROOT/'tests/test_*.py')))) + ' automated tests'"}
+- {where: 03_methodology.md, says: "680 columns", near: "Every run derives its random numbers", expr: "str(len(T('data_dictionary.csv'))) + ' columns'"}
+- {where: 03_methodology.md, says: "931 files", near: "Every run derives its random numbers", code: data/tribe/MANIFEST.sha256, contains: "over 931 files, 8.70 GB"}
+- {where: 03_methodology.md, says: "14 MB bundle", near: "Every run derives its random numbers", code: PLAN.md, contains: "a ~14 MB bundle of every file the analysis opens"}

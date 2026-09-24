@@ -519,8 +519,10 @@ requires it to reproduce the state means and per-episode rates of the reference 
 Centaur's behaviour therefore reaches Phase V only through the fitted choice rule described below.
 
 **Calendar and forgetting.** A school year has 40 instructional weeks of three episodes (one and five a week are
-exposure variants), followed by a 12-week break without practice. Units recur in curriculum order, and their
-difficulty rises by 0.1 logits a year in the main specification (drawn between 0 and 0.2). The per-episode
+exposure variants), followed by a 12-week break without practice. Units recur in curriculum order with unchanged texts
+and problems; what rises is the difficulty term $b_u$ of eq. 17, raised for every unit by 0.1 logits per completed
+school year in the main specification (drawn between 0 and 0.2), so that the same problem is answered correctly less
+often as the years pass. The per-episode
 forgetting rate of eq. 16 is rescaled so that forgetting per week does not depend on exposure, and during the break
 knowledge, memory and the neural state of Section 3.6 decay at a quarter of the term rate (design choice, assumption). Losses of achievement over
 long breaks are documented [@cooper1996]; the rate applied here is an assumption, varied in Section 3.8.
@@ -649,8 +651,8 @@ behavioural curve thus has 648 specifications per scenario, and the neural curve
 between substitution and traditional instruction, 62,208. Parcellation and adaptation were added after the first
 results existed, with their levels ranked before they were computed; adaptation was added once it was established
 that it is the only term separating scaffolding from traditional instruction (Section 3.4). The learner engine is not
-a dimension: at the hybrid engine's four seconds per episode, the main ten-year run alone would take about 760 years
-of computation. The direction of a scenario is called robust when the median $G$ has the same sign in every
+a dimension: at the hybrid engine's four seconds per episode, its fastest case, the main ten-year run alone would
+take at least 760 years of computation. The direction of a scenario is called robust when the median $G$ has the same sign in every
 specification and no 95% interval across draws includes zero; otherwise the first dimension level at which it fails
 is reported.
 
@@ -687,8 +689,8 @@ Appendix D.4 records each change and its reason.
 ## 3.9 Implementation and reproducibility
 
 The pipeline is a Python package with seven runtime dependencies and one module per concern; Table D4 summarises each
-component's inputs, outputs, assumptions and validation. The encoding model ran on a cloud GPU (NVIDIA L4) in half
-precision. Centaur and the tutor were served on the author's laptop and, from episode 3,571 of the hybrid run, from a
+component's inputs, outputs, assumptions and validation. The encoding model ran on a cloud GPU (NVIDIA L4), with its text
+encoder in half precision. Centaur and the tutor were served on the author's laptop and, from episode 3,571 of the hybrid run, from a
 cloud GPU behind a proxy that reproduces the local prompt format; the switch followed a check on 38 prompts captured
 from the local server, on which the two servers gave the same most probable option in every case and option
 probabilities within a median total-variation distance of 0.012. Everything else ran on the laptop's processor.
