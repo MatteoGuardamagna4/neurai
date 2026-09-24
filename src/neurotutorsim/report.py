@@ -121,7 +121,7 @@ COMPONENTS = [
      "every parameter an assumption; Centaur/Minitaur only choose (at chance on arithmetic)", "§10.2 monotonicity, difficulty, support, forgetting, fading; engine comparison"),
     ("Plasticity (Phase IV)", "Z (eq. 28) and per-episode E, PE, resolution, retrieval, offloading", "model-implied N per parcel and network (eq. 29-33)",
      "N is not a brain state; half-life, lambdas, eta are assumptions", "zero-plasticity null; permuted-Z and permuted-condition controls"),
-    ("Scenarios (Phase V)", "parameter draws (Triangular within low-high), 5 scenarios, calendar", "1/5/10-year levels, paired SC, PrSup, G, neural d",
+    ("Scenarios (Phase V)", "parameter draws (Triangular within low-high), 6 scenarios, calendar", "1/5/10-year levels, paired SC, PrSup, G, neural d",
      "soft limits (D3); weekly forgetting with breaks (D4); free choice from a softmax in D", "gate 18; T1 equivalence with the Phase III loop; CRN null"),
 ]
 
@@ -197,7 +197,7 @@ def figure1(plt, out: Path) -> list[Path]:
         "Simulated learner": (0.1, 0.25, "choices: Centaur or logistic\ncorrectness: eq. 17-18"),
         "Learner update": (2.35, 0.25, "effort, effectiveness\nK, M, R, C, D (eq. 19-25)"),
         "Plasticity update": (4.6, 0.25, "model-implied N\neq. 29-33"),
-        "Ten-year scenarios": (6.95, 1.15, "5 scenarios x parameter draws\nweekly calendar with breaks"),
+        "Ten-year scenarios": (6.95, 1.15, "6 scenarios x parameter draws\nweekly calendar with breaks"),
         "Scenario contrasts": (9.2, 1.15, "SC, PrSup, G (eq. 37-39)\nfrontier, tipping points"),
     }
     for title, (x, y, body) in boxes.items():
