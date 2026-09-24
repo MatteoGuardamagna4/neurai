@@ -512,7 +512,7 @@ accuracy exceeds 0.40; and, across learners, the alignment of each network's sta
 
 Phase V projects the simulated learner over ten school years under six instructional scenarios and propagates
 parameter uncertainty by Monte Carlo simulation. It introduces no new material: the 30 units and their predicted
-responses recur, with difficulty rising from year to year. Its outputs are scenario contrasts under stated
+responses recur, with difficulty rising <!--MG: how are we raising the difficulty in practice?-->from year to year. Its outputs are scenario contrasts under stated
 assumptions, not forecasts of any learner's development. The episode is that of Section 3.4 with the logistic
 engine, implemented as a vectorised numerical mirror that updates arrays of learners at once; an automated test
 requires it to reproduce the state means and per-episode rates of the reference loop within four standard errors.
@@ -522,7 +522,7 @@ Centaur's behaviour therefore reaches Phase V only through the fitted choice rul
 exposure variants), followed by a 12-week break without practice. Units recur in curriculum order, and their
 difficulty rises by 0.1 logits a year in the main specification (drawn between 0 and 0.2). The per-episode
 forgetting rate of eq. 16 is rescaled so that forgetting per week does not depend on exposure, and during the break
-knowledge, memory and the neural state of Section 3.6 decay at a quarter of the term rate. Losses of achievement over
+knowledge, memory and the neural state of Section 3.6 decay at a quarter of the term rate (design choice, assumption). Losses of achievement over
 long breaks are documented [@cooper1996]; the rate applied here is an assumption, varied in Section 3.8.
 
 **Bounded updates.** Eq. 22, 23 and 25 have no saturating term, so over 1,200 episodes they would push memory,
@@ -691,8 +691,7 @@ component's inputs, outputs, assumptions and validation. The encoding model ran 
 precision. Centaur and the tutor were served on the author's laptop and, from episode 3,571 of the hybrid run, from a
 cloud GPU behind a proxy that reproduces the local prompt format; the switch followed a check on 38 prompts captured
 from the local server, on which the two servers gave the same most probable option in every case and option
-probabilities within a median total-variation distance of 0.012. Everything else ran on the laptop's processor, where
-the main ten-year run took 69 minutes.
+probabilities within a median total-variation distance of 0.012. Everything else ran on the laptop's processor.
 
 Every run derives its random numbers from one master seed, indexed by learner and episode in Phase III and by draw
 and episode in Phase V, never by condition, so results do not depend on how learners are batched. Runs are
