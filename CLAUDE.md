@@ -25,6 +25,13 @@ different things. **The draft lives in `report/`** as Markdown, one file per sec
 `report/outline.md` is the plan, carries the binding prose rules under Conventions, and tracks status. The user edits
 the drafts between sections: read their changes with `git diff` and carry the style forward, never overwrite them. The report is **individual and covers all five phases** (user decision 2026-09-21).
 
+- **Explanatory tables wherever there is an opportunity** (user, 2026-09-25): a set of analyses, checks, quantities
+  or categories gets a table *Item | What it asks | How it is computed | How to read it*, preferably replacing the
+  prose it summarises. Rule and candidates under Conventions in `report/outline.md`.
+- **Publishing** (user, 2026-09-25): nothing is pushed before the report is submitted. On 2026-09-30, after
+  submission, push `main` and publish GitHub release `report-2026-09-30` with the D3 bundle (`dist/`), which §3.9
+  already cites. Code MIT, data CC BY-NC 4.0 (`LICENSE`, `LICENSE-DATA.md`); the brief PDF stays in the repository.
+
 ## Scope decisions (do not re-litigate)
 
 - **Corpus: 30 units on MBA topics**, not the brief's 120 in two domains. Built as **15 concepts x 2

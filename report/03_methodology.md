@@ -234,6 +234,24 @@ limbic, control and default) the mean of its parcels weighted by their surface a
 
 $$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (7) $$
 
+Table 3 gives the functions commonly attributed to each network and how a predicted contrast in it is read here,
+given that the model receives text alone.
+
+Table: **Table 3.** The seven cortical networks and the reading of a predicted contrast in each
+
+| Network | Functions commonly attributed | Reading of a predicted contrast in this study |
+|------------------|-----------------------------------------------|---------------------------------------------------------------|
+| Visual | Processing of visual input | No image is presented, so the prediction is inferred from language features alone; a contrast reflects the word stream, not visual processing |
+| Somatomotor | Bodily sensation and movement; in this parcellation it also contains auditory cortex | Follows the amount and pace of language delivered, which at a fixed reading rate (eq. 4) tracks the length of the text |
+| Dorsal attention | Voluntary, goal-directed orienting of attention to locations and features | Sustained engagement that the material demands |
+| Salience / ventral attention | Detection of behaviourally relevant events and reorienting of attention towards them | Capture of attention by salient elements of the text |
+| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to loss of the imaging signal [@girn2024], so the training data constrain the prediction weakly; read with caution |
+| Control | Executive control: holding and manipulating information in the service of a goal | Effortful processing; the network of the efficiency proxy (Section 3.6) and of the neural specification curve (Section 3.8) |
+| Default mode | Internally directed thought, memory retrieval and self-referential processing, in higher-order association cortex | The network furthest from the sensory form of the input, and so the closest to a contrast in content |
+
+*Network definitions from @yeo2011; functional labels are conventional and their reading depends on the task
+[@uddin2019]. Source: own elaboration.*
+
 Equal weights and a 200-parcel version of the atlas are robustness variants (Section 3.8). Each time course is
 summarised by five metrics and each text by three spatial ones (Appendix B). The metric carried forward is the area
 under the curve,
@@ -373,7 +391,23 @@ all rated answers so far. Two features of these equations carry the comparison b
 effectiveness multiply in the knowledge gain, so substitution, which provides the answer after the first error,
 lowers learning through effort. And in these equations adaptation is the only term that distinguishes scaffolding
 from traditional instruction: the scaffolding advantage is an assumed constant, not a consequence of the tutor's
-text, and Section 3.8 treats it as a dimension of the robustness analysis.
+text, and Section 3.8 treats it as a dimension of the robustness analysis. Table 4 summarises the quantities these
+equations carry.
+
+Table: **Table 4.** The quantities of the simulated learner
+
+| Quantity | What it represents | What moves it | Where it acts |
+|-------------------|------------------------------------------|----------------------------------------------------|------------------------------------------|
+| Knowledge $K$ | Mastery of the taught concepts | Gains in proportion to effort times effectiveness; forgetting (eq. 21) | Ability in the response model (eq. 17); the net advantage $G$ of Phase V |
+| Memory $M$ | Strength with which what was learned is retained | Retrieval practice, twice as much after a correct first answer, and self-correction after an error; forgetting (eq. 22) | Response model (eq. 17); $G$ |
+| Reasoning $R$ | Capacity to solve problems without support | Correct transfer answers, in proportion to effort; lowered by offloading (eq. 23) | Response model (eq. 17); $G$ |
+| Calibration $C$ | Agreement between confidence and correctness | Accuracy of all confidence ratings so far (eq. 24) | Reported outcome only |
+| Dependence $D$ | Reliance on external support | Raised by support used; lowered by first-attempt success, in Phase III only where support was withdrawn (eq. 25; eq. 25′ of Section 3.7) | Help requests and, in the free-choice arm, the choice of protocol under the logistic engine; $G$, with a negative sign |
+| Effort $E$ | Cognitive effort invested in one episode | Attempts, retrieval and generation; lowered when the answer is provided (eq. 19) | Gains in knowledge and reasoning (eq. 21, 23); the neural state of Phase IV |
+| Effectiveness $F$ | Quality of the instruction received in one episode | Correctness and coverage of the lesson, the protocol's adaptation and the mismatch with ability (eq. 20) | Gain in knowledge (eq. 21) |
+
+*$K$, $M$, $R$, $C$ and $D$ persist across episodes and lie in $[0,1]$; $E$ and $F$ are recomputed in every episode.
+Source: own elaboration.*
 
 **Who makes the choices.** Two engines implement the model. The logistic engine makes every decision by equation:
 correctness by eq. 17–18, help requests by the model above, confidence as the probability of being correct plus a
@@ -417,7 +451,7 @@ of help requests.
 No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
 the provenance of each is recorded with the code (`config/parameter_sources.yaml`). Where the literature reports a
 quantity that the model also implies on the same scale, the two were compared once the runs were complete
-(Table 3). The comparison documents the model rather than calibrating it: no value was changed in response, because
+(Table 5). The comparison documents the model rather than calibrating it: no value was changed in response, because
 re-parameterising would have invalidated every completed run, and a parameter outside its published range is
 reported as a finding about the model.
 
@@ -443,7 +477,7 @@ consequence for interpretation is specific: scenario contrasts that operate thro
 a regime, and the substitution deficit, which arises from low effort compounded by forgetting (Section 4.5), is one of
 them. Its direction is the claim; its magnitude is read as an upper bound (Section 5.1).
 
-Table: **Table 3.** Calibration anchors: model-implied quantities against published values
+Table: **Table 5.** Calibration anchors: model-implied quantities against published values
 
 | Quantity | Parameter | Model | Published | Verdict | Source |
 |----------------------------------|----------|-------|----------|------------|---------------------------|
@@ -610,7 +644,21 @@ dependence in the decision rules; the text's predicted response is exchanged pos
 mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$. It decomposes the contrast within the model, is
 not a causal mediation analysis, and the contributions need not sum to one. Appendix D lists every Phase V run, with
 its size, and gives the trajectory model of Figure 5b (eq. 43); the 236 runs analysed simulate
-$4.5 \times 10^{10}$ learner-episodes.
+$4.5 \times 10^{10}$ learner-episodes. Table 6 summarises what each of these analyses asks and how its result is read.
+
+Table: **Table 6.** The analyses of Phase V
+
+| Analysis | What it asks | How it is computed | How to read it |
+|------------------|--------------------------------------|----------------------------------------------|--------------------------------------|
+| Scenario contrast (eq. 37) | How far does an AI scenario leave a learner from where traditional instruction leaves the same learner? | Mean paired difference over the learners of a draw; median and simulation interval across draws | The sign gives the direction, the interval the uncertainty over parameters |
+| Probability of superiority (eq. 38) | For what share of learners is the AI scenario ahead? | Share of paired learners, pooled over draws, with the higher outcome; ties count as not ahead | 0.5: no systematic difference; near 0 or 1: the same direction for almost every learner |
+| Net advantage $G$ (eq. 39) | Does the scenario leave the learner better off overall? | Contrasts in knowledge, reasoning and memory minus that in dependence, with equal weights of 0.25 in the main specification | Beneficial above 0.02, harmful below −0.02, neutral in between |
+| Neural contrast $d$ (eq. 44) | Does the model-implied neural state differ between scenarios? | Mean paired difference of a network's state divided by its standard deviation across learners | How consistently learners differ, not by how much; exploratory |
+| Phase diagram | Which properties of an AI protocol decide its ten-year contrast? | $G$ over a grid of adaptation and retained effort at three probabilities of substitution; each cell classified by its median | Where a protocol is beneficial, neutral or harmful |
+| Tipping point (eq. 40) | How large a change in one property reverses the sign of $G$? | First value on a line through scaffolding without fading at which $G$ changes sign, in each draw | A threshold with its interval; no sign change means the direction holds over the whole range |
+| Mechanism decomposition | Through which channel of the model does a contrast arise? | Rerun with one mediator held at its value under traditional instruction; contribution $1 - \text{SC}_{\text{held}} / \text{SC}$ | 1: the whole contrast passes through that channel; values outside 0 to 1 signal interacting channels |
+
+*SC: scenario contrast. Source: own elaboration.*
 
 ## 3.8 Validation, falsification and robustness
 
@@ -668,19 +716,24 @@ responses with the variance across the primary and reworded texts; $V_{\text{res
 
 **Falsification criteria.** No difference is claimed when any of six conditions holds. The thresholds are this
 study's conventions rather than external standards, and each verdict applies only to the contrasts it names.
+Table 7 summarises every check of this section; its last six rows are these criteria, F1 to F6.
 
-- **F1, matching.** A network contrast whose 95% interval excludes zero loses that property once duration, word
-  count and equation count enter eq. 13.
-- **F2, harmless rewording.** Across the nine combinations of each text's primary and two reworded versions, a
-  network contrast changes sign, or its primary value does not exceed twice their standard deviation.
-- **F3, plasticity model.** The sign of the median year-10 neural contrast differs across mechanisms A to D.
-- **F4, parameter bounds.** More than 10% of learners lie within 0.01 of a bound in the median draw, or a contrast
-  changes sign when the triangular parameter draws are replaced by uniform ones.
-- **F5, negative controls.** The contrast with condition labels permuted within units reaches half of the
-  substantive contrast, or the difference between incorrect-but-fluent and correct texts reaches half of the
-  network's largest condition contrast.
-- **F6, indistinguishability.** The 95% interval of the year-10 difference between a scaffolding scenario and
-  substitution in unaided accuracy, far transfer or retention includes zero.
+Table: **Table 7.** Validation, robustness and falsification checks
+
+| Check | What it asks | How it is computed | When it fails |
+|------------------|--------------------------------------|----------------------------------------------|--------------------------------------|
+| Behavioural checks | Does the simulated learner behave as a learner model must? | Ten checks on a one-year pilot (Table D2) | No ten-year result is read |
+| Negative controls | Does a contrast respond to what it is said to respond to? | Variations that should remove it: no plasticity, effort insensitive to behaviour, permuted responses or labels, random sign flips | The contrast is not attributed to what it was said to respond to |
+| Specification curve | Does a direction survive other defensible modelling choices? | Year-10 $G$ re-estimated under every combination of the levels of Table D3 | Not robust; the first level at which the sign fails is reported |
+| Variance decomposition (eq. 41) | Where does the uncertainty of an outcome come from? | Nested analysis of variance over scenarios, draws, learners and replicates | Descriptive; it withholds no claim |
+| F1 Matching | Is a cortical contrast a by-product of text length? | The contrast re-estimated with duration, word count and equation count in eq. 13 | Its 95% interval, which excluded zero, includes it |
+| F2 Harmless rewording | Does a cortical contrast exceed stylistic variation? | The contrast across the nine combinations of each text's primary and two reworded versions | It changes sign, or its primary value does not exceed twice their standard deviation |
+| F3 Plasticity model | Does a neural result depend on the plasticity mechanism? | Sign of the median year-10 neural contrast under mechanisms A to D | The signs differ |
+| F4 Parameter bounds | Is a result set by the edges of the state scale or by the shape of the parameter distribution? | Share of learners within 0.01 of a bound in the median draw; the contrast under uniform instead of triangular draws | More than 10% of learners near a bound, or a change of sign |
+| F5 Negative controls | Is a contrast specific to the instruction? | Condition labels permuted within units; incorrect-but-fluent against correct texts | The contrast with condition labels permuted within units reaches half of the substantive one, or the incorrect texts reach half of the network's largest condition contrast |
+| F6 Indistinguishability | Can scaffolding and substitution be told apart once support is removed? | Year-10 difference between each scaffolding scenario and substitution in unaided accuracy, far transfer and retention | Its 95% interval includes zero |
+
+*For F1 to F6 the last column gives the condition under which no difference is claimed. Source: own elaboration.*
 
 The criteria were set before the ten-year runs, and the rules of F2 and F5 for the text controls before those texts
 were run. Five rules were changed, and the robustness rule was formalised, after the first ten-year results existed;
@@ -704,5 +757,7 @@ suite of 130 automated tests covers the equations, the corpus validators, the st
 ten-year mirror with the reference loop, and a single command rebuilds every table and figure from the saved runs.
 A data dictionary documents the 680 columns of the output tables. The encoding-model predictions (931 files,
 8.70 GB) are listed in a SHA-256 manifest, and a 14 MB bundle of the files the analysis reads was verified to
-rebuild every table on its own. <!-- CLAUDE: repository URL and the deposit DOI go here once the archive is uploaded
-and the repository is public (see open questions). -->
+rebuild every table on its own. The code, corpus, run records and outputs are available at
+<https://github.com/MatteoGuardamagna4/neurai>, and the bundle as release `report-2026-09-30` of that repository; the
+code is released under the MIT licence and the predictions and outputs under CC BY-NC 4.0, the licence of the
+encoding model. <!-- CLAUDE: the release is published after submission (author, 2026-09-25); check the link then. -->

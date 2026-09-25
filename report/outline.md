@@ -37,6 +37,15 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   writes it out. The numbering has gaps and will be renumbered at the end.
 - **Exhibits.** Figures keep their output numbers, 1-8 (the images carry their titles). Tables are numbered in order of
   appearance. Every figure and table ends with a source line: *Source: own elaboration. …* (REPORT.md §2).
+- **Explanatory tables (binding, author 2026-09-25).** Wherever a section introduces a set of analyses, checks,
+  quantities or categories that a reader must keep apart, build a table rather than only prose, in the format
+  *Item | What it asks (or represents) | How it is computed | How to read it* (the last column may be "Reading in
+  this study" or "When it fails"). The author finds them intuitive and easy to read and asked for them wherever there
+  is an opportunity. Prefer tables that replace the prose they summarise, since §3 is over its page budget; keep each
+  cell to one short clause; every number in a cell goes in the claims ledger. In place: Table 3 (seven networks,
+  §3.3), Table 4 (learner quantities, §3.4), Table 6 (Phase V analyses, §3.7), Table 7 (checks and F1-F6, §3.8).
+  Candidates when drafting: §5 (each claim against the check that supports or bounds it), §6 (each implication for
+  the ESADE Data Department against the evidence and its limit), Phase II analyses in §3.3 (declined for now).
 - **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.
 
 ## Schedule to 2026-09-30 (proposed 2026-09-24)
@@ -47,16 +56,17 @@ that diff.
 | Day | Claude drafts | Author |
 |---|---|---|
 | Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**); claims ledger and `report/verify.py` (**done**); §4 Results and Appendix E (**done**, a day early) | Review §3.1, 3.7-3.9 and §4 |
-| Fri 25 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
-| Sat 26 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2 |
-| Sun 27 | Abstract, Executive Summary, AI declaration; ledger back-filled for §3.2-3.6 | Review front matter; repository public |
-| Mon 28 | Remaining appendices; page pass to ≤ 38 pp; Figure 8a legibility | Full read-through |
+| Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
+| Sat 26 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
+| Sun 27 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2 |
+| Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for §3.2-3.6; remaining appendices; page pass to ≤ 38 pp | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
-| Wed 30 | Final PDF | Submit |
+| Wed 30 | Final PDF; after submission, push the local commits and publish release `report-2026-09-30` with the D3 bundle | Submit |
 
 **Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
 `uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
-source, PASS/FAIL). As of 2026-09-24: §3.1, §3.7-3.9 and §4 covered, 239 of 239 pass; §3.2-3.6 to back-fill.
+source, PASS/FAIL). As of 2026-09-25: §3.1, §3.7-3.9, §4 and the new Tables 4, 6 and 7 covered, 251 of 251 pass;
+§3.2-3.6 to back-fill.
 
 ## Page budget
 
@@ -68,7 +78,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
 | 3. Methodology | 14.5 | ~3 | ~6,300 | **All of §3 drafted (2026-09-24).** 3.1 (Figure 1, Table 1 data generated), 3.7 (~1,050 words), 3.8 (~900), 3.9 (~280) new; Table 3 moved to App. C2, §3.2.4 checker paragraph shortened; App. D drafted. Measured in the build: pages 9-24, ~15.9 pp, 1.4 over budget |
-| 4. Results | 10 | ~5.5 | ~2,500 | **Drafted 2026-09-24**, ~9 pp measured (pp. 25-33). Body: Tables 4-7, Figures 3, 5, 6, 7a, 8a; Figures 4, 5b, 7b, 8b, S1-S3 in App. E. Every number in the claims ledger |
+| 4. Results | 10 | ~5.5 | ~2,500 | **Drafted 2026-09-24**, ~9 pp measured (pp. 25-33). Body: Tables 8-11, Figures 3, 5, 6, 7a, 8a; Figures 4, 5b, 7b, 8b, S1-S3 in App. E. Every number in the claims ledger |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
 | **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |
@@ -131,7 +141,7 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 | **3.2 Phase I: the corpus** | Units, conditions, matching, validation, text controls | Table 1, Figure 2 | `table1_conditions`, `corpus_balance`, `tableS_semantic_coverage`, `tableS_near_duplicates`, `tableS_contradiction_judge` |
 | 3.3 Phase II: predicted cortical response | TRIBE v2 on Colab L4, timing (eq. 4), Schaefer-400 / Yeo-7 (eq. 6-7), metrics (eq. 8-9), QC and gate 17, contrasts (eq. 10-13, 42), RSA (eq. 14), shuffled controls | — | `run_metadata.json`, `tribe_qc.json` |
 | 3.4 Phase III: the simulated learner | State (eq. 15-16), episode protocol, response model (eq. 17-18), effort and effectiveness (eq. 19-20), updates (eq. 21-25); hybrid engine: Centaur chooses, eq. 17-18 answers; what the transcript models can and cannot do; observable history only | none (all parameters in Table C2) | `table3_parameters`, `engine_comparison`, root `CLAUDE.md` measurements |
-| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | Table 3 (anchors) | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
+| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | Table 5 (anchors) | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
 | 3.6 Phase IV: plasticity | Eq. 28-33, hybrid mechanism D as main specification, the accumulator (N linear in Z), §8.7 outcomes | — | `guide.md` §6 |
 | 3.7 Phase V: ten-year scenarios | Calendar and break forgetting (D4), soft limits (D3), six scenarios, Monte Carlo (eq. 35), SC (eq. 37), PrSup (eq. 38), G (eq. 39), frontier and tipping points (eq. 40) | — | `PLAN.md` D1-D7, D18 |
 | 3.8 Validation, falsification and robustness | Gate 18, negative controls, specification curve (216 cells × 6 scenarios × 3 outcome weights; D24, D25 added after results, say so), variance decomposition (eq. 41), F1-F6, mechanism decomposition | — | `config/spec_curve.yaml`, `PLAN.md` D17-D25 |
@@ -141,12 +151,12 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 
 | Sub | Claim to establish | Exhibits | Sources |
 |---|---|---|---|
-| 4.1 Immediate predicted cortical contrasts | Condition contrasts exist; after F1, F2 and F5 only scaffolding's DorsAttn, SalVentAttn and SomMot contrasts survive; no substitution-vs-traditional contrast does | Table 4 (network level), Figures 3-4 | `table4_*`, `table6_falsification`, `rsa_*` |
+| 4.1 Immediate predicted cortical contrasts | Condition contrasts exist; after F1, F2 and F5 only scaffolding's DorsAttn, SalVentAttn and SomMot contrasts survive; no substitution-vs-traditional contrast does | Table 8 (network level), Figures 3-4 | `table4_*`, `table6_falsification`, `rsa_*` |
 | 4.2 One term of simulated learning | Ordering scaffolding ≥ traditional > free choice > substitution; holds in all three parameter settings; Centaur changes help requests and C, not learning outcomes | — (Figure S3, S1 in appendix) | `tableS_phase3_outcomes`, `tableS_phase3_settings`, `engine_comparison` |
-| 4.3 Ten-year scenario contrasts | Substitution and both free-choice rules negative on G at year 10; scaffolding scenarios positive | Table 5 (condensed), Figures 5-6 | `table5_*`, `fig5_*`, `fig6_*` |
+| 4.3 Ten-year scenario contrasts | Substitution and both free-choice rules negative on G at year 10; scaffolding scenarios positive | Table 9 (condensed), Figures 5-6 | `table5_*`, `fig5_*`, `fig6_*` |
 | 4.4 Frontier and tipping points | Neutral at o = 0, harmful for o ≥ 0.5; G turns negative at o ≈ 0.10 [0.06, 0.14]; no sign change in e, f or forgetting | Figure 7a (7b in 4.7) | `tableS_tipping_points` |
 | 4.5 Mechanisms | The scaffolding advantage runs through F; the substitution deficit through E (0.97 of the K contrast) | — | `tableS_mechanism_decomposition` |
-| 4.6 Robustness | Four of five AI scenarios keep the sign of median year-10 G in all 648 specifications; scaffolding without fading fails in exactly 216, the `adaptation=none` level, median 0.000000; F1-F6 verdicts, including the failures; G is 68% scenario, 29% learner | Figure 8a, sign-stability table, Table 6 (falsification) | `tableS_sign_stability`, `table6_*`, `tableS_variance_decomposition` |
+| 4.6 Robustness | Four of five AI scenarios keep the sign of median year-10 G in all 648 specifications; scaffolding without fading fails in exactly 216, the `adaptation=none` level, median 0.000000; F1-F6 verdicts, including the failures; G is 68% scenario, 29% learner | Figure 8a, Table 10 (sign stability), Table 11 (falsification) | `tableS_sign_stability`, `table6_*`, `tableS_variance_decomposition` |
 | 4.7 Neural trajectories (exploratory) | Control-network d keeps its sign in 59.2% of 62,208 specifications; adaptation irrelevant to it | Figures 7b, 8b | `table5_neural_d_v_main`, `fig8b_*` |
 
 ## 5. Discussion and Conclusions (4.5 pp)
@@ -179,8 +189,10 @@ and ranks, the rules changed after the first results, the components table). Pla
 contrasts at parcel level; supplementary tables and Figures S1-S3; reproducibility (commands, run tags, the D3
 manifest); data dictionary.
 
-Body tables so far, numbered in order of appearance: Table 1 data generated (§3.1), Table 2 conditions (§3.2),
-Table 3 calibration anchors (§3.5). Results tables continue from Table 4.
+Body tables so far, numbered in order of appearance (renumbered 2026-09-25): Table 1 data generated (§3.1), Table 2
+conditions (§3.2), Table 3 seven networks (§3.3), Table 4 learner quantities (§3.4), Table 5 calibration anchors
+(§3.5), Table 6 Phase V analyses (§3.7), Table 7 checks and F1-F6 (§3.8); Results: Table 8 cortical contrasts,
+Table 9 year-10 contrasts, Table 10 sign stability, Table 11 falsification verdicts.
 
 ---
 
@@ -199,6 +211,12 @@ false positive (no unsupported assertion). §3.2.4, A.2 and A.3 report it. Page 
 Literature Review (no rubric criterion) to Methodology, now 3.5 and 14.5 pages. `report.py`'s Table 1 description
 labels ("guided questions", "walks through the complete solution") stay wrong in the code and CSV and are ignored;
 the report's Table 1 is the authority.
+
+Answered 2026-09-25: the repository has been public since 2026-09-11; the D3 bundle is published as GitHub release
+`report-2026-09-30` only after submission, and §3.9 cites it; Zenodo is left for the paper. Licences: MIT for the
+code, CC BY-NC 4.0 for the corpus, outputs and predictions (`LICENSE`, `LICENSE-DATA.md`). The project brief PDF
+stays in the repository. Figure 8a redrawn for print (plotting only). Explanatory tables become a convention (above).
+Open: the framing of rapid fading in §5 (direction robust, but F4 withholds a claim), for the author to decide.
 
 Still open:
 
