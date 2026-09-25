@@ -32,7 +32,7 @@ effort on which learning depends, and supplying the answer in about one AI episo
 scaffolding negative. Scaffolding that withdraws support as the learner succeeds stays ahead of traditional
 instruction in every specification. Scaffolding without withdrawal is ahead only because adaptive instruction is
 assumed to be more effective per episode: when the three regimes share one adaptation value, its advantage is exactly
-zero. The predicted cortical contrasts that survive matching and rewording are few, and the long-term neural
+zero. The predicted cortical contrasts that survive matching and rewording are few, and the model-implied neural
 trajectories are exploratory. Every parameter is assumed, and the simulated learner learns more slowly and forgets
 faster than published estimates imply, so the directions are the claim and the sizes are upper bounds.
 
@@ -149,7 +149,7 @@ teaches better than fixed instruction. That is an empirical quantity.
 
 Fourth, when learners choose, the model predicts a drift towards the regime that gives answers, and both free-choice
 scenarios end behind traditional instruction. The neural layer, by contrast, is exploratory. Few predicted cortical
-contrasts survive matching and harmless rewording, and the sign of the long-term neural contrast depends more on how
+contrasts survive matching and harmless rewording, and the sign of the model-implied neural contrast depends more on how
 the predicted response is summarised and on the assumed plasticity than on the scenario.
 
 For the ESADE Data Department, three implications follow, each conditional on the model (Section 6.3). How often a

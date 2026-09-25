@@ -100,7 +100,7 @@ language models in drafting texts, code and this report is declared in the front
 ## 1.5 Structure of the report
 
 Section 2 reviews the four bodies of research the study draws on. Section 3 describes the five phases and the design
-of the validation. Section 4 reports the results, from the immediate cortical contrasts to the ten-year scenarios and
+of the validation. Section 4 reports the results, from the immediate predicted cortical contrasts to the ten-year scenarios and
 their robustness. Section 5 separates what the model derives from what it assumes, sets out its limitations and
 answers the research questions. Section 6 turns the findings into an application plan for the ESADE Data Department.
 The appendices hold the technical detail: the corpus checks, the encoding-model run, the equations of the simulated

@@ -214,7 +214,7 @@ effort does not respond to behaviour, the substitution contrast in knowledge alm
 sign flips of the paired differences produced a contrast as extreme as any observed year-10 contrast in unaided
 accuracy, far transfer or retention.
 
-Table 12 collects the falsification verdicts. Beyond the cortical contrasts of Section 4.1 (F1, F2, F5) and the
+Table 12 collects the falsification verdicts. Beyond the predicted cortical contrasts of Section 4.1 (F1, F2, F5) and the
 neural contrasts of Section 4.7 (F3, F5), they concern one ten-year result. F4 flags scaffolding with rapid fading:
 in its median draw 12.1% of learners end within 0.01 of an edge of the 0–1 scale, almost all with dependence close to
 zero. A post hoc check asked whether the contrast depends on these learners (Appendix D.4). In the stored subsample of

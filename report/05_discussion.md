@@ -37,7 +37,7 @@ Table: **Table 13.** The standing of the main results
 | Scaffolding with rapid fading is better | Mechanism; direction claimed | Withdrawal channel (Section 4.5); every specification; post hoc F4 check | Size depends on the update form (F4) |
 | Free choice is harmful | Derived from the choice rule | Drift towards substitution under both rules | Rule assumed, or fitted to a model rather than to students; self-selection |
 | Scaffolding texts evoke a lower predicted response | Descriptive | Six network contrasts pass F1, F2 and F5 | Predicted, not measured; confounded with the absent worked solution |
-| Ten-year neural trajectories differ | Exploratory | None robust | Sign depends on analysis choices and plasticity assumptions |
+| Model-implied neural trajectories differ | Exploratory | None robust | Sign depends on analysis choices and plasticity assumptions |
 
 *Source: own elaboration, from Sections 4.1–4.7.*
 
@@ -92,7 +92,7 @@ Table: **Table 14.** Limitations and their consequences
 | Limitation | Consequence for the results | What would address it |
 |--------------------|------------------------------------------|------------------------------------|
 | Thirty units in one domain, drafted with language models | Unit-level inferences rest on 30 clusters; other subjects and human-written material are untested | More units, other domains, human-authored texts |
-| Scaffolding texts have no worked solution | The surviving cortical contrasts cannot be attributed to scaffolding as such | Versions that differ only in instructional voice |
+| Scaffolding texts have no worked solution | The surviving predicted cortical contrasts cannot be attributed to scaffolding as such | Versions that differ only in instructional voice |
 | Content screened for contradictions only | The prose may contain unsupported claims that no check has caught | A validated screen or an expert review |
 | Predicted response of an average adult to text alone | Not a measurement; rewording moves most contrasts | Measured responses in a sample of students |
 | All learner parameters assumed; learning slow, forgetting fast and at a constant rate | Sizes of the contrasts are upper bounds; the form of forgetting is never varied | Rates estimated from students (Section 6.4); forgetting that slows with time as a variant |
@@ -122,7 +122,7 @@ Table: **Table 15.** The research questions and their answers
 
 | Question | Answer | Standing |
 |------------------------------|------------------------------------------------------|--------------------|
-| How do the three regimes differ in predicted cortical response, simulated learning and long-term neural trajectories? | Most in simulated learning: substitution is harmful in every specification, and scaffolding helps only through fading or through the assumed adaptation advantage. The cortical and neural differences are small, unstable or exploratory. | Directions claimed; sizes are upper bounds |
+| How do the three regimes differ in predicted cortical response, simulated learning and long-term model-implied neural trajectories? | Most in simulated learning: substitution is harmful in every specification, and scaffolding helps only through fading or through the assumed adaptation advantage. The predicted cortical and model-implied neural differences are small, unstable or exploratory. | Directions claimed; sizes are upper bounds |
 | Which differences remain after matching content, length, readability, modality and presentation time? | Six predicted cortical contrasts survive matching, rewording and the content control, all lower under scaffolding. They reflect the absent worked solution as much as scaffolding. | Descriptive |
 | Does scaffolding produce a different predicted cortical profile from substitution? | Yes, in three networks. No contrast between substitution and traditional instruction survives. | Predicted, not measured |
 | Under which assumptions does AI improve retention and transfer, and when does it create dependence? | It improves them when it withholds answers and withdraws support as competence grows. Supplying answers in more than about one AI episode in ten turns the net advantage negative; full substitution lowers retention and transfer and raises dependence. | Model-implied; conditions robust, sizes not |
