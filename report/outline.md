@@ -33,6 +33,9 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   version in the appendix under the same number. Give few numbers: in §3 only those that define the design or carry
   an argument, validation detail goes to the appendices; in §4 the results themselves, not every illustration of
   them; §5 and §6 are written with few numbers from the start. Explanatory tables carry lists.
+- **Exception for §1 (author, 2026-09-25).** The Introduction only may be more creative and engaging, to capture the
+  reader's attention: a concrete opening scene, the tension in the evidence, a preview of the headline result. Facts,
+  citations, the claims ledger and the language rules still apply, and every other section keeps the plain register.
 - **Claims discipline.** `guide.md` §10 bounds what may be claimed; brief §15 wording throughout ("predicted
   cortical response", "simulated learner", "model-implied", "scenario contrast"); never "the brain learns",
   "AI causes", "digital twin".
@@ -65,14 +68,14 @@ that diff.
 | Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**); claims ledger and `report/verify.py` (**done**); §4 Results and Appendix E (**done**, a day early) | Review §3.1, 3.7-3.9 and §4 |
 | Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
 | Sat 26 | §5 and §6 (**done** on Fri 25); §2 Literature Review, every citation checked (**done** on Fri 25, with the tables renumbered for its Table 1) | Review §5-6 and §2 |
-| Sun 27 | §1 Introduction | Review §1-2 |
+| Sun 27 | §1 Introduction (**done** on Fri 25) | Review §1-2 |
 | Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for the appendices; remaining appendices; page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
 | Wed 30 | Final PDF; after submission, push the local commits and publish release `report-2026-09-30` with the D3 bundle | Submit |
 
 **Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
 `uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
-source, PASS/FAIL). As of 2026-09-25, after §2, §5 and §6: every number in §3-6 is covered, 284 of 284 pass. §2 quotes
+source, PASS/FAIL). As of 2026-09-25, after §1, §2, §5 and §6: every number in §1 and §3-6 is covered, 304 of 304 pass. §2 quotes
 no repository number; its few numbers come from the cited papers, and the comment above each entry of
 `references.bib` records where they were read. The appendices are not yet covered (their numbers moved there from §3
 unchanged).
@@ -84,8 +87,8 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 | Section | Pages | Of which exhibits | Prose words | Status |
 |---|---|---|---|---|
-| 1. Introduction | 3 | 0 | ~1,650 | — |
-| 2. Literature Review | 3.5 | ~0.5 | ~1,900 | **Drafted 2026-09-25**: four strands plus synthesis, 30 new sources each checked on Crossref or arXiv, Table 1 (strands). Measured pp. 9-12, 4 pp, 0.5 over. Body now 34 pp with §1 a placeholder |
+| 1. Introduction | 3 | 0 | ~1,650 | **Drafted 2026-09-25** in a more engaging register (author's request, §1 only); no table, so no renumbering. Measured pp. 8-10, ~2.3 pp |
+| 2. Literature Review | 3.5 | ~0.5 | ~1,900 | **Drafted 2026-09-25**: four strands plus synthesis, 30 new sources each checked on Crossref or arXiv, Table 1 (strands). Preprints removed the same day (author). Measured pp. 11-14, ~3.8 pp. Body 36 pp with every section drafted |
 | 3. Methodology | 14.5 | ~4.5 | ~5,900 | **Trimmed for readability 2026-09-25** (author: too dense): prose 8,500 → 5,900 words, equations in the body 34 → 9 (the rest in App. A.1, B.3, C.4, D.6 under their numbers), Tables 4, 5, 7, 8 added (numbers after §2's Table 1). Measured: pp. 10-23, ~14 pp |
 | 4. Results | 10 | ~5.5 | ~2,300 | **Readability pass 2026-09-25**: results kept, illustrations cut; rapid fading framed as option (c) (direction claimed after the post hoc F4 check, size not; F4 read as a screen). Measured: pp. 24-32, ~9 pp. Body 27 pp with §1, 2, 5, 6 still placeholders |
 | 5. Discussion and Conclusions | 4.5 | ~2 | ~1,900 | **Drafted 2026-09-25** in the readability style: Tables 13 (standing of the results), 14 (limitations), 15 (research questions and answers). Measured pp. 33-36, ~4 pp |
@@ -109,16 +112,20 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 ## 1. Introduction (3 pp)
 
-- **1.1 Motivation.** The cognitive consequences of AI tutoring are uncertain, and the evidence would take a decade
-  to arrive; a computational laboratory makes the assumptions explicit in the meantime (brief §15).
-- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own. Use the wording of Table 15 (§5.5), which already answers them.
-- **1.3 Approach and contribution.** A reproducible framework, not a verdict (brief §1.3). **No dataset existed**:
-  state what was generated, quantified (30 units, 90 stimuli, 210 text controls, 8.7 GB of predictions, the
-  Phase III episode count, 315 Phase V runs, 216 specification cells). This is the top band of *Level of difficulty*.
-  <!-- CLAUDE: recomputed 2026-09-24 from the run records: Phase III 814,560 episodes (9,600 hybrid); Phase V 236
-  analysed runs, 4.5e10 learner-episodes (5.2e10 in all 315 runs). REPORT.md's "1.2 million" was wrong. -->
-- **1.4 Scope and context.** MBA topics because the population of interest is business-school students; 30 units
-  because of the computational budget; six scenarios; the ESADE Data Department context; all work the author's own.
+**Drafted 2026-09-25**, in the engaging register the author asked for (Conventions). Every number is in the ledger.
+
+- **1.1 Motivation.** Opening scene (an MBA student, a chat assistant, two ways to help); the field evidence points
+  both ways [Bastani et al., 2025; Kestin et al., 2025]; the evidence would take a decade, and waiting is a decision;
+  the computational laboratory [d'Ascoli et al., 2026; Binz et al., 2025]; preview of the headline: the no-fade
+  advantage is exactly zero at equal adaptation, rapid fading stays ahead, substitution harmful in all 648.
+- **1.2 Research questions.** The three regimes defined by what follows a first wrong answer; the primary question and
+  the five secondary questions in the wording of Table 15 (§5.5), as a numbered list rather than a table.
+- **1.3 Approach and contribution.** No data set existed; what was generated, quantified (Table 2 has the detail); the
+  five phases; three distinguishing features (within-learner contrasts, criteria fixed in advance, joint variation of
+  modelling choices); public code and one-command rebuild.
+- **1.4 Scope and context.** ESADE Data Department and the planned paper; MBA concepts because of the population and
+  because every answer is checkable; 30 units because of compute; six scenarios; simulated, predicted, model-implied;
+  individual work, AI assistance declared in the front matter.
 - **1.5 Structure of the report.**
 
 ## 2. Literature Review (3.5 pp)
@@ -129,13 +136,12 @@ above each `references.bib` entry says where.
 
 - **2.1 Foundation models of human cognition.** Simulated learners and their weak validation [Käser & Alexandron,
   2024]; LLMs as simulated participants [Argyle et al., 2023; Binz & Schulz, 2023; Dillion et al., 2023]; Centaur
-  [Binz et al., 2025] and its critics: generated behaviour diverges from human data [Namazova et al., 2025, which
-  applies directly since the study samples choices], prediction is not explanation [Orr et al., 2025], imperfect
-  simulators still serve theory discovery [Jagadish et al., 2026]. Ends with why Centaur chooses but does not answer.
+  [Binz et al., 2025]. Ends with why Centaur chooses but does not answer, and with the realism of its sampled
+  choices as an assumption. The four preprints first cited (Namazova, Orr, Jagadish, Kosmyna) were removed at the
+  author's request, 2026-09-25.
 - **2.2 Foundation models of neural response.** Encoding models [Naselaris et al., 2011; Huth et al., 2016]; LM
   features [Schrimpf et al., 2021; Caucheteux & King, 2022]; foundation models [Wang et al., 2025, mouse; TRIBE v2];
-  in-silico predictions confirmed by measurement [Tuckute et al., 2024]; reverse inference [Poldrack, 2006]; the one
-  measured AI-and-brain study, an EEG preprint [Kosmyna et al., 2025]. Ends with the separation of response from
+  in-silico predictions confirmed by measurement [Tuckute et al., 2024]; reverse inference [Poldrack, 2006]. Ends with the separation of response from
   learning.
 - **2.3 Scaffolding and cognitive offloading.** Scaffolding and fading [Wood et al., 1976; Puntambekar & Hubscher,
   2005]; expertise reversal, faded examples, assistance dilemma, help seeking; offloading, generation, retrieval,
@@ -242,6 +248,10 @@ learners do not drive it (`scripts/f4_bound_check.py`, `tableS_f4_bound_check`);
 under the literal updates nearly every learner ends at a bound and the size depends on the update form; F4 is read
 as a screen rather than a falsification test (§4.6, App. D.4 item 6). §5 states this as a limitation of the unit
 scale. Readability: see the Conventions rule; §3 trimmed and §4 lightened the same day.
+
+Answered 2026-09-25 (after §2): Table 1 in §2 and the renumbering are kept; the four preprints are not; the two
+limitations §2 raised (Centaur untested as a learner over many sessions; forgetting at a constant rate) are added to
+Table 14; TRIBE's architecture is left unstated, since neither the author nor its abstract settles it.
 
 Still open:
 

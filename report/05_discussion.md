@@ -96,10 +96,10 @@ Table: **Table 14.** Limitations and their consequences
 | Scaffolding texts have no worked solution | The surviving cortical contrasts cannot be attributed to scaffolding as such | Versions that differ only in instructional voice |
 | Content screened for contradictions only | The prose may contain unsupported claims that no check has caught | A validated screen or an expert review |
 | Predicted response of an average adult to text alone | Not a measurement; rewording moves most contrasts | Measured responses in a sample of students |
-| All learner parameters assumed; learning slow, forgetting fast | Sizes of the contrasts are upper bounds | Rates estimated from students (Section 6.4) |
+| All learner parameters assumed; learning slow, forgetting fast and at a constant rate | Sizes of the contrasts are upper bounds; the form of forgetting is never varied | Rates estimated from students (Section 6.4); forgetting that slows with time as a variant |
 | Adaptation constant assumed | The advantage of scaffolding without fading is an assumption | A measured per-episode advantage (Section 6.4) |
 | States bounded by the 0–1 scale | Under the literal updates nearly every learner ends at an edge; F4 detects this but not its consequence | States on an open scale, or a dependence check for every flagged result |
-| Centaur runs on a subsample and cannot answer or rate confidence | Phase V choices come from a fitted rule; calibration measures consistency with the record | The choice rule validated against students' logged choices |
+| Centaur runs on a subsample, cannot answer or rate confidence, and is untested as a learner over many sessions | Phase V choices come from a fitted rule; calibration measures consistency with the record; the realism of its choices is assumed | The choice rule validated against students' logged choices |
 | Learners select their protocol under free choice | Free-choice contrasts describe a policy, not a condition | A design that assigns the protocol |
 | Plasticity model assumed | Neural trajectories are exploratory | Repeated measurement over time |
 | Six analysis rules changed after the first results, among them the post hoc F4 check | Some verdicts rest on decisions taken with results in view | Each is listed with its reason (Appendix D.4) |

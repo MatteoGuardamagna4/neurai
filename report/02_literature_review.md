@@ -22,24 +22,18 @@ replace human participants, and under which conditions, remains open [@dillion20
 Centaur takes a more direct route [@binz2025]. It is a language model fine-tuned on Psych-101, a collection of the
 trial-by-trial choices of more than 60,000 participants in 160 psychological experiments, each written out in natural
 language. Given the transcript of an experiment so far, it predicts the participant's next choice. It predicted the
-behaviour of held-out participants better than existing cognitive models, and it generalised to new cover stories,
-modified tasks and new domains.
-
-Two limits of this approach matter here. First, prediction is not simulation. Centaur predicts human choices well, but
-the behaviour it generates when its choices are sampled diverges systematically from human data [@namazova2025]. This
-study samples Centaur's choices, so the limit applies to it directly. Second, prediction is not explanation. Critics
-argue that Centaur is a model of behaviour rather than of cognition, because predicting a choice does not explain it
-[@orr2025]. An imperfect simulator can still be useful. In one decision-making task, theories found by experimenting
-on Centaur generalised to human data; the authors argue that telling theories apart demands less of a simulator than
-estimating quantities does [@jagadish2026].
+behaviour of held-out participants better than existing cognitive models, generalised to new cover stories, modified
+tasks and new domains, and, according to its authors, also simulates human behaviour when its choices are sampled
+rather than scored.
 
 What this literature leaves open is whether such a model can act as a learner. The language-model studies above
 concern single experiments or surveys; none places a model of choice in the role of a learner over many sessions of
-instruction. The development probes of Section 3.4 tested this for Centaur, behaviour by behaviour. Centaur's choices
-of approach and of help shifted with the learner's record as a struggling or a coping learner's would. It solved the
-problems no better than guessing, however, and its confidence ratings followed the record rather than the answer just
-given. The study therefore gives Centaur only the learner's behavioural choices and leaves correctness to an explicit
-equation.
+instruction, with its own sampled choices fed back into its history. This study does exactly that, so the realism of
+the simulated behaviour is an assumption. The development probes of Section 3.4 tested it for Centaur, behaviour by
+behaviour. Centaur's choices of approach and of help shifted with the learner's record as a struggling or a coping
+learner's would. It solved the problems no better than guessing, however, and its confidence ratings followed the
+record rather than the answer just given. The study therefore gives Centaur only the learner's behavioural choices and
+leaves correctness to an explicit equation.
 
 ## 2.2 Foundation models of neural response
 
@@ -67,12 +61,9 @@ participant, and nothing in it depends on what that participant has learned. It 
 text, not learning.
 
 What this literature leaves open is the response to instruction. To the author's knowledge, encoding models have not
-been applied to lesson texts that differ in pedagogy, and none links a predicted response to learning over time.
-Measured evidence on the brain and AI assistance is also scarce. One preprint recorded the electroencephalogram of 54
-participants writing essays over four months, and found weaker connectivity in those who used a language model than in
-those who wrote unaided [@kosmyna2025]. The study is small, not yet peer reviewed, and concerns essay writing rather
-than learning a subject. This study therefore keeps the two layers apart. Phase II predicts the immediate response to
-each text, and only the plasticity model of Phase IV, which is an assumption, connects it to what learners do.
+been applied to lesson texts that differ in pedagogy, and none links a predicted response to learning over time. This
+study therefore keeps the two layers apart. Phase II predicts the immediate response to each text, and only the
+plasticity model of Phase IV, which is an assumption, connects it to what learners do.
 
 ## 2.3 Scaffolding and cognitive offloading
 
@@ -143,7 +134,7 @@ Table: **Table 1.** The strands of the literature and their use in this study
 
 | Strand | What it establishes | What it leaves open | How this study uses it |
 |------------------|------------------------------------------|------------------------------------|------------------------------------|
-| Models of human choice (2.1) | Language models predict human choices across many experiments; Centaur generalises to new tasks | Whether the behaviour they generate is human-like; whether one can act as a learner | Centaur makes the learner's behavioural choices; an equation decides correctness (Section 3.4) |
+| Models of human choice (2.1) | Language models predict human choices across many experiments; Centaur generalises to new tasks | Whether one can act as a learner over many sessions, fed its own choices | Centaur makes the learner's behavioural choices; an equation decides correctness (Section 3.4) |
 | Models of neural response (2.2) | Encoding models predict cortical responses to new stimuli and new participants | The response to instruction; any link to learning; agreement with measurement | TRIBE v2 predicts the immediate response to each text; learning is modelled separately (Sections 3.3, 3.6) |
 | Scaffolding and offloading (2.3) | Effort aids retention; offloading and support never withdrawn can undermine it; early AI studies agree | How the effects accumulate over years; how large each must be to reverse the outcome | Directions encoded in effort, adaptation and fading (Sections 3.4, 3.7) |
 | Knowledge tracing and retention (2.4) | Learning per practice opportunity; retention after one year and over decades | How retention depends on the way knowledge was taught | Anchors for the learning and forgetting rates (Section 3.5) |
