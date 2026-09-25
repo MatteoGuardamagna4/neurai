@@ -49,10 +49,10 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   *Item | What it asks (or represents) | How it is computed | How to read it* (the last column may be "Reading in
   this study" or "When it fails"). The author finds them intuitive and easy to read and asked for them wherever there
   is an opportunity. Prefer tables that replace the prose they summarise, since §3 is over its page budget; keep each
-  cell to one short clause; every number in a cell goes in the claims ledger. In place: Table 3 (seven networks,
-  §3.3), Table 4 (learner quantities, §3.4), Table 6 (Phase V analyses, §3.7), Table 7 (checks and F1-F6, §3.8).
-  Candidates when drafting: §5 (each claim against the check that supports or bounds it), §6 (each implication for
-  the ESADE Data Department against the evidence and its limit), Phase II analyses in §3.3 (declined for now).
+  cell to one short clause; every number in a cell goes in the claims ledger. In place: Table 1 (strands of the
+  literature, §2.5), Table 4 (seven networks, §3.3), Table 5 (learner quantities, §3.4), Table 7 (Phase V analyses,
+  §3.7), Table 8 (checks and F1-F6, §3.8), Tables 13-15 (§5), Tables 16-17 (§6).
+  Remaining candidate: Phase II analyses in §3.3 (declined for now).
 - **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.
 
 ## Schedule to 2026-09-30 (proposed 2026-09-24)
@@ -64,7 +64,7 @@ that diff.
 |---|---|---|
 | Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**); claims ledger and `report/verify.py` (**done**); §4 Results and Appendix E (**done**, a day early) | Review §3.1, 3.7-3.9 and §4 |
 | Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
-| Sat 26 | §5 and §6 (**done** on Fri 25); §2 Literature Review (every citation checked) | Review §5-6 |
+| Sat 26 | §5 and §6 (**done** on Fri 25); §2 Literature Review, every citation checked (**done** on Fri 25, with the tables renumbered for its Table 1) | Review §5-6 and §2 |
 | Sun 27 | §1 Introduction | Review §1-2 |
 | Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for the appendices; remaining appendices; page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
@@ -72,8 +72,10 @@ that diff.
 
 **Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
 `uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
-source, PASS/FAIL). As of 2026-09-25, after the readability pass: every number in §3 and §4 is covered, 264 of 264
-pass. The appendices are not yet covered (their numbers moved there from §3 unchanged).
+source, PASS/FAIL). As of 2026-09-25, after §2, §5 and §6: every number in §3-6 is covered, 284 of 284 pass. §2 quotes
+no repository number; its few numbers come from the cited papers, and the comment above each entry of
+`references.bib` records where they were read. The appendices are not yet covered (their numbers moved there from §3
+unchanged).
 
 ## Page budget
 
@@ -83,11 +85,11 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 | Section | Pages | Of which exhibits | Prose words | Status |
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
-| 2. Literature Review | 3.5 | 0 | ~1,900 | — |
-| 3. Methodology | 14.5 | ~4.5 | ~5,900 | **Trimmed for readability 2026-09-25** (author: too dense): prose 8,500 → 5,900 words, equations in the body 34 → 9 (the rest in App. A.1, B.3, C.4, D.6 under their numbers), Tables 3, 4, 6, 7 added. Measured: pp. 10-23, ~14 pp |
+| 2. Literature Review | 3.5 | ~0.5 | ~1,900 | **Drafted 2026-09-25**: four strands plus synthesis, 30 new sources each checked on Crossref or arXiv, Table 1 (strands). Measured pp. 9-12, 4 pp, 0.5 over. Body now 34 pp with §1 a placeholder |
+| 3. Methodology | 14.5 | ~4.5 | ~5,900 | **Trimmed for readability 2026-09-25** (author: too dense): prose 8,500 → 5,900 words, equations in the body 34 → 9 (the rest in App. A.1, B.3, C.4, D.6 under their numbers), Tables 4, 5, 7, 8 added (numbers after §2's Table 1). Measured: pp. 10-23, ~14 pp |
 | 4. Results | 10 | ~5.5 | ~2,300 | **Readability pass 2026-09-25**: results kept, illustrations cut; rapid fading framed as option (c) (direction claimed after the post hoc F4 check, size not; F4 read as a screen). Measured: pp. 24-32, ~9 pp. Body 27 pp with §1, 2, 5, 6 still placeholders |
-| 5. Discussion and Conclusions | 4.5 | ~2 | ~1,900 | **Drafted 2026-09-25** in the readability style: Tables 12 (standing of the results), 13 (limitations), 14 (research questions and answers). Measured pp. 33-36, ~4 pp |
-| 6. Implications for the ESADE Data Department | 1.5 | ~1 | ~650 | **Drafted 2026-09-25** as an application plan: Tables 15 (reusable parts), 16 (next measurements with the model's forecasts). Measured pp. 37-38, ~2 pp, 0.5 over |
+| 5. Discussion and Conclusions | 4.5 | ~2 | ~1,900 | **Drafted 2026-09-25** in the readability style: Tables 13 (standing of the results), 14 (limitations), 15 (research questions and answers). Measured pp. 33-36, ~4 pp |
+| 6. Implications for the ESADE Data Department | 1.5 | ~1 | ~650 | **Drafted 2026-09-25** as an application plan: Tables 16 (reusable parts), 17 (next measurements with the model's forecasts). Measured pp. 37-38, ~2 pp, 0.5 over |
 | **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |
 
 ---
@@ -109,7 +111,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 - **1.1 Motivation.** The cognitive consequences of AI tutoring are uncertain, and the evidence would take a decade
   to arrive; a computational laboratory makes the assumptions explicit in the meantime (brief §15).
-- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own. Use the wording of Table 14 (§5.5), which already answers them.
+- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own. Use the wording of Table 15 (§5.5), which already answers them.
 - **1.3 Approach and contribution.** A reproducible framework, not a verdict (brief §1.3). **No dataset existed**:
   state what was generated, quantified (30 units, 90 stimuli, 210 text controls, 8.7 GB of predictions, the
   Phase III episode count, 315 Phase V runs, 216 specification cells). This is the top band of *Level of difficulty*.
@@ -121,22 +123,32 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 ## 2. Literature Review (3.5 pp)
 
-Four strands, each ending with what it leaves open for this study. Every citation is checked before it enters.
+**Drafted 2026-09-25.** Four strands, each ending with what it leaves open for this study, then a synthesis with
+Table 1. Every citation checked on Crossref or arXiv, and every paraphrase checked against the abstract; the comment
+above each `references.bib` entry says where.
 
-- **2.1 Foundation models of human cognition.** Centaur and Psych-101 [Binz et al., 2025]; LLMs as simulated
-  participants and their limits. Sets up why Centaur chooses but does not answer (Section 3.4).
-- **2.2 Foundation models of neural response.** TRIBE v2 [d'Ascoli et al., 2026; checked, arXiv 2605.04326] as an encoding model; shared core
-  and readouts [Wang et al., 2025]; cortical parcellations and networks (Schaefer, Yeo). Sets up the non-negotiable
-  separation of immediate response from learning.
-- **2.3 Scaffolding and cognitive offloading.** Scaffolding and fading [Wood et al., 1976]; offloading
-  [Risko & Gilbert, 2016]; desirable difficulties, retrieval practice [Rowland, 2014; Adesope et al., 2017];
-  tutoring meta-analyses [VanLehn, 2011; Ma et al., 2014; Kulik & Fletcher, 2016]; the recent field evidence on
-  generative-AI tutors versus answer-giving assistants. <!-- CLAUDE: candidates to verify, not yet cited. -->
-- **2.4 Knowledge tracing and retention.** BKT [Corbett & Anderson, 1995]; retention of taught knowledge
-  [Custers, 2010]. These supply the D27 calibration anchors.
-- **2.5 Synthesis and gap.** No study joins predicted cortical response, a behaviourally calibrated learner and
-  long-horizon uncertainty propagation; the specification-curve and multiverse literature frames the robustness
-  design.
+- **2.1 Foundation models of human cognition.** Simulated learners and their weak validation [Käser & Alexandron,
+  2024]; LLMs as simulated participants [Argyle et al., 2023; Binz & Schulz, 2023; Dillion et al., 2023]; Centaur
+  [Binz et al., 2025] and its critics: generated behaviour diverges from human data [Namazova et al., 2025, which
+  applies directly since the study samples choices], prediction is not explanation [Orr et al., 2025], imperfect
+  simulators still serve theory discovery [Jagadish et al., 2026]. Ends with why Centaur chooses but does not answer.
+- **2.2 Foundation models of neural response.** Encoding models [Naselaris et al., 2011; Huth et al., 2016]; LM
+  features [Schrimpf et al., 2021; Caucheteux & King, 2022]; foundation models [Wang et al., 2025, mouse; TRIBE v2];
+  in-silico predictions confirmed by measurement [Tuckute et al., 2024]; reverse inference [Poldrack, 2006]; the one
+  measured AI-and-brain study, an EEG preprint [Kosmyna et al., 2025]. Ends with the separation of response from
+  learning.
+- **2.3 Scaffolding and cognitive offloading.** Scaffolding and fading [Wood et al., 1976; Puntambekar & Hubscher,
+  2005]; expertise reversal, faded examples, assistance dilemma, help seeking; offloading, generation, retrieval,
+  learning versus performance [Soderstrom & Bjork, 2015]; tutoring meta-analyses; generative-AI studies [Bastani et
+  al., 2025; Lehmann et al., 2024; Fan et al., 2025; Kestin et al., 2025]. Ends with: directions, not sizes.
+- **2.4 Knowledge tracing and retention.** BKT and logistic learner models [Corbett & Anderson, 1995; Cen et al.,
+  2006; Pelánek, 2017]; power-law forgetting [Pavlik & Anderson, 2005; Wixted & Ebbesen, 1991]; retention over years
+  [Custers, 2010; Bahrick, 1984; Cooper et al., 1996]. Ends with the anchors and a new limit: the model forgets at a
+  constant rate, and the specification curve varies the rate, not the form.
+- **2.5 Synthesis and research gap.** Table 1 (strand, establishes, leaves open, use here); the gap, hedged "to the
+  author's knowledge"; simulation as method [Davis et al., 2007]; one-at-a-time sensitivity analysis [Saltelli et al.,
+  2019] and specification curves; the study does not validate the learner against students [Käser & Alexandron, 2024],
+  pointing to §6.4.
 
 ## 3. Methodology (14.5 pp)
 
@@ -144,11 +156,11 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 
 | Sub | Content | Exhibits | Sources |
 |---|---|---|---|
-| 3.1 Design overview and data generation | Two layers, five phases; what is generated, what is assumed; one learner, four arms, common random numbers; two-tier run design | Figure 1; Table 1 (data generated); components table in App. D.5 | `guide.md` §1-2, `table2_components` |
-| **3.2 Phase I: the corpus** | Units, conditions, matching, validation, text controls | Table 1, Figure 2 | `table1_conditions`, `corpus_balance`, `tableS_semantic_coverage`, `tableS_near_duplicates`, `tableS_contradiction_judge` |
+| 3.1 Design overview and data generation | Two layers, five phases; what is generated, what is assumed; one learner, four arms, common random numbers; two-tier run design | Figure 1; Table 2 (data generated); components table in App. D.5 | `guide.md` §1-2, `table2_components` |
+| **3.2 Phase I: the corpus** | Units, conditions, matching, validation, text controls | Table 3, Figure 2 | `table1_conditions`, `corpus_balance`, `tableS_semantic_coverage`, `tableS_near_duplicates`, `tableS_contradiction_judge` |
 | 3.3 Phase II: predicted cortical response | TRIBE v2 on Colab L4, timing (eq. 4), Schaefer-400 / Yeo-7 (eq. 6-7), metrics (eq. 8-9), QC and gate 17, contrasts (eq. 10-13, 42), RSA (eq. 14), shuffled controls | — | `run_metadata.json`, `tribe_qc.json` |
 | 3.4 Phase III: the simulated learner | State (eq. 15-16), episode protocol, response model (eq. 17-18), effort and effectiveness (eq. 19-20), updates (eq. 21-25); hybrid engine: Centaur chooses, eq. 17-18 answers; what the transcript models can and cannot do; observable history only | none (all parameters in Table C2) | `table3_parameters`, `engine_comparison`, root `CLAUDE.md` measurements |
-| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | Table 5 (anchors) | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
+| 3.5 Parameter provenance and calibration anchors | Which parameters are anchored; alpha and delta outside their published ranges, omega consistent; anchoring never changes a value | Table 6 (anchors) | `tableS_parameter_anchors`, `config/parameter_sources.yaml` |
 | 3.6 Phase IV: plasticity | Eq. 28-33, hybrid mechanism D as main specification, the accumulator (N linear in Z), §8.7 outcomes | — | `guide.md` §6 |
 | 3.7 Phase V: ten-year scenarios | Calendar and break forgetting (D4), soft limits (D3), six scenarios, Monte Carlo (eq. 35), SC (eq. 37), PrSup (eq. 38), G (eq. 39), frontier and tipping points (eq. 40) | — | `PLAN.md` D1-D7, D18 |
 | 3.8 Validation, falsification and robustness | Gate 18, negative controls, specification curve (216 cells × 6 scenarios × 3 outcome weights; D24, D25 added after results, say so), variance decomposition (eq. 41), F1-F6, mechanism decomposition | — | `config/spec_curve.yaml`, `PLAN.md` D17-D25 |
@@ -158,12 +170,12 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 
 | Sub | Claim to establish | Exhibits | Sources |
 |---|---|---|---|
-| 4.1 Immediate predicted cortical contrasts | Condition contrasts exist; after F1, F2 and F5 only scaffolding's DorsAttn, SalVentAttn and SomMot contrasts survive; no substitution-vs-traditional contrast does | Table 8 (network level), Figures 3-4 | `table4_*`, `table6_falsification`, `rsa_*` |
+| 4.1 Immediate predicted cortical contrasts | Condition contrasts exist; after F1, F2 and F5 only scaffolding's DorsAttn, SalVentAttn and SomMot contrasts survive; no substitution-vs-traditional contrast does | Table 9 (network level), Figures 3-4 | `table4_*`, `table6_falsification`, `rsa_*` |
 | 4.2 One term of simulated learning | Ordering scaffolding ≥ traditional > free choice > substitution; holds in all three parameter settings; Centaur changes help requests and C, not learning outcomes | — (Figure S3, S1 in appendix) | `tableS_phase3_outcomes`, `tableS_phase3_settings`, `engine_comparison` |
-| 4.3 Ten-year scenario contrasts | Substitution and both free-choice rules negative on G at year 10; scaffolding scenarios positive | Table 9 (condensed), Figures 5-6 | `table5_*`, `fig5_*`, `fig6_*` |
+| 4.3 Ten-year scenario contrasts | Substitution and both free-choice rules negative on G at year 10; scaffolding scenarios positive | Table 10 (condensed), Figures 5-6 | `table5_*`, `fig5_*`, `fig6_*` |
 | 4.4 Frontier and tipping points | Neutral at o = 0, harmful for o ≥ 0.5; G turns negative at o ≈ 0.10 [0.06, 0.14]; no sign change in e, f or forgetting | Figure 7a (7b in 4.7) | `tableS_tipping_points` |
 | 4.5 Mechanisms | The scaffolding advantage runs through F; the substitution deficit through E (0.97 of the K contrast) | — | `tableS_mechanism_decomposition` |
-| 4.6 Robustness | Four of five AI scenarios keep the sign of median year-10 G in all 648 specifications; scaffolding without fading fails in exactly 216, the `adaptation=none` level, median 0.000000; F1-F6 verdicts, including the failures; G is 68% scenario, 29% learner | Figure 8a, Table 10 (sign stability), Table 11 (falsification) | `tableS_sign_stability`, `table6_*`, `tableS_variance_decomposition` |
+| 4.6 Robustness | Four of five AI scenarios keep the sign of median year-10 G in all 648 specifications; scaffolding without fading fails in exactly 216, the `adaptation=none` level, median 0.000000; F1-F6 verdicts, including the failures; G is 68% scenario, 29% learner | Figure 8a, Table 11 (sign stability), Table 12 (falsification) | `tableS_sign_stability`, `table6_*`, `tableS_variance_decomposition` |
 | 4.7 Neural trajectories (exploratory) | Control-network d keeps its sign in 59.2% of 62,208 specifications; adaptation irrelevant to it | Figures 7b, 8b | `table5_neural_d_v_main`, `fig8b_*` |
 
 ## 5. Discussion and Conclusions (4.5 pp)
@@ -196,10 +208,12 @@ and ranks, the rules changed after the first results, the components table). Pla
 contrasts at parcel level; supplementary tables and Figures S1-S3; reproducibility (commands, run tags, the D3
 manifest); data dictionary.
 
-Body tables so far, numbered in order of appearance (renumbered 2026-09-25): Table 1 data generated (§3.1), Table 2
-conditions (§3.2), Table 3 seven networks (§3.3), Table 4 learner quantities (§3.4), Table 5 calibration anchors
-(§3.5), Table 6 Phase V analyses (§3.7), Table 7 checks and F1-F6 (§3.8); Results: Table 8 cortical contrasts,
-Table 9 year-10 contrasts, Table 10 sign stability, Table 11 falsification verdicts. Discussion: Table 12 standing of the results, Table 13 limitations, Table 14 research questions; ESADE: Table 15 reusable parts, Table 16 next measurements.
+Body tables so far, numbered in order of appearance (renumbered again 2026-09-25 for §2): Table 1 strands of the
+literature (§2.5); Table 2 data generated (§3.1), Table 3 conditions (§3.2), Table 4 seven networks (§3.3), Table 5
+learner quantities (§3.4), Table 6 calibration anchors (§3.5), Table 7 Phase V analyses (§3.7), Table 8 checks and
+F1-F6 (§3.8); Results: Table 9 cortical contrasts, Table 10 year-10 contrasts, Table 11 sign stability, Table 12
+falsification verdicts; Discussion: Table 13 standing of the results, Table 14 limitations, Table 15 research
+questions; ESADE: Table 16 reusable parts, Table 17 next measurements.
 
 ---
 
