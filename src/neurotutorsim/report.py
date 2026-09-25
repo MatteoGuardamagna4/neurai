@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import textwrap
 from pathlib import Path
 
 import numpy as np
@@ -976,6 +977,98 @@ def _spec_panel(fig, gs, frame: pd.DataFrame, dims: list[str], title: str, ylabe
     return x
 
 
+# Figure 8a's choice grid in the wording of Table D3, each dimension's levels in rank order (main specification first)
+SPEC_LEVELS = {
+    "form": ("Updates", {"bounded": "bounded", "brief": "literal equations"}),
+    "forgetting": ("Forgetting", {"weekly_break_0.25": "break at 0.25", "weekly_break_0.1": "break at 0.1",
+                                  "weekly_break_1.0": "break at 1.0", "per_episode_no_breaks": "no breaks"}),
+    "epw": ("Exposure", {"3": "3 a week", "1": "1 a week", "5": "5 a week"}),
+    "effort": ("Effort", {"drawn": "drawn", "fixed_low": "fixed low", "fixed_high": "fixed high"}),
+    "adaptation": ("Adaptation", {"authored": "as in Table 2", "halved": "halved", "none": "none"}),
+    "outcome_weights": ("Weights", {"equal": "equal", "learning_first": "learning-first",
+                                    "autonomy_first": "autonomy-first"}),
+}
+
+
+def figure8a(plt, g: pd.DataFrame, out: Path) -> list[Path]:
+    """Figure 8a at the report's text width (150 mm), so that it prints at 1:1: one specification curve per AI
+    scenario in a 3 x 2 grid (sorted medians of year-10 G, colour by tier, 95% intervals) over the grid of modelling
+    choices, whose rows are labelled once per row of panels. Reads only the fig8a_spec_curve_G table."""
+    from matplotlib.colors import to_rgb
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+
+    scen = [s for s in SCENARIO_COLOR if s in set(g["scenario"])]
+    dims = [d for d in SPEC_LEVELS if d in g and g[d].nunique() > 1]  # a level not yet run adds no row
+    rows = [(d, lvl) for d in dims for lvl in SPEC_LEVELS[d][1] if lvl in set(g[d].astype(str))]
+    tier_color = {2: "#184f95", 3: "#5598e7"}  # sequential blue steps, dark = more plausible (validated, light mode)
+    shade, on = [to_rgb(SURFACE), to_rgb("#efeee9")], to_rgb(INK2)
+    fig = plt.figure(figsize=(5.9, 9.2))
+    outer = fig.add_gridspec(3, 2, left=0.24, right=0.99, top=0.93, bottom=0.01, hspace=0.2, wspace=0.17)
+    for i, s in enumerate(scen):
+        f = g[g["scenario"] == s].sort_values("median").reset_index(drop=True)
+        x, col = np.arange(len(f)), i % 2
+        gs = outer[i // 2, col].subgridspec(2, 1, height_ratios=[1, 1.75], hspace=0.04)
+        ax = fig.add_subplot(gs[0])
+        ax.vlines(x, f["lo95"], f["hi95"], color=GRID, lw=0.5, zorder=1)
+        for t in (3, 2):
+            sel = f["tier"] == t
+            ax.scatter(x[sel], f.loc[sel, "median"], s=1.5, color=tier_color[t], lw=0, zorder=3)
+        main = f["tier"] == 1
+        ax.scatter(x[main], f.loc[main, "median"], s=22, facecolor="none", edgecolor=INK, lw=0.9, zorder=4)
+        ax.axhline(0, color=INK, lw=0.7, zorder=2)
+        lo, hi = min(0.0, f["lo95"].min()), max(0.0, f["hi95"].max())
+        ax.set_ylim(lo - 0.06 * (hi - lo), hi + 0.06 * (hi - lo))
+        ax.set_xlim(-0.5, len(f) - 0.5)
+        ax.set_xticks([])
+        ax.tick_params(axis="y", labelsize=6.5, length=2, pad=1.5)
+        ax.locator_params(axis="y", nbins=4)
+        ax.grid(axis="x", visible=False)
+        ax.set_title(SCENARIO_LABEL[s], fontsize=8, pad=3)
+        if col == 0:
+            ax.set_ylabel("year-10 G", fontsize=7, labelpad=2)
+        img = np.empty((len(rows), len(f), 3))
+        for r, (d, lvl) in enumerate(rows):
+            img[r] = shade[dims.index(d) % 2]
+            img[r, (f[d].astype(str) == lvl).to_numpy()] = on
+        mx = fig.add_subplot(gs[1], sharex=ax)
+        mx.imshow(img, aspect="auto", interpolation="nearest", extent=(-0.5, len(f) - 0.5, len(rows) - 0.5, -0.5))
+        mx.grid(False)
+        mx.set_xticks([])
+        for side in ("left", "bottom"):
+            mx.spines[side].set_visible(False)
+        if col == 0:
+            mx.set_yticks(range(len(rows)), [SPEC_LEVELS[d][1][lvl] for d, lvl in rows], fontsize=5.8)
+            mx.tick_params(axis="y", length=0, pad=2)
+            for d in dims:
+                at = [r for r, (dd, _) in enumerate(rows) if dd == d]
+                mx.text(-0.4, (at[0] + at[-1]) / 2, SPEC_LEVELS[d][0], transform=mx.get_yaxis_transform(),
+                        ha="right", va="center", fontsize=6.3, fontweight="bold", color=INK)
+        else:
+            mx.set_yticks([])
+    n = g.groupby("scenario").size()
+    dropped = g.attrs.get("dropped_scenarios") or []
+    key = fig.add_subplot(outer[len(scen) // 2, 1]) if len(scen) % 2 else None
+    if key is not None:
+        key.axis("off")
+        handles = [Line2D([], [], ls="", marker="o", ms=5, mfc="none", mec=INK, mew=0.9, label="main specification"),
+                   Line2D([], [], ls="", marker="o", ms=3, color=tier_color[2], label="median, plausible alternatives"),
+                   Line2D([], [], ls="", marker="o", ms=3, color=tier_color[3], label="median, least plausible level used"),
+                   Line2D([], [], color=GRID, lw=2, label="95% interval across draws"),
+                   Patch(facecolor=INK2, label="choice made by the specification")]
+        key.legend(handles=handles, loc="upper left", fontsize=6.5, handlelength=1.4, borderaxespad=0, labelspacing=0.6)
+        note = (f"Each column is one of the {n.max()} specifications of a scenario, sorted by median G; the grid below "
+                "marks the choices it made. Tier: the least plausible rank among its choices (Table D3). "
+                + (f"Restricted to the scenarios every specification ran; {', '.join(dropped)} not run by all of them."
+                   if dropped else "Every specification ran the same scenarios."))
+        key.text(0, 0.36, "\n".join(textwrap.wrap(note, 52)), transform=key.transAxes, va="top", fontsize=6.3, color=INK2)
+    fig.suptitle("Figure 8a. Specification curve of the year-10 net advantage G against traditional instruction",
+                 x=0.01, y=0.995, ha="left", fontsize=8.5, fontweight="bold", color=INK)
+    fig.text(0.01, 0.973, f"Median and 95% interval across {int(g['n'].max())} parameter draws per specification",
+             ha="left", va="top", fontsize=7.5, color=INK2)
+    return save(fig, out, "fig8a_spec_curve_G")
+
+
 def figure8(paths: Paths, year: int = 10) -> list[Path]:
     """Figure 8 (§10.4): (a) year-10 G for every AI scenario, one row per rerun specification x outcome weights;
     (b) mechanism d for the control network, substitution vs traditional, rerun x post hoc levels. Both panels report
@@ -1023,21 +1116,7 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     written.append(paths.table(nd, "fig8b_spec_curve_neural"))
     plt = plt_setup()
     rerun_dims = ["form", "forgetting", "epw", "effort", "adaptation"]
-    scen = [s for s in SCENARIO_COLOR if s in set(g["scenario"])]
-    fig = plt.figure(figsize=(13, 3.6 * len(scen)))
-    outer = fig.add_gridspec(len(scen), 1, hspace=0.45, top=0.96)
-    g_dims = [d for d in rerun_dims + ["outcome_weights"] if g[d].nunique() > 1]  # a level not yet run adds no row
-    for i, s in enumerate(scen):
-        gs = outer[i].subgridspec(2, 1, height_ratios=[1.3, 1], hspace=0.05)
-        _spec_panel(fig, gs, g[g["scenario"] == s], g_dims,
-                    f"{SCENARIO_LABEL[s]}: {len(g[g['scenario'] == s])} specifications", "year-10 G vs traditional")
-    dropped = g.attrs.get("dropped_scenarios") or []
-    fig.suptitle("Figure 8a. Specification curve: year-10 net advantage G (median and 95% interval across draws).\n"
-                 + (f"Restricted to the scenarios every specification ran; {', '.join(dropped)} "
-                    "not run by all of them (PLAN.md D18, D25)." if dropped
-                    else "Every specification ran the same scenarios."),
-                 x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
-    written += save(fig, paths.figures, "fig8a_spec_curve_G")
+    written += figure8a(plt, g, paths.figures)
     fig = plt.figure(figsize=(13, 7.5))
     gs = fig.add_gridspec(2, 1, height_ratios=[1, 1.4], hspace=0.05, top=0.93)
     post_hoc_dims = ["parcellation", "wpm", "metric", "winsorize", "network_weights", "mechanism"]
