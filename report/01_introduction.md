@@ -2,39 +2,37 @@
 
 ## 1.1 Motivation
 
-It is late in the evening, and an MBA student is stuck on a net-present-value problem. A chat assistant can get them
-unstuck in seconds, in one of two ways. It can ask what they have tried, point to the step that went wrong and let
-them finish the calculation. Or it can give them the answer. Both feel like help, and both put the right number on the
-page tonight. What matters to a business school is what each leaves behind: what the student can still do alone next
-month, and what years of such help add up to.
+Consider an MBA student stuck on a net-present-value problem. A chat assistant can help in one of two ways. It can
+ask what the student has tried, point to the step that went wrong and let them finish the calculation, or it can
+supply the answer. Both resolve the problem at hand. What matters to a business school is what each leaves behind:
+what the student can do alone afterwards, and what years of such help add up to.
 
-The first field evidence points both ways. In a field experiment with nearly a thousand secondary-school students,
-unrestricted access to a chat assistant raised grades during practice and lowered them once access was withdrawn,
-below those of students who had never had it [@bastani2025]. In a randomised trial with university students, an AI
-tutor built on established teaching practice produced larger learning gains, in less time, than an active-learning
-class [@kestin2025]. The technology is the same. What differs is whether the tool supplies answers or makes students
-work for them.
+The early field evidence points in both directions. In a field experiment with nearly a thousand secondary-school
+students, unrestricted access to a chat assistant raised grades during practice and lowered them once access was
+withdrawn, below those of students who had never had it [@bastani2025]. In a randomised trial with university
+students, an AI tutor built on established teaching practice produced larger learning gains, in less time, than an
+active-learning class [@kestin2025]. What distinguishes the two outcomes is less the technology than whether the tool
+supplies answers or requires students to work for them.
 
-These studies span weeks. The decisions a school takes about AI concern years: which tools to adopt, how to build
-them into a course, what to allow at home. The evidence that would settle those decisions, cohorts taught in different
-ways and followed for a decade, would arrive long after the decisions had been taken and the tools had changed.
-Waiting for it is itself a decision.
+These studies span weeks, whereas a school's decisions about AI concern years: which tools to adopt and how to build
+them into a course. The evidence that would settle such decisions, cohorts taught in different ways and followed for a
+decade, would arrive after the decisions had been taken and the tools had changed.
 
-This study takes another route. It builds a computational laboratory in which the long experiment can be run now, on
-simulated learners, with every assumption written down. Two recent developments make this possible. Encoding models
-trained on large collections of brain recordings can predict the cortical response to a text that has never been
-scanned [@dascoli2026]. Language models trained on more than ten million choices from psychological experiments can
-predict what a person will choose next [@binz2025]. Joined to explicit equations for learning and forgetting, they
-allow an experiment that cannot be run on people: the same learner, taught the same curriculum in six different ways,
-followed for ten school years.
+This study therefore takes a different approach: a computational laboratory in which the long-term comparison is run
+on simulated learners, with every assumption stated explicitly. Two recent developments make this possible. Encoding
+models trained on large collections of brain recordings can predict the cortical response to a text that has never
+been scanned [@dascoli2026]. Language models trained on more than ten million choices from psychological experiments
+can predict what a person will choose next [@binz2025]. Joined to explicit equations for learning and forgetting, they
+allow a comparison that cannot be run with students: the same simulated learner, taught the same curriculum in six
+different ways, followed for ten school years.
 
-The laboratory does not forecast what will happen to real students. It shows which conclusions follow from which
-assumptions, and that turns out to be informative. An AI tutor that scaffolds but never withdraws its help leaves the
-simulated learner slightly ahead of traditional instruction after ten years, but only because the model assumes that
-adaptive instruction is more effective per lesson. Set that one assumed number equal across the regimes, and the
-advantage becomes exactly zero in every specification in which this is done. A tutor that steps back as the learner
-succeeds stays ahead under the same test, and a tutor that supplies answers keeps its harm in all 648 specifications
-examined. The first is an assumption; the other two follow from the mechanics of the model.
+The laboratory does not forecast what will happen to real students; it shows which conclusions follow from which
+assumptions, and the distinction matters for the results. An AI tutor that scaffolds without withdrawing its help
+leaves the simulated learner slightly ahead of traditional instruction after ten years, but only because the model
+assumes that adaptive instruction is more effective per lesson: when that assumed value is set equal across the
+regimes, the advantage is exactly zero in every specification in which this is done. A tutor that withdraws its help
+as the learner succeeds stays ahead under the same test, and a tutor that supplies answers is harmful in all 648
+specifications examined. The first result is an assumption; the other two follow from the mechanics of the model.
 
 ## 1.2 Research questions
 

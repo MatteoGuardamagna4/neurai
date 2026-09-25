@@ -112,7 +112,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 ## 1. Introduction (3 pp)
 
-**Drafted 2026-09-25**, in the engaging register the author asked for (Conventions). Every number is in the ledger.
+**Drafted 2026-09-25**, in the engaging register the author asked for (Conventions), then pulled back a little the same day (author: "the narrative is too far"). Every number is in the ledger.
 
 - **1.1 Motivation.** Opening scene (an MBA student, a chat assistant, two ways to help); the field evidence points
   both ways [Bastani et al., 2025; Kestin et al., 2025]; the evidence would take a decade, and waiting is a decision;
@@ -146,7 +146,7 @@ above each `references.bib` entry says where.
 - **2.3 Scaffolding and cognitive offloading.** Scaffolding and fading [Wood et al., 1976; Puntambekar & Hubscher,
   2005]; expertise reversal, faded examples, assistance dilemma, help seeking; offloading, generation, retrieval,
   learning versus performance [Soderstrom & Bjork, 2015]; tutoring meta-analyses; generative-AI studies [Bastani et
-  al., 2025; Lehmann et al., 2024; Fan et al., 2025; Kestin et al., 2025]. Ends with: directions, not sizes.
+  al., 2025; Fan et al., 2025; Kestin et al., 2025; Lehmann et al., 2024 removed as a preprint]. Ends with: directions, not sizes.
 - **2.4 Knowledge tracing and retention.** BKT and logistic learner models [Corbett & Anderson, 1995; Cen et al.,
   2006; Pelánek, 2017]; power-law forgetting [Pavlik & Anderson, 2005; Wixted & Ebbesen, 1991]; retention over years
   [Custers, 2010; Bahrick, 1984; Cooper et al., 1996]. Ends with the anchors and a new limit: the model forgets at a
@@ -251,7 +251,8 @@ scale. Readability: see the Conventions rule; §3 trimmed and §4 lightened the 
 
 Answered 2026-09-25 (after §2): Table 1 in §2 and the renumbering are kept; the four preprints are not; the two
 limitations §2 raised (Centaur untested as a learner over many sessions; forgetting at a constant rate) are added to
-Table 14; TRIBE's architecture is left unstated, since neither the author nor its abstract settles it.
+Table 14; TRIBE's architecture is left unstated, since neither the author nor its abstract settles it. After §1: Lehmann et
+al. (2024) dropped too, as a preprint, from §2.3 and §5.3; the §1 narrative pulled back a little.
 
 Still open:
 

@@ -89,8 +89,7 @@ Tutoring, human or computer-based, raises learning relative to conventional inst
 direction but not on the size [@vanlehn2011; @ma2014; @kulik2016]. Recent studies of generative AI in education find a
 contrast between supplying answers and guiding. When secondary-school students could obtain answers freely, their
 performance rose during practice but fell below that of students without access once access was removed
-[@bastani2025]. Students who used a language model to generate solutions covered more topics but understood each less
-well [@lehmann2024]. When students revised essays with a chatbot, their scores improved more than with other kinds of
+[@bastani2025]. When students revised essays with a chatbot, their scores improved more than with other kinds of
 support, but their gains in knowledge and transfer did not [@fan2025]. Tools designed to guide rather than to answer
 largely avoided the loss [@bastani2025] or produced larger gains than an active-learning class [@kestin2025].
 

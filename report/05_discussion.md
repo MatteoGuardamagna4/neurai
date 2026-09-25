@@ -72,12 +72,11 @@ conditions under which they reverse, and a measure of how much each assumption m
 
 Recent field studies point the same way. In a field experiment with nearly 1,000 high-school mathematics students,
 unrestricted access to a chat assistant raised performance during practice but lowered it once access was removed,
-while a version with pedagogical safeguards largely avoided the loss [@bastani2025]. Students who used a language
-model to replace learning activities understood the material less deeply than those who used it to complement them
-[@lehmann2024]. And an AI tutor built on research-based pedagogy produced larger learning gains, in less time, than an
-active-learning class [@kestin2025]. These findings agree with the model's central distinction between supplying
-answers and scaffolding. They do not test the model: they concern other populations, subjects and time horizons, and
-none measures the ten-year quantities projected here.
+while a version with pedagogical safeguards largely avoided the loss [@bastani2025]. In a randomised trial, an AI
+tutor built on research-based pedagogy produced larger learning gains, in less time, than an active-learning class
+[@kestin2025]. These findings agree with the model's central distinction between supplying answers and scaffolding.
+They do not test the model: they concern other populations, subjects and time horizons, and none measures the ten-year
+quantities projected here.
 
 The magnitudes are not comparable. The simulated learner closes a smaller share of its gap to mastery per episode,
 and keeps less knowledge over a year, than published estimates imply; only the effect of support on accuracy lies
