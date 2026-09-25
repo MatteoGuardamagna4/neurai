@@ -55,7 +55,7 @@ network did so in new participants [@tuckute2024]. None of the predictions in th
 
 Two further limits shape how the predictions are read. The first is reverse inference. A response in a region does not
 identify the mental process behind it: the inference is only as strong as the region's selectivity for that process
-[@poldrack2006]. The functional labels of Table 4 are therefore conventions, not evidence that a process took place.
+[@poldrack2006]. The functional labels of Table 3 are therefore conventions, not evidence that a process took place.
 The second is that an encoding model has no memory of the learner. It maps a stimulus to the response of an average
 participant, and nothing in it depends on what that participant has learned. It describes the immediate response to a
 text, not learning.
@@ -104,7 +104,7 @@ Intelligent tutoring systems estimate what a student knows from the sequence of 
 tracing treats each skill as either known or not, with a fixed probability of learning it at each practice opportunity
 and fixed probabilities of guessing and slipping [@corbett1995]. Logistic models instead predict the probability of a
 correct answer from the student's ability, the difficulty of the skill and the amount of practice [@cen2006;
-@pelanek2017]. The response model of this study (eq. 17) belongs to the logistic family. Its learning rate is compared
+@pelanek2017]. The response model of this study (eq. 1) belongs to the logistic family. Its learning rate is compared
 in Section 3.5 with the learning probabilities that knowledge tracing typically uses [@badrinath2021].
 
 These models are fitted to the logs of a course and describe weeks or months of practice. Standard knowledge tracing
@@ -127,9 +127,9 @@ did not favour, and the robustness analysis varies the rate and calendar of forg
 
 ## 2.5 Synthesis and research gap
 
-Table 1 draws the strands together.
+Table 4 draws the strands together.
 
-Table: **Table 1.** The strands of the literature and their use in this study
+Table: **Table 4.** The strands of the literature and their use in this study
 
 | Strand | What it establishes | What it leaves open | How this study uses it |
 |------------------|------------------------------------------|------------------------------------|------------------------------------|

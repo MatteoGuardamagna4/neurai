@@ -53,7 +53,7 @@ made. Five secondary questions follow from it:
 5. Is there a robust frontier between beneficial, neutral and harmful AI?
 
 The answers are statements about a model. They are reported as scenario contrasts between simulated learners, not as
-effects on students, and Table 15 (Section 5.5) gives them in brief.
+effects on students, and Table 1 (Section 5.5) gives them in brief.
 
 ## 1.3 Approach and contribution
 

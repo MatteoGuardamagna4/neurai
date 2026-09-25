@@ -194,12 +194,12 @@ def figure1(plt, out: Path) -> list[Path]:
     boxes = {
         "Educational material": (0.1, 2.05, "30 units x 3 conditions\nmatched length and duration"),
         "TRIBE v2": (2.35, 2.05, "predicted cortical response\nSchaefer-400, 7 networks"),
-        "Standardised pattern Z": (4.6, 2.05, "eq. 28, per parcel\nover the 90 stimuli"),
-        "Simulated learner": (0.1, 0.25, "choices: Centaur or logistic\ncorrectness: eq. 17-18"),
-        "Learner update": (2.35, 0.25, "effort, effectiveness\nK, M, R, C, D (eq. 19-25)"),
-        "Plasticity update": (4.6, 0.25, "model-implied N\neq. 29-33"),
+        "Standardised pattern Z": (4.6, 2.05, "standardised per parcel\nover the 90 stimuli"),
+        "Simulated learner": (0.1, 0.25, "choices: Centaur or logistic\ncorrectness: response model"),
+        "Learner update": (2.35, 0.25, "effort, effectiveness\nupdates of K, M, R, C, D"),
+        "Plasticity update": (4.6, 0.25, "model-implied N\nfour accumulation rules"),
         "Ten-year scenarios": (6.95, 1.15, "6 scenarios x parameter draws\nweekly calendar with breaks"),
-        "Scenario contrasts": (9.2, 1.15, "SC, PrSup, G (eq. 37-39)\nfrontier, tipping points"),
+        "Scenario contrasts": (9.2, 1.15, "SC, PrSup, net advantage G\nfrontier, tipping points"),
     }
     for title, (x, y, body) in boxes.items():
         ax.add_patch(FancyBboxPatch((x, y), W, H, boxstyle="round,pad=0.02,rounding_size=0.08", fc="#f0efec", ec=AXIS, lw=0.8))
@@ -234,7 +234,7 @@ def figure1(plt, out: Path) -> list[Path]:
     arrow(right("Plasticity update", 0.7), left("Ten-year scenarios", 0.3))
     arrow(right("Standardised pattern Z", 0.3), left("Ten-year scenarios", 0.7))
     arrow(right("Ten-year scenarios"), left("Scenario contrasts"))
-    ax.set_title("Figure 1. From educational material to long-term scenario (all quantities predicted or model-implied)", fontsize=10)
+    ax.set_title("From educational material to long-term scenario (all quantities predicted or model-implied)", fontsize=10)
     return save(fig, out, "fig1_pipeline")
 
 
@@ -254,7 +254,7 @@ def figure2(plt, balance: pd.DataFrame, stimuli: pd.DataFrame, out: Path) -> lis
         a.scatter(np.clip(vals, -2, 2), y + (i - 1) * 0.22, s=36, color=color, marker=marker, label=label,
                   edgecolor=SURFACE, linewidth=1.5, zorder=3)
     a.set_yticks(y, [f.replace("_", " ") for f in feats])
-    a.set_xlabel("standardised mean difference (eq. 3)")
+    a.set_xlabel("standardised mean difference")
     a.set_title("SMD per matching feature (shaded: |SMD| < 0.10 target)")
     a.legend(loc="upper left")
     wide = stimuli.pivot_table(index="unit_id", columns="condition", values="duration")
@@ -271,7 +271,7 @@ def figure2(plt, balance: pd.DataFrame, stimuli: pd.DataFrame, out: Path) -> lis
     b.set_ylabel("duration vs traditional, % (per unit)")
     b.set_title("Duration caliper per unit (shaded: within 10%)")
     b.grid(axis="x", visible=False)
-    fig.suptitle("Figure 2. Corpus matching diagnostics (descriptive)", x=0.01, ha="left",
+    fig.suptitle("Corpus matching diagnostics (descriptive)", x=0.01, ha="left",
                  fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
     return save(fig, out, "fig2_corpus_balance")
@@ -305,7 +305,7 @@ def figure3(plt, metrics: pd.DataFrame, out: Path, metric: str = "auc") -> tuple
     legend_ax.legend(loc="center left", title="mean, 95% bootstrap CI", title_fontsize=8.5)
     for ax in axes[:, 0]:
         ax.set_ylabel(f"predicted response {metric.upper()} (a.u. x s)")
-    fig.suptitle(f"Figure 3. Predicted network-level responses by condition (TRIBE v2, 220 wpm, area-weighted {metric.upper()})",
+    fig.suptitle(f"Predicted network-level responses by condition (TRIBE v2, 220 wpm, area-weighted {metric.upper()})",
                  x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
     return save(fig, out, "fig3_network_responses"), pd.DataFrame(rows)
@@ -335,9 +335,9 @@ def figure4(plt, patterns: pd.DataFrame, units: pd.DataFrame, differentiation: p
         for spine in ax.spines.values():
             spine.set_visible(False)
     cb = fig.colorbar(im, ax=axes, fraction=0.02, pad=0.01)
-    cb.set_label("1 - correlation of parcel patterns (eq. 14)", color=INK2)
+    cb.set_label("1 - correlation of parcel patterns", color=INK2)
     cb.outline.set_visible(False)
-    fig.suptitle("Figure 4. Representational dissimilarity of predicted parcel patterns by condition (units ordered by concept)",
+    fig.suptitle("Representational dissimilarity of predicted parcel patterns by condition (units ordered by concept)",
                  x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
     rows = [{"condition": c, "unit_a": ids[i], "unit_b": ids[j], "dissimilarity": float(rdms[c][i, j])}
             for c in CONDITIONS for i in range(len(ids)) for j in range(i + 1, len(ids))]
@@ -363,11 +363,11 @@ def figure_parcels(plt, parcels: pd.DataFrame, parcel_table: pd.DataFrame, out: 
         ax.set_xticks(range(7), [NETWORK_LABEL[n].split(" /")[0] for n in tribe.NETWORKS], rotation=35, ha="right")
         ax.set_title(f"{title[name]}  ({int((d['q_fdr'] < 0.05).sum())} of {len(d)} parcels q < 0.05)", fontsize=9)
         ax.grid(axis="x", visible=False)
-    axes[0].set_ylabel("per-parcel AUC contrast (eq. 13)")
+    axes[0].set_ylabel("per-parcel AUC contrast")
     axes[0].scatter([], [], s=12, color=INK2, label="q < 0.05 (BH over 1,200 tests)")
     axes[0].scatter([], [], s=9, color=AXIS, label="not significant")
     axes[0].legend(loc="lower left")
-    fig.suptitle("Figure S2. Parcel-level contrasts in predicted AUC, grouped by network", x=0.01, ha="left",
+    fig.suptitle("Parcel-level contrasts in predicted AUC, grouped by network", x=0.01, ha="left",
                  fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
     return save(fig, out, "figS2_parcel_contrasts")
@@ -498,7 +498,7 @@ def engines(paths: Paths, a_tag: str = "centaur_main", b_tag: str = "logistic_40
     ax.set_yticks(range(len(outcomes)), [o.replace("_", " ") for o in outcomes])
     ax.set_xlabel(f"{a_tag} - {b_tag}, mean paired difference over 40 learners (95% bootstrap CI)")
     ax.legend(loc="lower right")
-    ax.set_title("Figure S1. Centaur-chosen behaviour versus the logistic baseline on the same learners (descriptive)")
+    ax.set_title("Centaur-chosen behaviour versus the logistic baseline on the same learners (descriptive)")
     return written + save(fig, paths.figures, "figS1_engine_comparison")
 
 
@@ -544,7 +544,7 @@ def phase3(paths: Paths, tag: str = "population_logistic", settings: tuple[str, 
     np.atleast_1d(axes)[0].set_ylabel("mean over learners (95% CI)")
     np.atleast_1d(axes)[-1].legend(loc="best", fontsize=8)
     n = int(levels["n_learners"].max())
-    fig.suptitle(f"Figure S3. Simulated learner outcomes by condition, {tag} ({n:,} learners per arm, logistic engine).\n"
+    fig.suptitle(f"Simulated learner outcomes by condition, {tag} ({n:,} learners per arm, logistic engine).\n"
                  "Each checkpoint probes the units studied most recently, so compare conditions within a checkpoint, "
                  "not levels across them.",
                  x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
@@ -587,7 +587,7 @@ SCENARIO_LABEL = {"traditional": "Traditional", "scaffolding_rapid": "Scaffoldin
                   "scaffolding_nofade": "Scaffolding, no fade", "substitution": "Substitution",
                   "free_choice": "Free choice (assumed rule)", "free_choice_centaur": "Free choice (Centaur-calibrated)"}
 HEADLINE = ("G", "unaided", "far", "retention", "p_request")  # PLAN.md D7
-OUTCOME_LABEL = {"G": "net advantage G (eq. 39)", "unaided": "unaided accuracy", "far": "far transfer",
+OUTCOME_LABEL = {"G": "net advantage G", "unaided": "unaided accuracy", "far": "far transfer",
                  "retention": "retention after the break", "p_request": "P(request help)", "K": "knowledge K",
                  "D": "dependence D"}
 
@@ -625,7 +625,7 @@ def figure5(plt, weekly: pd.DataFrame, levels: pd.DataFrame, out: Path, name: st
             ax2.set_title(f"{OUTCOME_LABEL.get(var, var)}, end of each school year")
             ax2.set_xlabel("school year (0 = before the first episode)")
     axes[0, 0].legend(loc="lower right", fontsize=7.5)
-    fig.suptitle("Figure 5. Model-implied trajectories per scenario (mean over parameter draws, band: 5-95% of draws)",
+    fig.suptitle("Model-implied trajectories per scenario (mean over parameter draws, band: 5-95% of draws)",
                  x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
     return save(fig, out, f"fig5_trajectories_{name}"), pd.DataFrame(rows)
@@ -661,7 +661,7 @@ def figure6(plt, hist: pd.DataFrame, table5: pd.DataFrame, out: Path, name: str,
             if j == 0:
                 ax.set_ylabel(OUTCOME_LABEL.get(o, o), fontsize=8)
             ax.tick_params(labelsize=7)
-    fig.suptitle(f"Figure 6. Year-{year} scenario contrasts: learner-level paired differences vs traditional "
+    fig.suptitle(f"Year-{year} scenario contrasts: learner-level paired differences vs traditional "
                  f"(bars), median across draws (line) and 90% simulation interval (band)", x=0.01, ha="left",
                  fontsize=10, fontweight="bold", color=INK)
     fig.tight_layout()
@@ -723,7 +723,7 @@ def figure5b(plt, episodes: pd.DataFrame, units: pd.DataFrame, paths: Paths, tag
     ax.set_xlabel("episode (year 1)")
     ax.set_ylabel("adjusted P(first attempt correct)")
     ax.legend(loc="lower right", fontsize=7.5)
-    ax.set_title(f"Figure 5b. Eq. 43 learning curves ({coefs.attrs['n_learners']} learners, central draw; "
+    ax.set_title(f"First-year learning curves of the trajectory model ({coefs.attrs['n_learners']} learners, central draw; "
                  "band: 95%, learner-clustered)", fontsize=9.5)
     return written + save(fig, paths.figures, f"fig5b_trajectory_model_{tag}")
 
@@ -772,7 +772,7 @@ def figure7(paths: Paths, grid_tag: str = "v_frontier", lines_tag: str = "v_tipp
             ax.set_title(f"substitution probability o = {o:.1f}")
             ax.grid(False)
         fig.colorbar(im, ax=axes[0].tolist(), shrink=0.8, label="median year-10 G vs traditional")
-        fig.suptitle("Figure 7a. Robustness frontier: scaffolding cells vs traditional, year 10 "
+        fig.suptitle("Robustness frontier: scaffolding cells vs traditional, year 10 "
                      "(+ beneficial, − harmful, · neutral at ε = 0.02)", x=0.01, ha="left", fontsize=10,
                      fontweight="bold", color=INK)
         written += save(fig, paths.figures, "fig7a_phase_diagram")
@@ -796,7 +796,7 @@ def figure7(paths: Paths, grid_tag: str = "v_frontier", lines_tag: str = "v_tipp
             ax.grid(False)
         axes[0, 0].set_ylabel("half-life (weeks)")
         fig.colorbar(im, ax=axes[0].tolist(), shrink=0.8, label="median year-10 d")
-        fig.suptitle("Figure 7b. Model-implied neural contrast, substitution vs traditional (mechanism D, year 10)",
+        fig.suptitle("Model-implied neural contrast, substitution vs traditional (mechanism D, year 10)",
                      x=0.01, ha="left", fontsize=10, fontweight="bold", color=INK)
         written += save(fig, paths.figures, "fig7b_neural_diagram")
     return written
@@ -1062,7 +1062,7 @@ def figure8a(plt, g: pd.DataFrame, out: Path) -> list[Path]:
                 + (f"Restricted to the scenarios every specification ran; {', '.join(dropped)} not run by all of them."
                    if dropped else "Every specification ran the same scenarios."))
         key.text(0, 0.36, "\n".join(textwrap.wrap(note, 52)), transform=key.transAxes, va="top", fontsize=6.3, color=INK2)
-    fig.suptitle("Figure 8a. Specification curve of the year-10 net advantage G against traditional instruction",
+    fig.suptitle("Specification curve of the year-10 net advantage G against traditional instruction",
                  x=0.01, y=0.995, ha="left", fontsize=8.5, fontweight="bold", color=INK)
     fig.text(0.01, 0.973, f"Median and 95% interval across {int(g['n'].max())} parameter draws per specification",
              ha="left", va="top", fontsize=7.5, color=INK2)
@@ -1122,7 +1122,7 @@ def figure8(paths: Paths, year: int = 10) -> list[Path]:
     post_hoc_dims = ["parcellation", "wpm", "metric", "winsorize", "network_weights", "mechanism"]
     _spec_panel(fig, gs, nd, [d for d in rerun_dims + post_hoc_dims if nd[d].nunique() > 1],
                 f"Control network, substitution vs traditional: {len(nd)} specifications", "year-10 d")
-    fig.suptitle("Figure 8b. Specification curve: model-implied control-network contrast (median and 95% interval "
+    fig.suptitle("Specification curve: model-implied control-network contrast (median and 95% interval "
                  "across subsample draws)", x=0.01, y=0.995, ha="left", fontsize=10, fontweight="bold", color=INK)
     written += save(fig, paths.figures, "fig8b_spec_curve_neural")
     return written

@@ -42,19 +42,28 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
 - **Voice.** Impersonal by default; first person singular only for the author's own decisions.
 - **Citations.** Pandoc keys (`[@austin2009]`), rendered in APA from `references.bib`. Only sources checked against
   Crossref or arXiv enter the file; the comment above each entry records how.
-- **Equations** keep their code numbers, so that they match the code, the tables and the figure labels ("eq. 3").
-  Each is written out where it first matters, labelled with that number; a forward reference names the section that
-  writes it out. The numbering has gaps and will be renumbered at the end.
-- **Exhibits.** Figures keep their output numbers, 1-8 (the images carry their titles). Tables are numbered in order of
-  appearance. Every figure and table ends with a source line: *Source: own elaboration. …* (REPORT.md §2).
+- **Numbering (binding, author 2026-09-25).** Equations, figures and tables are numbered by **first mention** (a
+  reference or the item itself, whichever comes first), front matter excluded. Body tables and figures take integers;
+  appendix tables keep their appendix letter and are numbered within it (A1, C1, D1 …); appendix figures are Figure
+  E1-E7; equations form one sequence over body and appendices, a primed equation following its base. Consequence
+  accepted by the author: the printed order of body tables starts 4, 2, 5, 3 and Table 1 (research questions, cited
+  in §1.2) is printed in §5.5; equations are written out out of order (e.g. (8) before (2)). Appendix blocks are
+  ordered so that appendix exhibits print in numeric order. A new mention that precedes an item's first mention
+  changes the numbering: renumber with the scratch script's logic (first mention per group) rather than by hand.
+  Appendix F.5 (Table F4) maps report equation numbers to the code's, which the code, comments and output tables
+  keep.
+- **Exhibits.** Figure images carry a title but no figure or equation number (`report.py`, 2026-09-25); the report
+  adds the number in a caption above each figure (`::: {custom-style="Image Caption"}`). Every figure and table ends
+  with a source line: *Source: own elaboration. …* (REPORT.md §2).
 - **Explanatory tables (binding, author 2026-09-25).** Wherever a section introduces a set of analyses, checks,
   quantities or categories that a reader must keep apart, build a table rather than only prose, in the format
   *Item | What it asks (or represents) | How it is computed | How to read it* (the last column may be "Reading in
   this study" or "When it fails"). The author finds them intuitive and easy to read and asked for them wherever there
   is an opportunity. Prefer tables that replace the prose they summarise, since §3 is over its page budget; keep each
-  cell to one short clause; every number in a cell goes in the claims ledger. In place: Table 1 (strands of the
-  literature, §2.5), Table 4 (seven networks, §3.3), Table 5 (learner quantities, §3.4), Table 7 (Phase V analyses,
-  §3.7), Table 8 (checks and F1-F6, §3.8), Tables 13-15 (§5), Tables 16-17 (§6).
+  cell to one short clause; every number in a cell goes in the claims ledger. In place (numbers after the
+  2026-09-25 renumbering): Table 4 (strands of the literature, §2.5), Table 3 (seven networks, §3.3), Table 6 (learner
+  quantities, §3.4), Table 8 (Phase V analyses, §3.7), Table 9 (checks and F1-F6, §3.8), Tables 14, 15 and 1 (§5),
+  Tables 16-17 (§6).
   Remaining candidate: Phase II analyses in §3.3 (declined for now).
 - **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.
 
@@ -228,12 +237,17 @@ CSVs and cited from §4); F. Reproducibility and data (**drafted** 2026-09-25: a
 Table F2 run tags, Table F3 data files; the full dictionary stays in `outputs/tables/data_dictionary.csv`, which
 lacks `tableS_f4_bound_check.csv`).
 
-Body tables so far, numbered in order of appearance (renumbered again 2026-09-25 for §2): Table 1 strands of the
-literature (§2.5); Table 2 data generated (§3.1), Table 3 conditions (§3.2), Table 4 seven networks (§3.3), Table 5
-learner quantities (§3.4), Table 6 calibration anchors (§3.5), Table 7 Phase V analyses (§3.7), Table 8 checks and
-F1-F6 (§3.8); Results: Table 9 cortical contrasts, Table 10 year-10 contrasts, Table 11 sign stability, Table 12
-falsification verdicts; Discussion: Table 13 standing of the results, Table 14 limitations, Table 15 research
-questions; ESADE: Table 16 reusable parts, Table 17 next measurements.
+Body tables after the first-mention renumbering (2026-09-25): Table 1 research questions (§5.5, cited in §1.2);
+Table 2 data generated (§3.1); Table 3 seven networks (§3.3, cited in §2.2); Table 4 strands of the literature
+(§2.5); Table 5 conditions (§3.2); Table 6 learner quantities (§3.4); Table 7 calibration anchors (§3.5); Table 8
+Phase V analyses (§3.7); Table 9 checks and F1-F6 (§3.8); Results: Table 10 cortical contrasts, Table 11 year-10
+contrasts, Table 12 sign stability, Table 13 falsification verdicts; Discussion: Table 14 standing of the results,
+Table 15 limitations; ESADE: Table 16 reusable parts, Table 17 next measurements. Body figures 1-7: pipeline, corpus
+balance, network responses, trajectories, year-10 distributions, phase diagram, specification curve of $G$. Appendix
+figures E1-E7: parcel contrasts, RDMs, Phase III outcomes, engine comparison, neural specification curve, neural
+diagram, first-year trajectory model. Appendix D gained Table D3 (negative controls) and Table D6 (Phase IV-V
+parameters), the two tables the brief's §13 list asked for that were missing; §13's exhibits are all present
+(Figure 4 of the brief is E2, its Table 2 is D5, its Table 3 is C1 with D6).
 
 ---
 

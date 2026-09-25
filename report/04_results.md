@@ -4,13 +4,17 @@
 
 Figure 3 shows the predicted response of each network, summarised by its area under the curve, for the three
 versions of every unit. At the main reading speed, 14 of the 21 network contrasts have 95% intervals that exclude
-zero (Table 9). The dominant pattern is a lower predicted response to the scaffolding versions: relative to both other
+zero (Table 10). The dominant pattern is a lower predicted response to the scaffolding versions: relative to both other
 versions they evoke less in the visual, somatomotor, dorsal-attention, salience/ventral-attention and control
 networks, most of all in the dorsal-attention network. Substitution differs less from traditional instruction; its
-intervals exclude zero only in the visual, somatomotor and default-mode networks. The mixed model of eq. 42, which
+intervals exclude zero only in the visual, somatomotor and default-mode networks. The mixed model of eq. 4, which
 treats the units as a sample, confirms the ordering: relative to traditional instruction, the response is lower
 under scaffolding (−1.20) and slightly higher under substitution (0.49), both with intervals that exclude zero, and it
 falls as units become harder.
+
+::: {custom-style="Image Caption"}
+**Figure 3.** Predicted network-level responses by condition
+:::
 
 ![](../outputs/figures/fig3_network_responses.png)
 
@@ -27,7 +31,7 @@ had already excluded. Six contrasts pass all three criteria: scaffolding against
 substitution in the somatomotor, dorsal-attention and salience/ventral-attention networks, all lower under
 scaffolding. Five of the six still exclude zero at the slower and the faster reading speed.
 
-Table: **Table 9.** Condition contrasts in the predicted network response (area under the curve, 220 words per minute)
+Table: **Table 10.** Condition contrasts in the predicted network response (area under the curve, 220 words per minute)
 
 | Network | S − T | U − T | S − U |
 |---|---|---|---|
@@ -39,7 +43,7 @@ Table: **Table 9.** Condition contrasts in the predicted network response (area 
 | Control | −2.10 [−2.86, −1.30]^bc^ | 0.15 [−0.55, 0.95]^bc^ | −2.26 [−2.82, −1.68]^bc^ |
 | Default mode | 1.09 [0.46, 1.73]^bc^ | 0.96 [0.32, 1.66]^abc^ | 0.13 [−0.34, 0.62]^bc^ |
 
-*Mean paired difference over the 30 units with its cluster-bootstrap 95% interval (eq. 10–13); S scaffolding,
+*Mean paired difference over the 30 units with its cluster-bootstrap 95% interval (eq. 3 and 21–23); S scaffolding,
 U substitution, T traditional instruction. Bold: the interval excludes zero and the contrast passes F1, F2 and F5.
 ^a^ The interval includes zero once duration, word count and equation count are covariates (F1). ^b^ Not robust to
 rewording (F2). ^c^ Network in which the incorrect-but-fluent texts reach half of the largest condition contrast (F5).
@@ -52,10 +56,10 @@ contain no worked solution, and no covariate removes a section that one conditio
 contrasts therefore compare a text with diagnostic questions and no worked solution with texts that have one; they
 cannot be attributed to scaffolding as an instructional regime. At the level of parcels, contrasts that survive
 correction for multiple testing cover most parcels for the two contrasts involving scaffolding and fewer for
-substitution against traditional instruction (Figure S2, Appendix E); these maps were not tested against rewording
+substitution against traditional instruction (Figure E1, Appendix E); these maps were not tested against rewording
 and are descriptive. The similarity structure among units is preserved across conditions: the
 dissimilarity matrices of the three conditions correlate at about 0.8 with one another, more closely than any
-permutation of the condition labels (Figure 4, Appendix E). The predicted patterns of all units are, however, very
+permutation of the condition labels (Figure E2, Appendix E). The predicted patterns of all units are, however, very
 similar to one another, so the geometry the analysis compares is compressed.
 
 ## 4.2 One term of simulated learning
@@ -65,11 +69,11 @@ population run (Table E1, Appendix E), scaffolding exceeds traditional instructi
 retention, a small margin whose intervals exclude zero. Substitution falls below traditional instruction in all three,
 by 0.075 to 0.105, and ends the term with lower knowledge, memory and reasoning and higher dependence. Free choice lies
 between the two. This ordering, scaffolding above traditional instruction above free choice above substitution, holds
-for unaided accuracy and far transfer in all three parameter settings (Figure S3, Appendix E). A checkpoint tests only
+for unaided accuracy and far transfer in all three parameter settings (Figure E3, Appendix E). A checkpoint tests only
 a handful of items, so most paired differences are exactly zero (98% of learners tie in unaided accuracy between
 scaffolding and traditional instruction) and the probability of superiority is uninformative here.
 
-The rate of help requests, also shown in Figure S3, does not measure dependence on equal terms across the arms. After
+The rate of help requests, also shown in Figure E3, does not measure dependence on equal terms across the arms. After
 a wrong first answer the substitution protocol supplies the full solution in one step and offers no further help, so
 its request rate is zero by construction and says nothing about the learner's dependence. The free-choice rate is
 lowered for the same reason: in the episodes in which the learner chose substitution it could not ask for help
@@ -77,7 +81,7 @@ either, whereas in its other episodes it asked at about the rate of the assigned
 is therefore read from the state $D$, not from requests. <!-- MG: what do you mean by that substitution protocol offers no help to request so the request rate is 0? 
 what are this claims implication on what it has been just written? -->
 
-The hybrid engine was compared with the logistic engine on the same 40 learners (Figure S1, Appendix E). Delegating
+The hybrid engine was compared with the logistic engine on the same 40 learners (Figure E4, Appendix E). Delegating
 the choices to Centaur raised help requests under scaffolding and traditional instruction and lowered calibration in
 every arm, because its confidence ratings follow the record (Section 3.4). It moved the end-of-term states by at most
 0.011 and left every checkpoint accuracy within 0.025 of the logistic engine, and the contrasts between arms kept their
@@ -87,32 +91,36 @@ choices was carried into Phase V.
 
 ## 4.3 Ten-year scenario contrasts
 
-Figure 5 shows the mean trajectories. Knowledge rises during the first school year and then stays nearly flat in every
+Figure 4 shows the mean trajectories. Knowledge rises during the first school year and then stays nearly flat in every
 scenario except substitution, where it starts lower and falls further. As difficulty rises over the years, far-transfer
 accuracy declines in every scenario, and dependence, after falling for a few years, rises again, most steeply under
 substitution.
+
+::: {custom-style="Image Caption"}
+**Figure 4.** Model-implied trajectories per scenario
+:::
 
 ![](../outputs/figures/fig5_trajectories_v_main.png)
 
 *Source: own elaboration; model-implied output of the Phase V main run, 500 parameter draws of 2,000 learners
 (`outputs/tables/fig5_trajectories_v_main.csv`).*
 
-Each scenario is summarised by its net advantage $G$ (eq. 39): the mean of its contrasts with traditional instruction
+Each scenario is summarised by its net advantage $G$ (eq. 16): the mean of its contrasts with traditional instruction
 in knowledge, reasoning and memory and of its reduction in dependence. $G$ is positive when, after ten years, the
 scenario leaves the same simulated learner with more of the first three and less of the fourth. The other columns of
-Table 10 are expected test outcomes. Among them, the probability of requesting help is computed as if help were
+Table 11 are expected test outcomes. Among them, the probability of requesting help is computed as if help were
 offered, so that, unlike the request rate of Phase III, it is defined under substitution.
 
-At year 10 (Table 10), substitution has the largest contrast: $G$ is −0.191 (95% simulation interval −0.233 to
+At year 10 (Table 11), substitution has the largest contrast: $G$ is −0.191 (95% simulation interval −0.233 to
 −0.118), and every test outcome is worse than under traditional instruction. Both free-choice scenarios are negative,
 the rule fitted to Centaur's choices (−0.059) nearly twice as much as the assumed one (−0.032). Both scaffolding
 scenarios are positive, rapid fading (0.045) more than no fading (0.015). With the neutrality threshold of 0.02, rapid
 fading is beneficial, substitution and both free-choice scenarios are harmful, and scaffolding without fading is
-neutral. The contrasts grow over time: substitution's $G$ is −0.075 after the first year and −0.144 after the fifth (Table E3).
-The scenarios differ in where the contrast lies (Table E2). Rapid fading gains mainly in reasoning and dependence, and hardly in
+neutral. The contrasts grow over time: substitution's $G$ is −0.075 after the first year and −0.144 after the fifth (Table E2).
+The scenarios differ in where the contrast lies (Table E3). Rapid fading gains mainly in reasoning and dependence, and hardly in
 knowledge, whereas substitution loses on all four states, most in reasoning and dependence.
 
-Table: **Table 10.** Year-10 scenario contrasts against traditional instruction
+Table: **Table 11.** Year-10 scenario contrasts against traditional instruction
 
 | Scenario | $G$ | Unaided accuracy | Far transfer | Retention | P(help request) |
 |---|---|---|---|---|---|
@@ -122,14 +130,18 @@ Table: **Table 10.** Year-10 scenario contrasts against traditional instruction
 | Free choice, assumed rule | −0.032 [−0.057, −0.012] | −0.026 [−0.047, −0.008] | −0.019 [−0.029, −0.008] | −0.020 [−0.034, −0.007] | 0.025 [0.008, 0.039] |
 | Free choice, fitted rule | −0.059 [−0.071, −0.035] | −0.046 [−0.059, −0.023] | −0.040 [−0.047, −0.028] | −0.039 [−0.048, −0.023] | 0.046 [0.024, 0.055] |
 
-*Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 37), with the
-95% simulation interval across draws; $G$ by eq. 39 with equal weights. Source: own elaboration; model-implied output
+*Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 15), with the
+95% simulation interval across draws; $G$ by eq. 16 with equal weights. Source: own elaboration; model-implied output
 of the Phase V main run (`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
 
-The contrasts hold for almost every simulated learner, not only on average (Figure 6). The probability of superiority
+The contrasts hold for almost every simulated learner, not only on average (Figure 5). The probability of superiority
 in $G$ is 1.000 for both scaffolding scenarios and at most 0.004 for the other three. With one or five episodes a week
 instead of three, every AI scenario run at those exposures keeps the sign of its year-10 $G$, with intervals that
 exclude zero.
+
+::: {custom-style="Image Caption"}
+**Figure 5.** Year-10 scenario contrasts: learner-level paired differences from traditional instruction
+:::
 
 ![](../outputs/figures/fig6_distributions_v_main.png)
 
@@ -138,7 +150,7 @@ exclude zero.
 
 ## 4.4 Frontier and tipping points
 
-The phase diagram (Figure 7a) replaces the named scenarios by an AI protocol whose adaptation $a$, retained effort
+The phase diagram (Figure 6) replaces the named scenarios by an AI protocol whose adaptation $a$, retained effort
 $e$ and probability of substitution $o$ vary continuously, to establish which properties of such a protocol decide its
 ten-year contrast. Each cell is one protocol run for ten years against traditional instruction, shaded by its median
 $G$ and marked beneficial (+), harmful (−) or neutral (·); the three panels differ only in how often the protocol
@@ -150,6 +162,10 @@ draw. It turns negative as substitution is mixed into the AI episodes, at $o = 0
 in the model, once about one AI episode in ten gives the answer instead of scaffolding, the scaffolding scenario falls
 below traditional instruction. Within the model, then, whether the protocol supplies answers decides whether it is
 harmful, and its adaptation decides only on which side of zero a protocol that never supplies them falls.
+
+::: {custom-style="Image Caption"}
+**Figure 6.** Robustness frontier of the year-10 net advantage
+:::
 
 ![](../outputs/figures/fig7a_phase_diagram.png)
 
@@ -178,18 +194,18 @@ what has been done and what was the purpose?-->
 
 ## 4.6 Robustness and falsification
 
-The specification curve (Figure 8a) re-estimates the year-10 $G$ of each scenario in 648 specifications, each a
+The specification curve (Figure 7) re-estimates the year-10 $G$ of each scenario in 648 specifications, each a
 complete rerun of the ten years under one combination of the modelling choices of Section 3.8. In each panel the
 specifications are sorted by their median $G$, drawn with its 95% interval, and the grid beneath marks the choices
 each one made. A scenario whose medians all lie on one side of zero has a direction that no combination of these
 choices reverses. Four of the five AI scenarios pass this test with no 95% interval including zero: substitution,
-both free-choice rules and rapid fading (Table 11). Scaffolding without fading does not. Its 216 failures are exactly
+both free-choice rules and rapid fading (Table 12). Scaffolding without fading does not. Its 216 failures are exactly
 the specifications in which adaptation is equal across the three protocols, the flat segment at zero on the left of
 its panel: with equal adaptation, the scaffolding protocol without fading is numerically the traditional one. Its
 advantage is therefore the assumed adaptation constant and nothing else, whereas rapid fading stays positive at equal
 adaptation, because withdrawing support changes the updates of reasoning and dependence (Section 4.5).
 
-Table: **Table 11.** Sign stability of year-10 $G$ across the specification curve
+Table: **Table 12.** Sign stability of year-10 $G$ across the specification curve
 
 | Scenario | Median sign constant | Intervals including 0 | Range of medians | Direction |
 |---|---|---|---|---|
@@ -202,19 +218,23 @@ Table: **Table 11.** Sign stability of year-10 $G$ across the specification curv
 *Each specification: 50 parameter draws of 300 learners; median and 95% interval across draws. Source: own
 elaboration; model-implied output of the 216 specification-curve runs (`outputs/tables/tableS_sign_stability.csv`).*
 
+::: {custom-style="Image Caption"}
+**Figure 7.** Specification curve of the year-10 net advantage
+:::
+
 ![](../outputs/figures/fig8a_spec_curve_G.png) <!--MG: i dont understand this part: what is G and what are the figures showing? explain in simple terms-->
 
 *Source: own elaboration; model-implied output of the 216 specification-curve runs, each of 50 parameter draws of
 300 learners (`outputs/tables/fig8a_spec_curve_G.csv`).*
 
-The variance decomposition (eq. 41) attributes 68.3% of the variance of year-10 $G$ across the AI scenarios to the
+The variance decomposition (eq. 20) attributes 68.3% of the variance of year-10 $G$ across the AI scenarios to the
 scenario and 28.9% to differences between learners; parameters and behavioural randomness account for the rest, and
 plasticity and stimulus for nothing, since $G$ has no neural term (Table E5). The behavioural controls behave as required. When
 effort does not respond to behaviour, the substitution contrast in knowledge almost vanishes, and none of 1,000 random
 sign flips of the paired differences produced a contrast as extreme as any observed year-10 contrast in unaided
 accuracy, far transfer or retention.
 
-Table 12 collects the falsification verdicts. Beyond the predicted cortical contrasts of Section 4.1 (F1, F2, F5) and the
+Table 13 collects the falsification verdicts. Beyond the predicted cortical contrasts of Section 4.1 (F1, F2, F5) and the
 neural contrasts of Section 4.7 (F3, F5), they concern one ten-year result. F4 flags scaffolding with rapid fading:
 in its median draw 12.1% of learners end within 0.01 of an edge of the 0–1 scale, almost all with dependence close to
 zero. A post hoc check asked whether the contrast depends on these learners (Appendix D.4). In the stored subsample of
@@ -233,7 +253,7 @@ criterion that allows a claim without exception is F6: in all six comparisons, t
 scaffolding scenario and substitution in unaided accuracy, far transfer and retention has an interval that excludes
 zero.
 
-Table: **Table 12.** Falsification verdicts
+Table: **Table 13.** Falsification verdicts
 
 | Criterion | Result | Verdict |
 |---|---|---|
@@ -262,9 +282,9 @@ traditional instruction. Second, the one outcome followed through the specificat
 contrast between substitution and traditional instruction, has a positive median in 59.2% of its 62,208
 specifications and a negative one in the rest. Its sign depends mostly on how the predicted response is summarised and
 read: it is mostly positive at the slower reading speed or with the peak as the response metric, and mostly negative
-at the faster speed or with the mean (Figure 8b, Appendix E). The adaptation constant, by contrast, makes no
+at the faster speed or with the mean (Figure E5, Appendix E). The adaptation constant, by contrast, makes no
 difference to it. Consistently, the plasticity settings account for more of its variance (40.6%) than the scenario
-does (33.1%), and in the neural diagram (Figure 7b, Appendix E) the offloading weight moves the contrast of
+does (33.1%), and in the neural diagram (Figure E6, Appendix E) the offloading weight moves the contrast of
 substitution more than the half-life of the neural state does in six of the seven networks.
 
 The neural results therefore show that the pipeline can carry predicted responses into a learner-specific state over
