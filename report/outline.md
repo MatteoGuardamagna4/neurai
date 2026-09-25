@@ -26,6 +26,13 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
 - **Prose rules (binding).** Formal, analytical register. No rhetoric or filler, no stock adjectives
   ("crucial", "transformative"), no obvious conclusions. Every claim rests on reasoning, a number from
   `outputs/tables`, or a citation. Uncertain or hypothetical quantities carry their limitation in the same sentence.
+- **Readability (binding, author 2026-09-25).** The drafts were too dense and too specific to read easily. Write
+  synthetically: one idea per sentence, short sentences, few brackets and nested clauses; say what a step is for
+  before how it is done; the plain word first, then the technical term. Keep in the body only the equations the
+  results depend on (in §3: eq. 13, 17, 19-21, 25, 33, 37, 39); describe the rest in words and give their formal
+  version in the appendix under the same number. Give few numbers: in §3 only those that define the design or carry
+  an argument, validation detail goes to the appendices; in §4 the results themselves, not every illustration of
+  them; §5 and §6 are written with few numbers from the start. Explanatory tables carry lists.
 - **Claims discipline.** `guide.md` §10 bounds what may be claimed; brief §15 wording throughout ("predicted
   cortical response", "simulated learner", "model-implied", "scenario contrast"); never "the brain learns",
   "AI causes", "digital twin".
@@ -59,14 +66,14 @@ that diff.
 | Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
 | Sat 26 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
 | Sun 27 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2 |
-| Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for §3.2-3.6; remaining appendices; page pass to ≤ 38 pp | Review front matter; full read-through |
+| Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for the appendices; remaining appendices; page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
 | Wed 30 | Final PDF; after submission, push the local commits and publish release `report-2026-09-30` with the D3 bundle | Submit |
 
 **Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
 `uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
-source, PASS/FAIL). As of 2026-09-25: §3.1, §3.7-3.9, §4 and the new Tables 4, 6 and 7 covered, 251 of 251 pass;
-§3.2-3.6 to back-fill.
+source, PASS/FAIL). As of 2026-09-25, after the readability pass: every number in §3 and §4 is covered, 264 of 264
+pass. The appendices are not yet covered (their numbers moved there from §3 unchanged).
 
 ## Page budget
 
@@ -77,8 +84,8 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 |---|---|---|---|---|
 | 1. Introduction | 3 | 0 | ~1,650 | — |
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
-| 3. Methodology | 14.5 | ~3 | ~6,300 | **All of §3 drafted (2026-09-24).** 3.1 (Figure 1, Table 1 data generated), 3.7 (~1,050 words), 3.8 (~900), 3.9 (~280) new; Table 3 moved to App. C2, §3.2.4 checker paragraph shortened; App. D drafted. Measured in the build: pages 9-24, ~15.9 pp, 1.4 over budget |
-| 4. Results | 10 | ~5.5 | ~2,500 | **Drafted 2026-09-24**, ~9 pp measured (pp. 25-33). Body: Tables 8-11, Figures 3, 5, 6, 7a, 8a; Figures 4, 5b, 7b, 8b, S1-S3 in App. E. Every number in the claims ledger |
+| 3. Methodology | 14.5 | ~4.5 | ~5,900 | **Trimmed for readability 2026-09-25** (author: too dense): prose 8,500 → 5,900 words, equations in the body 34 → 9 (the rest in App. A.1, B.3, C.4, D.6 under their numbers), Tables 3, 4, 6, 7 added. Measured: pp. 10-23, ~14 pp |
+| 4. Results | 10 | ~5.5 | ~2,300 | **Readability pass 2026-09-25**: results kept, illustrations cut; rapid fading framed as option (c) (direction claimed after the post hoc F4 check, size not; F4 read as a screen). Measured: pp. 24-32, ~9 pp. Body 27 pp with §1, 2, 5, 6 still placeholders |
 | 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
 | 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
 | **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |
@@ -216,7 +223,11 @@ Answered 2026-09-25: the repository has been public since 2026-09-11; the D3 bun
 `report-2026-09-30` only after submission, and §3.9 cites it; Zenodo is left for the paper. Licences: MIT for the
 code, CC BY-NC 4.0 for the corpus, outputs and predictions (`LICENSE`, `LICENSE-DATA.md`). The project brief PDF
 stays in the repository. Figure 8a redrawn for print (plotting only). Explanatory tables become a convention (above).
-Open: the framing of rapid fading in §5 (direction robust, but F4 withholds a claim), for the author to decide.
+Rapid fading (author, same day): option (c). The direction is claimed after a post hoc check that the near-bound
+learners do not drive it (`scripts/f4_bound_check.py`, `tableS_f4_bound_check`); the size is not claimed, because
+under the literal updates nearly every learner ends at a bound and the size depends on the update form; F4 is read
+as a screen rather than a falsification test (§4.6, App. D.4 item 6). §5 states this as a limitation of the unit
+scale. Readability: see the Conventions rule; §3 trimmed and §4 lightened the same day.
 
 Still open:
 

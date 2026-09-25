@@ -167,7 +167,7 @@ Code: MIT (`LICENSE`). Corpus, run records, outputs and the encoding-model predi
 | Table 5, Figures 5-6 (scenario contrasts, trajectories, eq. 43) | `table5_*`, `fig5*`, `fig6*`, `tableS_trajectory_model_v_main` |
 | §9.6-9.7 frontier and tipping points | Figure 7a/7b, `tableS_tipping_points*`, `tableS_exposure` |
 | §11.5 mechanisms | `tableS_mechanism_decomposition` |
-| Table 6, §10.3 and §10.6 | `table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`, `tribe_shuffle_controls`, `tableS_regeneration_*`, `tableS_incorrect_control` |
+| Table 6, §10.3 and §10.6 | `table6_negative_controls`, `table6_falsification`, `tableS_z_controls`, `tableS_sign_flip_null`, `tribe_shuffle_controls`, `tableS_regeneration_*`, `tableS_incorrect_control`; post hoc F4 check `tableS_f4_bound_check` (`scripts/f4_bound_check.py`, not run by `report all`) |
 | §10.4 specification curve (design: 216 reruns -> 648 G + 62,208 neural specifications; the figures report the reruns on disk) , §10.5 variance | Figure 8a/8b, `tableS_variance_decomposition` |
 | Every column | `data_dictionary` |
 

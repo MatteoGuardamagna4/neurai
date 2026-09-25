@@ -28,6 +28,11 @@ the drafts between sections: read their changes with `git diff` and carry the st
 - **Explanatory tables wherever there is an opportunity** (user, 2026-09-25): a set of analyses, checks, quantities
   or categories gets a table *Item | What it asks | How it is computed | How to read it*, preferably replacing the
   prose it summarises. Rule and candidates under Conventions in `report/outline.md`.
+- **Readability** (user, 2026-09-25): the drafts were too dense. §3 was trimmed (9 equations left in the body, the
+  rest in the appendices under their numbers) and §4 lightened; the rule is under Conventions in `report/outline.md`.
+- **Rapid fading** (user, 2026-09-25, option c): its direction is claimed after the post hoc F4 check
+  (`scripts/f4_bound_check.py`): the near-bound learners contribute < 4% of its G. Its size is not, since under the
+  literal updates nearly every learner ends at a bound. F4 is reported as a screen, not a falsification test.
 - **Publishing** (user, 2026-09-25): nothing is pushed before the report is submitted. On 2026-09-30, after
   submission, push `main` and publish GitHub release `report-2026-09-30` with the D3 bundle (`dist/`), which §3.9
   already cites. Code MIT, data CC BY-NC 4.0 (`LICENSE`, `LICENSE-DATA.md`); the brief PDF stays in the repository.

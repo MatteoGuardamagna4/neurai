@@ -2,7 +2,39 @@
 
 ## Appendix A. Corpus validation details
 
-### A.1 Equivalence tests for the matching features
+The 30 units cover seven concepts in managerial accounting (among them break-even quantity, operating leverage and
+relevant cost), four in corporate finance (net present value, payback period, return on investment and the weighted
+average cost of capital), two in pricing (markup versus margin and price elasticity) and two in marketing analytics
+(customer lifetime value and customer-acquisition-cost payback). Nine concepts carry one prerequisite link. Difficulty
+ranges from 1 to 4 on a five-point scale, and target completion times from five to eight minutes. The explanation of
+every lesson text has 250 to 400 words. In unit `npv_001`, for example, a project costs EUR 100,000 and returns
+EUR 72,000 at the end of each of two years at a required return of 20%: the answer is EUR 10,000, the misconception of
+summing undiscounted cash flows yields EUR 44,000, and discounting the two-year total once yields EUR 20,000.
+
+### A.1 Matching features and equivalence tests
+
+Each lesson text $s$ is described by a vector of nine observable, non-pedagogical features,
+
+$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right), \qquad (1) $$
+
+the numbers of words, characters, sentences, equations (counted as equality signs) and worked examples, the
+Flesch–Kincaid grade [@kincaid1975], the duration at 220 words per minute, the type–token ratio and the semantic
+coverage of Section 3.2.4. Balance on feature $k$ between an AI condition $A$ and the traditional condition $T$ is the
+standardised mean difference
+
+$$ \text{SMD}_k = \frac{\bar{x}_{k,A} - \bar{x}_{k,T}}{\sqrt{\left(s^2_{k,A} + s^2_{k,T}\right)/2}}, \qquad (3) $$
+
+against the target $|\text{SMD}| < 0.10$ [@austin2009]. Matching is exact on unit, concept, domain, difficulty,
+modality and answer correctness, and caliper-based on duration: every AI version lies within 10% of its traditional
+counterpart, with a maximum deviation of 7.9%. Each AI version shares a median of 82% of its sentences (range 79–84%)
+verbatim with the traditional text.
+
+The two sources of imbalance named in Section 3.2.3 have the following size. Texts vary little across units (the
+standard deviation of word count is about 44 words), so the scaffolding texts' mean excess of 17.6 words, 3.3% of the
+traditional mean, registers as an SMD of 0.41; duration (0.41), sentence count (0.46), lexical diversity (0.52) and
+semantic coverage (0.35) exceed the target in the same comparison. The scaffolding texts contain on average 3.5 fewer
+equations (SMD −1.76 against traditional, −1.79 against substitution). Because duration is a fixed multiple of word
+count, the covariate block of the cortical analysis spans two dimensions rather than three.
 
 Table A1 complements Figure 2 with the paired two one-sided tests (TOST) of Section 3.2.3. For each feature and pair
 of conditions, the test asks whether the mean paired difference over the 30 units lies within ±0.10 pooled standard
@@ -30,7 +62,14 @@ Table: **Table A1.** Standardised mean differences and paired equivalence tests,
 *S: AI scaffolding; U: AI substitution; T: traditional. Source: own elaboration; computed from the 90 primary lesson
 texts (`outputs/tables/corpus_balance.csv`).*
 
-### A.2 Texts listed for manual review of semantic coverage
+### A.2 Semantic coverage, its manual review and the duplicate screen
+
+Semantic coverage is the cosine similarity between sentence embeddings (the `all-mpnet-base-v2` model of the
+Sentence-Transformers framework [@reimers2019]) of a text's explanation and the unit's reference worked solution. The
+acceptance threshold of 0.50 was fixed before any similarity was computed. All 90 primary texts exceed it (minimum
+0.53; condition means 0.68 to 0.70), as do all 210 control texts (minimum 0.52). Near duplication across units was
+screened by the Jaccard similarity of word 5-gram sets [@broder1997] over all 435 pairs of traditional texts, with a
+threshold of 0.50 fixed before scoring; no pair was flagged.
 
 The nine primary texts in the lowest decile of semantic coverage (Section 3.2.4) are listed in Table A2. All exceed
 the acceptance threshold of 0.50. The review asked whether each explanation teaches the method that its unit's
@@ -186,6 +225,56 @@ $$ H_s = -\frac{1}{\ln P} \sum_{p=1}^{P} q_{s,p} \ln q_{s,p}, \qquad q_{s,p} = \
 
 and equals 1 when that part is spread evenly over the parcels and 0 when it is concentrated in one.
 
+### B.3 Timing, aggregation, contrasts and controls
+
+**Timing.** In the released pipeline, the onsets of words presented as text come from synthesised speech. Here each
+text is read at a fixed rate of $r$ words per minute, so that its $j$-th word has onset
+
+$$ t_j = \frac{60\,(j-1)}{r} \qquad (4) $$
+
+seconds and lasts $60/r$ seconds. At 220 words per minute the texts last 132 to 188 seconds, and all 53,284 words
+reach the model.
+
+**Aggregation.** Let $B_{s,v}(t)$ be the predicted response to text $s$ at vertex $v$ of the 20,484 vertices of the
+fsaverage5 surface and second $t = 1, \dots, T_s$. Each parcel $p$ takes the mean over its vertices $V_p$, and each
+network $n$ the mean of its parcels weighted by their surface areas $a_p$,
+
+$$ B_{s,p}(t) = \frac{1}{|V_p|} \sum_{v \in V_p} B_{s,v}(t), \qquad (6) $$
+
+$$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (7) $$
+
+Equal weights and a 200-parcel version of the atlas are robustness variants. The area under the curve of parcel or
+network $k$ is
+
+$$ \text{AUC}_{s,k} = \sum_{t=1}^{T_s-1} \frac{B_{s,k}(t) + B_{s,k}(t+1)}{2}\,\Delta t, \qquad \Delta t = 1\ \text{s}. \qquad (8) $$
+
+**Contrasts.** For a metric $m$ and unit $u$, the three contrasts are the paired differences
+
+$$ \Delta^{S-T}_u = m_{u,S} - m_{u,T}, \qquad \Delta^{U-T}_u = m_{u,U} - m_{u,T}, \qquad \Delta^{S-U}_u = m_{u,S} - m_{u,U}, \qquad (10\text{–}12) $$
+
+estimated jointly by eq. 13, in which the S–U contrast is $\beta_1 - \beta_2$. The cluster bootstrap draws 2,000
+resamples of the 30 units and gives percentile 95% intervals. P-values computed from the bootstrap standard error are
+adjusted by the Benjamini–Hochberg procedure across the seven networks within each metric and contrast, and across all
+1,200 tests of the parcel maps. The mixed model
+
+$$ y_{ucn} = \mu + \beta_c + \delta\, d_u + \theta_{g(u)} + a_u + \varepsilon_{ucn}, \qquad a_u \sim \mathcal{N}\left(0, \sigma^2_a\right), \qquad (42) $$
+
+has $y_{ucn}$ the AUC of network $n$ centred on that network's mean, $d_u$ the unit's difficulty, $\theta_{g(u)}$ the
+effect of its domain and $a_u$ a unit random intercept, and is estimated by restricted maximum likelihood. Difficulty
+and domain are constant within a unit, so the unit effects of eq. 13 absorb them; eq. 42 is the model in which they
+can be estimated.
+
+**Representational geometry.** With $\bar b_{u,c}$ the pattern of parcel responses to unit $u$ in condition $c$,
+averaged over the reading window, the dissimilarity of two units is
+
+$$ D^{c}_{uu'} = 1 - \operatorname{corr}\left(\bar b_{u,c},\, \bar b_{u',c}\right). \qquad (14) $$
+
+Two conditions are compared by the Spearman correlation of the upper triangles of their 30 × 30 matrices, and the
+permutation test exchanges condition labels within units 1,000 times.
+
+**Shuffled controls.** Permuting the words within each section changes network AUC by 12.9 on average and permuting
+the sentences by 1.5, where the standard deviation of network AUC across the 90 primaries is about 2.8.
+
 ## Appendix C. The simulated learner
 
 ### C.1 Proxies
@@ -316,6 +405,62 @@ errors 0.018 and 0.008), which is the phrasing used. And a longer history dilute
 episodes in the prompt the effect of the payoff on the choice fell from +0.053 to +0.009, consistent with the
 model's tendency to repeat the choices a transcript shows, so the prompt carries three.
 
+### C.4 Further equations and details of the simulated learner
+
+**Population.** The state of learner $i$ is $\mathbf{s}_i = (K_i, M_i, R_i, C_i, D_i) \in [0,1]^5$. Initial states
+are drawn within three prior-knowledge strata $g(i)$, low, medium and high, with shares 0.30, 0.50 and 0.20, from a
+multivariate normal distribution truncated to the unit cube, and each learner has a learning and a forgetting rate,
+
+$$ \mathbf{s}_i(0) \sim \mathcal{N}_{[0,1]^5}\left(\boldsymbol{\mu} + \boldsymbol{\Delta}_{g(i)},\ \sigma^2 \boldsymbol{\Sigma}\right), \qquad (15) $$
+
+$$ \alpha_i \sim \operatorname{LogNormal}\left(\mu_\alpha, \sigma_\alpha^2\right), \qquad \delta_i \sim \operatorname{Beta}\left(a_\delta, b_\delta\right), \qquad (16) $$
+
+where the stratum shifts $\boldsymbol{\Delta}_g$ move the means of knowledge and memory and the correlation matrix
+$\boldsymbol{\Sigma}$ makes knowledge, memory and reasoning covary positively with one another and negatively with
+dependence. The three assigned arms comprise 5,001 learner-runs. The 40 episodes of a population run cover the 30
+units and then the first ten again.
+
+**Responses.** Ability is $\theta_i = \tau (K_i - 0.5)$, and $b_u$ is linear in the unit's difficulty score. After
+support of depth $h$, which is $k/3$ after $k$ hints or tutor turns and 1 after the complete solution,
+
+$$ P(Y = 1 \mid h) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i + \omega h\right). \qquad (18) $$
+
+Near- and far-transfer items are harder by 0.5 and 1.2 logits. A wrong answer is the documented misconception with
+probability 0.67 and the other distractor otherwise.
+
+**Updates of memory, reasoning and calibration.** With the proxies of Table C1,
+
+$$ M' = (1 - \delta_i)\, M + \eta_M\,\text{retrieval} + \eta_C\,\text{correction}, \qquad (22) $$
+
+$$ R' = R + \eta_R\, E\,\text{transfer} - \eta_O\,\text{offloading}, \qquad (23) $$
+
+$$ C = 1 - \frac{1}{n} \sum_{j=1}^{n} \left(c_j - y_j\right)^2, \qquad (24) $$
+
+each clipped to $[0,1]$, as are eq. 21 and 25. $C$ is one minus the Brier score of the confidence ratings $c_j$,
+rescaled to $[0,1]$, against correctness $y_j$ over all rated answers so far.
+
+**Engines.** The logistic engine rates confidence as the probability of being correct plus a learner-specific bias and
+noise, and in the free-choice arm chooses by a softmax whose logits are $s(D - 0.5)$ for substitution,
+$-s(D - 0.5)$ for traditional instruction and 0 for scaffolding, with $s = 2$ the dependence slope of the help-request
+model. Centaur was fine-tuned on more than 10 million choices by more than 60,000 participants in 160 experiments; its
+8-billion-parameter version was used, quantised to about four bits per weight for serving. Its prompt holds a fixed
+instruction, the current episode, a summary of the learner's record (problems solved on the first try, hints
+requested, recent form, experience with the concept and, in the free-choice arm, how often each approach was followed
+by a correct transfer answer) and the three previous episodes. The initial state reaches the prompt as the record of
+20 prior problems whose counts eq. 17 and the help-request model imply. Each choice is sampled from the model's
+probabilities over the response keys with the learner's random-number stream, and option letters and order are drawn
+afresh in every episode. In the hybrid run none of the 909 scaffolding turns of the tutor stated the answer and 728 of
+them (80%) asked a question, while the substitution tutor stated the answer in 539 of its 589 messages. Centaur and the
+tutor were served from a cloud GPU from episode 3,571 of the hybrid run, behind a proxy that reproduces the local
+prompt format; on 38 prompts captured from the local server the two servers gave the same most probable option in
+every case, with option probabilities within a median total-variation distance of 0.012.
+
+**Runs and checkpoints.** Each parameter setting of the logistic engine comprises 266,720 episodes. The hybrid engine
+ran 40 learners in all four arms for 30 episodes (4,800 episodes) and 80 further learners in the free-choice arm alone
+(4,800 episodes). Checkpoints follow the 10th and 20th episodes and the end of each run. Retention uses items last
+practised at least ten episodes earlier, and the support gap is accuracy with one hint minus unaided accuracy
+(eq. 26).
+
 ## Appendix D. The ten-year simulation and its validation
 
 ### D.1 Runs and the trajectory model
@@ -396,7 +541,7 @@ Table: **Table D3.** Dimensions, levels and plausibility ranks of the specificat
 | Response metric | Area under the curve (1); mean (2); peak (3) | Post hoc |
 | Winsorising | Yes (1); no (2) | Post hoc |
 | Plasticity mechanism | D (1); A, B and C (2) | Post hoc |
-| Outcome weights | Equal (1); learning-first (2); autonomy-first (2) | Post hoc |
+| Outcome weights | Equal (1); learning-first, 0.4, 0.3, 0.2 and 0.1 for $K$, $R$, $M$ and $D$ (2); autonomy-first, 0.2, 0.3, 0.1 and 0.4 (2) | Post hoc |
 
 *A specification's tier is the highest rank among its levels. The ranks of the ten original dimensions were approved
 before any ten-year result existed; the levels of the two added dimensions were ranked before they were computed.
@@ -404,7 +549,7 @@ Source: own elaboration (`config/spec_curve.yaml`).*
 
 ### D.4 Rules refined after the first results
 
-Five analysis rules were changed after the first ten-year results existed, and the robustness rule was formalised.
+Six analysis rules were changed after the first ten-year results existed, and the robustness rule was formalised.
 Each is listed with its reason, so that the reader can judge whether it favours any result.
 
 1. **F4 judges the median draw.** The share of learners near a bound is taken in the median draw of the worst
@@ -422,7 +567,13 @@ Each is listed with its reason, so that the reader can judge whether it favours 
 5. **The variance decomposition treats scenarios as fixed.** Their component is the population variance of the
    scenario means, which makes the components add up to the total; the residual is below 0.2% of it in absolute
    value.
-6. **The robustness rule was formalised.** A scenario's direction is called robust only when the median $G$ keeps its
+6. **F4 is followed by a check of what the near-bound learners contribute.** F4 counts learners near a bound but
+   does not ask whether a contrast depends on them. For the one scenario it flagged, scaffolding with rapid fading,
+   their contribution to $G$ was computed from the stored subsample of the main run, and the update form was compared
+   across the specification curve (Section 4.6, `outputs/tables/tableS_f4_bound_check.csv`). The direction is claimed
+   because it survives without those learners; the size stays unclaimed. The check was added after every result
+   existed and can only favour the rapid-fading result, so it is reported as post hoc.
+7. **The robustness rule was formalised.** A scenario's direction is called robust only when the median $G$ keeps its
    sign in every specification and no 95% interval includes zero, computed from the curve rather than read from the
    figure. It was set when the first complete curve existed and is stricter than a reading of the medians alone.
 
@@ -433,12 +584,108 @@ Table: **Table D4.** Inputs, outputs, assumptions and validation of each compone
 | Component | Inputs | Outputs | Key assumptions | Validation |
 |--------------|------------------|------------------|------------------|------------------|
 | Corpus (Phase I) | 30 unit records on 15 concepts in four MBA domains | 90 lesson texts; 210 control texts; matching features | Semantic coverage reported, not entered into eq. 20 | Answer and distractor validators; section and leakage checks; duration caliper; balance table |
-| Encoding model (Phase II) | Lesson text; word timing of eq. 4 at 220 words per minute (180, 260) | Predicted BOLD response per vertex; 400 parcels; 7 networks; metrics of eq. 8–9 | Text input only; fixed lesson texts, never the live tutor turns | Official example reproduced; determinism within $10^{-3}$; shuffled, reworded and incorrect-text controls |
+| Encoding model (Phase II) | Lesson text; word timing of eq. 4 at 220 words per minute (180, 260) | Predicted BOLD response per vertex; 400 parcels; 7 networks; metrics of eq. 8–9 | Text input only; fixed lesson texts, never the live tutor turns | Official example runs end to end; determinism within $10^{-3}$; shuffled, reworded and incorrect-text controls |
 | Simulated learner (Phase III) | Population of eq. 15–16; observable history | Choices, correctness, confidence, proxies, states of eq. 19–25 | Every parameter an assumption; Centaur makes choices only | Engine comparison; checkpoints; automated guard against latent states in prompts |
 | Plasticity (Phase IV) | $Z$ of eq. 28; per-episode effort, prediction error, resolution, retrieval, offloading | Model-implied state per parcel and network (eq. 29–33) | The state is not a brain state; half-life, weights and rate assumed | Zero-plasticity null; permuted-response and permuted-condition controls |
 | Ten-year scenarios (Phase V) | Triangular parameter draws; six scenarios; school calendar | States and test outcomes at years 1, 5 and 10; SC, PrSup, $G$, $d$ | Bounded updates; forgetting per week with breaks; the two free-choice rules | Checks of Table D2; mirror equivalence; common-random-number null |
 
 *Source: own elaboration (`outputs/tables/table2_components.csv`, rewritten).*
+
+### D.6 Formal definitions of Phases IV and V
+
+**Phase IV input and mechanisms.** The response to text $s$ in parcel $p$ enters as its area under the curve
+standardised across the 90 texts,
+
+$$ Z_{s,p} = \frac{\text{AUC}_{s,p} - \overline{\text{AUC}}_{p}}{\operatorname{sd}_{p}\left(\text{AUC}\right)}, \qquad (28) $$
+
+winsorised at the 1st and 99th percentiles of all 36,000 values. It is the response to the whole text of the protocol
+that ran, including sections that the learner reached only after an error or not at all. Mechanism A adds the text's
+pattern in proportion to effort,
+
+$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta\, E_{it}\, \mathbf{Z}_{s_t}. \qquad (29) $$
+
+Mechanisms B and C keep this form and replace effort by another weight: the error of the first answer,
+$\text{PE}_{it} = \lvert Y_{it} - P(Y_{it} = 1) \rvert$ (eq. 30), counted only when the learner then resolved it
+without being given the answer (eq. 31), and effort times retrieval (eq. 32). In mechanism D (eq. 33),
+$\lambda_A = \lambda_{PE} = \lambda_R = 1/3$ and $\lambda_O = 1/3$ (0 and 2/3 in the low and high settings). The
+decay follows from a half-life of 20 weeks (8 and 52 weeks in the other settings), which at three episodes a week
+gives $\delta_N = 1 - 0.5^{1/60} \approx 0.011$. Because the contrasts are standardised, $\eta = 1$ fixes only the
+scale, and $\eta = 0$ serves as the control in which no plasticity occurs. Each learner carries five decayed sums per
+text, one for each behavioural input, and the state under any mechanism is a weighted projection of those sums onto
+$\mathbf{Z}$; only the decay acts inside the recursion.
+
+**Phase IV outcomes.** Concentration is the share of $\lvert \mathbf{N} \rvert$ held by the top quarter of parcels.
+Representational differentiation is
+
+$$ \text{Diff}_i = \overline{D}^{\,\text{between}}_i - \overline{D}^{\,\text{within}}_i, \qquad (34) $$
+
+the mean dissimilarity (eq. 14) between the state patterns of units that teach different concepts minus that between
+units teaching the same concept. Integration is the mean absolute covariance between network states across episodes,
+and the efficiency proxy, unaided accuracy per unit of control-network state, is computed only when accuracy exceeds
+0.40.
+
+**Phase V implementation.** The vectorised implementation must reproduce the state means and per-episode rates of the
+reference loop within four standard errors (automated test). The yearly rise in difficulty is drawn between 0 and 0.2
+logits, and the per-episode forgetting rate is rescaled so that forgetting per week does not depend on exposure. The
+bounded updates are
+
+$$ M' = M + \left(\eta_M\,\text{retrieval} + \eta_C\,\text{correction}\right)(1 - M) - \delta_i M, \qquad (22') $$
+
+$$ R' = R + \eta_R\, E\,\text{transfer}\,(1 - R) - \eta_O\,\text{offloading}\; R, \qquad (23') $$
+
+$$ D' = D + \eta_D\,\text{support}\,(1 - D) - \eta_F\,\text{success}\; D. \qquad (25') $$
+
+**The fitted choice rule.** The rule is a conditional logit over the three approaches whose inputs are the share of
+each approach among the last three choices, the rate at which each was followed by a correct transfer answer, whether
+it has been tried, and recent first-attempt form. Fitted to Centaur's probabilities in the 1,200 free-choice decisions
+of the hybrid run, it predicted the 4,800 decisions of the separate free-choice batch with a cross-entropy of 1.041,
+against 1.080 for constant shares, and matched Centaur's most probable choice in 70% of them. It was then refitted on
+all 6,000, and each parameter draw uses one bootstrap replicate of the fit.
+
+**Monte Carlo design and outcomes.** In each draw $b$ every parameter with a low, medium and high value in Table C2 is
+drawn from a triangular distribution with its mode at the medium value and its bounds at the other two,
+
+$$ \Theta^{(b)} \sim p(\Theta), \qquad Y^{(b)} = \text{Simulate}\left(\text{scenario}, \Theta^{(b)}, \text{seed}_b\right), \qquad (35) $$
+
+and a central draw sets every parameter to its medium value. The random numbers are indexed by draw, episode and
+learner but not by scenario. Being expected rather than sampled, the test outcomes are not comparable with the
+checkpoint accuracies of Phase III. The probability of superiority is
+$\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 38), pooled over draws, with ties counted as
+not superior and their share reported beside it. The weights of eq. 39 are 0.25 each in the main specification, and
+the neutrality threshold $\varepsilon = 0.02$ has 0.01 and 0.05 as variants. The neural contrast of network $n$ is
+
+$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}, \qquad (44) $$
+
+computed per draw under mechanism D.
+
+**Frontier and tipping points.** The AI protocol of the frontier has adaptation $a$ (0.1 to 1.0), retained effort $e$,
+which scales the effort penalty for a provided answer to $a_4(1 - e)$, probability $o$ that an AI episode runs
+substitution rather than scaffolding, and fading $f$, under which a learner on a streak of $k$ first-attempt successes
+has $\lceil 3(1 - f)^{k} \rceil$ help turns. The phase diagram crosses seven values of $a$ with seven of $e$ at
+$o \in \{0, 0.5, 1\}$ and $f = 0$, 147 cells in all. Tipping points are located on lines of 11 values through the
+scaffolding-without-fading scenario, varying one of $e$, $o$, $f$ or a multiplier of all forgetting rates (0.25 to 4,
+applied to both arms). In each draw the tipping point is the first value at which $G$ changes sign,
+
+$$ x^{*} = \inf\left\{x : \operatorname{sign} G(x) \neq \operatorname{sign} G(x_0)\right\}, \qquad (40) $$
+
+with $x_0$ the start of the line, interpolated linearly and summarised by its median, its simulation intervals and the
+share of draws without a sign change. The neural diagram crosses the half-life of the neural state (4 to 104 weeks)
+with the offloading weight $\lambda_O$ of eq. 33.
+
+**Mechanism decomposition.** A held effort or effectiveness replaces the learner's own value in the knowledge update
+only; a held dependence enters the decision rules; the text's predicted response is exchanged post hoc for the
+traditional one. A mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$, and the contributions need
+not sum to one.
+
+**Variance decomposition.** Eq. 41 apportions the variance of a year-10 outcome among its sources,
+
+$$ \operatorname{Var}(Y) = V_{\text{scenario}} + V_{\text{parameters}} + V_{\text{learner}} + V_{\text{behaviour}} + V_{\text{plasticity}} + V_{\text{stimulus}} + V_{\text{residual}}. \qquad (41) $$
+
+The first four components come from a nested analysis of variance by the method of moments [@searle1992] over
+scenarios, draws, learners and replicates, using three runs that share parameters and learners and differ only in the
+random stream of behaviour, with scenarios treated as fixed. $V_{\text{plasticity}}$ is the variance over mechanisms,
+half-lives and offloading weights; $V_{\text{stimulus}}$ combines a bootstrap of the 30 units' predicted responses
+with the variance across the primary and reworded texts; $V_{\text{residual}}$ is the remainder.
 
 ## Appendix E. Supplementary figures
 
