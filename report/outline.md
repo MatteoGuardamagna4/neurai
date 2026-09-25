@@ -64,8 +64,8 @@ that diff.
 |---|---|---|
 | Thu 24 | §3.1, 3.7-3.9, Appendix D (**done**); claims ledger and `report/verify.py` (**done**); §4 Results and Appendix E (**done**, a day early) | Review §3.1, 3.7-3.9 and §4 |
 | Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
-| Sat 26 | §5 Discussion and Conclusions, §6 ESADE Data Department | Review §5-6 |
-| Sun 27 | §2 Literature Review (every citation checked), §1 Introduction | Review §1-2 |
+| Sat 26 | §5 and §6 (**done** on Fri 25); §2 Literature Review (every citation checked) | Review §5-6 |
+| Sun 27 | §1 Introduction | Review §1-2 |
 | Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for the appendices; remaining appendices; page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
 | Wed 30 | Final PDF; after submission, push the local commits and publish release `report-2026-09-30` with the D3 bundle | Submit |
@@ -86,8 +86,8 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 | 2. Literature Review | 3.5 | 0 | ~1,900 | — |
 | 3. Methodology | 14.5 | ~4.5 | ~5,900 | **Trimmed for readability 2026-09-25** (author: too dense): prose 8,500 → 5,900 words, equations in the body 34 → 9 (the rest in App. A.1, B.3, C.4, D.6 under their numbers), Tables 3, 4, 6, 7 added. Measured: pp. 10-23, ~14 pp |
 | 4. Results | 10 | ~5.5 | ~2,300 | **Readability pass 2026-09-25**: results kept, illustrations cut; rapid fading framed as option (c) (direction claimed after the post hoc F4 check, size not; F4 read as a screen). Measured: pp. 24-32, ~9 pp. Body 27 pp with §1, 2, 5, 6 still placeholders |
-| 5. Discussion and Conclusions | 4.5 | 0 | ~2,500 | — |
-| 6. Implications for the ESADE Data Department | 1.5 | 0 | ~800 | — |
+| 5. Discussion and Conclusions | 4.5 | ~2 | ~1,900 | **Drafted 2026-09-25** in the readability style: Tables 12 (standing of the results), 13 (limitations), 14 (research questions and answers). Measured pp. 33-36, ~4 pp |
+| 6. Implications for the ESADE Data Department | 1.5 | ~1 | ~650 | **Drafted 2026-09-25** as an application plan: Tables 15 (reusable parts), 16 (next measurements with the model's forecasts). Measured pp. 37-38, ~2 pp, 0.5 over |
 | **Body** | **37** | **~8.5** | **~15,650** | two pages moved from 2 to 3 (2026-09-23) |
 
 ---
@@ -109,7 +109,7 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 
 - **1.1 Motivation.** The cognitive consequences of AI tutoring are uncertain, and the evidence would take a decade
   to arrive; a computational laboratory makes the assumptions explicit in the meantime (brief §15).
-- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own.
+- **1.2 Research questions.** Primary question and five secondary questions, stated as the study's own. Use the wording of Table 14 (§5.5), which already answers them.
 - **1.3 Approach and contribution.** A reproducible framework, not a verdict (brief §1.3). **No dataset existed**:
   state what was generated, quantified (30 units, 90 stimuli, 210 text controls, 8.7 GB of predictions, the
   Phase III episode count, 315 Phase V runs, 216 specification cells). This is the top band of *Level of difficulty*.
@@ -199,7 +199,7 @@ manifest); data dictionary.
 Body tables so far, numbered in order of appearance (renumbered 2026-09-25): Table 1 data generated (§3.1), Table 2
 conditions (§3.2), Table 3 seven networks (§3.3), Table 4 learner quantities (§3.4), Table 5 calibration anchors
 (§3.5), Table 6 Phase V analyses (§3.7), Table 7 checks and F1-F6 (§3.8); Results: Table 8 cortical contrasts,
-Table 9 year-10 contrasts, Table 10 sign stability, Table 11 falsification verdicts.
+Table 9 year-10 contrasts, Table 10 sign stability, Table 11 falsification verdicts. Discussion: Table 12 standing of the results, Table 13 limitations, Table 14 research questions; ESADE: Table 15 reusable parts, Table 16 next measurements.
 
 ---
 
