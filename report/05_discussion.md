@@ -3,7 +3,7 @@
 ## 5.1 What the model derives and what it assumes
 
 The results differ in how much of them the model derives and how much it simply assumes. Three findings carry the
-study, and each has a different standing (Table 12).
+study, and each has a different standing (Table 13).
 
 The substitution deficit is derived. Nothing in the model states that giving answers is harmful. The deficit arises
 because a provided answer lowers the effort the learner invests, and effort multiplies the gain in knowledge; the
@@ -13,7 +13,7 @@ and forgets faster than the literature supports (Section 3.5), a regime in which
 they would in a classroom, so the size is an upper bound.
 
 The advantage of scaffolding without fading is assumed. Adaptation is the only term that separates it from
-traditional instruction, and its value was set, not measured (Table 2). When the three protocols share one adaptation
+traditional instruction, and its value was set, not measured (Table 3). When the three protocols share one adaptation
 value, the advantage is exactly zero in every specification (Section 4.6), and with the assumed values it stays
 within the neutral band in the main specification. The model therefore says nothing about whether an adaptive AI
 tutor teaches better than fixed instruction; it shows only what would follow if it did.
@@ -28,11 +28,11 @@ substitution, and the rule fitted to Centaur's choices drifts further than the a
 deficit. Because the learner selects the protocol, these results describe a policy rather than a condition, and they
 rest on a choice rule fitted to a model of human choices, not to students.
 
-Table: **Table 12.** The standing of the main results
+Table: **Table 13.** The standing of the main results
 
 | Result | Standing | What supports it | What bounds it |
 |--------------------|---------------------|------------------------------------------|------------------------------------------|
-| Substitution is harmful | Derived; direction claimed | Effort channel (Section 4.5); every specification; F6 | Size is an upper bound: slow learning, fast forgetting (Table 5) |
+| Substitution is harmful | Derived; direction claimed | Effort channel (Section 4.5); every specification; F6 | Size is an upper bound: slow learning, fast forgetting (Table 6) |
 | Scaffolding without fading is better | Assumed | Only the adaptation constant | Zero when adaptation is equal; neutral in the main specification |
 | Scaffolding with rapid fading is better | Mechanism; direction claimed | Withdrawal channel (Section 4.5); every specification; post hoc F4 check | Size depends on the update form (F4) |
 | Free choice is harmful | Derived from the choice rule | Drift towards substitution under both rules | Rule assumed, or fitted to a model rather than to students; self-selection |
@@ -81,14 +81,14 @@ none measures the ten-year quantities projected here.
 
 The magnitudes are not comparable. The simulated learner closes a smaller share of its gap to mastery per episode,
 and keeps less knowledge over a year, than published estimates imply; only the effect of support on accuracy lies
-within its published range (Table 5). The ten-year contrasts are therefore read for their direction and their
+within its published range (Table 6). The ten-year contrasts are therefore read for their direction and their
 conditions, not for their size.
 
 ## 5.4 Limitations
 
-Table 13 lists the limitations, what each implies for the results, and what would address it.
+Table 14 lists the limitations, what each implies for the results, and what would address it.
 
-Table: **Table 13.** Limitations and their consequences
+Table: **Table 14.** Limitations and their consequences
 
 | Limitation | Consequence for the results | What would address it |
 |--------------------|------------------------------------------|------------------------------------|
@@ -117,9 +117,9 @@ criterion for bounded state models should test that dependence directly, as the 
 
 The study asked how traditional instruction, AI scaffolding and AI substitution differ in the predicted cortical
 response to a lesson, in simulated learning and in long-term model-implied neural trajectories, and how far these
-differences depend on the assumptions made. Table 14 answers each question in brief.
+differences depend on the assumptions made. Table 15 answers each question in brief.
 
-Table: **Table 14.** The research questions and their answers
+Table: **Table 15.** The research questions and their answers
 
 | Question | Answer | Standing |
 |------------------------------|------------------------------------------------------|--------------------|

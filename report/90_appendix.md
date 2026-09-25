@@ -322,10 +322,10 @@ Table: **Table C2.** Parameters of the simulated learner
 | `population.state_sd` | $\sigma$ | 0.1 | 0.15 | 0.2 | Assumption |
 | `population.stratum_k_shift` |  |  | −0.2 / 0.0 / 0.2 |  | Assumption |
 | `population.stratum_m_shift` |  |  | −0.1 / 0.0 / 0.1 |  | Assumption |
-| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 5) |
+| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 6) |
 | `population.sigma_alpha` | $\sigma_\alpha$ | 0.25 | 0.4 | 0.55 | Assumption |
 | `population.a_delta` | $a_\delta$ |  | 2 |  | Assumption |
-| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 5) |
+| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 6) |
 | `population.theta_slope` | $\tau$ | 3 | 4 | 5 | Assumption |
 | `population.confidence_bias_sd` |  | 0.05 | 0.1 | 0.15 | Assumption |
 | `population.speed_sigma` |  |  | 0.25 |  | Assumption |
@@ -334,7 +334,7 @@ Table: **Table C2.** Parameters of the simulated learner
 | `curriculum.far_b_delta` |  |  | 1.2 |  | Assumption |
 | `response.rho` | $\rho$ | 0.7 | 1 | 1.3 | Assumption |
 | `response.kappa` | $\kappa$ | 0.5 | 0.8 | 1.1 | Assumption |
-| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 5) |
+| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 6) |
 | `response.request_intercept` |  |  | −1 |  | Assumption |
 | `response.request_dependence_slope` |  |  | 2 |  | Assumption |
 | `response.request_ability_slope` |  |  | 0.5 |  | Assumption |
@@ -353,7 +353,7 @@ Table: **Table C2.** Parameters of the simulated learner
 | `effectiveness.coverage_default` |  |  | 1 |  | Assumption |
 | `effectiveness.correctness_default` |  |  | 1 |  | Assumption |
 | `updates.m_decay_scale` |  |  | 1 |  | Assumption |
-| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 5) |
+| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 6) |
 | `updates.eta_C` | $\eta_C$ | 0.01 | 0.015 | 0.025 | Assumption |
 | `updates.eta_R` | $\eta_R$ | 0.003 | 0.005 | 0.008 | Assumption |
 | `updates.eta_O` | $\eta_O$ | 0.003 | 0.005 | 0.008 | Assumption |
@@ -534,7 +534,7 @@ Table: **Table D3.** Dimensions, levels and plausibility ranks of the specificat
 | Forgetting | Break at 0.25 of the term rate (1); at 0.1 (2); at 1.0 (2); per episode, no breaks (3) | Rerun |
 | Exposure | Three episodes a week (1); one (2); five (2) | Rerun |
 | Effort function | Drawn (1); fixed at the low values (2); fixed at the high values (2) | Rerun |
-| Adaptation | 0.35, 0.90, 0.20 as in Table 2 (1); halved, 0.42, 0.69, 0.34 (2); none, 0.48 for all (3) | Rerun; added after the first results |
+| Adaptation | 0.35, 0.90, 0.20 as in Table 3 (1); halved, 0.42, 0.69, 0.34 (2); none, 0.48 for all (3) | Rerun; added after the first results |
 | Reading speed | 220 words per minute (1); 180 (2); 260 (2) | Post hoc |
 | Network weights | Surface area (1); equal (2) | Post hoc |
 | Parcellation | 400 parcels (1); 200 parcels (2) | Post hoc; added after the first results |

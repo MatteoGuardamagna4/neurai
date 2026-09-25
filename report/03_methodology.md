@@ -6,7 +6,7 @@ The study is a computational experiment. No data set existed on how traditional 
 substitution affect the predicted cortical response to a lesson and the long-term development of a learner, and none
 could be collected within the project. Every quantity analysed here was therefore generated for the study: the
 instructional material was written and validated, the cortical responses were predicted by an encoding model, and the
-behaviour and development of the learners were simulated (Table 1). Figure 1 shows how the parts connect.
+behaviour and development of the learners were simulated (Table 2). Figure 1 shows how the parts connect.
 
 ![](../outputs/figures/fig1_pipeline.png)
 
@@ -19,7 +19,7 @@ what a learner does in each episode and how its knowledge, memory, reasoning, ca
 state (Phase IV, Section 3.6), and how both evolve over ten years (Phase V, Section 3.7). The two layers meet only in
 Phase IV, and no step treats a predicted response as evidence of learning.
 
-Table: **Table 1.** Data generated for the study
+Table: **Table 2.** Data generated for the study
 
 | Phase | What was generated | Quantity |
 |-------------------------|-----------------------------------------------|---------------------------------------|
@@ -73,7 +73,7 @@ corresponds to a named error.
 
 ### 3.2.2 Instructional conditions
 
-Each unit exists in three versions, giving 90 lesson texts (Table 2). The versions share the unit record, the rule
+Each unit exists in three versions, giving 90 lesson texts (Table 3). The versions share the unit record, the rule
 that no help is given before a first independent attempt, and most of the explanation: an AI version departs from the
 traditional one only in its first two sentences and its last, which introduce the tutor and announce the support to
 come. The conditions therefore differ in what surrounds the explanation. The traditional version asks the learner to
@@ -89,10 +89,10 @@ prescribes, in order, and reproduce the problem verbatim. The encoding model rea
 all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->,
 whereas the simulated learner reads only the explanation and the problem before its first attempt and receives
 support turn by turn afterwards. In the AI conditions these turns are written at run time by a language-model tutor
-(Section 3.4) and are never seen by the encoding model. The adaptation values of Table 2 are assumed constants that
+(Section 3.4) and are never seen by the encoding model. The adaptation values of Table 3 are assumed constants that
 enter the effectiveness of instruction (eq. 20); they are not properties of the texts, and Section 3.8 varies them.
 
-Table: **Table 2.** Instructional conditions and fixed versus varying features
+Table: **Table 3.** Instructional conditions and fixed versus varying features
 
 | | Traditional | AI scaffolding | AI substitution |
 |---|---|---|---|
@@ -181,11 +181,11 @@ The model therefore reads each version in full, including the hints, questions a
 simulated learner meets only after an error.
 
 The predictions are averaged over the 400 regions (parcels) of the Schaefer atlas [@schaefer2018] and then over the
-seven large-scale networks of @yeo2011, weighting each parcel by its area (Appendix B.3). Table 3 gives the functions
+seven large-scale networks of @yeo2011, weighting each parcel by its area (Appendix B.3). Table 4 gives the functions
 commonly attributed to each network and how a predicted contrast in it is read here, given that the model receives
 text alone.
 
-Table: **Table 3.** The seven cortical networks and the reading of a predicted contrast in each
+Table: **Table 4.** The seven cortical networks and the reading of a predicted contrast in each
 
 | Network | Functions commonly attributed | Reading of a predicted contrast in this study |
 |------------------|-----------------------------------------------|---------------------------------------------------------------|
@@ -236,7 +236,7 @@ model, while the learner's behavioural choices can be made by a language model t
 parameter is an assumption: Table C2 lists them all, and Section 3.5 compares those that have a published counterpart.
 
 **State and population.** A learner's state has five components between 0 and 1: knowledge, memory strength,
-independent reasoning, calibration and dependence on support (Table 4). Initial states are drawn within three strata
+independent reasoning, calibration and dependence on support (Table 5). Initial states are drawn within three strata
 of prior knowledge, with knowledge, memory and reasoning correlated positively with one another and negatively with
 dependence, and each learner has its own learning and forgetting rates (eq. 15–16, Appendix C.4). The population has
 1,667 learners. Each completes all four arms, the three conditions and free choice, from the same initial state, in
@@ -244,7 +244,7 @@ the same curriculum order and with the same random numbers, so contrasts between
 
 **The episode.** An episode presents one unit. The learner reads the explanation and the problem and answers without
 help. A correct first answer leads straight to a near-transfer question; a wrong one triggers the support of the
-protocol (Table 2). Every episode ends with an unaided near-transfer question and a statement of the time taken. In
+protocol (Table 3). Every episode ends with an unaided near-transfer question and a statement of the time taken. In
 the free-choice arm the learner first reads the problem and chooses which of the three protocols to follow. The tutor
 is a small open language model, Qwen2.5-3B-Instruct [@qwen2024]; a scaffolding turn that states the answer is
 regenerated or replaced by the unit's prewritten hint. The tutor's text enters none of the equations below: only the
@@ -268,7 +268,7 @@ $$ E = \sigma\left(a_0 + a_1\,\text{attempt} + a_2\,\text{retrieval} + a_3\,\tex
 
 $$ F = \sigma\left(f_0 + f_1\,\text{correctness} + f_2\,\text{coverage} + f_3\,\text{adaptation} - f_4\,\text{mismatch}\right), \qquad (20) $$
 
-where adaptation is the constant of the protocol that ran (Table 2), applied when support was given, mismatch is the
+where adaptation is the constant of the protocol that ran (Table 3), applied when support was given, mismatch is the
 distance between the unit's difficulty and the learner's ability, and correctness and coverage are fixed at 1.
 Knowledge grows with the product of effort and effectiveness and decays through forgetting,
 
@@ -283,10 +283,10 @@ Memory, reasoning and calibration follow rules of the same kind (eq. 22–24, Ap
 equations drive the comparison between conditions. Effort and effectiveness multiply in the knowledge gain, so
 substitution, which provides the answer after the first error, lowers learning through effort. And adaptation is the
 only term that separates scaffolding from traditional instruction: the scaffolding advantage is an assumed constant,
-not a consequence of the tutor's text, which is why Section 3.8 varies it. Table 4 summarises what each quantity
+not a consequence of the tutor's text, which is why Section 3.8 varies it. Table 5 summarises what each quantity
 represents and where it acts.
 
-Table: **Table 4.** The quantities of the simulated learner
+Table: **Table 5.** The quantities of the simulated learner
 
 | Quantity | What it represents | What moves it | Where it acts |
 |-------------------|------------------------------------------|----------------------------------------------------|------------------------------------------|
@@ -327,7 +327,7 @@ gain from one hint, calibration and the rate of help requests (Appendix C.4).
 
 No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
 the provenance of each is recorded with the code. Where the literature reports a quantity that the model also implies
-on the same scale, the two were compared after the runs were complete (Table 5). The comparison documents the model
+on the same scale, the two were compared after the runs were complete (Table 6). The comparison documents the model
 rather than calibrating it: no value was changed in response, because re-parameterising would have invalidated every
 completed run, and a parameter outside its published range is reported as a finding about the model.
 
@@ -338,7 +338,7 @@ share of its gap to mastery per episode than Bayesian knowledge tracing usually 
 meta-analyses of tutoring [@ma2014; @kulik2016; @vanlehn2011]. The memory gain from retrieval has a published
 counterpart in the testing effect [@rowland2014; @adesope2017], but no model quantity on the same scale.
 
-Table: **Table 5.** Calibration anchors: model-implied quantities against published values
+Table: **Table 6.** Calibration anchors: model-implied quantities against published values
 
 | Quantity | Parameter | Model | Published | Verdict | Source |
 |----------------------------------|----------|-------|----------|------------|---------------------------|
@@ -454,10 +454,10 @@ a second diagram does the same for the neural contrast of substitution (Appendix
 reruns each scenario with one channel held at its value under traditional instruction: the effort or the
 effectiveness in the knowledge update, or the dependence in the learner's decisions. The share of a contrast that
 disappears is that channel's contribution. It decomposes the contrast within the model and is not a causal mediation
-analysis. Appendix D.1 lists every Phase V run, and Table 6 summarises what each analysis asks and how its result is
+analysis. Appendix D.1 lists every Phase V run, and Table 7 summarises what each analysis asks and how its result is
 read.
 
-Table: **Table 6.** The analyses of Phase V
+Table: **Table 7.** The analyses of Phase V
 
 | Analysis | What it asks | How it is computed | How to read it |
 |------------------|--------------------------------------|----------------------------------------------|--------------------------------------|
@@ -475,7 +475,7 @@ Table: **Table 6.** The analyses of Phase V
 
 Four questions precede any claim: whether the simulated learner behaves as a learner model must, whether a contrast
 responds to what it is said to respond to, whether it survives modelling choices that could defensibly have been made
-otherwise, and where its uncertainty comes from. Table 7 summarises the checks that answer them.
+otherwise, and where its uncertainty comes from. Table 8 summarises the checks that answer them.
 
 **Behavioural checks.** Before any ten-year result was read, a one-year pilot had to pass ten checks (Table D2). Five
 test properties any learning model should have, such as accuracy falling with difficulty and support raising
@@ -506,11 +506,11 @@ robust when the median $G$ has the same sign in every specification and no 95% i
 **Variance decomposition.** Eq. 41 (Appendix D.6) apportions the variance of a ten-year outcome among its sources:
 the scenario, the parameters, the learners, behavioural randomness, the plasticity settings and the stimulus.
 
-**Falsification criteria.** No difference is claimed when any of six conditions holds, F1 to F6 in Table 7. Their
+**Falsification criteria.** No difference is claimed when any of six conditions holds, F1 to F6 in Table 8. Their
 thresholds are this study's conventions rather than external standards, and each verdict applies only to the
 contrasts it names.
 
-Table: **Table 7.** Validation, robustness and falsification checks
+Table: **Table 8.** Validation, robustness and falsification checks
 
 | Check | What it asks | How it is computed | When it fails |
 |------------------|--------------------------------------|----------------------------------------------|--------------------------------------|

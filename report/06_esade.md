@@ -3,10 +3,10 @@
 ## 6.1 What the department obtains
 
 The department obtains a framework rather than a verdict: a set of tools that turn assumptions about AI in teaching
-into explicit, testable scenario contrasts. Its parts can be reused separately (Table 15). All of them are public,
+into explicit, testable scenario contrasts. Its parts can be reused separately (Table 16). All of them are public,
 the code under the MIT licence and the data under CC BY-NC 4.0 (Section 3.9).
 
-Table: **Table 15.** The reusable parts of the framework
+Table: **Table 16.** The reusable parts of the framework
 
 | Part | What it is | How the department can reuse it |
 |--------------------|------------------------------------------|------------------------------------------|
@@ -49,9 +49,9 @@ tool is a design decision rather than a detail.
 ## 6.4 The next empirical measurements
 
 The most valuable next step is not another simulation but three measurements, ordered by how much each would change
-the conclusions (Table 16). Each fits within a course and replaces an assumption with a number.
+the conclusions (Table 17). Each fits within a course and replaces an assumption with a number.
 
-Table: **Table 16.** Measurements that would replace the model's key assumptions
+Table: **Table 17.** Measurements that would replace the model's key assumptions
 
 | Measurement | What it would settle | How it could be measured | What the model forecasts |
 |--------------------|------------------------------|------------------------------------|------------------------------------|
