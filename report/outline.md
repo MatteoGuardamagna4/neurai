@@ -69,16 +69,23 @@ that diff.
 | Fri 25 | Answers to the §4 review; §4 clarified (G, Figures 7a and 8a, §4.5, §4.7); Figure 8a redrawn for print; explanatory Tables 3, 4, 6, 7 and the renumbering; licences (**done**) | Decide the rapid-fading framing for §5 |
 | Sat 26 | §5 and §6 (**done** on Fri 25); §2 Literature Review, every citation checked (**done** on Fri 25, with the tables renumbered for its Table 1) | Review §5-6 and §2 |
 | Sun 27 | §1 Introduction (**done** on Fri 25) | Review §1-2 |
-| Mon 28 | Abstract, Executive Summary, AI declaration; ledger back-filled for the appendices; remaining appendices; page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
+| Mon 28 | Abstract, Executive Summary, AI declaration (**done** on Fri 25); remaining appendices, E.2 and F (**done** on Fri 25); ledger back-filled for Appendices A-D (**done** on Fri 25); page pass (Figure 8a leaves a part-empty page before it) | Review front matter; full read-through |
 | Tue 29 | Fixes from the read-through; references, cross-references, format checklist | Final read |
 | Wed 30 | Final PDF; after submission, push the local commits and publish release `report-2026-09-30` with the D3 bundle | Submit |
 
 **Verification.** Every number in the report is listed in `report/claims.yaml` and recomputed by
 `uv run python report/verify.py`, which writes `report/build/claims_check.md` (one row per claim: sentence, value,
-source, PASS/FAIL). As of 2026-09-25, after §1, §2, §5 and §6: every number in §1 and §3-6 is covered, 304 of 304 pass. §2 quotes
+source, PASS/FAIL). As of 2026-09-25, after the front matter, the new appendices and the back-fill of Appendices
+A-D: every number in the front matter, §1, §3-6 and all appendices is covered, 716 of 716 pass. Tables A1-A3, C2,
+D1, E1-E6 and F3 have one entry per row; `verify.py` gained helpers for them (`a1row`, `c2cells`, `p5`, `lep`, `sci`,
+`coverage_surface`). What the scan leaves uncovered is notation (equation labels, `[0,1]`, list numbers, model
+names). The C.3 probe values are development measurements checked against their record in `CLAUDE.md`. §2 quotes
 no repository number; its few numbers come from the cited papers, and the comment above each entry of
-`references.bib` records where they were read. The appendices are not yet covered (their numbers moved there from §3
-unchanged).
+`references.bib` records where they were read (the Centaur data-set size of C.4 was added there, from the abstract).
+The back-fill changed two numbers of A.2, which no recorded computation reproduced: under the definition now stated
+(words and numerals as runs of word characters and of digits) the unit-level numeral density gives p = 0.16 (was
+0.15) and the text-level length r = +0.13, p = 0.22 (was +0.14, 0.19); the other three values reproduce exactly and
+no conclusion changes. It also removed a reference to the brief from the caption of Table A3.
 
 ## Page budget
 
@@ -100,14 +107,18 @@ Target body **~37 pages** against the 40-page ceiling (figures and tables count)
 ## Front matter (not counted)
 
 - **Cover.** Student name and master, project title, organisation, tutor, confidentiality, course (guidelines p. 10).
-- **Abstract.** ≤ 250 words, paper-style: question, method, three results, one limitation.
+- **Abstract.** ≤ 250 words, paper-style: question, method, three results, one limitation. **Drafted 2026-09-25**
+  (249 words).
 - **Executive Summary.** 2-4 pages, compulsory. Four required elements: objective; methodology with its steps
   **and its data sources** (all generated, quantified); the academic framework; conclusions and the deliverable.
-  Written last.
+  **Drafted 2026-09-25**: one heading per required element, Tables ES1 (phases and data generated) and ES2 (year-10
+  results and their standing), about 1,300 words of prose.
 - **Declaration of AI assistance.** Required by the guidelines ("any assistance received … should be fully
   acknowledged"). Facts: the unit records were written by the author with Claude, under the author's review; the
   lesson texts and text controls were drafted with Claude Opus 5 and Claude Fable 5; code and report drafts had the
-  same assistance. Method components (Centaur, Qwen2.5, TRIBE v2) are described in §3, not here.
+  same assistance. Method components (Centaur, Qwen2.5, TRIBE v2) are described in §3, not here. **Drafted
+  2026-09-25**; it also names Claude Opus 5.5, which the commit history credits on the code (confirmed by the
+  author, 2026-09-25).
 - **Index.** With page numbers, and the page count and word count at its end.
 
 ## 1. Introduction (3 pp)
@@ -210,9 +221,12 @@ review and its verdict, construction of the contradiction check); B. The encodin
 configuration and checks, metric definitions with eq. 9); C. The simulated learner (**drafted**: proxies,
 all learner parameters, the development probes of the transcript model); D. The ten-year simulation and its
 validation (**drafted** 2026-09-24: run inventory and eq. 43, the ten pilot checks, specification-curve dimensions
-and ranks, the rules changed after the first results, the components table). Planned: full Table 5, cortical
-contrasts at parcel level; supplementary tables and Figures S1-S3; reproducibility (commands, run tags, the D3
-manifest); data dictionary.
+and ranks, the rules changed after the first results, the components table); E. Supplementary figures and tables
+(**drafted** 2026-09-25: E.1 the seven supplementary figures; E.2 Tables E1-E6, Phase III checkpoint contrasts,
+year-10 states, $G$ by year, mechanism decomposition, variance decomposition, neural $d$, generated from the output
+CSVs and cited from §4); F. Reproducibility and data (**drafted** 2026-09-25: availability, Table F1 rebuild steps,
+Table F2 run tags, Table F3 data files; the full dictionary stays in `outputs/tables/data_dictionary.csv`, which
+lacks `tableS_f4_bound_check.csv`).
 
 Body tables so far, numbered in order of appearance (renumbered again 2026-09-25 for §2): Table 1 strands of the
 literature (§2.5); Table 2 data generated (§3.1), Table 3 conditions (§3.2), Table 4 seven networks (§3.3), Table 5

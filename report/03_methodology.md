@@ -545,7 +545,7 @@ changed configuration, and record their configuration, seeds, package versions a
 engine are not bitwise reproducible, because the served model's scores vary slightly with the state of its cache; they
 are reproduced from their call logs, which are kept. A suite of 130 automated tests covers the equations, the corpus
 checks, the statistics and the agreement of the ten-year implementation with the original, and a single command
-rebuilds every table and figure from the saved runs. The encoding-model predictions are listed in a checksum
+rebuilds every table and figure from the saved runs (Appendix F). The encoding-model predictions are listed in a checksum
 manifest, and a 14 MB bundle of the files the analysis reads rebuilds every table on its own. The code, corpus, run
 records and outputs are available at <https://github.com/MatteoGuardamagna4/neurai>, and the bundle as release
 `report-2026-09-30` of that repository; the code is released under the MIT licence and the predictions and outputs

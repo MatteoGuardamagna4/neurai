@@ -113,9 +113,78 @@ def hist_quantile(tag: str, scenario: str, outcome: str, year: int, p: float) ->
     return float(g["bin_high"][c >= p].iloc[0])
 
 
+def sci(x: float) -> str:
+    """4.5e10 as the report writes it: '4.5 \\times 10^{10}'."""
+    mant, exp = f"{float(x):.1e}".split("e")
+    return f"{mant} \\times 10^{{{int(exp)}}}"
+
+
+def p5(*patterns: str) -> list[dict]:
+    """Phase V run records whose tag matches any of the glob patterns, in tag order."""
+    paths = sorted({p for pat in patterns for p in glob.glob(str(ROOT / "data" / "processed" / "phase5" / pat / "run.json"))})
+    return [json.loads(Path(p).read_text(encoding="utf-8")) for p in paths]
+
+
+def lep(ds: list[dict]) -> float:
+    """Learner-episodes of Phase V runs: draws x learners x scenarios x years x 40 weeks x episodes a week."""
+    return sum(len(d["draws_done"]) * d["learners_per_draw"] * len(d["scenarios"]) * d["years"] * 40
+               * ((d.get("options") or {}).get("epw") or 3) for d in ds)
+
+
+def a1row(feature: str) -> str:
+    """The six numeric cells of a Table A1 row: SMD to 2 decimals, the TOST p to 3 (below 0.001 as '< 0.001')."""
+    r = row("corpus_balance.csv", feature=feature)
+    p = lambda v: "< 0.001" if v < 0.001 else f"{v:.3f}"  # noqa: E731
+    return " | ".join(f"{r[f'smd_{c}']:.2f} | {p(r[f'tost_p_{c}'])}" for c in ("S-T", "U-T", "S-U"))
+
+
+def c2cells(param: str) -> str:
+    """Low | Medium | High of a Table C2 row from table3_parameters.csv; lists joined by ' / ', blanks left empty."""
+    r = row("table3_parameters.csv", parameter=param)
+
+    def cell(v) -> str:
+        if pd.isna(v):
+            return ""
+        s = str(v)
+        if s.startswith("["):
+            return " / ".join(x.strip() for x in s.strip("[]").split(","))
+        return f"{float(s):g}" if re.fullmatch(r"-?[\d.]+", s) else s
+    return " | ".join(cell(r[c]) for c in ("low", "medium", "high"))
+
+
+_coverage: dict = {}
+
+
+def coverage_surface() -> dict:
+    """Appendix A.2: Pearson r and p of semantic coverage against five surface features. Words are runs of word
+    characters and numerals runs of digits. The unit-level features use each unit's reference worked solution against
+    its mean explanation coverage over the three conditions; the text-level ones each primary text's explanation."""
+    if not _coverage:
+        from scipy import stats
+        from neurotutorsim import corpus
+        cov = pd.read_csv(ROOT / "data/tribe/tribe_textctl/coverage/semantic_coverage.csv")
+        cov = cov[(cov["variant"] == "primary") & (cov["text"] == "explanation")]
+        units = corpus.load_units(ROOT / "data/units")
+        stims = corpus.load_stimuli(ROOT / "stimuli", units)
+        tok = lambda s: re.findall(r"\w+", s)  # noqa: E731
+        den = lambda s: len(re.findall(r"\d+", s)) / len(tok(s))  # noqa: E731
+        u = cov.groupby("unit_id")["cosine"].mean()
+        ws = [units[k].worked_solution for k in u.index]
+        exp = [stims[(r.unit_id, r.condition)].explanation for r in cov.itertuples()]
+        for name, x, y in (("unit length", [len(tok(s)) for s in ws], u.values),
+                           ("unit numerals", [den(s) for s in ws], u.values),
+                           ("text length", [len(tok(s)) for s in exp], cov["cosine"].values),
+                           ("text numerals", [den(s) for s in exp], cov["cosine"].values),
+                           ("text equations", [s.count("=") for s in exp], cov["cosine"].values)):
+            _coverage[name] = tuple(float(v) for v in stats.pearsonr(x, y))
+    return _coverage
+
+
 ENV = {"T": T, "row": row, "cfg": cfg, "js": js, "runs": runs, "regex": regex, "len": len, "sum": sum, "round": round,
        "min": min, "max": max, "abs": abs, "pd": pd, "ROOT": ROOT, "glob": glob, "Path": Path, "ci": ci,
-       "t4cell": t4cell, "hist_quantile": hist_quantile, "all": all, "any": any, "set": set, "sorted": sorted}
+       "t4cell": t4cell, "hist_quantile": hist_quantile, "all": all, "any": any, "set": set, "sorted": sorted,
+       "sci": sci, "p5": p5, "lep": lep, "a1row": a1row, "c2cells": c2cells, "coverage_surface": coverage_surface,
+       "format": format, "int": int, "float": float, "str": str, "json": json, "re": re}
 
 
 def fmt(value, spec: str | None) -> str:

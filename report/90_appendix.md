@@ -98,9 +98,9 @@ Second, six of the nine texts belong to two units, `pbp_002` and `ltv_002`, each
 which locates whatever depresses the score in the unit rather than in an individual lesson. Five surface features
 were tested as explanations of the ordering and none accounts for it: over the 30 units, coverage is uncorrelated
 with the length of the reference worked solution (*r* = +0.30, *p* = 0.11) and with its density of numerals
-(*r* = +0.27, *p* = 0.15); over the 90 texts, it is uncorrelated with the length of the explanation (*r* = +0.14,
-*p* = 0.19), with its density of numerals (*r* = +0.05, *p* = 0.65) and with its equation count (*r* = −0.06,
-*p* = 0.59). The first two also point the opposite way to the conjecture that a terse numeric solution depresses
+(*r* = +0.27, *p* = 0.16); over the 90 texts, it is uncorrelated with the length of the explanation (*r* = +0.13,
+*p* = 0.22), with its density of numerals (*r* = +0.05, *p* = 0.65) and with its equation count (*r* = −0.06,
+*p* = 0.59), where length is counted in words and density as numerals per word. The first two also point the opposite way to the conjecture that a terse numeric solution depresses
 similarity. What remains is the vocabulary a lesson happens to share with its reference solution, which is a
 property of the measure rather than of the instruction: the threshold screens for topical relatedness and does not
 establish that a lesson covers the method its reference solution applies. Reading the texts is therefore the only
@@ -164,7 +164,7 @@ with an affirmative verdict and no reason. A check of its worked example, refere
 unit record found no error, and the author, reading the whole text for any statement that the unit does not support
 or that is false, found none. The flag was therefore a false positive, and the text was not changed.
 
-Table: **Table A3.** The §5.4 judge: what was validated, and what each check found
+Table: **Table A3.** The content screen: what was validated, and what each check found
 
 | Question | Standing | Quantity | Texts | Value |
 |---|---|---|---|---|
@@ -687,7 +687,9 @@ random stream of behaviour, with scenarios treated as fixed. $V_{\text{plasticit
 half-lives and offloading weights; $V_{\text{stimulus}}$ combines a bootstrap of the 30 units' predicted responses
 with the variance across the primary and reworded texts; $V_{\text{residual}}$ is the remainder.
 
-## Appendix E. Supplementary figures
+## Appendix E. Supplementary figures and tables
+
+### E.1 Figures
 
 ![](../outputs/figures/fig4_rdm.png)
 
@@ -724,3 +726,218 @@ parcel tests (`outputs/tables/parcel_contrasts_auc.csv`).*
 
 *Section 4.2. Source: own elaboration; model-implied output of the Phase III population run, 1,667 learners in each
 arm (`outputs/tables/tableS_phase3_outcomes.csv`).*
+
+### E.2 Tables
+
+Tables E1 to E6 give the values behind statements of Sections 4.2 to 4.7 that the body tables do not show. Every value
+is a model-implied scenario contrast between simulated learners.
+
+Table: **Table E1.** Phase III: paired contrasts at the final checkpoint of the population run
+
+| Outcome | S − T | U − T | F − T |
+|---|---|---|---|
+| Unaided accuracy | 0.008 [0.006, 0.011] | −0.075 [−0.084, −0.067] | −0.015 [−0.019, −0.012] |
+| Near transfer | 0.009 [0.004, 0.013] | −0.080 [−0.094, −0.067] | −0.013 [−0.019, −0.007] |
+| Far transfer | 0.010 [0.005, 0.016] | −0.105 [−0.119, −0.091] | −0.019 [−0.025, −0.012] |
+| Retention | 0.010 [0.005, 0.015] | −0.096 [−0.110, −0.084] | −0.018 [−0.024, −0.012] |
+| Knowledge $K$ | 0.011 [0.011, 0.012] | −0.074 [−0.076, −0.071] | −0.012 [−0.013, −0.011] |
+| Memory $M$ | −0.002 [−0.002, −0.001] | −0.109 [−0.111, −0.106] | −0.028 [−0.030, −0.027] |
+| Reasoning $R$ | 0.003 [0.003, 0.003] | −0.059 [−0.060, −0.057] | −0.014 [−0.016, −0.013] |
+| Calibration $C$ | 0.002 [0.002, 0.002] | −0.008 [−0.009, −0.007] | −0.002 [−0.003, −0.000] |
+| Dependence $D$ | −0.003 [−0.003, −0.003] | 0.066 [0.064, 0.068] | 0.016 [0.014, 0.017] |
+
+*Mean paired difference over 1,667 simulated learners after the 40th episode, with its bootstrap 95% interval; medium
+parameter setting, logistic engine, so the free-choice arm follows the assumed rule. S scaffolding, U substitution, F
+free choice, T traditional instruction. Accuracies are unaided and computed with support removed; calibration measures
+consistency between confidence and correctness (eq. 24). Source: own elaboration; model-implied output of the Phase
+III population run (`outputs/tables/tableS_phase3_outcomes.csv`).*
+
+Table: **Table E2.** Year-10 scenario contrasts in the four states of the simulated learner
+
+| Scenario | Knowledge $K$ | Reasoning $R$ | Memory $M$ | Dependence $D$ |
+|---|---|---|---|---|
+| Scaffolding, rapid fading | 0.014 [0.002, 0.041] | 0.101 [0.064, 0.132] | −0.023 [−0.036, −0.012] | −0.088 [−0.119, −0.045] |
+| Scaffolding, no fading | 0.021 [0.009, 0.046] | 0.019 [0.007, 0.034] | −0.000 [−0.002, 0.003] | −0.019 [−0.039, −0.005] |
+| Substitution | −0.146 [−0.222, −0.069] | −0.278 [−0.321, −0.208] | −0.090 [−0.146, −0.047] | 0.240 [0.143, 0.283] |
+| Free choice, assumed rule | −0.018 [−0.047, −0.004] | −0.048 [−0.071, −0.023] | −0.018 [−0.044, −0.005] | 0.042 [0.015, 0.064] |
+| Free choice, fitted rule | −0.029 [−0.044, −0.015] | −0.100 [−0.116, −0.067] | −0.025 [−0.042, −0.013] | 0.078 [0.043, 0.092] |
+
+*Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 37), with the 95%
+simulation interval across draws. A negative contrast in dependence favours the AI scenario, and $G$ (Table 10)
+subtracts it. Source: own elaboration; model-implied output of the Phase V main run
+(`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
+
+Table: **Table E3.** Net advantage $G$ after one, five and ten school years
+
+| Scenario | Year 1 | Year 5 | Year 10 |
+|---|---|---|---|
+| Scaffolding, rapid fading | 0.008 [0.003, 0.013] | 0.028 [0.017, 0.042] | 0.045 [0.024, 0.064] |
+| Scaffolding, no fading | 0.005 [0.003, 0.008] | 0.009 [0.004, 0.016] | 0.015 [0.005, 0.030] |
+| Substitution | −0.075 [−0.099, −0.056] | −0.144 [−0.188, −0.096] | −0.191 [−0.233, −0.118] |
+| Free choice, assumed rule | −0.012 [−0.018, −0.008] | −0.020 [−0.036, −0.010] | −0.032 [−0.057, −0.012] |
+| Free choice, fitted rule | −0.023 [−0.030, −0.018] | −0.044 [−0.057, −0.030] | −0.059 [−0.071, −0.035] |
+
+*Median across 500 parameter draws of $G$ (eq. 39, equal weights), with the 95% simulation interval. Source: own
+elaboration; model-implied output of the Phase V main run (`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
+
+Table: **Table E4.** Mechanism decomposition of the year-10 contrasts
+
+| Scenario | Channel held | $K$ | $R$ | $M$ | $D$ | $G$ |
+|---|---|---|---|---|---|---|
+| Substitution | Effort | 0.97 | 0.36 | 0.19 | 0.51 | 0.51 |
+| Substitution | Effectiveness | 0.17 | 0.03 | 0.02 | 0.06 | 0.07 |
+| Substitution | Dependence | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| Scaffolding, rapid fading | Effort | 0.37 | 0.08 | 0.02 | 0.11 | 0.12 |
+| Scaffolding, rapid fading | Effectiveness | 0.63 | 0.14 | 0.00 | 0.20 | 0.22 |
+| Scaffolding, rapid fading | Dependence | 0.07 | 0.08 | 0.00 | 0.08 | 0.08 |
+| Scaffolding, no fading | Effort | 0.11 | 0.12 | 0.24 | 0.14 | 0.13 |
+| Scaffolding, no fading | Effectiveness | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| Scaffolding, no fading | Dependence | 0.02 | 0.12 | −0.13 | 0.12 | 0.10 |
+| Free choice, assumed rule | Effort | 1.25 | 0.43 | 0.12 | 0.58 | 0.56 |
+| Free choice, assumed rule | Effectiveness | −0.21 | −0.12 | −0.03 | −0.14 | −0.12 |
+| Free choice, assumed rule | Dependence | 0.27 | 0.18 | 0.15 | 0.20 | 0.21 |
+
+*Share of the scenario contrast that disappears when one channel is held, for each learner and episode, at its value
+under traditional instruction: $1 - \text{SC}_{\text{held}} / \text{SC}$ (Section 3.7, Appendix D.6). 1 means the
+whole contrast passes through the channel; values outside 0 to 1 signal interacting channels, and the shares need not
+sum to 1. Computed from the medians of the full and the held contrast over 50 parameter draws of 500 learners. Source:
+own elaboration; model-implied output of the Phase V mechanism run
+(`outputs/tables/tableS_mechanism_decomposition.csv`).*
+
+Table: **Table E5.** Variance decomposition of the year-10 outcomes (eq. 41)
+
+| Source of variance | Net advantage $G$ | Control-network contrast $d$ |
+|---|---|---|
+| Scenario | 68.3% | 33.1% |
+| Parameters | 1.6% | 9.8% |
+| Learners | 28.9% | 8.3% |
+| Behavioural randomness | 1.3% | 0.7% |
+| Plasticity settings | 0.0% | 40.6% |
+| Stimulus: predicted responses of the units | 0.0% | 6.5% |
+| Stimulus: rewording | 0.0% | 1.1% |
+| Residual | −0.0% | −0.1% |
+
+*Share of the variance of each year-10 outcome across four AI scenarios (all but free choice under the fitted rule),
+20 parameter draws, 100 learners and three replicates of behavioural randomness, from the replicate runs; scenarios
+are treated as fixed. The neural contrast is that between each AI scenario and traditional instruction in the control
+network under mechanism D. The residual is negative because each component is clamped at zero before it is subtracted.
+Source: own elaboration; model-implied output of the Phase V replicate runs
+(`outputs/tables/tableS_variance_decomposition.csv`).*
+
+Table: **Table E6.** Year-10 neural contrasts $d$ by network (exploratory)
+
+| Scenario | Visual | Somatomotor | Dorsal attention | Salience / ventral attention | Limbic | Control | Default mode |
+|---|---|---|---|---|---|---|---|
+| Scaffolding, rapid fading | −6.0 | −5.6 | −5.3 | −5.3 | 0.5 | −5.3 | 4.7 |
+| Scaffolding, no fading | −5.3 | −5.1 | −4.9 | −4.9 | 0.7 | −4.8 | 4.7 |
+| Substitution | 1.3 | 0.9 | −0.8 | −0.2 | 1.9 | −0.1 | 2.7 |
+| Free choice, assumed rule | −1.0 | −2.4 | −4.5 | −4.2 | 1.2 | −3.5 | 3.6 |
+| Free choice, fitted rule | 0.9 | −0.6 | −3.7 | −3.1 | 1.9 | −2.6 | 3.3 |
+
+*Median across 500 parameter draws of the standardised paired difference $d$ (eq. 44) between the AI scenario and
+traditional instruction, under plasticity mechanism D. $d$ measures how consistently learners differ, not by how much,
+and its sign depends on analysis choices (Section 4.7). Source: own elaboration; model-implied output of the Phase V
+main run (`outputs/tables/table5_neural_d_v_main.csv`).*
+
+## Appendix F. Reproducibility and data
+
+### F.1 Availability
+
+The code, the corpus, the run records and the output tables are held in the public repository
+<https://github.com/MatteoGuardamagna4/neurai>. The code is released under the MIT licence, and the corpus, the
+outputs and the predicted cortical responses under CC BY-NC 4.0. The predicted responses, 931 files and 8.70 GB, are
+too large for the repository. A checksum manifest in the repository (`data/tribe/MANIFEST.sha256`) identifies each of
+those files, and a 14 MB bundle of the files the analysis reads is attached to release `report-2026-09-30`. Unpacked
+into a fresh copy of the repository, the bundle suffices to rebuild every table and figure. The vertex-level
+predictions and the predictions for the shuffled controls are identified by the manifest only, since the analysis
+reads them through aggregated tables.
+
+Runs are append-only and resumable: an interrupted run continues under its own configuration, a changed configuration
+is refused, and nothing is overwritten. The logistic-engine runs and the ten-year runs derive every random number from
+their recorded seeds (Section 3.9). Runs with the hybrid engine are not bitwise reproducible, because the served
+model's scores vary slightly with the state of its cache; they are reproduced from their call logs, which are kept.
+
+### F.2 Rebuilding the results
+
+Table F1 lists the steps in the order in which they were run. Module commands are run as
+`uv run python -m neurotutorsim.<module>`, and the PowerShell scripts call them in the same way. Only the
+encoding-model runs and the Centaur runs used a cloud GPU (Section 3.9).
+
+Table: **Table F1.** The steps that rebuild the results
+
+| Step | Command | Output |
+|---|---|---|
+| Corpus validation | `corpus` | Checked units and texts; `units.csv`, `stimuli.csv` |
+| Contradiction check | `judge`; `judge --controls incorrect`; `scripts/build_judge_probes.py`, then `judge --probes` | The screen of Section 3.2.4 and its validation (Table A3) |
+| Predicted cortical response | `notebooks/tribe_phase2.ipynb` on a cloud GPU | Predictions and metrics under `data/tribe/` (Appendix B) |
+| 200-parcel variant | `scripts/reparcellate.py --parcels 200` | The predictions aggregated to 200 parcels |
+| Simulated learner, logistic engine | `simulate --engine logistic --tutor fake --tag population_logistic`, and the same for the low and high settings and the 40-learner comparison | The population runs of Phase III |
+| Simulated learner, hybrid engine | `notebooks/serve_models.ipynb`, then `scripts/centaur_loop.ps1 -Remote` | The Centaur runs and their call logs |
+| Plasticity | `plasticity --run data/processed/<tag>` | The model-implied neural state of Phase IV |
+| One-year checks | `scripts/run_gate18.ps1` | The checks of Table D2 |
+| Main ten-year run | `longitudinal --tag v_main --years 10 --draws 500 --learners 2000 --scenarios traditional scaffolding_rapid scaffolding_nofade substitution free_choice` | The five scenarios of the main run |
+| Fitted choice rule | `scripts/run_centaur_rule.ps1` | The rule of Appendix D.6 and the sixth scenario |
+| Frontier | `scripts/run_frontier.ps1` | Phase diagram, tipping points and neural diagram |
+| Remaining ten-year runs | `scripts/run_remaining.ps1` | Controls, mechanism decomposition, replicates, exposure and the specification curve |
+| Post hoc F4 check | `scripts/f4_bound_check.py` | The check of Appendix D.4 |
+| Tables and figures | `report all` | Every table and figure in `outputs/` |
+
+*Source: own elaboration (`README.md` and the scripts named).*
+
+### F.3 Run records
+
+Each run is stored under its tag: the encoding-model runs under `data/tribe/<tag>/`, the Phase III runs under
+`data/processed/<tag>/` with their logs under `outputs/logs/<tag>/`, and the Phase V runs under
+`data/processed/phase5/<tag>/`. The record of every Phase III and Phase V run holds its configuration hash, seeds,
+package versions and wall time. Table F2 maps the tags to the runs this report analyses. Other tags on disk, such as
+pilots and superseded runs, are kept as records and are not analysed.
+
+Table: **Table F2.** The run tags analysed in this report
+
+| Phase | Tag | Content |
+|---|---|---|
+| II | `tribe_main` | The 90 lesson texts at three reading speeds and the 180 shuffled controls |
+| II | `tribe_main_s200` | The same predictions aggregated to 200 parcels |
+| II | `tribe_textctl` | The 210 written controls |
+| III | `population_logistic`, `population_low`, `population_high` | 1,667 learners in four arms for 40 episodes; logistic engine; medium, low and high settings |
+| III | `centaur_main`, `logistic_40` | 40 learners in four arms for 30 episodes, with the hybrid and with the logistic engine |
+| III | `centaur_free_calib` | 80 learners in the free-choice arm for 60 episodes; hybrid engine |
+| V | `v_main`, `v_main_fcc` | The main run: five scenarios, and the sixth with traditional instruction repeated |
+| V | `v_epw1`, `v_epw5` | Exposure of one and of five episodes a week |
+| V | `v_frontier`, `v_tipping`, `v_neural` | Phase diagram, tipping-point lines and neural diagram |
+| V | `v_mediation` | Mechanism decomposition |
+| V | `v_z0_10y`, `v_e0_10y`, `v_uniform` | Controls: zero plasticity, zero effort sensitivity, uniform draws |
+| V | `v_repl0`, `v_repl1`, `v_repl2` | Replicates for the variance decomposition |
+| V | `spec_<form>_<forgetting>_<exposure>_<effort>_adapt_<adaptation>` | The 216 cells of the specification curve |
+| V | `g18_pilot`, `g18_crn`, `g18_e0`, `g18_z0`, `g18_break4`, `g18_break24` | The one-year checks of Table D2 |
+
+*Source: own elaboration; run records under `data/` and `outputs/logs/`.*
+
+### F.4 Data files
+
+Each Phase III run keeps its episodes in an append-only record (`episodes.jsonl`), the source of truth for the other
+files of the run. The data dictionary (`outputs/tables/data_dictionary.csv`) gives the name, type and meaning of every
+column of the files in Table F3, and the values of the outcome column of `simulation_draws`: 680 entries in all. The
+table of the post hoc F4 check (`tableS_f4_bound_check.csv`) was written after the dictionary and is not in it;
+Appendix D.4 describes it.
+
+Table: **Table F3.** Data files and the columns the data dictionary documents
+
+| File | One row per | Content | Columns |
+|---|---|---|---|
+| `data/processed/units.csv` | Unit | Domain, concept, difficulty, prerequisites and the reference, transfer and misconception answers | 12 |
+| `data/processed/stimuli.csv` | Lesson text | Unit, condition, the text and its matching features | 14 |
+| `tribe_metrics.parquet` | Text, region and metric | The metrics of Table B1 at parcel, network and text level | 7 |
+| `responses.csv` | Turn of an episode | Prompt, response, answer, confidence, correctness, help requested and the probability of a correct answer | 20 |
+| `learner_state.parquet` | Learner and episode | The five states, effort, effectiveness and the proxies of Table C1 | 25 |
+| `checkpoints.csv` | Learner and checkpoint | Unaided, supported, transfer and retention accuracy, calibration, help requests and the five states | 19 |
+| `simulation_draws` | Draw, scenario, year and outcome | Scenario levels and contrasts, with their spread and probability of superiority | 10 |
+| `parameter_draws` | Draw | The drawn value of every varied parameter | 26 |
+| `neural_contrasts` | Draw, scenario, year, mechanism and network | Mean, spread and $d$ of the neural contrast | 9 |
+| `weekly_means` | Draw, scenario and week | Mean knowledge, dependence, first-attempt accuracy and far transfer | 8 |
+| `yearly_subsample` | Stored learner, draw, scenario and year | States, test outcomes and the neural state under each mechanism | 45 |
+| `contrast_hist` | Scenario, year, outcome and bin | Histogram of the learner-level paired differences | 7 |
+| `episodes_central` | Episode of the central draw | Protocol, correctness, help, effort, effectiveness, knowledge and dependence | 17 |
+| `outputs/tables/*.csv` | Varies | The 51 output tables behind the report's tables and figures | 454 |
+
+*Source: own elaboration (`outputs/tables/data_dictionary.csv`).*

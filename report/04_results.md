@@ -61,7 +61,7 @@ similar to one another, so the geometry the analysis compares is compressed.
 ## 4.2 One term of simulated learning
 
 Phase III compares the conditions for the same simulated learners over one term. At the final checkpoint of the
-population run, scaffolding exceeds traditional instruction by about 0.01 in unaided accuracy, far transfer and
+population run (Table E1, Appendix E), scaffolding exceeds traditional instruction by about 0.01 in unaided accuracy, far transfer and
 retention, a small margin whose intervals exclude zero. Substitution falls below traditional instruction in all three,
 by 0.075 to 0.105, and ends the term with lower knowledge, memory and reasoning and higher dependence. Free choice lies
 between the two. This ordering, scaffolding above traditional instruction above free choice above substitution, holds
@@ -108,8 +108,8 @@ At year 10 (Table 10), substitution has the largest contrast: $G$ is −0.191 (9
 the rule fitted to Centaur's choices (−0.059) nearly twice as much as the assumed one (−0.032). Both scaffolding
 scenarios are positive, rapid fading (0.045) more than no fading (0.015). With the neutrality threshold of 0.02, rapid
 fading is beneficial, substitution and both free-choice scenarios are harmful, and scaffolding without fading is
-neutral. The contrasts grow over time: substitution's $G$ is −0.075 after the first year and −0.144 after the fifth.
-The scenarios differ in where the contrast lies. Rapid fading gains mainly in reasoning and dependence, and hardly in
+neutral. The contrasts grow over time: substitution's $G$ is −0.075 after the first year and −0.144 after the fifth (Table E3).
+The scenarios differ in where the contrast lies (Table E2). Rapid fading gains mainly in reasoning and dependence, and hardly in
 knowledge, whereas substitution loses on all four states, most in reasoning and dependence.
 
 Table: **Table 10.** Year-10 scenario contrasts against traditional instruction
@@ -162,7 +162,7 @@ The decomposition locates the part of the model through which each scenario cont
 rerun with one channel fixed, for each learner and episode, at the value the same learner had under traditional
 instruction: the effort or the effectiveness entering the knowledge update, or the dependence entering the learner's
 decisions. The share of a contrast that disappears when a channel is fixed is that channel's contribution; a
-contribution of 1 means that the contrast passes entirely through it.
+contribution of 1 means that the contrast passes entirely through it (Table E4, Appendix E).
 
 For substitution, fixing effort removes 0.97 of the knowledge contrast and 0.51 of $G$, while effectiveness contributes
 little and dependence nothing, since substitution offers no help to request. Its knowledge deficit is thus almost
@@ -209,7 +209,7 @@ elaboration; model-implied output of the 216 specification-curve runs (`outputs/
 
 The variance decomposition (eq. 41) attributes 68.3% of the variance of year-10 $G$ across the AI scenarios to the
 scenario and 28.9% to differences between learners; parameters and behavioural randomness account for the rest, and
-plasticity and stimulus for nothing, since $G$ has no neural term. The behavioural controls behave as required. When
+plasticity and stimulus for nothing, since $G$ has no neural term (Table E5). The behavioural controls behave as required. When
 effort does not respond to behaviour, the substitution contrast in knowledge almost vanishes, and none of 1,000 random
 sign flips of the paired differences produced a contrast as extreme as any observed year-10 contrast in unaided
 accuracy, far transfer or retention.
@@ -253,7 +253,7 @@ Table: **Table 12.** Falsification verdicts
 Phase IV accumulates the predicted responses to the lessons each learner received into a model-implied state, and
 this section compares that state between scenarios after ten years. Under mechanism D, the neural contrasts at year
 10 look large in standardised terms: both scaffolding scenarios have medians of $d$ between −6.0 and −4.8 in five
-networks. They are large because every learner reads the same texts, so the paired differences vary little across
+networks (Table E6). They are large because every learner reads the same texts, so the paired differences vary little across
 learners; $d$ measures how consistently learners differ, not by how much.
 
 Two results prevent any claim about their direction. First, the contrasts are built from the predicted responses of
