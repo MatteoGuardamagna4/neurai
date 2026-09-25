@@ -75,7 +75,8 @@ three parameter settings (Figure S3, Appendix E). Two features of these numbers 
 tests three trained items and two items each of near and far transfer, so most paired differences are exactly zero (98% of learners tie in
 unaided accuracy between scaffolding and traditional instruction) and the probability of superiority is
 uninformative here. And the substitution protocol offers no help to request, so its request rate is zero by
-construction.
+construction. <!-- MG: what do you mean by that substitution protocol offers no help to request so the request rate is 0? 
+what are this claims implication on what it has been just written? -->
 
 The hybrid engine was compared with the logistic engine on the same 40 learners over 30 episodes (Figure S1,
 Appendix E). Delegating the choices to Centaur raised help requests by 0.094 per episode under scaffolding (95%
@@ -153,7 +154,7 @@ scenario falls below traditional instruction.
 ![](../outputs/figures/fig7a_phase_diagram.png)
 
 *Source: own elaboration; model-implied output of the Phase V frontier run, 100 parameter draws of 300 learners
-(`outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`).*
+(`outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`).*<!--MG: what is this graph saying? i dont understand the implications, explain in plain english -->
 
 ## 4.5 Mechanisms
 
@@ -166,7 +167,8 @@ traditional instruction. For rapid fading, no mediator accounts for more than 0.
 effort 0.12, dependence 0.08). The rest passes through the terms by which withdrawal enters the updates of reasoning
 and dependence directly (support used, offloading and unaided success, eq. 23′ and 25′), which the decomposition
 does not hold. Under free choice the contributions fall outside the interval from 0 to 1 (1.25 for effort on
-knowledge, −0.21 for effectiveness), a reminder that the decomposition is not additive.
+knowledge, −0.21 for effectiveness), a reminder that the decomposition is not additive. <!--MG: explain this mechanisms section to me, i didnt understand it at all. 
+what has been done and what was the purpose?-->
 
 ## 4.6 Robustness and falsification
 
@@ -193,7 +195,7 @@ Table: **Table 6.** Sign stability of year-10 $G$ across the specification curve
 *Each specification: 50 parameter draws of 300 learners; median and 95% interval across draws. Source: own
 elaboration; model-implied output of the 216 specification-curve runs (`outputs/tables/tableS_sign_stability.csv`).*
 
-![](../outputs/figures/fig8a_spec_curve_G.png)
+![](../outputs/figures/fig8a_spec_curve_G.png) <!--MG: i dont understand this part: what is G and what are the figures showing? explain in simple terms-->
 
 *Source: own elaboration; model-implied output of the 216 specification-curve runs, each of 50 parameter draws of
 300 learners (`outputs/tables/fig8a_spec_curve_G.csv`).*
@@ -244,3 +246,4 @@ the variance decomposition attributes 40.6% of the variance of this contrast to 
 the scenario. In the neural diagram (Figure 7b, Appendix E), the offloading weight $\lambda_O$ moves the contrast of
 substitution more than the half-life of the neural state does in six of the seven networks. These trajectories are model-implied consequences of
 the assumptions of Phase IV and are reported as exploratory.
+<!-- MG: explain in plain english without too many numbers what are the conclusions drawn here-->
