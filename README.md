@@ -143,8 +143,15 @@ bundle: exit 0, all outputs reproduced). Left out and covered only by the manife
 matrices (~5.1 GB) and the 180 shuffled-control predictions (~3.3 GB), which the analysis reads only through the
 aggregated tables — but `scripts/reparcellate.py` does need the vertex files.
 
-**Still to do:** upload the bundle to Zenodo or OSF and put the DOI here and in the paper's data-availability
-statement. Until then the archive exists but is not yet citable.
+**Publishing (author, 2026-09-25):** the bundle is attached to GitHub release `report-2026-09-30`, which the
+report's §3.9 cites, and is published only after the report is submitted, so that no draft is public before grading.
+Zenodo, which can archive a GitHub release and mint a DOI, is left for the paper. The manifest re-hash passed on
+2026-09-25 (931 files), so the 2026-09-20 bundle is current.
+
+### Licence
+
+Code: MIT (`LICENSE`). Corpus, run records, outputs and the encoding-model predictions: CC BY-NC 4.0
+(`LICENSE-DATA.md`), the licence of TRIBE v2, whose predictions they include.
 
 ### Output map (`outputs/tables/*.csv`, `outputs/figures/*.png|.pdf`)
 
