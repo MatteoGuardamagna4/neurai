@@ -34,8 +34,8 @@ instruction in every specification. Scaffolding without withdrawal is ahead only
 assumed to be more effective per episode: when the three regimes share one adaptation value, its advantage is exactly
 zero. The predicted cortical contrasts that survive matching and rewording are few, and the model-implied neural
 trajectories are exploratory. Every parameter is assumed, and the simulated learner learns more slowly and forgets
-faster than published estimates imply, so the directions are the claim and the sizes are upper bounds.
-<!--MG:cosa vuol dire so the directions are the claim and the sizer are the upper bounds? -->
+faster than published estimates imply, so the report claims the direction of each contrast, not its size, and reads the substitution deficit as an upper bound.
+<!--MG:cosa vuol dire so the directions are the claim and the sizer are the upper bounds? RISOLTO-->
 # Executive Summary
 
 ## Project and objective
@@ -125,7 +125,7 @@ Table: **Table ES2.** Year-10 net advantage over traditional instruction and the
 | Scaffolding, no fading | 0.015 [0.005, 0.030] | Exactly zero in the 216 with equal adaptation | Assumed: rests on the adaptation constant alone |
 | Free choice, assumed rule | −0.032 [−0.057, −0.012] | Behind in every one | Derived from an assumed choice rule |
 | Free choice, rule fitted to Centaur | −0.059 [−0.071, −0.035] | Behind in every one | Derived from a rule fitted to a model, not to students |
-<!--MG:qual è l'unità di misura e che significato ha la colonna standing?-->
+<!--MG:qual è l'unità di misura e che significato ha la colonna standing?RISOLTO-->
 *Median across 500 parameter draws with its 95% simulation interval; positive values favour the AI scenario. Source:
 own elaboration; model-implied output of the Phase V main run and the specification curve (Tables 11 and 12).*
 

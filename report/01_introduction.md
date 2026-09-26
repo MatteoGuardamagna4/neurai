@@ -2,9 +2,9 @@
 
 ## 1.1 Motivation
 
-I invite the reader to consider an MBA or Master's university student stuck on a net-present-value problem. A chat assistant can help in one of two ways. It can
+Consider an MBA or Master's student stuck on a net-present-value problem. A chat assistant can help in one of two ways. It can
 ask what the student has tried, point to the step that went wrong and let them finish the calculation, or it can
-supply the answer. Both resolve the problem at hand. What matters to a business school, and most importantly, to the student, is what each leaves behind:
+supply the answer. Both resolve the problem at hand. What matters to a business school and most importantly, to the student, is what each leaves behind:
 what the student can do alone afterwards, and what years of such help add up to.
 
 The early field evidence points in both directions. In a field experiment with nearly a thousand secondary-school
@@ -41,7 +41,7 @@ its third turn. AI substitution has an AI supply the complete solution at once, 
 
 The primary question is how these three regimes differ in the predicted cortical response to a lesson, in simulated
 learning and in long-term model-implied neural trajectories, and how far these differences depend on the assumptions
-made<!--MG:since tribe is not reading the tutor's diagnosis, what is changing?-->. Five secondary questions follow from it:
+made<!--MG:since tribe is not reading the tutor's diagnosis, what is changing? RISOLTO-->. Five secondary questions follow from it:
 
 1. Which differences remain after matching content, length, readability, modality and presentation time?
 2. Does scaffolding produce a different predicted cortical profile from substitution?
@@ -57,7 +57,7 @@ effects on students, and Table 1 (Section 5.5) gives them in brief.
 
 The work proceeds in five phases (Figure 1). Phase I builds the matched corpus. Phase II predicts the cortical
 response to every text with an encoding model. Phase III simulates learners working through the curriculum, with
-explicit equations for what they learn and a language model trained on human choices making their behavioural choices on a subsample.
+explicit equations for what they learn and a language model trained on human choices making their behavioural choices in a subsample.
 Phase IV accumulates the predicted responses to the lessons each learner received into a model-implied neural state.
 Phase V projects the learners over ten school years under six scenarios and propagates the uncertainty in every
 parameter.
@@ -76,13 +76,15 @@ The study was carried out for the ESADE Data Department, as part of its research
 education.
 Its population of interest is business-school students. The curriculum therefore covers 15 concepts from core MBA
 courses in managerial accounting, corporate finance, pricing and marketing analytics, each taught twice in a different
-situation to make the learner excercise memory. Every answer in these courses is a number, so every answer can be checked automatically. The corpus has 30
-units, a size set by the available computing resources, since each unit requires 22 runs of the encoding model <!--MG:22 runs of the encoding model for each unit what is it talking about?-->.
+situation to make the learner exercise memory. Every answer in these courses is a number, so every answer can be checked automatically. The corpus has 30
+units, a size set by the available computing resources, since each unit requires 22 runs of the encoding model <!--MG:22 runs of the encoding model for each unit what is it talking about? RISOLTO 3 versioni × 3 velocità di lettura (180, 220, 260 wpm) = 9
+3 versioni × 2 shuffle (frasi; parole dentro la sezione) = 6
+3 versioni × 2 riformulazioni (più semplice, più formale) = 6
+1 testo tradizionale scorrevole ma sbagliato = 1-->.
 
 Six scenarios are compared over ten school years: traditional instruction; AI scaffolding with support withdrawn as
 the learner succeeds, and without withdrawal; AI substitution; and two scenarios in which the learner chooses the
-regime for each problem, by an assumed rule <!--MG:quale è questa regola e dove posso vederla-->or by a rule fitted to the choices of Centaur, the model of human choices
-used in Phase III. Throughout, the learners are simulated, the cortical responses predicted and the ten-year
+regime for each problem, by an assumed rule (Appendix C.4) <!--MG:quale è questa regola e dove posso vederla RISOLTO-->or by a rule fitted to the choices of Centaur. Throughout, the learners are simulated, the cortical responses predicted and the ten-year
 trajectories model-implied. No part of the study measures a student or a brain, and Section 6.4 names the measurements
 that would test its results.
 

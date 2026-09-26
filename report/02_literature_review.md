@@ -32,7 +32,7 @@ the simulated behaviour is an assumption. The development probes of Section 3.4 
 behaviour. Centaur's choices of approach and of help shifted with the learner's record as a struggling or a coping
 learner's would. It solved the problems no better than guessing, however, and its confidence ratings followed the
 record rather than the answer just given. The study therefore gives Centaur only the learner's behavioural choices and
-leaves correctness to an explicit equation. In other words, the role of the behavioural model is limited to choosing on how to get aid for questions as it was not able to perform any better than random in numerical questions. The author believes that this design choice can be helpful to address the question of how students behaves when they face difficult problems, whereas the ability of the student is monitored by other equations in this study. <!--MG:ha senso questo che ho appena aggiunto?--> 
+leaves correctness to an explicit equation. In other words, the role of the behavioural model is limited to choosing which regime to follow when the learner may choose, whether to ask for more help and how confident to report being. This design uses Centaur for what the probes showed it can do, adapting choices to a learner's record, and not for what it cannot, solving the problems. <!--MG:ha senso questo che ho appena aggiunto? RISOLTO--> 
 
 ## 2.2 Foundation models of neural response
 
@@ -142,9 +142,9 @@ Each part alone answers a narrower question: how a text is processed, how a lear
 progresses within a course, or what AI tutoring does within weeks. The question of this study, how three instructional
 regimes differ over a decade and under which assumptions, needs all three.
 
-It also needs a method, because no data exist to answer it and simulation suits such questions.  A simulation is only as credible as its treatment of assumptions, however. 
+It also needs a method, because no data exist to answer it and simulation suits such questions. A simulation is only as credible as its treatment of assumptions, however. 
 
-This study applies the same logic to a simulation. It varies modelling choices jointly rather than one at a time,
+In empirical research, specification curves address the same problem by reporting a result under every defensible combination of analytic choices [@simonsohn2020; @steegen2016].This study applies the same logic to a simulation. It varies modelling choices jointly rather than one at a time,
 reports where a result changes sign, and tests its claims against controls and falsification criteria fixed before the
 ten-year runs, recording every later change (Section 3.8). It does not validate the simulated learner against
 students, which is the test the review of simulated learners calls for [@kaser2024]<!--MG:OK-->. Section 6.4 proposes the
