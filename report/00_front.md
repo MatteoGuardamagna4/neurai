@@ -35,7 +35,7 @@ assumed to be more effective per episode: when the three regimes share one adapt
 zero. The predicted cortical contrasts that survive matching and rewording are few, and the model-implied neural
 trajectories are exploratory. Every parameter is assumed, and the simulated learner learns more slowly and forgets
 faster than published estimates imply, so the directions are the claim and the sizes are upper bounds.
-
+<!--MG:cosa vuol dire so the directions are the claim and the sizer are the upper bounds? -->
 # Executive Summary
 
 ## Project and objective
@@ -98,17 +98,17 @@ the contrast in dependence.
 
 Four bodies of research frame the study (Section 2). Foundation models of human cognition, above all Centaur
 [@binz2025], allow behavioural choices to be simulated with a model trained on human decisions, although almost half
-of the studies that use simulated learners give no evidence that the simulation is valid [@kaser2024]. Foundation
-models of neural response, such as TRIBE v2 [@dascoli2026], predict the cortical response to material that has never
+of the studies that use simulated learners give no evidence that the simulation is valid [@kaser2024]<!--MG:OK-->. Foundation
+models of neural response, such as TRIBE v2 [@dascoli2026]<!--MG:OK-->, predict the cortical response to material that has never
 been scanned; such a prediction describes the immediate response to a text, not learning. Research on scaffolding and
-cognitive offloading establishes that support should be withdrawn as competence grows [@wood1976; @puntambekar2005].
-Offloading a task to an external aid improves performance on it [@risko2016], whereas generating and retrieving
-answers improves memory [@slamecka1978; @rowland2014]. Research on knowledge tracing and retention [@corbett1995;
-@custers2010] supplies the published values against which the learning and forgetting rates of the simulated learner
+cognitive offloading establishes that support should be withdrawn as competence grows [@wood1976; @puntambekar2005]<!--MG:OK-->.
+Offloading a task to an external aid improves performance on it [@risko2016]<!--MG:OK-->, whereas generating and retrieving
+answers improves memory [@slamecka1978; @rowland2014]<!--MG:OK-->. Research on knowledge tracing and retention [@corbett1995;
+@custers2010]<!--MG:OK--> supplies the published values against which the learning and forgetting rates of the simulated learner
 are checked.
 
-Methodologically, the study uses simulation to derive the consequences of stated assumptions [@davis2007]. It tests
-their robustness with a specification curve [@simonsohn2020] and with negative controls [@lipsitch2010]. To the
+Methodologically, the study uses simulation to derive the consequences of stated assumptions [@davis2007]<!--MG:OK-->. It tests
+their robustness with a specification curve [@simonsohn2020] <!--MG:OK-->and with negative controls [@lipsitch2010]<!--MG:OK-->. To the
 author's knowledge, no published study joins a predicted cortical response to instruction, a simulated learner whose
 choices come from a model of human behaviour, and a projection over years with propagated uncertainty.
 
@@ -125,7 +125,7 @@ Table: **Table ES2.** Year-10 net advantage over traditional instruction and the
 | Scaffolding, no fading | 0.015 [0.005, 0.030] | Exactly zero in the 216 with equal adaptation | Assumed: rests on the adaptation constant alone |
 | Free choice, assumed rule | −0.032 [−0.057, −0.012] | Behind in every one | Derived from an assumed choice rule |
 | Free choice, rule fitted to Centaur | −0.059 [−0.071, −0.035] | Behind in every one | Derived from a rule fitted to a model, not to students |
-
+<!--MG:qual è l'unità di misura e che significato ha la colonna standing?-->
 *Median across 500 parameter draws with its 95% simulation interval; positive values favour the AI scenario. Source:
 own elaboration; model-implied output of the Phase V main run and the specification curve (Tables 11 and 12).*
 
