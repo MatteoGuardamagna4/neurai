@@ -44,7 +44,9 @@ Table: **Table 10.** Condition contrasts in the predicted network response (area
 | Default mode | 1.09 [0.46, 1.73]^bc^ | 0.96 [0.32, 1.66]^abc^ | 0.13 [−0.34, 0.62]^bc^ |
 
 *Mean paired difference over the 30 units with its cluster-bootstrap 95% interval (eq. 3 and 21–23); S scaffolding,
-U substitution, T traditional instruction. Bold: the interval excludes zero and the contrast passes F1, F2 and F5.
+U substitution, T traditional instruction. Values are in arbitrary units of the predicted BOLD response summed over the
+seconds of reading (eq. 26); for scale, the standard deviation of network AUC across the 90 texts is about 2.8
+(Appendix B.3). Bold: the interval excludes zero and the contrast passes F1, F2 and F5.
 ^a^ The interval includes zero once duration, word count and equation count are covariates (F1). ^b^ Not robust to
 rewording (F2). ^c^ Network in which the incorrect-but-fluent texts reach half of the largest condition contrast (F5).
 Source: own elaboration; predicted responses of TRIBE v2 (`outputs/tables/table4_cortical_contrasts.csv`,
@@ -131,7 +133,9 @@ Table: **Table 11.** Year-10 scenario contrasts against traditional instruction
 | Free choice, fitted rule | −0.059 [−0.071, −0.035] | −0.046 [−0.059, −0.023] | −0.040 [−0.047, −0.028] | −0.039 [−0.048, −0.023] | 0.046 [0.024, 0.055] |
 
 *Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 15), with the
-95% simulation interval across draws; $G$ by eq. 16 with equal weights. Source: own elaboration; model-implied output
+95% simulation interval across draws; $G$ by eq. 16 with equal weights. All columns are differences on a 0–1 scale:
+for $G$, the states of the simulated learner; for the other columns, the probability of a correct answer or of a help
+request (0.01 = one percentage point). Source: own elaboration; model-implied output
 of the Phase V main run (`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
 
 The contrasts hold for almost every simulated learner, not only on average (Figure 5). The probability of superiority
@@ -152,11 +156,15 @@ exclude zero.
 
 The phase diagram (Figure 6) replaces the named scenarios by an AI protocol whose adaptation $a$, retained effort
 $e$ and probability of substitution $o$ vary continuously, to establish which properties of such a protocol decide its
-ten-year contrast. Each cell is one protocol run for ten years against traditional instruction, shaded by its median
-$G$ and marked beneficial (+), harmful (−) or neutral (·); the three panels differ only in how often the protocol
-supplies the answer. Without substitution ($o = 0$) all 49 cells are neutral. Their $G$ is positive only where the
-protocol's adaptation exceeds the constant assumed for traditional instruction, and retained effort barely moves it.
-With $o = 0.5$ or $o = 1$ all 98 cells are harmful, whatever the adaptation and retained effort. Along the tipping
+ten-year contrast. The named scenarios are two corners of this map, scaffolding without fading ($o = 0$, $a = 0.90$)
+and substitution ($o = 1$, $a = 0.20$), which differ both in whether the answer is supplied and in adaptation; the map
+varies the two separately. Each cell is one protocol run for ten years against traditional instruction, shaded by its median
+$G$ and marked beneficial (+), harmful (−) or neutral (·). A heat map has two axes, so the third property, the
+probability $o$ that an AI episode supplies the answer instead of scaffolding, is shown as three panels: never
+($o = 0$), in half of the episodes ($o = 0.5$) and always ($o = 1$). Without substitution ($o = 0$) all 49 cells are
+neutral. Their $G$ is positive only where the protocol's adaptation exceeds the constant assumed for traditional
+instruction, and retained effort barely moves it. With $o = 0.5$ or $o = 1$ all 98 cells are harmful, whatever the
+adaptation and retained effort. Along the tipping
 lines, $G$ keeps its sign over the whole range of retained effort, of fading and of the forgetting multiplier, in every
 draw. It turns negative as substitution is mixed into the AI episodes, at $o = 0.097$ (95% interval 0.058 to 0.144):
 in the model, once about one AI episode in ten gives the answer instead of scaffolding, the scaffolding scenario falls
@@ -175,11 +183,12 @@ ai cambiando le caratteristiche di questo protocollo in ogni run. non capisco co
 
 ## 4.5 Mechanisms
 
-The decomposition locates the part of the model through which each scenario contrast arises. Every AI scenario was
-rerun with one channel <!--MG: che channel?-->fixed, for each learner and episode, at the value the same learner had under traditional
-instruction: the effort or the effectiveness entering the knowledge update, or the dependence entering the learner's
-decisions. The share of a contrast that disappears when a channel is fixed is that channel's contribution; a
-contribution of 1 means that the contrast passes entirely through it (Table E4, Appendix E).
+Sections 4.3 and 4.4 show that the scenarios differ; the decomposition asks through which part of the model each
+difference passes. Three channels were examined: the effort and the effectiveness that enter the knowledge update, and
+the dependence that enters the learner's decisions. <!--MG: che channel?-->Four AI scenarios (all but free choice under
+the fitted rule) were rerun with one channel at a time fixed, for each learner and episode, at the value the same
+learner had under traditional instruction. The share of a contrast that disappears when a channel is fixed is that
+channel's contribution; a contribution of 1 means that the contrast passes entirely through it (Table E4, Appendix E).
 
 For substitution, fixing effort removes 0.97 of the knowledge contrast and 0.51 of $G$, while effectiveness contributes
 little and dependence nothing, since substitution offers no help to request. Its knowledge deficit is thus almost
@@ -189,14 +198,15 @@ consequence of adaptation being the only term that separates it from traditional
 channel accounts for more than 0.22 of $G$. The rest passes through the direct effect of withdrawal on the updates of
 reasoning and dependence (less support used, less offloading, more success without help), which the decomposition
 does not hold: the advantage of rapid fading arises mainly from the withdrawal of support itself. Under free choice
-the contributions fall outside the interval from 0 to 1, a reminder that the channels interact and the decomposition
-is not additive. <!--MG: explain this mechanisms section to me, i didnt understand it at all. 
+some contributions fall outside the interval from 0 to 1: fixing effectiveness widens the contrast, so on balance that
+channel worked in the scenario's favour. The channels interact, and the decomposition is not additive. <!--MG: explain this mechanisms section to me, i didnt understand it at all. 
 what has been done and what was the purpose?-->
 
 ## 4.6 Robustness and falsification
 
-The specification curve (Figure 7) re-estimates the year-10 $G$ of each scenario in 648 specifications, each a
-complete rerun of the ten years under one combination of the modelling choices of Section 3.8. In each panel the
+The specification curve (Figure 7) re-estimates the year-10 $G$ of each scenario in 648 specifications: 216
+complete reruns of the ten years, one per combination of the five behavioural dimensions of Section 3.8, each read with
+three weightings of $G$. In each panel the
 specifications are sorted by their median $G$, drawn with its 95% interval, and the grid beneath marks the choices
 each one made. A scenario whose medians all lie on one side of zero has a direction that no combination of these
 choices reverses. Four of the five AI scenarios pass this test with no 95% interval including zero: substitution,
@@ -228,12 +238,13 @@ elaboration; model-implied output of the 216 specification-curve runs (`outputs/
 *Source: own elaboration; model-implied output of the 216 specification-curve runs, each of 50 parameter draws of
 300 learners (`outputs/tables/fig8a_spec_curve_G.csv`).*
 
-The variance decomposition (eq. 20) attributes 68.3% of the variance of year-10 $G$ across the AI scenarios to the
-scenario and 28.9% to differences between learners; parameters and behavioural randomness account for the rest, and
-plasticity and stimulus for nothing, since $G$ has no neural term (Table E5). The behavioural controls behave as required. When
-effort does not respond to behaviour, the substitution contrast in knowledge almost vanishes, and none of 1,000 random
-sign flips of the paired differences produced a contrast as extreme as any observed year-10 contrast in unaided
-accuracy, far transfer or retention.<!--MG: perchè si parla di variance che ruolo ha e cosa si sta dicendo qui?-->
+The variance decomposition (eq. 20) attributes 68.3% of the variance of year-10 $G$ across four of the AI scenarios
+to the scenario and 28.9% to differences between learners; parameters and behavioural randomness account for the
+rest, and plasticity and stimulus for nothing, since $G$ has no neural term (Table E5).
+
+The behavioural negative controls behave as required: when effort does not respond to behaviour, the substitution
+contrast in knowledge almost vanishes, and none of 1,000 random sign flips of the paired differences produced a
+contrast as extreme as any observed year-10 contrast in unaided accuracy, far transfer or retention.<!--MG: perchè si parla di variance che ruolo ha e cosa si sta dicendo qui?-->
 
 Table 13 collects the falsification verdicts. Beyond the predicted cortical contrasts of Section 4.1 (F1, F2, F5) and the
 neural contrasts of Section 4.7 (F3, F5), they concern one ten-year result. F4 flags scaffolding with rapid fading:
@@ -271,26 +282,17 @@ Table: **Table 13.** Falsification verdicts
 
 ## 4.7 Predicted neural trajectories (exploratory)
 
-Phase IV accumulates the predicted responses to the lessons each learner received into a model-implied state, and
-this section compares that state between scenarios after ten years. Under mechanism D, the neural contrasts at year
-10 look large in standardised terms: both scaffolding scenarios have medians of $d$ between −6.0 and −4.8 in five
-networks (Table E6). They are large because every learner reads the same texts, so the paired differences vary little across
-learners; $d$ measures how consistently learners differ, not by how much.
+Phase IV accumulates the predicted responses to the lessons each learner received into a model-implied neural state,
+compared here between scenarios at year 10. Under mechanism D both scaffolding scenarios reach medians of $d$ between
+−6.0 and −4.8 in five networks (Table E6). These values are large because every learner reads the same texts: $d$
+measures how consistently learners differ, not by how much.
 
-Two results prevent any claim about their direction. First, the contrasts are built from the predicted responses of
-Section 4.1, where rewording left a claim for only three networks and for no contrast between substitution and
-traditional instruction. Second, the one outcome followed through the specification curve, the control-network
-contrast between substitution and traditional instruction, has a positive median in 59.2% of its 62,208
-specifications and a negative one in the rest. Its sign depends mostly on how the predicted response is summarised and
-read: it is mostly positive at the slower reading speed or with the peak as the response metric, and mostly negative
-at the faster speed or with the mean (Figure E5, Appendix E). The adaptation constant, by contrast, makes no
-difference to it. Consistently, the plasticity settings account for more of its variance (40.6%) than the scenario
-does (33.1%), and in the neural diagram (Figure E6, Appendix E) the offloading weight moves the contrast of
-substitution more than the half-life of the neural state does in six of the seven networks.
-
-The neural results therefore show that the pipeline can carry predicted responses into a learner-specific state over
-ten years, not how AI support would change cortical function: the direction of the contrast examined in full depends
-more on how the predicted response is summarised and on the assumed form of plasticity than on the scenario. These
-trajectories are model-implied consequences of the assumptions of Phase IV and are reported as exploratory.
+No direction is claimed, for two reasons. The contrasts are built from the predicted responses of Section 4.1, where
+rewording left a claim for only three networks and for no contrast between substitution and traditional instruction.
+And the one outcome followed through the specification curve, the control-network contrast between substitution and
+traditional instruction, is positive in 59.2% of its 62,208 specifications: its sign depends on the reading speed and
+the response metric (Figure E5, Appendix E) and on the plasticity settings (Table E5; Figure E6, Appendix E), not on
+the adaptation constant. The pipeline thus carries predicted responses into a learner-specific state over ten years;
+it does not show how AI support would change cortical function.
 <!-- MG: explain in plain english without too many numbers what are the conclusions drawn here RISOLTO-->
 <!--MG: fai un riassunto di 4.7, cosi e troppo ripetitivo e noioso-->
