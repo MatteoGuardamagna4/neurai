@@ -32,7 +32,7 @@ substitution in the somatomotor, dorsal-attention and salience/ventral-attention
 scaffolding. Five of the six still exclude zero at the slower and the faster reading speed.
 
 Table: **Table 10.** Condition contrasts in the predicted network response (area under the curve, 220 words per minute)
-
+<!--MG: qual è l'unità d misura della tabella?-->
 | Network | S − T | U − T | S − U |
 |---|---|---|---|
 | Visual | −0.90 [−1.54, −0.28]^b^ | 1.07 [0.51, 1.61]^b^ | −1.97 [−2.47, −1.47]^b^ |
@@ -78,7 +78,7 @@ a wrong first answer the substitution protocol supplies the full solution in one
 its request rate is zero by construction and says nothing about the learner's dependence. The free-choice rate is
 lowered for the same reason: in the episodes in which the learner chose substitution it could not ask for help
 either, whereas in its other episodes it asked at about the rate of the assigned arms. Under substitution, dependence
-is therefore read from the state $D$, not from requests. <!-- MG: what do you mean by that substitution protocol offers no help to request so the request rate is 0? 
+is therefore read from the state $D$, not from requests. <!-- MG: what do you mean by that substitution protocol offers no help to request so the request rate is 0? RISOLTO 
 what are this claims implication on what it has been just written? -->
 
 The hybrid engine was compared with the logistic engine on the same 40 learners (Figure E4, Appendix E). Delegating
@@ -121,7 +121,7 @@ The scenarios differ in where the contrast lies (Table E3). Rapid fading gains m
 knowledge, whereas substitution loses on all four states, most in reasoning and dependence.
 
 Table: **Table 11.** Year-10 scenario contrasts against traditional instruction
-
+<!--MG: qual è l'unità d misura della tabella?-->
 | Scenario | $G$ | Unaided accuracy | Far transfer | Retention | P(help request) |
 |---|---|---|---|---|---|
 | Scaffolding, rapid fading | 0.045 [0.024, 0.064] | 0.027 [0.010, 0.048] | 0.023 [0.011, 0.036] | 0.024 [0.011, 0.039] | −0.044 [−0.062, −0.019] |
@@ -162,7 +162,8 @@ draw. It turns negative as substitution is mixed into the AI episodes, at $o = 0
 in the model, once about one AI episode in ten gives the answer instead of scaffolding, the scaffolding scenario falls
 below traditional instruction. Within the model, then, whether the protocol supplies answers decides whether it is
 harmful, and its adaptation decides only on which side of zero a protocol that never supplies them falls.
-
+<!--MG: QUELLO che ho capito di questo paragrafo è che si sono provate a fare diverse run di 10 anni con un protocollo
+ai cambiando le caratteristiche di questo protocollo in ogni run. non capisco come mai sono divisi in tre modelli-->
 ::: {custom-style="Image Caption"}
 **Figure 6.** Robustness frontier of the year-10 net advantage
 :::
@@ -175,7 +176,7 @@ harmful, and its adaptation decides only on which side of zero a protocol that n
 ## 4.5 Mechanisms
 
 The decomposition locates the part of the model through which each scenario contrast arises. Every AI scenario was
-rerun with one channel fixed, for each learner and episode, at the value the same learner had under traditional
+rerun with one channel <!--MG: che channel?-->fixed, for each learner and episode, at the value the same learner had under traditional
 instruction: the effort or the effectiveness entering the knowledge update, or the dependence entering the learner's
 decisions. The share of a contrast that disappears when a channel is fixed is that channel's contribution; a
 contribution of 1 means that the contrast passes entirely through it (Table E4, Appendix E).
@@ -232,7 +233,7 @@ scenario and 28.9% to differences between learners; parameters and behavioural r
 plasticity and stimulus for nothing, since $G$ has no neural term (Table E5). The behavioural controls behave as required. When
 effort does not respond to behaviour, the substitution contrast in knowledge almost vanishes, and none of 1,000 random
 sign flips of the paired differences produced a contrast as extreme as any observed year-10 contrast in unaided
-accuracy, far transfer or retention.
+accuracy, far transfer or retention.<!--MG: perchè si parla di variance che ruolo ha e cosa si sta dicendo qui?-->
 
 Table 13 collects the falsification verdicts. Beyond the predicted cortical contrasts of Section 4.1 (F1, F2, F5) and the
 neural contrasts of Section 4.7 (F3, F5), they concern one ten-year result. F4 flags scaffolding with rapid fading:
@@ -291,4 +292,5 @@ The neural results therefore show that the pipeline can carry predicted response
 ten years, not how AI support would change cortical function: the direction of the contrast examined in full depends
 more on how the predicted response is summarised and on the assumed form of plasticity than on the scenario. These
 trajectories are model-implied consequences of the assumptions of Phase IV and are reported as exploratory.
-<!-- MG: explain in plain english without too many numbers what are the conclusions drawn here-->
+<!-- MG: explain in plain english without too many numbers what are the conclusions drawn here RISOLTO-->
+<!--MG: fai un riassunto di 4.7, cosi e troppo ripetitivo e noioso-->
