@@ -49,7 +49,7 @@ parameter draws and behavioural randomness add little (Section 4.6). Among the m
 adaptation constant decides whether scaffolding without fading differs from traditional instruction at all. The
 update form decides how large the benefit of rapid fading is. The choice rule decides how far free choice drifts
 towards substitution. Beyond adaptation, only the frequency with which answers are supplied reverses a direction:
-about one AI episode in ten is enough to turn scaffolding negative (Section 4.4). The rate of forgetting, the effort
+about one AI episode in ten is enough to turn scaffolding negative (Section 4.4)<!--MG: da dove viene questa claim-->. The rate of forgetting, the effort
 retained when an answer is given and the pace of fading do not.
 
 The learner engine matters less than might be expected. Delegating the behavioural choices to Centaur changed how
@@ -76,7 +76,8 @@ while a version with pedagogical safeguards largely avoided the loss [@bastani20
 tutor built on research-based pedagogy produced larger learning gains, in less time, than an active-learning class
 [@kestin2025]. These findings agree with the model's central distinction between supplying answers and scaffolding.
 They do not test the model: they concern other populations, subjects and time horizons, and none measures the ten-year
-quantities projected here.
+quantities projected here.<!--MG:mi sembra che di questi esperimenti si sia parlato di gia in altre sezioni del report, controlla e in caso evita di essere 
+ripetitivo quindi taglia eccessi -->
 
 The magnitudes are not comparable. The simulated learner closes a smaller share of its gap to mastery per episode,
 and keeps less knowledge over a year, than published estimates imply; only the effect of support on accuracy lies
@@ -91,7 +92,7 @@ Table: **Table 15.** Limitations and their consequences
 
 | Limitation | Consequence for the results | What would address it |
 |--------------------|------------------------------------------|------------------------------------|
-| Thirty units in one domain, drafted with language models | Unit-level inferences rest on 30 clusters; other subjects and human-written material are untested | More units, other domains, human-authored texts |
+| Thirty units in one domain, drafted with the aid of language models | Unit-level inferences rest on 30 clusters; other subjects and human-written only material are untested | More units, other domains, human-written texts |
 | Scaffolding texts have no worked solution | The surviving predicted cortical contrasts cannot be attributed to scaffolding as such | Versions that differ only in instructional voice |
 | Content screened for contradictions only | The prose may contain unsupported claims that no check has caught | A validated screen or an expert review |
 | Predicted response of an average adult to text alone | Not a measurement; rewording moves most contrasts | Measured responses in a sample of students |
