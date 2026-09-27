@@ -810,10 +810,10 @@ and `outputs/figures` with no manual step.
   mirror, and Centaur's behaviour enters it only through the fitted free-choice rule (D18).
 - **The simulated learner is slower and more forgetful than the education literature (D27).** Anchored against
   published quantities on the same scale (`tableS_parameter_anchors`): the model closes **0.035** of the remaining
-  gap to mastery per episode against BKT learn rates of **0.10-0.22**, and retains **0.38** of knowledge over a year
+  gap to mastery per episode against BKT learn rates of **0.13-0.30** (pyBKT; see the 2026-09-27 log entry), and retains **0.38** of knowledge over a year
   without practice at the break rate (0.02 at the term rate) against the **0.65-0.75** Custers (2010) reports for
   taught material. The support effect is the one that checks out (d = 0.41 against a meta-analytic 0.35-0.76).
-  Jointly the two rates put eq. 21's plateau at **K\* = 0.59**, where literature-calibrated rates imply **0.99**: the
+  Jointly the two rates put eq. 21's plateau at **K\* = 0.59**, where literature-calibrated rates imply **0.96**: the
   simulated learners live in a forgetting-dominated regime that real classrooms do not. This matters for the
   headline, because the substitution deficit is precisely a low-effort-into-forgetting story: in a regime where
   forgetting is this strong relative to learning, that penalty compounds harder than it plausibly would in a
@@ -998,3 +998,13 @@ and `outputs/figures` with no manual step.
   so two runs interleaved into one file. Caught because the row count (194) disagreed with the summary (120); the 74
   interleaved rows were moved to `verdicts_superseded_v1.jsonl` rather than deleted, and the clean file reproduces the
   summary exactly. Before starting a replacement run, confirm the old process is gone, not just its task.
+- 2026-09-27 (report review, D27 anchors checked against the papers): the published values of Table 7 had never been
+  read in the sources. Checked now in primary text: Custers 0.65-0.75, Ma 0.35, Kulik & Fletcher 0.66, VanLehn 0.76,
+  Rowland 0.50 [0.42, 0.58], Adesope 0.61 [0.58, 0.65] against all controls and 0.51 against restudy (their Table 1).
+  **Two corrections.** (1) The BKT range 0.10-0.22 (an EM initialisation and a TutorShop default) is in neither cited
+  paper; Corbett & Anderson (1995) define p(T) but report no value. Replaced by the two values pyBKT reports, 0.13378
+  (fitted) and 0.30 ("common values seen for Algebra skills"), source Badrinath et al. (2021) only. (2) The literature
+  plateau converted Custers' year without practice at the term rate while the retention row converts the model's at the
+  break rate; `report.parameter_anchors` now uses the break rate on both sides. K* literature: 0.986 -> **0.960**
+  (0.99 with a break ratio of 1, 0.91 with 0.1). Model values unchanged; no simulation rerun; only
+  `tableS_parameter_anchors` and the source column of `table3_parameters` changed.

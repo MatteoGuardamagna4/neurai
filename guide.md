@@ -229,8 +229,9 @@ The falsification checklist (`table6_falsification.csv`) is the authority. As th
   do not let "positive in every specification" imply the advantage was derived. The rapid-fade benefit is the one
   scaffolding claim that survives, and it survives because support *withdrawal* is a real mechanism in the model.
 - **The simulated learner is slower and more forgetful than the literature** (D27, `tableS_parameter_anchors`):
-  0.035 of the gap to mastery closed per episode against BKT's 0.10-0.22, and 0.38 of knowledge retained over a year
-  against Custers (2010)'s 0.65-0.75. Eq. 21's plateau is K* = 0.59 where literature-calibrated rates imply 0.99.
+  0.035 of the gap to mastery closed per episode against the 0.13-0.30 pyBKT reports, and 0.38 of knowledge retained
+  over a year against Custers (2010)'s 0.65-0.75. Eq. 21's plateau is K* = 0.59 where literature-calibrated rates imply
+  0.96 (corrected 2026-09-27 from 0.10-0.22 and 0.99; see PLAN.md §8).
   Since the substitution deficit is a low-effort-into-forgetting story, report its **direction** as robust and its
   **magnitude** as an upper bound. The support parameter omega is the one that checks out (d = 0.41).
 - **F2 is the hard constraint on the neural side.** Only scaffolding's dorsal-attention, salience and somatomotor

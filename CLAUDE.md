@@ -187,8 +187,10 @@ withdrawal, a mechanism; the no-fade advantage is the `support.adaptation` const
 **Three standing caveats for the write-up:**
 
 - **Magnitude, not direction, is what the anchors bound** (D27). The simulated learner closes 0.035 of the gap to
-  mastery per episode against BKT's 0.10-0.22 and retains 0.38 of knowledge per year against Custers (2010)'s
-  0.65-0.75; eq. 21's plateau is K* = 0.59 where literature midpoints imply 0.99. The substitution deficit is a
+  mastery per episode against the 0.13-0.30 pyBKT reports (Badrinath 2021) and retains 0.38 of knowledge per year
+  against Custers (2010)'s 0.65-0.75; eq. 21's plateau is K* = 0.59 where literature midpoints imply 0.96 (both
+  retentions at the break rate). Corrected 2026-09-27 after a primary-source check: the earlier 0.10-0.22 (software
+  defaults) was in no cited paper, and the earlier 0.99 converted Custers at the term rate. The substitution deficit is a
   low-effort-into-forgetting story, so read its size as an upper bound. omega is the one anchor that checks out.
 - **The neural side stays exploratory.** F2 leaves only scaffolding's DorsAttn / SalVentAttn / SomMot contrasts, and
   at full coverage the control-network d keeps its sign in 59.2% of 62,208 specifications. Adaptation is irrelevant

@@ -208,7 +208,7 @@ State once, early: equation numbers follow the code and will be renumbered; ever
 
 - **5.1 Derived versus assumed.** The three claims of REPORT.md §7: the no-fade advantage is an assumption
   (`support.adaptation`); the rapid-fade benefit rests on support withdrawal, a mechanism; the substitution deficit
-  is robust in direction and bounded in magnitude (K* = 0.59 against 0.99).
+  is robust in direction and bounded in magnitude (K* = 0.59 against 0.96).
 - **5.2 Which assumptions drive divergence.** Variance decomposition; plasticity constants barely move G but
   dominate the neural outcome.
 - **5.3 Relation to empirical evidence.** Direction consistent with the offloading and tutoring literature; magnitudes

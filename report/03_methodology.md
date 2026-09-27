@@ -182,7 +182,7 @@ Table: **Table 3.** The seven cortical networks and the reading of a predicted c
 | Somatomotor | Bodily sensation and movement; in this parcellation it also contains auditory cortex | Follows the amount and pace of language delivered, which at a fixed reading rate tracks the length of the text |
 | Dorsal attention | Voluntary, goal-directed orienting of attention to locations and features | Sustained engagement that the material demands |
 | Salience / ventral attention | Detection of behaviourally relevant events and reorienting of attention towards them | Capture of attention by salient elements of the text |
-| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to susceptibility-induced signal loss [ @yeo2011], so training data constrain predictions weakly [@girn2024]; read with caution |
+| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to susceptibility-induced signal loss [@yeo2011; @girn2024], so the training data constrain the prediction weakly; read with caution |
 | Control | Executive control: holding and manipulating information in the service of a goal | Effortful processing; the network of the efficiency proxy (Section 3.6) and of the neural specification curve (Section 3.8) |
 | Default mode | Internally directed thought, memory retrieval and self-referential processing, in higher-order association cortex | The network furthest from the sensory form of the input, and so the closest to a contrast in content |
 
@@ -315,8 +315,8 @@ on the same scale, the two were compared after the runs were complete (Table 7).
 completed run, and a parameter outside its published range is reported as a finding about the model.
 
 Three parameters could be compared directly. The learning rate implies that the simulated learner closes a smaller
-share of its gap to mastery per episode than Bayesian knowledge tracing usually assumes [@corbett1995;
-@badrinath2021]. The forgetting rate implies that less knowledge survives a year without practice than the review of
+share of its gap to mastery per episode than the learning rates reported for knowledge tracing [@badrinath2021].
+The forgetting rate implies that less knowledge survives a year without practice than the review of
 @custers2010 reports. The weight of support on accuracy, expressed as an effect size, lies inside the range found by
 meta-analyses of tutoring [@ma2014; @kulik2016; @vanlehn2011]. The memory gain from retrieval has a published
 counterpart in the testing effect [@rowland2014; @adesope2017], but no model quantity on the same scale. <!--MG: ok fonti-->
@@ -325,20 +325,23 @@ Table: **Table 7.** Calibration anchors: model-implied quantities against publis
 
 | Quantity | Parameter | Model | Published | Verdict | Source |
 |----------------------------------|----------|-------|----------|------------|---------------------------|
-| Share of the gap to mastery closed per episode | $\alpha$ | 0.035 | 0.10–0.22 | Below | @corbett1995; @badrinath2021 |
+| Share of the gap to mastery closed per episode | $\alpha$ | 0.035 | 0.13–0.30 | Below | @badrinath2021 |
 | Share of knowledge retained after a year without practice | $\delta$ | 0.38 | 0.65–0.75 | Below | @custers2010 |
 | Effect of support on test accuracy (Cohen's $d$) | $\omega$ | 0.41 | 0.35–0.76 | Consistent | @ma2014; @kulik2016; @vanlehn2011 |
 | Retention advantage of retrieval practice (Hedges' $g$) | $\eta_M$ | — | 0.50–0.61 | Not comparable | @rowland2014; @adesope2017 |
-| Steady-state knowledge of eq. 9 | $\alpha$, $\delta$ | 0.59 | 0.99 | Below | Derived from the first two rows |
+| Steady-state knowledge of eq. 9 | $\alpha$, $\delta$ | 0.59 | 0.96 | Below | Derived from the first two rows |
 <!--MG: questa tabella va indagata, i numeri sotto la colonna published sono corretti? inoltre voglio capire se i numeri sotto la colonna model e parameter sono stati scelti da noi e in che modo. non capisco la tabella-->
-*Model values from the reference run in the medium setting. The published range for $\omega$ spans three
-meta-analyses that disagree by more than a factor of two. Source: own elaboration
-(`outputs/tables/tableS_parameter_anchors.csv`).*
+*Model values from the reference run in the medium setting. The range for $\alpha$ spans the two learning rates
+reported by @badrinath2021, one fitted and one given as common for algebra skills. The published range for $\omega$ spans three
+meta-analyses that disagree by more than a factor of two. They measure learning on a later test, whereas the model's
+value is the gain from one hint during the test, so the two share a scale but not a construct. The upper value for
+$\eta_M$ compares retrieval practice with all control conditions; against restudy alone, as in @rowland2014,
+@adesope2017 report 0.51. Source: own elaboration (`outputs/tables/tableS_parameter_anchors.csv`).*
 
 The two rates outside their ranges err in the same direction, and together they set the level at which knowledge
-settles: 0.59 with the model's rates and 0.99 with the midpoints of the published ranges. The simulated learner thus
+settles: 0.59 with the model's rates and 0.96 with the midpoints of the published ranges. The simulated learner thus
 forgets more, relative to what it learns, than the evidence on taught knowledge supports. This matters for the size
-of the results. Near a plateau of 0.99, every scenario would leave learners close to mastery; near 0.59, a difference
+of the results. Near a plateau of 0.96, every scenario would leave learners close to mastery; near 0.59, a difference
 in effort still separates them. Contrasts in knowledge that arise from effort, the substitution deficit among them
 (Section 4.5), are therefore larger in this regime than they would be with the published rates. Their direction is the
 claim; their size is read as an upper bound (Section 5.1). <!--MG:cosi come non capisco la tabella di qui sopra non capisco il contenuto di questo paragrafo RISOLTO-->
@@ -362,7 +365,8 @@ $$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta \left(\l
 
 where $\mathbf{N}_i$ is the learner's state, $\mathbf{Z}_{s_t}$ the standardised pattern of the text read in episode
 $t$, the weights $\lambda$ are equal in the main specification, and $\delta_N$ is a decay with a half-life of 20
-weeks. The offloading weight and the half-life are varied in Section 3.8. Because the state is a weighted sum of the
+weeks. The offloading weight and the half-life are drawn in every Monte Carlo draw and crossed in a phase diagram
+(Section 3.7). Because the state is a weighted sum of the
 90 fixed patterns, the mechanism, its weights and the way responses are summarised can be changed after the
 simulation without rerunning it.
 
@@ -410,7 +414,7 @@ from the same initial states and with the same random numbers [@glasserman2003],
 learner meeting the same random events under two scenarios. The quantities that define a scenario, including the
 adaptation constants, are not drawn. The main run has 500 draws of 2,000 learners.
 
-**Outcomes and contrasts.** At the end of years 1, 5 and 10 the run records the four states and four test outcomes,
+**Outcomes and contrasts.** At the end of years 1, 5 and 10 the run records four states (knowledge, reasoning, memory and dependence) and four test outcomes,
 computed with support removed over all 30 units: unaided accuracy, far-transfer accuracy, the probability of asking
 for help when it is offered, and retention after the break. The scenario contrast of an AI scenario is the mean
 paired difference from traditional instruction over the $n$ learners of a draw,

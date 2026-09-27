@@ -10,7 +10,7 @@ population.state_means.D,,0.4,,fixed,assumption
 population.state_sd,0.1,0.15,0.2,"Triangular(0.1, 0.15, 0.2)",assumption
 population.stratum_k_shift,,"[-0.2, 0.0, 0.2]",,fixed,assumption
 population.stratum_m_shift,,"[-0.1, 0.0, 0.1]",,fixed,assumption
-population.mu_alpha,-2.6,-2.3,-2.0,"Triangular(-2.6, -2.3, -2.0)",Corbett & Anderson (1995); pyBKT / TutorShop defaults [anchor: model BELOW the published range]
+population.mu_alpha,-2.6,-2.3,-2.0,"Triangular(-2.6, -2.3, -2.0)","Badrinath, Wang & Pardos (2021) [anchor: model BELOW the published range]"
 population.sigma_alpha,0.25,0.4,0.55,"Triangular(0.25, 0.4, 0.55)",assumption
 population.a_delta,,2.0,,fixed,assumption
 population.b_delta,120.0,80.0,50.0,"Triangular(50.0, 80.0, 120.0)",Custers (2010) [anchor: model BELOW the published range]

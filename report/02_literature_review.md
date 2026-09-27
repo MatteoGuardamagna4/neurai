@@ -28,7 +28,7 @@ rather than scored.
 What this literature leaves open is whether such a model can act as a learner. The language-model studies above
 concern single experiments or surveys; none places a model of choice in the role of a learner over many sessions of
 instruction, with its own sampled choices fed back into its history. This study does exactly that, so the realism of
-the simulated behaviour is an assumption. The development probes of Section 3.4 tested it for Centaur, behaviour by
+the simulated behaviour is an assumption. The development probes of Appendix C.3 tested it for Centaur, behaviour by
 behaviour. Centaur's choices of approach and of help shifted with the learner's record as a struggling or a coping
 learner's would. It solved the problems no better than guessing, however, and its confidence ratings followed the
 record rather than the answer just given. The study therefore gives Centaur only the learner's behavioural choices and

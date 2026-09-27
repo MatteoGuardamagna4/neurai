@@ -18,14 +18,18 @@ anchors:
 
   population.mu_alpha:
     label: alpha (knowledge acquisition rate, eq. 16 and 21)
-    cite: Corbett & Anderson (1995); pyBKT / TutorShop defaults
+    cite: Badrinath, Wang & Pardos (2021)
     source: >-
-      Corbett & Anderson (1995), Bayesian Knowledge Tracing; parameter defaults as shipped by pyBKT (Badrinath,
-      Wang & Pardos, EDM 2021) and CMU's TutorShop.
+      Badrinath, A., Wang, F. & Pardos, Z. (2021), pyBKT: An Accessible Python Library of Bayesian Knowledge Tracing
+      Models, EDM 2021 (arXiv 2105.00385). The update form is that of Corbett & Anderson (1995), eq. 1, which
+      defines p(T) but reports no numeric value of it.
     reported: >-
-      p(T), the probability that a skill moves to the mastered state per practice opportunity. Common EM
-      initialisation is 0.10; TutorShop ships p_learn = 0.22; fitted values vary widely across skills.
-    published_range: [0.10, 0.22]
+      p(T), the probability that a skill moves to the mastered state per practice opportunity. The pyBKT paper
+      reports two values: learn = 0.3, the ground truth of its synthetic analysis, set to "common values seen for
+      Algebra skills" (footnote 5), and a fitted learn rate of 0.13378 (skill Polynomial Factors, ASSISTments, in
+      its code example). Checked against the paper on 2026-09-27; the earlier range 0.10-0.22 (an EM initialisation
+      and a TutorShop default) was not reported by either cited paper.
+    published_range: [0.13378, 0.30]
     units: fraction of the remaining gap to mastery closed per practice opportunity
     model_quantity: >-
       alpha_i * E * F. Eq. 21's gain term is alpha * E * F * (1 - K), the same "close a fraction of the remaining
@@ -77,10 +81,13 @@ anchors:
     cite: Rowland (2014); Adesope et al. (2017)
     source: >-
       Rowland, C. A. (2014), Psychological Bulletin 140(6), 1432-1463 (g = 0.50); Adesope, O. O., Trevisan, D. A. &
-      Sundararajan, N. (2017), Review of Educational Research 87(3), 659-701 (g = 0.61, 217 studies).
+      Sundararajan, N. (2017), Review of Educational Research 87(3), 659-701 (Table 1: g = 0.61 [0.58, 0.65],
+      fixed effects, 272 effect sizes from 217 experiments in 118 articles).
     reported: >-
-      Standardised retention advantage of retrieval practice over restudying (the testing effect), stronger for more
-      complex material and more effortful retrieval, both of which describe this corpus.
+      Standardised retention advantage of retrieval practice (the testing effect). Rowland's 0.50 is against
+      restudy only; Adesope's 0.61 is against all comparison conditions, and against restudying alone it is 0.51
+      [0.47, 0.55] (Table 1), which its authors call the most accurate indicator. Both checked against the papers
+      on 2026-09-27.
     published_range: [0.50, 0.61]
     units: Hedges' g on delayed retention
     model_quantity: >-

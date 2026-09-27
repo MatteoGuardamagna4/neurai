@@ -103,7 +103,7 @@ models of neural response, such as TRIBE v2 [@dascoli2026]<!--MG:OK-->, predict 
 been scanned; such a prediction describes the immediate response to a text, not learning. Research on scaffolding and
 cognitive offloading establishes that support should be withdrawn as competence grows [@wood1976; @puntambekar2005]<!--MG:OK-->.
 Offloading a task to an external aid improves performance on it [@risko2016]<!--MG:OK-->, whereas generating and retrieving
-answers improves memory [@slamecka1978; @rowland2014]<!--MG:OK-->. Research on knowledge tracing and retention [@corbett1995;
+answers improves memory [@slamecka1978; @rowland2014]<!--MG:OK-->. Research on knowledge tracing and retention [@badrinath2021;
 @custers2010]<!--MG:OK--> supplies the published values against which the learning and forgetting rates of the simulated learner
 are checked.
 
@@ -135,7 +135,7 @@ First, supplying answers is harmful in every specification. The deficit is deriv
 answer lowers the effort the learner invests, and effort multiplies the gain in knowledge. In the model, a scaffolding
 tutor that instead supplies the answer in about one AI episode in ten already falls below traditional instruction. The
 simulated learner learns more slowly and forgets faster than the published evidence supports, so its knowledge settles
-at 0.59 of mastery rather than the 0.99 that the midpoints of the published ranges imply. Differences in effort weigh
+at 0.59 of mastery rather than the 0.96 that the midpoints of the published ranges imply. Differences in effort weigh
 more in that regime, so the size of the deficit is an upper bound and its direction is the claim.
 
 Second, scaffolding helps when it withdraws support. Rapid fading stays ahead of traditional instruction in every

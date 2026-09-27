@@ -173,7 +173,7 @@ in some form:
   test, so it rests on support withdrawal, a mechanism.
 - **The substitution deficit is robust in direction, bounded in magnitude.** The D27 anchors put the simulated
   learner in a forgetting-dominated regime real classrooms are not in (plateau K\* = 0.59 against a
-  literature-implied 0.99), and the deficit runs through exactly that channel. Report its size as an upper bound.
+  literature-implied 0.96), and the deficit runs through exactly that channel. Report its size as an upper bound.
 - **The neural results are exploratory.** F2 leaves only three scaffolding network contrasts, and the
   control-network effect keeps its sign in 59.2% of 62,208 specifications.
 

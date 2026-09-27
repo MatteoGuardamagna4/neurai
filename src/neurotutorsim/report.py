@@ -402,7 +402,9 @@ def parameter_anchors(paths: Paths, run: str = "population_logistic") -> tuple[p
     gain = A.learn_rate_per_opportunity(alpha_median, measured["effort"], measured["effectiveness"])
     lit_gain = float(np.mean(spec["anchors"]["population.mu_alpha"]["published_range"]))
     lit_ret = float(np.mean(spec["anchors"]["population.b_delta"]["published_range"]))
-    lit_delta = 1.0 - lit_ret ** (1.0 / (52.0 * measured["episodes_per_week"]))
+    # the published retention is a year without practice, which the model spends at the break rate: invert it the
+    # way the retention row computes the model's own value, so both sides of the table use one yardstick
+    lit_delta = 1.0 - lit_ret ** (1.0 / (52.0 * measured["episodes_per_week"] * measured["break_decay_scale"]))
     table = pd.concat([table, pd.DataFrame([{
         "parameter": "population.mu_alpha + population.b_delta (jointly)",
         "quantity": "steady-state knowledge K* of eq. 21 at constant E and F",
@@ -410,7 +412,8 @@ def parameter_anchors(paths: Paths, run: str = "population_logistic") -> tuple[p
         "published_low": A.equilibrium_knowledge(lit_gain, lit_delta), "published_high": np.nan,
         "verdict": "derived: the plateau the two rates imply together",
         "model_detail": f"model gain {gain:.4f} vs delta {delta['medium']:.4f}; literature midpoints "
-                        f"gain {lit_gain:.3f} vs delta {lit_delta:.5f} (from {lit_ret:.2f} retained per year)",
+                        f"gain {lit_gain:.3f} vs delta {lit_delta:.5f} (from {lit_ret:.2f} retained over a year "
+                        f"at the break rate)",
         "source": "derived from the two rows above", "reported": "", "model_quantity": "alpha E F / (alpha E F + delta)"}])],
         ignore_index=True)
     return table, measured
