@@ -2,11 +2,7 @@
 
 ## 3.1 Design overview and data generation
 
-The study is a computational experiment. No data set existed on how traditional instruction, AI scaffolding and AI
-substitution affect the predicted cortical response to a lesson and the long-term development of a learner, and none
-could be collected within the project. Every quantity analysed here was therefore generated for the study: the
-instructional material was written and validated, the cortical responses were predicted by an encoding model, and the
-behaviour and development of the learners were simulated (Table 2). Figure 1 shows how the parts connect.
+The study is a computational experiment. Figure 1 shows how the parts connect.
 
 ::: {custom-style="Image Caption"}
 **Figure 1.** From educational material to long-term scenario
@@ -43,12 +39,12 @@ it was shown to adapt to a learner's record. Third, every assumption is explicit
 documented and, where possible, compared with published values (Section 3.5), and every modelling choice that could
 defensibly have been made otherwise is varied in the robustness analysis (Section 3.8). Every long-run quantity is
 therefore model-implied, and differences between arms are reported as scenario contrasts, never as treatment effects.
-Equations, figures and tables are numbered in order of first mention; the equations not needed to follow the
+The equations not needed to follow the
 argument are written out in the appendices, and Appendix F.5 gives the number each equation has in the code.
 
 ## 3.2 Phase I: the matched educational corpus
 
-No corpus of instructional texts matched across the three regimes existed, so one was built for this study. It has
+The instructional corpus has
 two roles. Its lesson texts are the input to the encoding model (Section 3.3), and its problems, wrong options and
 hints define the episodes of the simulated learners (Section 3.4). Both roles require the three versions of a unit to
 differ in instructional policy while teaching the same concept.
@@ -58,8 +54,8 @@ differ in instructional policy while teaching the same concept.
 The curriculum has 30 units on 15 concepts from core MBA courses in managerial accounting, corporate finance, pricing
 and marketing analytics. Each concept is taught twice, by applying the same method to a different situation, so that
 the second encounter can draw on the learner's experience with the concept (Section 3.4). Units are ordered with
-prerequisites first and then by difficulty. <!-- MG:2 questions, 1 is why is it 1 to 4 and not 1 to 5, 2 is where in the codebase can i see this. -->
-<!-- MG: where in the codebase can i see this. -->
+prerequisites first and then by difficulty. <!-- MG:2 questions, 1 is why is it 1 to 4 and not 1 to 5, 2 is where in the codebase can i see this.RISOLTO -->
+<!-- MG: where in the codebase can i see this. RISOLTO-->
 
 The MBA curriculum was chosen because the population of interest is business-school students and because every
 answer in it is numerical, so that each can be checked automatically. The number of units was set by the available
@@ -68,7 +64,7 @@ inference rests on 30 clusters, which limits its precision.
 
 Each unit is a structured record: a problem, a near-transfer problem with the same structure and different
 quantities, a far-transfer problem in a different context, a documented misconception, two wrong answer options,
-three hints ordered from general to specific, a worked example and a worked solution.<!-- MG: where in the codebase can i see that there is the near-transfer, far-transfer, misconception, distractors, worked example and worked solution?. --><!-- MG:to add differences in traditional, scaffolding and substitution stimuli -->
+three hints ordered from general to specific, a worked example and a worked solution.<!-- MG: where in the codebase can i see that there is the near-transfer, far-transfer, misconception, distractors, worked example and worked solution?. RISOLTO--><!-- MG:to add differences in traditional, scaffolding and substitution stimuli RISOLTO-->
 Every answer is stored as a formula and recomputed when the corpus is loaded, and a unit whose stored answer
 disagrees with its formula is rejected. Each wrong option is produced by an explicit rule: one encodes the documented
 misconception, the other a second, distinct error. In a net-present-value unit, for example, one wrong option adds the
@@ -77,16 +73,6 @@ corresponds to a named error.
 
 ### 3.2.2 Instructional conditions
 
-Each unit exists in three versions, giving 90 lesson texts (Table 5). The versions share the unit record, the rule
-that no help is given before a first independent attempt, and most of the explanation: an AI version departs from the
-traditional one only in its first two sentences and its last, which introduce the tutor and announce the support to
-come. The conditions therefore differ in what surrounds the explanation. The traditional version asks the learner to
-work the problem out and contains the unit's three hints and its worked solution. The scaffolding version states that
-the answer will not be given, adds three or four diagnostic questions to the same hints, and contains no worked
-solution; withholding the answer until the learner has tried makes scaffolding support confined to what the learner
-cannot yet do alone [@wood1976]. The substitution version tells the learner that working the problem out is
-unnecessary, omits the hints, and ends its worked solution with an instruction to apply the steps exactly as shown,
-the regime in which thinking is offloaded to an external aid [@risko2016].
 
 The structure of every version is checked automatically: it must contain exactly the sections its condition
 prescribes, in order, and reproduce the problem verbatim. The encoding model reads the full text of each version,
@@ -107,7 +93,7 @@ Table: **Table 5.** Instructional conditions and fixed versus varying features
 | Words, mean | 529.2 | 546.8 | 537.2 |
 | Duration at 220 wpm, mean (s) | 144.3 | 149.1 | 146.5 |
 | Equations, mean | 9.27 | 5.73 | 9.33 |
-
+<!--MG: come mai 0.9 di adaptation? mi sembra molto alta-->
 *Held fixed across conditions: unit, concept, domain, difficulty, problem, answer options, near- and far-transfer
 items, the three-option format, the absence of help before a first attempt and all but three sentences of the
 explanation. Source: own elaboration; computed from the 90 primary lesson texts (`outputs/tables/table1_conditions.csv`).*
@@ -125,7 +111,7 @@ versions share by construction, and duration is held within 10% of the tradition
 **Figure 2.** Corpus matching diagnostics
 :::
 
-![](../outputs/figures/fig2_corpus_balance.png) <!--MG: -->
+![](../outputs/figures/fig2_corpus_balance.png) <!--MG:ok tutte le fonti 3.2.3 -->
 
 *Source: own elaboration; computed from the 90 primary lesson texts (`outputs/tables/corpus_balance.csv`).*
 
@@ -135,7 +121,7 @@ difference of about 3% in length registers as a large standardised difference. T
 be edited away: the scaffolding texts have no worked solution and therefore fewer equations. The
 scaffolding–traditional contrast is thus partly a contrast between a text with a worked solution and one without. The
 cortical analysis therefore adjusts for duration, word count and equation count, and a contrast that does not survive
-the adjustment is not interpreted (Section 3.8).<!--MG: no references to the brief-->
+the adjustment is not interpreted (Section 3.8).<!--MG: no references to the brief. RISOLTO-->
 
 ### 3.2.4 Content validation
 
@@ -146,47 +132,43 @@ answer is rejected. The tutor turns written during the simulation are checked se
 Semantic coverage, the similarity between a text's explanation and the unit's worked solution measured with sentence
 embeddings [@reimers2019], had to exceed a threshold fixed in advance, and every text does. Because such a threshold
 screens for topic rather than method, the texts with the lowest coverage were also read by the author, who found that
-each teaches the method its worked solution applies (Appendix A.2). <!-- MG: not reviewed--> A word-overlap screen
-[@broder1997] found no pair of units that duplicates another. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17-->
+each teaches the method its worked solution applies (Appendix A.2). <!-- MG: not reviewed. RISOLTO--> A word-overlap screen
+[@broder1997] found no pair of units that duplicates another. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17. RISOLTO-->
 
 The automatic checks establish that the correct answer is where it should be; they cannot establish that the prose
-around it asserts nothing false. Every primary text was therefore screened by a second language model [@qwen2024],
+around it asserts nothing false. Every primary text was therefore screened by a second language model (Qwen2.5-3B-Instruct),
 different from the models that drafted the texts, <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section -->
 for three faults: an answer that contradicts the unit's reference answer, an assertion that the problem's data do not
 support, and an unwarranted causal claim. A screen of this kind is informative only if it catches texts known to
 carry the fault, so each check was tested on such texts. The contradiction check caught 27 of the 30 incorrect texts
 of Section 3.2.5 and flagged none of the correct ones. The other two checks caught none of the faults planted to test
 them, so their verdicts are withdrawn. The corpus has therefore been screened for contradictions of its own answers
-and for nothing else (Appendix A.3). <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement-->
+and for nothing else (Appendix A.3). <!--MG: what is this whole paragraph about? i dont understand what has been done with these factual contradiction/unsupported assertion and invalid causal statement. RISOLTO-->
 
 ### 3.2.5 Text controls
 
-Two families of control texts were written for the encoding-model analysis only; the simulated learners never read
-them. The first rewords every primary text twice, once more plainly and once more formally, keeping its sections,
+Two families of control texts were written for the encoding-model analysis only. The first rewords every primary text twice, once more plainly and once more formally, keeping its sections,
 quantities, problem and answer placement (180 texts). A condition contrast that does not exceed the variation produced
-by such harmless rewording is not interpreted (Section 3.8). <!--MG: again, no reference to the brief we must come up with something else-->
+by such harmless rewording is not interpreted (Section 3.8). <!--MG: again, no reference to the brief we must come up with something else RISOLTO-->
 The second family contains 30 fluent but incorrect traditional texts, which teach the unit's misconception as if it
 were correct. If replacing correct content with fluent incorrect content moves the predicted response as much as
-changing the condition does, a condition contrast is not specific to the instruction (Section 3.8). <!--MG: same as last comment-->
+changing the condition does, a condition contrast is not specific to the instruction (Section 3.8). <!--MG: same as last comment. RISOLTO-->
 These texts also serve as test cases for the contradiction check above. All control texts pass the same structural
-checks as the primaries. Because they were drafted with language models, they may not span the stylistic range of
+checks as the primaries. Because they were drafted with the aid of language models, they may not span the stylistic range of
 human-written instruction (Section 5.4).
 
 ## 3.3 Phase II: predicted cortical response
 
-No measured cortical responses to these texts exist. Phase II predicts them with TRIBE v2 [@dascoli2026], an encoding
-model trained on more than 1,000 hours of functional magnetic resonance imaging from 720 participants exposed to
-naturalistic video, audio and language. For text, the model takes contextual features of each word from the
+Phase II predicts cortical responses with TRIBE v2 [@dascoli2026]. For text, the model takes contextual features of each word from the
 Llama-3.2-3B language model [@grattafiori2024] and predicts the blood-oxygen-level-dependent (BOLD) response at every
 point of the cortical surface, second by second. The output is the predicted response of an average participant: one
-per text, identical for every simulated learner, and a description of the immediate response to reading rather than
-of learning. The released model was run unchanged, with text as its only input (Appendix B).
+per text, identical for every simulated learner, and a description of the immediate response to reading. The released model was run unchanged, with text as its only input (Appendix B).
 
 Each text is read at a fixed pace, 220 words per minute in the main specification, slightly below the average adult
 silent reading rate for non-fiction [@brysbaert2019]; 180 and 260 words per minute are variants. Each word is encoded
-in the context of all the text before it, and section headings are removed because they would reveal the condition.
+in the context of all the text before it.
 The model therefore reads each version in full, including the hints, questions and worked solutions that the
-simulated learner meets only after an error.
+simulated learner would meet only after an error.
 
 The predictions are averaged over the 400 regions (parcels) of the Schaefer atlas [@schaefer2018] and then over the
 seven large-scale networks of @yeo2011, weighting each parcel by its area (Appendix B.3). Table 3 gives the functions
@@ -201,7 +183,7 @@ Table: **Table 3.** The seven cortical networks and the reading of a predicted c
 | Somatomotor | Bodily sensation and movement; in this parcellation it also contains auditory cortex | Follows the amount and pace of language delivered, which at a fixed reading rate tracks the length of the text |
 | Dorsal attention | Voluntary, goal-directed orienting of attention to locations and features | Sustained engagement that the material demands |
 | Salience / ventral attention | Detection of behaviourally relevant events and reorienting of attention towards them | Capture of attention by salient elements of the text |
-| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to loss of the imaging signal [@girn2024], so the training data constrain the prediction weakly; read with caution |
+| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to susceptibility-induced signal loss [@ojemann1997; @yeo2011], so training data constrain predictions weakly [@girn2024]; read with caution |
 | Control | Executive control: holding and manipulating information in the service of a goal | Effortful processing; the network of the efficiency proxy (Section 3.6) and of the neural specification curve (Section 3.8) |
 | Default mode | Internally directed thought, memory retrieval and self-referential processing, in higher-order association cortex | The network furthest from the sensory form of the input, and so the closest to a contrast in content |
 
@@ -224,7 +206,7 @@ these covariates, $\beta_1$ and $\beta_2$ are the mean paired differences S − 
 bootstrap that resamples whole units with their three versions, and p-values are corrected for testing seven networks
 at once [@benjamini1995]. With only 30 units such tests tend to reject too often [@cameron2008], so the intervals are
 read as approximate. A mixed model that treats the units as a sample of all possible units [@judd2012] complements
-eq. 3 and estimates the effects of difficulty and domain (eq. 4, Appendix B.3).
+eq. 3 and estimates the effects of difficulty and domain (eq. 4, Appendix B.3). <!--MG: non capisco il significato di condition contrast e il contenuto di questo paragrafo-->
 
 **Representational geometry.** Representational similarity analysis [@kriegeskorte2008] asks whether a condition
 preserves how similar the units' predicted patterns are to one another. Within each condition, the dissimilarity of
@@ -235,7 +217,7 @@ dissimilarity matrices, with a permutation test that exchanges the condition lab
 the words within each section (180 texts), which keeps the words and the duration. Shuffling words changes the
 predicted response far more than shuffling sentences (Appendix B.3): the prediction depends on the order of words
 within sentences, not only on which words are read.
-
+<!--MG: ok fonti 3.3-->
 ## 3.4 Phase III: the simulated learner
 
 Phase III simulates learners working through the corpus. Each learner is described by a small set of states that
@@ -312,15 +294,14 @@ Source: own elaboration.*
 **Who makes the choices.** Two engines implement the model. The logistic engine makes every decision by equation,
 including the choice of protocol in the free-choice arm, which follows an assumed rule under which more dependent
 learners choose substitution more often. The hybrid engine leaves correctness to eq. 1 and hands the behavioural
-choices, the protocol, requests for more help and confidence ratings, to Centaur [@binz2025], a language model
-fine-tuned on choices from psychological experiments to predict what a person will choose next. The division reflects
+choices, the protocol, requests for more help and confidence ratings, to Centaur [@binz2025]. The division reflects
 what such a model can and cannot do. In probes run during development, Centaur solved the problems no better than
 guessing, and its confidence ratings followed the learner's record rather than the answer just given; its choices of
 protocol and of help, however, shifted with the record as a struggling or a coping learner's would (Appendix C.3).
 Centaur reads only what a learner could observe: the current episode, a summary of the learner's record and the three
 previous episodes. The learner's internal states never enter its prompt, which is checked automatically. Because its
 confidence ratings follow the record, calibration under the hybrid engine measures consistency with the record rather
-than calibration proper.
+than calibration proper. <!--MG: da comparare con 2.1 e evitare di ripetere le stesse cose-->
 
 **Runs.** The logistic engine runs the full population for 40 episodes in each of three parameter settings, low,
 medium and high, with medium as the main specification. The hybrid engine needs several calls to an
@@ -335,8 +316,7 @@ gain from one hint, calibration and the rate of help requests (Appendix C.4).
 
 No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
 the provenance of each is recorded with the code. Where the literature reports a quantity that the model also implies
-on the same scale, the two were compared after the runs were complete (Table 7). The comparison documents the model
-rather than calibrating it: no value was changed in response, because re-parameterising would have invalidated every
+on the same scale, the two were compared after the runs were complete (Table 7). The comparison documents the model; no value was changed in response, because re-parameterising would have invalidated every
 completed run, and a parameter outside its published range is reported as a finding about the model.
 
 Three parameters could be compared directly. The learning rate implies that the simulated learner closes a smaller
@@ -344,7 +324,7 @@ share of its gap to mastery per episode than Bayesian knowledge tracing usually 
 @badrinath2021]. The forgetting rate implies that less knowledge survives a year without practice than the review of
 @custers2010 reports. The weight of support on accuracy, expressed as an effect size, lies inside the range found by
 meta-analyses of tutoring [@ma2014; @kulik2016; @vanlehn2011]. The memory gain from retrieval has a published
-counterpart in the testing effect [@rowland2014; @adesope2017], but no model quantity on the same scale.
+counterpart in the testing effect [@rowland2014; @adesope2017], but no model quantity on the same scale. <!--MG: ok fonti-->
 
 Table: **Table 7.** Calibration anchors: model-implied quantities against published values
 
@@ -355,7 +335,7 @@ Table: **Table 7.** Calibration anchors: model-implied quantities against publis
 | Effect of support on test accuracy (Cohen's $d$) | $\omega$ | 0.41 | 0.35–0.76 | Consistent | @ma2014; @kulik2016; @vanlehn2011 |
 | Retention advantage of retrieval practice (Hedges' $g$) | $\eta_M$ | — | 0.50–0.61 | Not comparable | @rowland2014; @adesope2017 |
 | Steady-state knowledge of eq. 9 | $\alpha$, $\delta$ | 0.59 | 0.99 | Below | Derived from the first two rows |
-
+<!--MG: questa tabella va indagata, i numeri sotto la colonna published sono corretti? inoltre voglio capire se i numeri sotto la colonna model e parameter sono stati scelti da noi e in che modo. non capisco la tabella-->
 *Model values from the reference run in the medium setting. The published range for $\omega$ spans three
 meta-analyses that disagree by more than a factor of two. Source: own elaboration
 (`outputs/tables/tableS_parameter_anchors.csv`).*
@@ -366,7 +346,7 @@ forgets more, relative to what it learns, than the evidence on taught knowledge 
 of the results. Near a plateau of 0.99, every scenario would leave learners close to mastery; near 0.59, a difference
 in effort still separates them. Contrasts in knowledge that arise from effort, the substitution deficit among them
 (Section 4.5), are therefore larger in this regime than they would be with the published rates. Their direction is the
-claim; their size is read as an upper bound (Section 5.1).
+claim; their size is read as an upper bound (Section 5.1). <!--MG:cosi come non capisco la tabella di qui sopra non capisco il contenuto di questo paragrafo-->
 
 ## 3.6 Phase IV: plasticity
 
@@ -400,7 +380,7 @@ far-transfer accuracy. States are aggregated to the seven networks as in Phase I
 
 Phase V projects the simulated learner over ten school years under six instructional scenarios and propagates
 parameter uncertainty by Monte Carlo simulation. It introduces no new material: the 30 units and their predicted
-responses recur, with difficulty rising <!--MG: how are we raising the difficulty in practice?-->from year to year.
+responses recur, with difficulty rising <!--MG: how are we raising the difficulty in practice? RISOLTO-->from year to year.
 Its outputs are scenario contrasts under stated assumptions, not forecasts of any learner's development. The episode
 is that of Section 3.4 with the logistic engine, re-implemented to update many learners at once, and an automated
 test requires the two implementations to agree. Centaur's behaviour therefore reaches Phase V only through the fitted
@@ -478,7 +458,7 @@ Table: **Table 8.** The analyses of Phase V
 | Mechanism decomposition | Through which channel of the model does a contrast arise? | Rerun with one mediator held at its value under traditional instruction; contribution $1 - \text{SC}_{\text{held}} / \text{SC}$ | 1: the whole contrast passes through that channel; values outside 0 to 1 signal interacting channels |
 
 *SC: scenario contrast. Source: own elaboration.*
-
+<!--MG: spiegami a parole questa tabella-->
 ## 3.8 Validation, falsification and robustness
 
 Four questions precede any claim: whether the simulated learner behaves as a learner model must, whether a contrast
@@ -535,7 +515,7 @@ Table: **Table 9.** Validation, robustness and falsification checks
 | F6 Indistinguishability | Can scaffolding and substitution be told apart once support is removed? | Year-10 difference between each scaffolding scenario and substitution in unaided accuracy, far transfer and retention | Its 95% interval includes zero |
 
 *For F1 to F6 the last column gives the condition under which no difference is claimed. Source: own elaboration.*
-
+<!--MG: spiegami a parole questa tabella e siamo sicuri dei risultati presenti al suo interno?-->
 The criteria were set before the ten-year runs, and the rules for the text controls before those texts were run. Six
 rules were changed, and the robustness rule was formalised, after the first ten-year results existed; Appendix D.4
 records each change and its reason.
