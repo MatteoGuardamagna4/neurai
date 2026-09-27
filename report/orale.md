@@ -109,3 +109,106 @@ read its size as an upper bound."
 
 **Dove.** Report: §3.5 e Tabella 7, §5.1. Codice: `config/parameter_sources.yaml`, `report.parameter_anchors` in
 `src/neurotutorsim/report.py`. Dati: `outputs/tables/tableS_parameter_anchors.csv`.
+
+---
+
+## 3. Come si leggono i numeri delle Tabelle 10 e 11
+
+**Domanda probabile.** "Qual è l'unità di misura? −3.37 è tanto o poco? E $G$ = 0.045 cosa vuol dire?"
+
+**Tabella 10 (contrasti corticali predetti).** Unità arbitrarie della risposta BOLD predetta da TRIBE, sommate sui
+secondi di lettura (AUC, eq. 26, un valore al secondo). Non è una % di variazione del segnale: il valore assoluto non ha
+significato, conta solo il confronto con la variabilità dello stesso output. Per scala: la deviazione standard
+dell'AUC di rete tra i 90 testi è circa 2.8 (media sulle sette reti); nella dorsal attention è circa 4. Quindi lo S − T
+della dorsal attention (−3.37) è grande più o meno quanto la differenza tipica tra due lezioni qualsiasi in quella rete.
+
+**Tabella 11 (contrasti a 10 anni).** Tutte differenze su scala 0–1, di due tipi:
+- $G$ è sulla scala degli stati del learner (conoscenza, ragionamento, memoria, dipendenza: grandezze latenti tra 0 e
+  1). È la media dei quattro contrasti, con la dipendenza col segno invertito. Esempio, rapid fading: K +0.014,
+  R +0.101, M −0.023, D −0.088, quindi (0.014 + 0.101 − 0.023 + 0.088) / 4 ≈ 0.045.
+- Le altre colonne sono probabilità (di rispondere giusto, di chiedere aiuto): 0.01 = un punto percentuale. La
+  sostituzione ha −0.175 in unaided accuracy, cioè 17.5 punti in meno. Il far transfer tradizionale a 10 anni è circa
+  0.47, quindi il −0.134 della sostituzione è quasi un terzo in meno.
+
+**Come dirlo (EN).** "The cortical contrasts are in arbitrary units of the predicted BOLD signal summed over the
+seconds of reading, so only relative size matters: the scaffolding contrast in the dorsal attention network is about
+as large as the typical difference between two different lessons. The ten-year contrasts are differences on a
+zero-to-one scale: for the test outcomes, 0.01 is one percentage point; G averages the four state contrasts, with
+dependence counted as a cost."
+
+**Dove.** Report: didascalie delle Tabelle 10 e 11 (§4.1, §4.3), Tabella B1 e eq. 26 (Appendice B), eq. 16 (§3.7).
+Dati: `data/tribe/tribe_main/wpm220/tribe_metrics.parquet`, `outputs/tables/table5_scenario_contrasts_v_main.csv`.
+
+---
+
+## 4. Il diagramma di fase: cosa aggiunge rispetto agli scenari
+
+**Domanda probabile.** "Se avete già confrontato scaffolding e sostituzione nella run a 10 anni, a cosa serve il
+diagramma di fase?"
+
+**Risposta breve.** Gli scenari con nome sono due punti della mappa, e differiscono in due cose insieme: la
+sostituzione dà la risposta *e* ha adaptation più bassa (0.20 contro 0.90). Confrontandoli non si sa quale delle due
+produce il gap. La mappa le separa: un protocollo AI con tre manopole, adaptation $a$, sforzo conservato $e$,
+probabilità di dare la risposta $o$ (7 × 7 × 3 = 147 protocolli, 100 draw × 300 learner ciascuno).
+
+**Cosa mostra.**
+- I due scenari ritornano come angoli della mappa: a $o$ = 1, $e$ = 0 la $G$ è −0.192/−0.195 (a = 0.25/0.10) contro
+  −0.191 della sostituzione; a $o$ = 0, $e$ = 0 è 0.014/0.017 (a = 0.85/1.00) contro 0.015 dello scaffolding senza
+  fading. È anche un controllo di coerenza (run diverse, stessa risposta).
+- Una sostituzione con adaptation massima (a = 1) resta a −0.179: l'adaptation spiega poco, **dare la risposta spiega
+  quasi tutto**.
+- Conservare lo sforzo ($e$ da 0 a 1) più che dimezza il danno (da −0.195 a −0.110 con a = 0.10; da −0.179 a −0.081
+  con a = 1), ma non lo annulla mai: il resto passa da offloading e dipendenza.
+- Senza risposte ($o$ = 0) tutte le celle sono neutre; con $o$ = 0.5 o 1 tutte dannose.
+- Il tipping point: basta circa 1 episodio AI su 10 che dà la risposta ($o$ = 0.097, intervallo 0.058–0.144) per
+  portare lo scaffolding sotto la tradizionale. Nessuno scenario con nome può dirlo: $o$ vi vale solo 0 o 1, ed $e$
+  sempre 0.
+- Differenza col free choice: lì la miscela di protocolli la sceglie il learner in base al suo stato (selezione);
+  nella mappa la miscela è casuale, quindi isola la "dose" di risposte.
+
+**Cautela.** È una conseguenza delle assunzioni (ricevere la risposta toglie sforzo, aumenta offloading e dipendenza),
+non un'osservazione; e l'effetto dell'adaptation a $o$ = 0 è assunto per costruzione.
+
+**Come dirlo (EN).** "The named scenarios are two corners of the map, and they differ in two things at once:
+substitution supplies the answer and is also less adaptive. The map separates the two. A substitution protocol with
+maximal adaptation is still clearly harmful, while a tutor that never supplies answers is neutral whatever its
+adaptation. Within the model, what decides the sign is whether the AI hands out answers, and about one AI episode in
+ten is enough to tip scaffolding below traditional instruction."
+
+**Dove.** Report: §4.4 e Figura 6, §3.7 (Tabella 8). Codice: `frontier_scenarios` in
+`src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`.
+
+---
+
+## 5. La decomposizione dei meccanismi
+
+**Domanda probabile.** "Perché la sostituzione fa peggio? Attraverso cosa?"
+
+**Il metodo in una frase.** Si rifà girare lo scenario congelando un ingrediente alla volta al valore che lo stesso
+learner aveva, nello stesso episodio, con l'istruzione tradizionale; la quota di gap che sparisce è il contributo di
+quell'ingrediente: 1 − (gap congelato / gap pieno). Tre canali: sforzo E ed efficacia F nell'aggiornamento della
+conoscenza, dipendenza D nelle decisioni (chiedere aiuto, scegliere il protocollo). Quattro scenari: tutti tranne il
+free choice con la regola fittata.
+
+**I risultati (Tabella E4).**
+- *Sostituzione:* congelando lo sforzo sparisce 0.97 del gap di conoscenza ma solo 0.51 di $G$, perché E e F sono
+  congelati solo nell'aggiornamento della conoscenza, e ragionamento, memoria e dipendenza vengono colpiti per altre vie
+  (offloading, nessun tentativo proprio). La dipendenza dà 0: non c'è aiuto da chiedere.
+- *Scaffolding senza fading:* l'efficacia porta tutto (1.00), perché l'adaptation, che entra da F, è l'unica
+  differenza con la tradizionale.
+- *Rapid fading:* nessun canale supera 0.22 di $G$; il resto viene dal ritiro dell'aiuto, che agisce direttamente su
+  ragionamento e dipendenza.
+- *Free choice:* efficacia −0.12 su $G$ (congelarla allarga il gap: lavorava a favore dello scenario), sforzo 1.25
+  sulla conoscenza (più di tutto il gap, perché un altro canale spinge in senso opposto). Le quote non sommano a 1
+  perché i canali si alimentano a vicenda nel tempo (anche nello scaffolding senza fading: 0.10 + 0.13 + 1.00).
+
+**Cautela.** È una scomposizione dentro il modello, non un'analisi di mediazione causale (§3.7).
+
+**Come dirlo (EN).** "We reran each scenario holding one channel at the value the same learner had under traditional
+instruction. For substitution, holding effort removes almost the whole knowledge deficit: in the model, learners who
+are given the answer learn less because they work less. For scaffolding without fading the whole contrast runs through
+effectiveness, which is where the assumed adaptation enters. This decomposes the model; it is not a causal mediation
+analysis."
+
+**Dove.** Report: §4.5, Tabella E4 (Appendice E), Tabella 8 (§3.7). Codice: `mediation_scenarios` e il blocco
+`med_E`/`med_F` in `src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/tableS_mechanism_decomposition.csv`.
