@@ -330,7 +330,7 @@ Table: **Table 7.** Calibration anchors: model-implied quantities against publis
 | Effect of support on test accuracy (Cohen's $d$) | $\omega$ | 0.41 | 0.35–0.76 | Consistent | @ma2014; @kulik2016; @vanlehn2011 |
 | Retention advantage of retrieval practice (Hedges' $g$) | $\eta_M$ | — | 0.50–0.61 | Not comparable | @rowland2014; @adesope2017 |
 | Steady-state knowledge of eq. 9 | $\alpha$, $\delta$ | 0.59 | 0.96 | Below | Derived from the first two rows |
-<!--MG: questa tabella va indagata, i numeri sotto la colonna published sono corretti? inoltre voglio capire se i numeri sotto la colonna model e parameter sono stati scelti da noi e in che modo. non capisco la tabella-->
+<!--MG: questa tabella va indagata, i numeri sotto la colonna published sono corretti? inoltre voglio capire se i numeri sotto la colonna model e parameter sono stati scelti da noi e in che modo. non capisco la tabella RISOLTO-->
 *Model values from the reference run in the medium setting. The range for $\alpha$ spans the two learning rates
 reported by @badrinath2021, one fitted and one given as common for algebra skills. The published range for $\omega$ spans three
 meta-analyses that disagree by more than a factor of two. They measure learning on a later test, whereas the model's

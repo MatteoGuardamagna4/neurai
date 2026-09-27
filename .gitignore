@@ -43,3 +43,4 @@ dist/
 MSc*
 # report build output (report/build.py)
 report/build/
+report/orale.md
