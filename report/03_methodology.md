@@ -73,7 +73,6 @@ corresponds to a named error.
 
 ### 3.2.2 Instructional conditions
 
-
 The structure of every version is checked automatically: it must contain exactly the sections its condition
 prescribes, in order, and reproduce the problem verbatim. The encoding model reads the full text of each version,
 all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->,
@@ -93,7 +92,7 @@ Table: **Table 5.** Instructional conditions and fixed versus varying features
 | Words, mean | 529.2 | 546.8 | 537.2 |
 | Duration at 220 wpm, mean (s) | 144.3 | 149.1 | 146.5 |
 | Equations, mean | 9.27 | 5.73 | 9.33 |
-<!--MG: come mai 0.9 di adaptation? mi sembra molto alta-->
+<!--MG: come mai 0.9 di adaptation? mi sembra molto alta. RISOLTO di fatto non cambia la direzione ma la dimensione-->
 *Held fixed across conditions: unit, concept, domain, difficulty, problem, answer options, near- and far-transfer
 items, the three-option format, the absence of help before a first attempt and all but three sentences of the
 explanation. Source: own elaboration; computed from the 90 primary lesson texts (`outputs/tables/table1_conditions.csv`).*
@@ -137,7 +136,7 @@ each teaches the method its worked solution applies (Appendix A.2). <!-- MG: not
 
 The automatic checks establish that the correct answer is where it should be; they cannot establish that the prose
 around it asserts nothing false. Every primary text was therefore screened by a second language model (Qwen2.5-3B-Instruct),
-different from the models that drafted the texts, <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section -->
+different from the models that drafted the texts, <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section RISOLTO -->
 for three faults: an answer that contradicts the unit's reference answer, an assertion that the problem's data do not
 support, and an unwarranted causal claim. A screen of this kind is informative only if it catches texts known to
 carry the fault, so each check was tested on such texts. The contradiction check caught 27 of the 30 incorrect texts
@@ -183,7 +182,7 @@ Table: **Table 3.** The seven cortical networks and the reading of a predicted c
 | Somatomotor | Bodily sensation and movement; in this parcellation it also contains auditory cortex | Follows the amount and pace of language delivered, which at a fixed reading rate tracks the length of the text |
 | Dorsal attention | Voluntary, goal-directed orienting of attention to locations and features | Sustained engagement that the material demands |
 | Salience / ventral attention | Detection of behaviourally relevant events and reorienting of attention towards them | Capture of attention by salient elements of the text |
-| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to susceptibility-induced signal loss [@ojemann1997; @yeo2011], so training data constrain predictions weakly [@girn2024]; read with caution |
+| Limbic | Valuation and affect, in orbitofrontal and anterior temporal cortex | These regions are prone to susceptibility-induced signal loss [ @yeo2011], so training data constrain predictions weakly [@girn2024]; read with caution |
 | Control | Executive control: holding and manipulating information in the service of a goal | Effortful processing; the network of the efficiency proxy (Section 3.6) and of the neural specification curve (Section 3.8) |
 | Default mode | Internally directed thought, memory retrieval and self-referential processing, in higher-order association cortex | The network furthest from the sensory form of the input, and so the closest to a contrast in content |
 
@@ -194,7 +193,7 @@ Each predicted time course is summarised by its area under the curve (AUC), the 
 reading window; the other summaries are defined in Appendix B.2. The AUC is the only channel through which a text
 reaches the plasticity model (Section 3.6). Because it accumulates over time, it grows with the length of the text.
 
-**Condition contrasts.** For each unit, the three versions are compared in pairs: scaffolding against traditional
+**Condition contrasts.** A condition contrast is the difference between the predicted responses to two versions of the same unit, averaged over the 30 units. For each unit, the three versions are compared in pairs: scaffolding against traditional
 instruction (S − T), substitution against traditional instruction (U − T) and scaffolding against substitution
 (S − U). The contrasts are estimated jointly by
 
@@ -293,15 +292,11 @@ Source: own elaboration.*
 
 **Who makes the choices.** Two engines implement the model. The logistic engine makes every decision by equation,
 including the choice of protocol in the free-choice arm, which follows an assumed rule under which more dependent
-learners choose substitution more often. The hybrid engine leaves correctness to eq. 1 and hands the behavioural
-choices, the protocol, requests for more help and confidence ratings, to Centaur [@binz2025]. The division reflects
-what such a model can and cannot do. In probes run during development, Centaur solved the problems no better than
-guessing, and its confidence ratings followed the learner's record rather than the answer just given; its choices of
-protocol and of help, however, shifted with the record as a struggling or a coping learner's would (Appendix C.3).
+learners choose substitution more often. The hybrid engine leaves correctness to eq. 1 and hands the three behavioural choices, the protocol, requests for more help and confidence ratings, to Centaur, for the reasons given in Section 2.1 (probes in Appendix C.3).
 Centaur reads only what a learner could observe: the current episode, a summary of the learner's record and the three
 previous episodes. The learner's internal states never enter its prompt, which is checked automatically. Because its
 confidence ratings follow the record, calibration under the hybrid engine measures consistency with the record rather
-than calibration proper. <!--MG: da comparare con 2.1 e evitare di ripetere le stesse cose-->
+than calibration proper. <!--MG: da comparare con 2.1 e evitare di ripetere le stesse cose RISOLTO-->
 
 **Runs.** The logistic engine runs the full population for 40 episodes in each of three parameter settings, low,
 medium and high, with medium as the main specification. The hybrid engine needs several calls to an
@@ -346,7 +341,7 @@ forgets more, relative to what it learns, than the evidence on taught knowledge 
 of the results. Near a plateau of 0.99, every scenario would leave learners close to mastery; near 0.59, a difference
 in effort still separates them. Contrasts in knowledge that arise from effort, the substitution deficit among them
 (Section 4.5), are therefore larger in this regime than they would be with the published rates. Their direction is the
-claim; their size is read as an upper bound (Section 5.1). <!--MG:cosi come non capisco la tabella di qui sopra non capisco il contenuto di questo paragrafo-->
+claim; their size is read as an upper bound (Section 5.1). <!--MG:cosi come non capisco la tabella di qui sopra non capisco il contenuto di questo paragrafo RISOLTO-->
 
 ## 3.6 Phase IV: plasticity
 
@@ -458,7 +453,7 @@ Table: **Table 8.** The analyses of Phase V
 | Mechanism decomposition | Through which channel of the model does a contrast arise? | Rerun with one mediator held at its value under traditional instruction; contribution $1 - \text{SC}_{\text{held}} / \text{SC}$ | 1: the whole contrast passes through that channel; values outside 0 to 1 signal interacting channels |
 
 *SC: scenario contrast. Source: own elaboration.*
-<!--MG: spiegami a parole questa tabella-->
+<!--MG: spiegami a parole questa tabella RISOLTO-->
 ## 3.8 Validation, falsification and robustness
 
 Four questions precede any claim: whether the simulated learner behaves as a learner model must, whether a contrast
