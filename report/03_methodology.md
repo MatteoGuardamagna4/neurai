@@ -75,7 +75,7 @@ corresponds to a named error.
 
 The structure of every version is checked automatically: it must contain exactly the sections its condition
 prescribes, in order, and reproduce the problem verbatim. The encoding model reads the full text of each version,
-all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation. -->,
+all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation.RISOLTO -->,
 whereas the simulated learner reads only the explanation and the problem before its first attempt and receives
 support turn by turn afterwards. In the AI conditions these turns are written at run time by a language-model tutor
 (Section 3.4) and are never seen by the encoding model. The adaptation values of Table 5 are assumed constants that
@@ -205,7 +205,7 @@ these covariates, $\beta_1$ and $\beta_2$ are the mean paired differences S − 
 bootstrap that resamples whole units with their three versions, and p-values are corrected for testing seven networks
 at once [@benjamini1995]. With only 30 units such tests tend to reject too often [@cameron2008], so the intervals are
 read as approximate. A mixed model that treats the units as a sample of all possible units [@judd2012] complements
-eq. 3 and estimates the effects of difficulty and domain (eq. 4, Appendix B.3). <!--MG: non capisco il significato di condition contrast e il contenuto di questo paragrafo-->
+eq. 3 and estimates the effects of difficulty and domain (eq. 4, Appendix B.3). <!--MG: non capisco il significato di condition contrast e il contenuto di questo paragrafo RISOLTO-->
 
 **Representational geometry.** Representational similarity analysis [@kriegeskorte2008] asks whether a condition
 preserves how similar the units' predicted patterns are to one another. Within each condition, the dissimilarity of
