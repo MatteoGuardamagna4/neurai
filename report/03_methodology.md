@@ -135,7 +135,7 @@ each teaches the method its worked solution applies (Appendix A.2). <!-- MG: not
 [@broder1997] found no pair of units that duplicates another. <!--MG: do we care about this? i think we can remove this last part about the highest value of 0.17. RISOLTO-->
 
 The automatic checks establish that the correct answer is where it should be; they cannot establish that the prose
-around it asserts nothing false. Every primary text was therefore screened by a second language model (Qwen2.5-3B-Instruct),
+around it asserts nothing false. Every primary text was therefore screened by a second language model, Qwen2.5-3B-Instruct [@qwen2024],
 different from the models that drafted the texts, <!--MG: Model used: claude opus 5; claude fable 5, we'll need to say in the future appropriate section RISOLTO -->
 for three faults: an answer that contradicts the unit's reference answer, an assertion that the problem's data do not
 support, and an unwarranted causal claim. A screen of this kind is informative only if it catches texts known to
