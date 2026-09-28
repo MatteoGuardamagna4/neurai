@@ -43,4 +43,11 @@ dist/
 MSc*
 # report build output (report/build.py)
 report/build/
+
+# working notes and AI-assistant context: not needed to run or reproduce the project
+CLAUDE.md
+.claude/
+guide.md
+REPORT.md
+report/outline.md
 report/orale.md

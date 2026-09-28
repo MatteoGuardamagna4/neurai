@@ -323,7 +323,7 @@ def run_metrics(processed: Path, cfg: dict, root: Path | None = None, subsample:
     # differentiation (eq. 34): one accumulator pass over a subsample, because per-unit patterns are not stored
     unit_csv = next((p for p in (processed.parent / "units.csv", tribe_dir / "units.csv") if p.exists()), None)
     concepts = (pd.read_csv(unit_csv).set_index("unit_id")["concept"].reindex(units).to_numpy() if unit_csv is not None
-                else np.array([u.rsplit("_", 1)[0] for u in units]))  # unit ids are <concept>_<nnn> (data/CLAUDE.md)
+                else np.array([u.rsplit("_", 1)[0] for u in units]))  # unit ids are <concept>_<nnn>
     state = pd.read_parquet(processed / "learner_state.parquet")
     decay = decay_per_episode(p["half_life_weeks"], cfg["calendar"]["episodes_per_week"])
     w_mech = mechanism_weights(mechanism, p)

@@ -855,6 +855,48 @@ and `outputs/figures` with no manual step.
 - The Centaur-calibrated free-choice rule (D18) is model-implied behaviour of a model trained on human choices; it
   inherits Centaur's habit (imitation of its own recent picks), which may be partly a transcript artifact.
 
+### Transcript-model probes (measured; they shape `engines.py`)
+
+The development probes behind the limitations above and the report's appendix probe table. Moved here from the root
+`CLAUDE.md` on 2026-09-28, when the AI-assistant files left the repository; the call logs (`outputs/logs/probe_*.jsonl`)
+stay local.
+
+Centaur and Minitaur are the same kind of model and behave the same way here: next-choice predictors
+trained on Psych-101, where the prompt is a transcript and the choice is the token after `<<`. They
+cannot explain (asked for free text they invent the next trial), so §7.3's `explanation` is the rule
+behind the chosen option, which is known because every option is rule-generated.
+
+Transport: LM Studio `/v1/completions` returns no logprobs; `/v1/chat/completions` with the transcript as
+an **assistant** message returns `top_logprobs` and continues it. Option keys are scored there and the
+choice is **sampled** with the learner's seeded RNG. Scores are not bitwise reproducible (KV cache), so a
+run is reproduced by keeping `outputs/logs/*.jsonl` and `episodes.jsonl`, never by re-deriving. Transient
+HTTP 400 "Engine" errors are retried. Mass on the option keys: Centaur ~0.996, Minitaur ~0.99 median.
+
+What they **can** do - use them only for this:
+
+- **Choice tracks history, strongly.** A struggling learner versus a coping one shifts the approach
+  choice by -0.187 on traditional, +0.102 on scaffolding, +0.085 on substitution (se 0.012-0.017),
+  unanimous across 11 units. This is why `HybridEngine` exists.
+- **Choice follows the payoff, if the record is phrased payoff-first** (+0.149 vs +0.068, se 0.018/0.008;
+  the phrasing also flips the sign with the payoff). Hence the `Looking back at what worked` wording -
+  do not revert it to a frequency-first list.
+
+What they **cannot** do - never route these to them:
+
+- **Arithmetic.** P(correct) 0.35 against a 0.333 chance baseline, band 0.34-0.38 across every prompt
+  channel, and blind to the learner's competence (+0.004, se 0.007). Measured on both models.
+- **Judge their own answer.** The 1-5 confidence rating tracks the record (+0.866, se 0.022, 11/11) and
+  ignores which option was pressed (+0.039, se 0.130, 6/11). So **Brier, ECE and C (eq. 24) measure the
+  record, not calibration** - reported as-is with that limitation stated (user decision 2026-09-11).
+- **Learn from a single episode.** The aggregate record moves the choice; the last episode's outcome does
+  not (+0.009), and naming an approach at all makes it *more* likely regardless of how it went (+0.038).
+
+**Everything in the transcript gets imitated.** Past choices, past confidence ratings, past approaches:
+the model repeats what it sees. This one mechanism explains the free-choice ratchet (a substitution habit
+self-reinforces +0.119, a traditional one +0.006), the U-shaped confidence scale in runs, and why a long
+history *drowns* the record line that carries the payoff (+0.053 alone -> +0.009 with 8 past episodes).
+Hence `history_window: 3`; do not raise it.
+
 ## 8. Log (append as we go)
 
 - 2026-09-16: plan written; notebook controls set to 30 units; decisions D1-D10 recorded.
@@ -951,6 +993,9 @@ and `outputs/figures` with no manual step.
   and its last; median 82% of sentences verbatim), and the conditions differ in the problem's instruction line and the
   support sections. §3.2.2 and the report's Table 1 corrected; `report.py`'s Table 1 labels still describe the intended
   explanation styles ("guided questions", "walks through the complete solution").
+- 2026-09-28 (repository): the `CLAUDE.md` files, `guide.md`, `REPORT.md`, `report/outline.md` and `report/orale.md`
+  are untracked and in `.gitignore`. The transcript-model probes, recorded only in the root `CLAUDE.md`, moved to §7
+  above, and the eight `claims.yaml` checks of the appendix probe table now read them from this file.
 
 ## 9. Not blocking now; decide by S15
 - ~~Whether `outputs/tables` and `outputs/figures` should be committed as the deliverable~~ **decided: yes**, they

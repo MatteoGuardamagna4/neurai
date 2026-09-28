@@ -156,7 +156,7 @@ data/processed/<tag>/responses.csv,turn,int64,turn index within the episode
 data/processed/<tag>/responses.csv,prompt,str,text shown to the learner model
 data/processed/<tag>/responses.csv,response,str,learner model output
 data/processed/<tag>/responses.csv,answer,float64,option chosen
-data/processed/<tag>/responses.csv,confidence,float64,"1-5 confidence rating (tracks the record, not the answer; CLAUDE.md)"
+data/processed/<tag>/responses.csv,confidence,float64,"1-5 confidence rating (tracks the record, not the answer; PLAN.md §7)"
 data/processed/<tag>/responses.csv,correctness,float64,"answer correctness (0/1), or unit correctness score in units.csv"
 data/processed/<tag>/responses.csv,latency_proxy,float64,simulated time on task
 data/processed/<tag>/responses.csv,token_count,int64,tokens in the prompt
@@ -177,7 +177,7 @@ data/processed/<tag>/checkpoints.csv,near_transfer_accuracy,float64,near-transfe
 data/processed/<tag>/checkpoints.csv,far_transfer_accuracy,float64,far-transfer accuracy
 data/processed/<tag>/checkpoints.csv,retention_accuracy,float64,accuracy on items last practised >= retention_interval episodes ago
 data/processed/<tag>/checkpoints.csv,n_retention_items,int64,retention items available
-data/processed/<tag>/checkpoints.csv,brier_score,float64,"Brier score of confidence (measures the record for Centaur, CLAUDE.md)"
+data/processed/<tag>/checkpoints.csv,brier_score,float64,"Brier score of confidence (measures the record for Centaur, PLAN.md §7)"
 data/processed/<tag>/checkpoints.csv,expected_calibration_error,float64,ECE of confidence
 data/processed/<tag>/checkpoints.csv,dependence_request_rate,float64,help requests per opportunity
 data/processed/<tag>/checkpoints.csv,K,float64,knowledge (eq. 22)

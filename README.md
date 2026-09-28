@@ -181,7 +181,7 @@ Code: MIT (`LICENSE`). Corpus, run records, outputs and the encoding-model predi
 | Scaffolding and substitution pass leakage and compliance tests | Done: numeric leakage check after every tutor call, tested (`test_corpus`, `test_episode`) |
 | Official TRIBE example reproduced | **Partial**: the official text demo runs end to end through the released pipeline (gTTS + WhisperX timing, `tribe_qc.json/official_demo`), and the notebook refuses to process the corpus unless it does (gate 17). What is checked is *shape and finiteness* — 20,484 vertices, 15-35 time points, all finite — **not numerical agreement with a released reference output**, which the release does not ship. The demo returned 26 time points where the recorded `expected_shape_official_run` was 24. Treat this as "the pipeline executes the official example correctly", not "the published numbers were reproduced". |
 | TRIBE outputs cached with metadata and timestamps | Done: `run_metadata.json`, `tribe_run_log.jsonl`, checkpoint and atlas hashes |
-| Parcel and network mappings documented | Done: `parcels_schaefer400.csv`, `notebooks/CLAUDE.md` |
+| Parcel and network mappings documented | Done: `parcels_schaefer400.csv`, `notebooks/tribe_phase2.ipynb` §6 |
 | Learner monotonicity tests pass | Done: `test_learners`, `test_engines` direction tests; gate 18 G1-G10 |
 | Zero-plasticity and shuffled-condition controls null | Zero plasticity exactly 0; permuted conditions median ratio 0.30, but 8 of 28 scenario-networks >= 0.5 (reported as no claim, F5) |
 | One-year pilot sensible before ten years | Done: gate 18 passes (`g18_*`) |
@@ -204,5 +204,4 @@ Code: MIT (`LICENSE`). Corpus, run records, outputs and the encoding-model predi
 | `scripts/` | the Centaur run loop, the Phase V run chains, the gate-18 driver, the server equivalence check and the D3 archiver (`archive_tribe.py`) |
 | `tests/` | offline tests; no server or API key needed |
 
-`guide.md` maps the brief's concepts to the files and outputs that implement them; `PLAN.md` holds the decisions
-(D1-D26), assumptions (A1-A19), limitations and run log. See `CLAUDE.md` in each folder for the invariants.
+`PLAN.md` holds the decisions (D1-D26), assumptions (A1-A19), limitations and run log.
