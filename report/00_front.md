@@ -127,7 +127,7 @@ Table: **Table ES2.** Year-10 net advantage over traditional instruction and the
 | Free choice, rule fitted to Centaur | −0.059 [−0.071, −0.035] | Behind in every one | Derived from a rule fitted to a model, not to students |
 <!--MG:qual è l'unità di misura e che significato ha la colonna standing?RISOLTO-->
 *Median across 500 parameter draws with its 95% simulation interval; positive values favour the AI scenario. Source:
-own elaboration; model-implied output of the Phase V main run and the specification curve (Tables 11 and 12).*
+own elaboration; model-implied output of the Phase V main run and the specification curve (Tables 10 and 11).*
 
 Four conclusions follow, each a statement about the model.
 

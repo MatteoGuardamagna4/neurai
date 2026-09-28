@@ -78,17 +78,17 @@ prescribes, in order, and reproduce the problem verbatim. The encoding model rea
 all sections in order<!-- MG:are we sure about this? i believe it only reads the problem and explanation.RISOLTO -->,
 whereas the simulated learner reads only the explanation and the problem before its first attempt and receives
 support turn by turn afterwards. In the AI conditions these turns are written at run time by a language-model tutor
-(Section 3.4) and are never seen by the encoding model. The adaptation values of Table 5 are assumed constants that
-enter the effectiveness of instruction (eq. 2); they are not properties of the texts, and Section 3.8 varies them.
+(Section 3.4) and are never seen by the encoding model. The adaptation values of Table 3 are assumed constants that
+enter the effectiveness of instruction (eq. 4); they are not properties of the texts, and Section 3.8 varies them.
 
-Table: **Table 5.** Instructional conditions and fixed versus varying features
+Table: **Table 3.** Instructional conditions and fixed versus varying features
 
 | | Traditional | AI scaffolding | AI substitution |
 |---|---|---|---|
 | Lesson text | Explanation with one worked example; three hints; worked solution | Same explanation, tutor's opening and closing; three or four diagnostic questions; three hints; no worked solution | Same explanation, tutor's opening and closing; worked solution ending in an instruction to apply it; no hints |
 | Support after a wrong answer | Hint *k*, then answer again or request the next hint | Tutor turn *k*: diagnosis, one question, a level-*k* hint, leakage-checked | One message with the complete solution, then one re-answer |
 | Answer provided | After the third hint | After the third tutor turn | After the first wrong answer |
-| Adaptation, eq. 2 (assumed) | 0.35 | 0.90 | 0.20 |
+| Adaptation, eq. 4 (assumed) | 0.35 | 0.90 | 0.20 |
 | Words, mean | 529.2 | 546.8 | 537.2 |
 | Duration at 220 wpm, mean (s) | 144.3 | 149.1 | 146.5 |
 | Equations, mean | 9.27 | 5.73 | 9.33 |
@@ -170,11 +170,11 @@ The model therefore reads each version in full, including the hints, questions a
 simulated learner would meet only after an error.
 
 The predictions are averaged over the 400 regions (parcels) of the Schaefer atlas [@schaefer2018] and then over the
-seven large-scale networks of @yeo2011, weighting each parcel by its area (Appendix B.3). Table 3 gives the functions
+seven large-scale networks of @yeo2011, weighting each parcel by its area (Appendix B.3). Table 4 gives the functions
 commonly attributed to each network and how a predicted contrast in it is read here, given that the model receives
 text alone.
 
-Table: **Table 3.** The seven cortical networks and the reading of a predicted contrast in each
+Table: **Table 4.** The seven cortical networks and the reading of a predicted contrast in each
 
 | Network | Functions commonly attributed | Reading of a predicted contrast in this study |
 |------------------|-----------------------------------------------|---------------------------------------------------------------|
@@ -197,7 +197,7 @@ reaches the plasticity model (Section 3.6). Because it accumulates over time, it
 instruction (S − T), substitution against traditional instruction (U − T) and scaffolding against substitution
 (S − U). The contrasts are estimated jointly by
 
-$$ m_{uc} = \alpha_u + \beta_1\,\mathbb{1}[c = S] + \beta_2\,\mathbb{1}[c = U] + \gamma^{\top} x_{uc} + \varepsilon_{uc}, \qquad (3) $$
+$$ m_{uc} = \alpha_u + \beta_1\,\mathbb{1}[c = S] + \beta_2\,\mathbb{1}[c = U] + \gamma^{\top} x_{uc} + \varepsilon_{uc}, \qquad (1) $$
 
 where $m_{uc}$ is the response to unit $u$ in condition $c$, the unit effect $\alpha_u$ absorbs everything the three
 versions of a unit share, and $x_{uc}$ optionally holds the text's duration, word count and equation count. Without
@@ -205,7 +205,7 @@ these covariates, $\beta_1$ and $\beta_2$ are the mean paired differences S − 
 bootstrap that resamples whole units with their three versions, and p-values are corrected for testing seven networks
 at once [@benjamini1995]. With only 30 units such tests tend to reject too often [@cameron2008], so the intervals are
 read as approximate. A mixed model that treats the units as a sample of all possible units [@judd2012] complements
-eq. 3 and estimates the effects of difficulty and domain (eq. 4, Appendix B.3). <!--MG: non capisco il significato di condition contrast e il contenuto di questo paragrafo RISOLTO-->
+eq. 1 and estimates the effects of difficulty and domain (eq. 20, Appendix B.3). <!--MG: non capisco il significato di condition contrast e il contenuto di questo paragrafo RISOLTO-->
 
 **Representational geometry.** Representational similarity analysis [@kriegeskorte2008] asks whether a condition
 preserves how similar the units' predicted patterns are to one another. Within each condition, the dissimilarity of
@@ -225,15 +225,15 @@ model, while the learner's behavioural choices can be made by a language model t
 parameter is an assumption: Table C1 lists them all, and Section 3.5 compares those that have a published counterpart.
 
 **State and population.** A learner's state has five components between 0 and 1: knowledge, memory strength,
-independent reasoning, calibration and dependence on support (Table 6). Initial states are drawn within three strata
+independent reasoning, calibration and dependence on support (Table 5). Initial states are drawn within three strata
 of prior knowledge, with knowledge, memory and reasoning correlated positively with one another and negatively with
-dependence, and each learner has its own learning and forgetting rates (eq. 5–6, Appendix C.4). The population has
+dependence, and each learner has its own learning and forgetting rates (eq. 22–23, Appendix C.4). The population has
 1,667 learners. Each completes all four arms, the three conditions and free choice, from the same initial state, in
 the same curriculum order and with the same random numbers, so contrasts between conditions are within learners.
 
 **The episode.** An episode presents one unit. The learner reads the explanation and the problem and answers without
 help. A correct first answer leads straight to a near-transfer question; a wrong one triggers the support of the
-protocol (Table 5). Every episode ends with an unaided near-transfer question and a statement of the time taken. In
+protocol (Table 3). Every episode ends with an unaided near-transfer question and a statement of the time taken. In
 the free-choice arm the learner first reads the problem and chooses which of the three protocols to follow. The tutor
 is a small open language model, Qwen2.5-3B-Instruct [@qwen2024]; a scaffolding turn that states the answer is
 regenerated or replaced by the unit's prewritten hint. The tutor's text enters none of the equations below: only the
@@ -241,11 +241,11 @@ choice model reads it.
 
 **Responses.** The probability that an answer is correct follows a logistic model,
 
-$$ P(Y = 1) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i\right), \qquad (1) $$
+$$ P(Y = 1) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i\right), \qquad (2) $$
 
 where $\sigma$ is the logistic function, $\theta_i$ the learner's ability, which rises with knowledge, $b_u$ the
 difficulty of unit $u$, and $R_i$ and $M_i$ the learner's reasoning and memory. After support, a term proportional to
-its depth is added (eq. 7, Appendix C.4), and transfer questions are harder. A wrong answer is usually the documented
+its depth is added (eq. 24, Appendix C.4), and transfer questions are harder. A wrong answer is usually the documented
 misconception. When help is offered, the probability of asking for it rises with dependence and falls with ability;
 confidence is rated on a five-point scale.
 
@@ -253,46 +253,46 @@ confidence is rated on a five-point scale.
 learner attempted, whether the first answer was retrieved correctly, how much of the solution the learner generated,
 and whether the answer was provided. They determine the learner's effort and the effectiveness of the instruction,
 
-$$ E = \sigma\left(a_0 + a_1\,\text{attempt} + a_2\,\text{retrieval} + a_3\,\text{generation} - a_4\,\text{answer}\right), \qquad (8) $$
+$$ E = \sigma\left(a_0 + a_1\,\text{attempt} + a_2\,\text{retrieval} + a_3\,\text{generation} - a_4\,\text{answer}\right), \qquad (3) $$
 
-$$ F = \sigma\left(f_0 + f_1\,\text{correctness} + f_2\,\text{coverage} + f_3\,\text{adaptation} - f_4\,\text{mismatch}\right), \qquad (2) $$
+$$ F = \sigma\left(f_0 + f_1\,\text{correctness} + f_2\,\text{coverage} + f_3\,\text{adaptation} - f_4\,\text{mismatch}\right), \qquad (4) $$
 
-where adaptation is the constant of the protocol that ran (Table 5), applied when support was given, mismatch is the
+where adaptation is the constant of the protocol that ran (Table 3), applied when support was given, mismatch is the
 distance between the unit's difficulty and the learner's ability, and correctness and coverage are fixed at 1.
 Knowledge grows with the product of effort and effectiveness and decays through forgetting,
 
-$$ K' = K + \alpha_i E F (1 - K) - \delta_i K, \qquad (9) $$
+$$ K' = K + \alpha_i E F (1 - K) - \delta_i K, \qquad (5) $$
 
 and dependence grows with the support used and falls when the learner answers correctly at the first attempt after
 the support policy has withdrawn help,
 
-$$ D' = D + \eta_D\,\text{support} - \eta_F\,\text{withdrawal} \times \text{success}. \qquad (10) $$
+$$ D' = D + \eta_D\,\text{support} - \eta_F\,\text{withdrawal} \times \text{success}. \qquad (6) $$
 
-Memory, reasoning and calibration follow rules of the same kind (eq. 11–13, Appendix C.4). Two features of these
+Memory, reasoning and calibration follow rules of the same kind (eq. 25–27, Appendix C.4). Two features of these
 equations drive the comparison between conditions. Effort and effectiveness multiply in the knowledge gain, so
 substitution, which provides the answer after the first error, lowers learning through effort. And adaptation is the
 only term that separates scaffolding from traditional instruction: the scaffolding advantage is an assumed constant,
-not a consequence of the tutor's text, which is why Section 3.8 varies it. Table 6 summarises what each quantity
+not a consequence of the tutor's text, which is why Section 3.8 varies it. Table 5 summarises what each quantity
 represents and where it acts.
 
-Table: **Table 6.** The quantities of the simulated learner
+Table: **Table 5.** The quantities of the simulated learner
 
 | Quantity | What it represents | What moves it | Where it acts |
 |-------------------|------------------------------------------|----------------------------------------------------|------------------------------------------|
-| Knowledge $K$ | Mastery of the taught concepts | Gains in proportion to effort times effectiveness; forgetting (eq. 9) | Ability in the response model (eq. 1); the net advantage $G$ of Phase V |
-| Memory $M$ | Strength with which what was learned is retained | Retrieval practice, twice as much after a correct first answer, and self-correction after an error; forgetting (eq. 11) | Response model (eq. 1); $G$ |
-| Reasoning $R$ | Capacity to solve problems without support | Correct transfer answers, in proportion to effort; lowered by offloading (eq. 12) | Response model (eq. 1); $G$ |
-| Calibration $C$ | Agreement between confidence and correctness | Accuracy of all confidence ratings so far (eq. 13) | Reported outcome only |
-| Dependence $D$ | Reliance on external support | Raised by support used; lowered by first-attempt success, in Phase III only where support was withdrawn (eq. 10 and 10′) | Help requests and, in the free-choice arm, the choice of protocol under the logistic engine; $G$, with a negative sign |
-| Effort $E$ | Cognitive effort invested in one episode | Attempts, retrieval and generation; lowered when the answer is provided (eq. 8) | Gains in knowledge and reasoning (eq. 9 and 12); the neural state of Phase IV |
-| Effectiveness $F$ | Quality of the instruction received in one episode | Correctness and coverage of the lesson, the protocol's adaptation and the mismatch with ability (eq. 2) | Gain in knowledge (eq. 9) |
+| Knowledge $K$ | Mastery of the taught concepts | Gains in proportion to effort times effectiveness; forgetting (eq. 5) | Ability in the response model (eq. 2); the net advantage $G$ of Phase V |
+| Memory $M$ | Strength with which what was learned is retained | Retrieval practice, twice as much after a correct first answer, and self-correction after an error; forgetting (eq. 25) | Response model (eq. 2); $G$ |
+| Reasoning $R$ | Capacity to solve problems without support | Correct transfer answers, in proportion to effort; lowered by offloading (eq. 26) | Response model (eq. 2); $G$ |
+| Calibration $C$ | Agreement between confidence and correctness | Accuracy of all confidence ratings so far (eq. 27) | Reported outcome only |
+| Dependence $D$ | Reliance on external support | Raised by support used; lowered by first-attempt success, in Phase III only where support was withdrawn (eq. 6 and 6′) | Help requests and, in the free-choice arm, the choice of protocol under the logistic engine; $G$, with a negative sign |
+| Effort $E$ | Cognitive effort invested in one episode | Attempts, retrieval and generation; lowered when the answer is provided (eq. 3) | Gains in knowledge and reasoning (eq. 5 and 26); the neural state of Phase IV |
+| Effectiveness $F$ | Quality of the instruction received in one episode | Correctness and coverage of the lesson, the protocol's adaptation and the mismatch with ability (eq. 4) | Gain in knowledge (eq. 5) |
 
 *$K$, $M$, $R$, $C$ and $D$ persist across episodes and lie in $[0,1]$; $E$ and $F$ are recomputed in every episode.
 Source: own elaboration.*
 
 **Who makes the choices.** Two engines implement the model. The logistic engine makes every decision by equation,
 including the choice of protocol in the free-choice arm, which follows an assumed rule under which more dependent
-learners choose substitution more often. The hybrid engine leaves correctness to eq. 1 and hands the three behavioural choices, the protocol, requests for more help and confidence ratings, to Centaur, for the reasons given in Section 2.1 (probes in Appendix C.3).
+learners choose substitution more often. The hybrid engine leaves correctness to eq. 2 and hands the three behavioural choices, the protocol, requests for more help and confidence ratings, to Centaur, for the reasons given in Section 2.1 (probes in Appendix C.3).
 Centaur reads only what a learner could observe: the current episode, a summary of the learner's record and the three
 previous episodes. The learner's internal states never enter its prompt, which is checked automatically. Because its
 confidence ratings follow the record, calibration under the hybrid engine measures consistency with the record rather
@@ -311,7 +311,7 @@ gain from one hint, calibration and the rate of help requests (Appendix C.4).
 
 No data set exists from which the parameters of Section 3.4 could be estimated, so they were set by assumption, and
 the provenance of each is recorded with the code. Where the literature reports a quantity that the model also implies
-on the same scale, the two were compared after the runs were complete (Table 7). The comparison documents the model; no value was changed in response, because re-parameterising would have invalidated every
+on the same scale, the two were compared after the runs were complete (Table 6). The comparison documents the model; no value was changed in response, because re-parameterising would have invalidated every
 completed run, and a parameter outside its published range is reported as a finding about the model.
 
 Three parameters could be compared directly. The learning rate implies that the simulated learner closes a smaller
@@ -321,7 +321,7 @@ The forgetting rate implies that less knowledge survives a year without practice
 meta-analyses of tutoring [@ma2014; @kulik2016; @vanlehn2011]. The memory gain from retrieval has a published
 counterpart in the testing effect [@rowland2014; @adesope2017], but no model quantity on the same scale. <!--MG: ok fonti-->
 
-Table: **Table 7.** Calibration anchors: model-implied quantities against published values
+Table: **Table 6.** Calibration anchors: model-implied quantities against published values
 
 | Quantity | Parameter | Model | Published | Verdict | Source |
 |----------------------------------|----------|-------|----------|------------|---------------------------|
@@ -329,7 +329,7 @@ Table: **Table 7.** Calibration anchors: model-implied quantities against publis
 | Share of knowledge retained after a year without practice | $\delta$ | 0.38 | 0.65–0.75 | Below | @custers2010 |
 | Effect of support on test accuracy (Cohen's $d$) | $\omega$ | 0.41 | 0.35–0.76 | Consistent | @ma2014; @kulik2016; @vanlehn2011 |
 | Retention advantage of retrieval practice (Hedges' $g$) | $\eta_M$ | — | 0.50–0.61 | Not comparable | @rowland2014; @adesope2017 |
-| Steady-state knowledge of eq. 9 | $\alpha$, $\delta$ | 0.59 | 0.96 | Below | Derived from the first two rows |
+| Steady-state knowledge of eq. 5 | $\alpha$, $\delta$ | 0.59 | 0.96 | Below | Derived from the first two rows |
 <!--MG: questa tabella va indagata, i numeri sotto la colonna published sono corretti? inoltre voglio capire se i numeri sotto la colonna model e parameter sono stati scelti da noi e in che modo. non capisco la tabella RISOLTO-->
 *Model values from the reference run in the medium setting. The range for $\alpha$ spans the two learning rates
 reported by @badrinath2021, one fitted and one given as common for algebra skills. The published range for $\omega$ spans three
@@ -361,7 +361,7 @@ differ in what weights a text's pattern: the learner's effort (mechanism A), the
 learner then corrected it (B), or effort combined with retrieval (C). The main specification, mechanism D, combines
 the three and subtracts offloading:
 
-$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta \left(\lambda_A E_{it} + \lambda_{PE}\, \text{PE}_{it}\, \text{res}_{it} + \lambda_R\, \text{retr}_{it} - \lambda_O\, \text{off}_{it}\right) \mathbf{Z}_{s_t}, \qquad (14) $$
+$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta \left(\lambda_A E_{it} + \lambda_{PE}\, \text{PE}_{it}\, \text{res}_{it} + \lambda_R\, \text{retr}_{it} - \lambda_O\, \text{off}_{it}\right) \mathbf{Z}_{s_t}, \qquad (7) $$
 
 where $\mathbf{N}_i$ is the learner's state, $\mathbf{Z}_{s_t}$ the standardised pattern of the text read in episode
 $t$, the weights $\lambda$ are equal in the main specification, and $\delta_N$ is a decay with a half-life of 20
@@ -387,14 +387,14 @@ choice rule described below.
 
 **Calendar and difficulty.** A school year has 40 weeks of three episodes, with one and five a week as variants,
 followed by a 12-week break without practice. Units recur in curriculum order with unchanged texts and problems. What
-rises is the difficulty of every unit in the response model (eq. 1), by 0.1 logits per completed school year in the
+rises is the difficulty of every unit in the response model (eq. 2), by 0.1 logits per completed school year in the
 main specification, so that the same problem is answered correctly less often as the years pass. Forgetting is set
 per calendar week, and during the break knowledge, memory and the neural state decay at a quarter of the term rate.
 Losses over long breaks are documented [@cooper1996], but this rate is an assumption, varied in Section 3.8.
 
 **Bounded updates.** Over ten years, the updates of Phase III would push memory, reasoning and dependence against
 the edges of the 0–1 scale, where clipping rather than the model would set the state. Phase V therefore scales each
-gain by the distance to 1 and each loss by the distance to 0 (eq. 10′, 11′ and 12′, Appendix D.6), so that states
+gain by the distance to 1 and each loss by the distance to 0 (eq. 6′, 25′ and 26′, Appendix D.6), so that states
 approach the edges without reaching them. In this form dependence also falls after any correct first answer, not only
 when help has been withdrawn. The literal equations remain a level of the specification curve.
 
@@ -419,18 +419,18 @@ computed with support removed over all 30 units: unaided accuracy, far-transfer 
 for help when it is offered, and retention after the break. The scenario contrast of an AI scenario is the mean
 paired difference from traditional instruction over the $n$ learners of a draw,
 
-$$ \text{SC}_Y(t) = \frac{1}{n} \sum_{i=1}^{n} \left(Y^{\text{AI}}_{i,t} - Y^{\text{T}}_{i,t}\right), \qquad (15) $$
+$$ \text{SC}_Y(t) = \frac{1}{n} \sum_{i=1}^{n} \left(Y^{\text{AI}}_{i,t} - Y^{\text{T}}_{i,t}\right), \qquad (8) $$
 
 summarised across draws by its median and 95% simulation interval. The share of learners for whom the AI scenario is
 ahead, the probability of superiority [@mcgraw1992], shows whether a contrast holds for most learners or only on
 average. The summary outcome is the net advantage
 
-$$ G = w_K\,\Delta K + w_R\,\Delta R + w_M\,\Delta M - w_D\,\Delta D, \qquad (16) $$
+$$ G = w_K\,\Delta K + w_R\,\Delta R + w_M\,\Delta M - w_D\,\Delta D, \qquad (9) $$
 
 with equal weights in the main specification: $G$ is positive when a scenario leaves the learner with more knowledge,
 reasoning and memory and less dependence than traditional instruction. A contrast is called beneficial if $G$ exceeds
 0.02, harmful if it is below −0.02, and neutral in between. $G$ has no neural term; the neural contrast, a
-standardised paired difference of a network's state, is reported separately (eq. 17, Appendix D.6).
+standardised paired difference of a network's state, is reported separately (eq. 38, Appendix D.6).
 
 **Frontier, tipping points and mechanisms.** Three further analyses ask why the scenarios differ. The frontier
 replaces the named scenarios by a generic AI protocol with adjustable properties: its adaptation, the share of effort
@@ -441,19 +441,19 @@ a second diagram does the same for the neural contrast of substitution (Appendix
 reruns each scenario with one channel held at its value under traditional instruction: the effort or the
 effectiveness in the knowledge update, or the dependence in the learner's decisions. The share of a contrast that
 disappears is that channel's contribution. It decomposes the contrast within the model and is not a causal mediation
-analysis. Table D1 (Appendix D.1) lists every Phase V run, and Table 8 summarises what each analysis asks and how its result is
+analysis. Table D1 (Appendix D.1) lists every Phase V run, and Table 7 summarises what each analysis asks and how its result is
 read.
 
-Table: **Table 8.** The analyses of Phase V
+Table: **Table 7.** The analyses of Phase V
 
 | Analysis | What it asks | How it is computed | How to read it |
 |------------------|--------------------------------------|----------------------------------------------|--------------------------------------|
-| Scenario contrast (eq. 15) | How far does an AI scenario leave a learner from where traditional instruction leaves the same learner? | Mean paired difference over the learners of a draw; median and simulation interval across draws | The sign gives the direction, the interval the uncertainty over parameters |
-| Probability of superiority (eq. 18) | For what share of learners is the AI scenario ahead? | Share of paired learners, pooled over draws, with the higher outcome; ties count as not ahead | 0.5: no systematic difference; near 0 or 1: the same direction for almost every learner |
-| Net advantage $G$ (eq. 16) | Does the scenario leave the learner better off overall? | Contrasts in knowledge, reasoning and memory minus that in dependence, with equal weights of 0.25 in the main specification | Beneficial above 0.02, harmful below −0.02, neutral in between |
-| Neural contrast $d$ (eq. 17) | Does the model-implied neural state differ between scenarios? | Mean paired difference of a network's state divided by its standard deviation across learners | How consistently learners differ, not by how much; exploratory |
+| Scenario contrast (eq. 8) | How far does an AI scenario leave a learner from where traditional instruction leaves the same learner? | Mean paired difference over the learners of a draw; median and simulation interval across draws | The sign gives the direction, the interval the uncertainty over parameters |
+| Probability of superiority (eq. 37) | For what share of learners is the AI scenario ahead? | Share of paired learners, pooled over draws, with the higher outcome; ties count as not ahead | 0.5: no systematic difference; near 0 or 1: the same direction for almost every learner |
+| Net advantage $G$ (eq. 9) | Does the scenario leave the learner better off overall? | Contrasts in knowledge, reasoning and memory minus that in dependence, with equal weights of 0.25 in the main specification | Beneficial above 0.02, harmful below −0.02, neutral in between |
+| Neural contrast $d$ (eq. 38) | Does the model-implied neural state differ between scenarios? | Mean paired difference of a network's state divided by its standard deviation across learners | How consistently learners differ, not by how much; exploratory |
 | Phase diagram | Which properties of an AI protocol decide its ten-year contrast? | $G$ over a grid of adaptation and retained effort at three probabilities of substitution; each cell classified by its median | Where a protocol is beneficial, neutral or harmful |
-| Tipping point (eq. 19) | How large a change in one property reverses the sign of $G$? | First value on a line through scaffolding without fading at which $G$ changes sign, in each draw | A threshold with its interval; no sign change means the direction holds over the whole range |
+| Tipping point (eq. 39) | How large a change in one property reverses the sign of $G$? | First value on a line through scaffolding without fading at which $G$ changes sign, in each draw | A threshold with its interval; no sign change means the direction holds over the whole range |
 | Mechanism decomposition | Through which channel of the model does a contrast arise? | Rerun with one mediator held at its value under traditional instruction; contribution $1 - \text{SC}_{\text{held}} / \text{SC}$ | 1: the whole contrast passes through that channel; values outside 0 to 1 signal interacting channels |
 
 *SC: scenario contrast. Source: own elaboration.*
@@ -462,7 +462,7 @@ Table: **Table 8.** The analyses of Phase V
 
 Four questions precede any claim: whether the simulated learner behaves as a learner model must, whether a contrast
 responds to what it is said to respond to, whether it survives modelling choices that could defensibly have been made
-otherwise, and where its uncertainty comes from. Table 9 summarises the checks that answer them.
+otherwise, and where its uncertainty comes from. Table 8 summarises the checks that answer them.
 
 **Behavioural checks.** Before any ten-year result was read, a one-year pilot had to pass ten checks (Table D2). Five
 test properties any learning model should have, such as accuracy falling with difficulty and support raising
@@ -491,22 +491,22 @@ were computed. The learner engine is not a dimension: at the hybrid engine's fou
 case, the main ten-year run alone would take at least 760 years of computation. The direction of a scenario is called
 robust when the median $G$ has the same sign in every specification and no 95% interval includes zero.
 
-**Variance decomposition.** Eq. 20 (Appendix D.6) apportions the variance of a ten-year outcome among its sources:
+**Variance decomposition.** Eq. 40 (Appendix D.6) apportions the variance of a ten-year outcome among its sources:
 the scenario, the parameters, the learners, behavioural randomness, the plasticity settings and the stimulus.
 
-**Falsification criteria.** No difference is claimed when any of six conditions holds, F1 to F6 in Table 9. Their
+**Falsification criteria.** No difference is claimed when any of six conditions holds, F1 to F6 in Table 8. Their
 thresholds are this study's conventions rather than external standards, and each verdict applies only to the
 contrasts it names.
 
-Table: **Table 9.** Validation, robustness and falsification checks
+Table: **Table 8.** Validation, robustness and falsification checks
 
 | Check | What it asks | How it is computed | When it fails |
 |------------------|--------------------------------------|----------------------------------------------|--------------------------------------|
 | Behavioural checks | Does the simulated learner behave as a learner model must? | Ten checks on a one-year pilot (Table D2) | No ten-year result is read |
 | Negative controls | Does a contrast respond to what it is said to respond to? | Variations that should remove it: no plasticity, effort insensitive to behaviour, permuted responses or labels, random sign flips | The contrast is not attributed to what it was said to respond to |
 | Specification curve | Does a direction survive other defensible modelling choices? | Year-10 $G$ re-estimated under every combination of the levels of Table D4 | Not robust; the first level at which the sign fails is reported |
-| Variance decomposition (eq. 20) | Where does the uncertainty of an outcome come from? | Nested analysis of variance over scenarios, draws, learners and replicates | Descriptive; it withholds no claim |
-| F1 Matching | Is a predicted cortical contrast a by-product of text length? | The contrast re-estimated with duration, word count and equation count in eq. 3 | Its 95% interval, which excluded zero, includes it |
+| Variance decomposition (eq. 40) | Where does the uncertainty of an outcome come from? | Nested analysis of variance over scenarios, draws, learners and replicates | Descriptive; it withholds no claim |
+| F1 Matching | Is a predicted cortical contrast a by-product of text length? | The contrast re-estimated with duration, word count and equation count in eq. 1 | Its 95% interval, which excluded zero, includes it |
 | F2 Harmless rewording | Does a predicted cortical contrast exceed stylistic variation? | The contrast across the nine combinations of each text's primary and two reworded versions | It changes sign, or its primary value does not exceed twice their standard deviation |
 | F3 Plasticity model | Does a neural result depend on the plasticity mechanism? | Sign of the median year-10 neural contrast under mechanisms A to D | The signs differ |
 | F4 Parameter bounds | Is a result set by the edges of the state scale or by the shape of the parameter distribution? | Share of learners within 0.01 of a bound in the median draw; the contrast under uniform instead of triangular draws | More than 10% of learners near a bound, or a change of sign |

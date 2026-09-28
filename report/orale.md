@@ -16,7 +16,7 @@ semplicemente assunto?"
 adatta all'errore del learner più di quanto facciano gli hint fissi o la soluzione completa. Proprio perché è
 assunta, l'adaptation è una dimensione della specification curve, e l'esito dipende dallo scenario.
 
-**Come agisce.** Entra solo nell'efficacia F (eq. 2), con peso f₃ = 1.2, e solo negli episodi in cui c'è stato
+**Come agisce.** Entra solo nell'efficacia F (eq. 4), con peso f₃ = 1.2, e solo negli episodi in cui c'è stato
 supporto, cioè dopo una prima risposta sbagliata. Con difficoltà perfettamente adeguata:
 
 | Episodio | F |
@@ -55,13 +55,13 @@ three protocols share one value, scaffolding without fading becomes numerically 
 instruction, so its advantage is the assumption itself, and we report it as assumed. Rapid fading and substitution
 keep their sign at every level, because they run through support withdrawal and through effort."
 
-**Dove.** Report: Tabella 5 (§3.2.2), eq. 2 (§3.4), Tabella D4 (§3.8 e Appendice D.3), §4.6. Codice:
+**Dove.** Report: Tabella 3 (§3.2.2), eq. 4 (§3.4), Tabella D4 (§3.8 e Appendice D.3), §4.6. Codice:
 `config/default.yaml` (`support.adaptation`, `effectiveness.f3`), `config/spec_curve.yaml` (dimensione
 `adaptation`). Dati: `outputs/tables/fig8a_spec_curve_G.csv`.
 
 ---
 
-## 2. Il plateau della conoscenza (K\* = 0.59 contro 0.96) e la Tabella 7
+## 2. Il plateau della conoscenza (K\* = 0.59 contro 0.96) e la Tabella 6
 
 **Domanda probabile.** "Quanto è realistico il vostro learner? I parametri da dove vengono?" Oppure: "Perché dite che
 la dimensione del deficit della sostituzione è un limite superiore?"
@@ -72,7 +72,7 @@ di quanto riporta la letteratura. Per questo le differenze che nascono dallo sfo
 sostituzione, sono più grandi di quanto sarebbero con parametri realistici: la direzione è il claim, la dimensione è
 un limite superiore.
 
-**Il calcolo.** Nell'eq. 9 la conoscenza guadagna αEF(1−K) e perde δK. Si stabilizza dove i due termini si pareggiano:
+**Il calcolo.** Nell'eq. 5 la conoscenza guadagna αEF(1−K) e perde δK. Si stabilizza dove i due termini si pareggiano:
 K\* = αEF / (αEF + δ).
 
 | | Apprendimento per episodio | Oblio per episodio | K\* |
@@ -99,7 +99,7 @@ ristudio (Tabella 1).
 
 **Se chiedono di ω ("consistent").** Il valore del modello (d = 0.41) sta nel range delle meta-analisi, ma misura una
 cosa diversa: la spinta di un hint durante il test, non l'apprendimento misurato in un test successivo. È un confronto
-di scala, non di costrutto, e la nota della Tabella 7 lo dice.
+di scala, non di costrutto, e la nota della Tabella 6 lo dice.
 
 **Come dirlo (EN).** "We did not calibrate the parameters; we set them in advance and compared them with published
 values afterwards, without changing any. The comparison says our simulated learner learns more slowly and forgets
@@ -107,22 +107,22 @@ faster than the evidence on taught knowledge: its knowledge settles at 0.59 of m
 rates. In that regime a difference in effort matters more, so we claim the direction of the substitution deficit and
 read its size as an upper bound."
 
-**Dove.** Report: §3.5 e Tabella 7, §5.1. Codice: `config/parameter_sources.yaml`, `report.parameter_anchors` in
+**Dove.** Report: §3.5 e Tabella 6, §5.1. Codice: `config/parameter_sources.yaml`, `report.parameter_anchors` in
 `src/neurotutorsim/report.py`. Dati: `outputs/tables/tableS_parameter_anchors.csv`.
 
 ---
 
-## 3. Come si leggono i numeri delle Tabelle 10 e 11
+## 3. Come si leggono i numeri delle Tabelle 9 e 10
 
 **Domanda probabile.** "Qual è l'unità di misura? −3.37 è tanto o poco? E $G$ = 0.045 cosa vuol dire?"
 
-**Tabella 10 (contrasti corticali predetti).** Unità arbitrarie della risposta BOLD predetta da TRIBE, sommate sui
-secondi di lettura (AUC, eq. 26, un valore al secondo). Non è una % di variazione del segnale: il valore assoluto non ha
+**Tabella 9 (contrasti corticali predetti).** Unità arbitrarie della risposta BOLD predetta da TRIBE, sommate sui
+secondi di lettura (AUC, eq. 16, un valore al secondo). Non è una % di variazione del segnale: il valore assoluto non ha
 significato, conta solo il confronto con la variabilità dello stesso output. Per scala: la deviazione standard
 dell'AUC di rete tra i 90 testi è circa 2.8 (media sulle sette reti); nella dorsal attention è circa 4. Quindi lo S − T
 della dorsal attention (−3.37) è grande più o meno quanto la differenza tipica tra due lezioni qualsiasi in quella rete.
 
-**Tabella 11 (contrasti a 10 anni).** Tutte differenze su scala 0–1, di due tipi:
+**Tabella 10 (contrasti a 10 anni).** Tutte differenze su scala 0–1, di due tipi:
 - $G$ è sulla scala degli stati del learner (conoscenza, ragionamento, memoria, dipendenza: grandezze latenti tra 0 e
   1). È la media dei quattro contrasti, con la dipendenza col segno invertito. Esempio, rapid fading: K +0.014,
   R +0.101, M −0.023, D −0.088, quindi (0.014 + 0.101 − 0.023 + 0.088) / 4 ≈ 0.045.
@@ -136,7 +136,7 @@ as large as the typical difference between two different lessons. The ten-year c
 zero-to-one scale: for the test outcomes, 0.01 is one percentage point; G averages the four state contrasts, with
 dependence counted as a cost."
 
-**Dove.** Report: didascalie delle Tabelle 10 e 11 (§4.1, §4.3), Tabella B1 e eq. 26 (Appendice B), eq. 16 (§3.7).
+**Dove.** Report: didascalie delle Tabelle 9 e 10 (§4.1, §4.3), Tabella B1 e eq. 16 (Appendice B), eq. 9 (§3.7).
 Dati: `data/tribe/tribe_main/wpm220/tribe_metrics.parquet`, `outputs/tables/table5_scenario_contrasts_v_main.csv`.
 
 ---
@@ -189,7 +189,7 @@ adaptation. Within the model, what decides the sign is whether the AI hands out 
 depends on the adaptation we assumed: with our values, about one AI episode in ten cancels the advantage of
 scaffolding without fading, and half of the episodes make it clearly harmful whatever the adaptation."
 
-**Dove.** Report: §4.4 e Figura 6, §3.7 (Tabella 8), §5.2, §6.3. Codice: `frontier_scenarios` in
+**Dove.** Report: §4.4 e Figura 6, §3.7 (Tabella 7), §5.2, §6.3. Codice: `frontier_scenarios` in
 `src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`; la
 tabella per valore di $o$ è ricalcolata da `data/processed/phase5/v_tipping/simulation_draws` (righe `line_o_*`,
 contrasto $G$, anno 10) e non è in nessuna tabella del report.
@@ -226,5 +226,5 @@ are given the answer learn less because they work less. For scaffolding without 
 effectiveness, which is where the assumed adaptation enters. This decomposes the model; it is not a causal mediation
 analysis."
 
-**Dove.** Report: §4.5, Tabella E4 (Appendice E), Tabella 8 (§3.7). Codice: `mediation_scenarios` e il blocco
+**Dove.** Report: §4.5, Tabella E4 (Appendice E), Tabella 7 (§3.7). Codice: `mediation_scenarios` e il blocco
 `med_E`/`med_F` in `src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/tableS_mechanism_decomposition.csv`.

@@ -90,7 +90,7 @@ def ci(name: str, est: str, lo: str, hi: str, fmt: str = "{:.3f}", **where) -> s
 
 
 def t4cell(key: str, contrast: str) -> str:
-    """A cell of Table 8, recomputed from the source tables: the network AUC contrast with its interval, in bold when
+    """A cell of Table 9, recomputed from the source tables: the network AUC contrast with its interval, in bold when
     the interval excludes zero and the contrast passes F1, F2 and F5, followed by the marks of the criteria it fails
     (a: F1, loses significance with covariates; b: F2, not robust to rewording; c: F5, incorrect-text network)."""
     w = dict(level="network", metric="auc", key=key, contrast=contrast)

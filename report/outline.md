@@ -42,14 +42,15 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
 - **Voice.** Impersonal by default; first person singular only for the author's own decisions.
 - **Citations.** Pandoc keys (`[@austin2009]`), rendered in APA from `references.bib`. Only sources checked against
   Crossref or arXiv enter the file; the comment above each entry records how.
-- **Numbering (binding, author 2026-09-25).** Equations, figures and tables are numbered by **first mention** (a
-  reference or the item itself, whichever comes first), front matter excluded. Body tables and figures take integers;
-  appendix tables keep their appendix letter and are numbered within it (A1, C1, D1 …); appendix figures are Figure
-  E1-E7; equations form one sequence over body and appendices, a primed equation following its base. Consequence
-  accepted by the author: the printed order of body tables starts 4, 2, 5, 3 and Table 1 (research questions, cited
-  in §1.2) is printed in §5.5; equations are written out out of order (e.g. (8) before (2)). Appendix blocks are
-  ordered so that appendix exhibits print in numeric order. A new mention that precedes an item's first mention
-  changes the numbering: renumber with the scratch script's logic (first mention per group) rather than by hand.
+- **Numbering (binding, author 2026-09-26, applied 2026-09-28).** Equations, figures and tables are numbered by
+  **printed position**, front matter excluded; this replaces the first-mention rule of 2026-09-25, whose printed
+  order (tables 4, 2, 5, 3 …; equations (3), (1), (8), (2) …) read as inconsistent. A table or figure is placed by
+  its caption; an equation by its display label, or, for the five defined inline only (the support gap, the
+  prediction error, mechanisms B and C, the probability of superiority), by that definition. Body tables and figures
+  take integers; appendix tables keep their appendix letter and are numbered within it (A1, C1, D1 …); appendix
+  figures are Figure E1-E7; equations form one sequence over body (1-9) and appendices (10-40), a primed equation
+  taking its base's number (6′, 25′, 26′). Moving or adding an exhibit changes the numbering: renumber by script,
+  never by hand (the 2026-09-28 script mapped captions, cross-references, Table F4, `claims.yaml` and `orale.md`).
   Appendix F.5 (Table F4) maps report equation numbers to the code's, which the code, comments and output tables
   keep.
 - **Exhibits.** Figure images carry a title but no figure or equation number (`report.py`, 2026-09-25); the report
@@ -61,8 +62,8 @@ Due **2026-09-30**. Drafting order: 3 → 4 → 5 and 6 → 2 → 1 → front ma
   this study" or "When it fails"). The author finds them intuitive and easy to read and asked for them wherever there
   is an opportunity. Prefer tables that replace the prose they summarise, since §3 is over its page budget; keep each
   cell to one short clause; every number in a cell goes in the claims ledger. In place (numbers after the
-  2026-09-25 renumbering): Table 4 (strands of the literature, §2.5), Table 3 (seven networks, §3.3), Table 6 (learner
-  quantities, §3.4), Table 8 (Phase V analyses, §3.7), Table 9 (checks and F1-F6, §3.8), Tables 14, 15 and 1 (§5),
+  2026-09-28 renumbering): Table 1 (strands of the literature, §2.5), Table 4 (seven networks, §3.3), Table 5 (learner
+  quantities, §3.4), Table 7 (Phase V analyses, §3.7), Table 8 (checks and F1-F6, §3.8), Tables 13-15 (§5),
   Tables 16-17 (§6).
   Remaining candidate: Phase II analyses in §3.3 (declined for now).
 - **Notes.** `<!-- CLAUDE: … -->` are mine, `<!-- MG: … -->` the author's. Neither appears in the built document.

@@ -15,14 +15,14 @@ summing undiscounted cash flows yields EUR 44,000, and discounting the two-year 
 
 Each lesson text $s$ is described by a vector of nine observable, non-pedagogical features,
 
-$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right), \qquad (24) $$
+$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right), \qquad (10) $$
 
 the numbers of words, characters, sentences, equations (counted as equality signs) and worked examples, the
 Flesch–Kincaid grade [@kincaid1975], the duration at 220 words per minute, the type–token ratio and the semantic
 coverage of Section 3.2.4. Balance on feature $k$ between an AI condition $A$ and the traditional condition $T$ is the
 standardised mean difference
 
-$$ \text{SMD}_k = \frac{\bar{x}_{k,A} - \bar{x}_{k,T}}{\sqrt{\left(s^2_{k,A} + s^2_{k,T}\right)/2}}, \qquad (25) $$
+$$ \text{SMD}_k = \frac{\bar{x}_{k,A} - \bar{x}_{k,T}}{\sqrt{\left(s^2_{k,A} + s^2_{k,T}\right)/2}}, \qquad (11) $$
 
 against the target $|\text{SMD}| < 0.10$ [@austin2009]. Matching is exact on unit, concept, domain, difficulty,
 modality and answer correctness, and caliper-based on duration: every AI version lies within 10% of its traditional
@@ -210,10 +210,10 @@ Table: **Table B1.** Metrics of the predicted cortical response
 | Mean | Parcel, network | Mean of $B$ over the reading window |
 | Peak | Parcel, network | Maximum of $B$ after a centred three-second moving average |
 | Time to peak | Parcel, network | Second at which the smoothed $B$ reaches its maximum |
-| AUC | Parcel, network | Trapezoidal integral of $B$ over the reading window (eq. 26) |
+| AUC | Parcel, network | Trapezoidal integral of $B$ over the reading window (eq. 16) |
 | Sustained engagement | Parcel, network | Share of seconds in which $B$ exceeds the median of all the text's values at that level, an assumed baseline |
 | Dispersion | Text | Variance across parcels of the window-mean pattern $\bar b_s$ |
-| Entropy | Text | Normalised entropy of the positive part of $\bar b_s$ (eq. 27) |
+| Entropy | Text | Normalised entropy of the positive part of $\bar b_s$ (eq. 12) |
 | Integration | Text | Mean pairwise Pearson correlation of the seven network time courses |
 
 *$B$ is the predicted BOLD response in arbitrary units, one value per second of reading; none of these metrics is a
@@ -221,7 +221,7 @@ measured response. Source: own elaboration; definitions as implemented in `src/n
 
 The entropy of text $s$ is computed on the positive part of its window-mean pattern over the $P = 400$ parcels,
 
-$$ H_s = -\frac{1}{\ln P} \sum_{p=1}^{P} q_{s,p} \ln q_{s,p}, \qquad q_{s,p} = \frac{\max\left(\bar b_{s,p}, 0\right)}{\sum_{p'} \max\left(\bar b_{s,p'}, 0\right)}, \qquad (27) $$
+$$ H_s = -\frac{1}{\ln P} \sum_{p=1}^{P} q_{s,p} \ln q_{s,p}, \qquad q_{s,p} = \frac{\max\left(\bar b_{s,p}, 0\right)}{\sum_{p'} \max\left(\bar b_{s,p'}, 0\right)}, \qquad (12) $$
 
 and equals 1 when that part is spread evenly over the parcels and 0 when it is concentrated in one.
 
@@ -230,7 +230,7 @@ and equals 1 when that part is spread evenly over the parcels and 0 when it is c
 **Timing.** In the released pipeline, the onsets of words presented as text come from synthesised speech. Here each
 text is read at a fixed rate of $r$ words per minute, so that its $j$-th word has onset
 
-$$ t_j = \frac{60\,(j-1)}{r} \qquad (28) $$
+$$ t_j = \frac{60\,(j-1)}{r} \qquad (13) $$
 
 seconds and lasts $60/r$ seconds. At 220 words per minute the texts last 132 to 188 seconds, and all 53,284 words
 reach the model.
@@ -239,35 +239,35 @@ reach the model.
 fsaverage5 surface and second $t = 1, \dots, T_s$. Each parcel $p$ takes the mean over its vertices $V_p$, and each
 network $n$ the mean of its parcels weighted by their surface areas $a_p$,
 
-$$ B_{s,p}(t) = \frac{1}{|V_p|} \sum_{v \in V_p} B_{s,v}(t), \qquad (29) $$
+$$ B_{s,p}(t) = \frac{1}{|V_p|} \sum_{v \in V_p} B_{s,v}(t), \qquad (14) $$
 
-$$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (30) $$
+$$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (15) $$
 
 Equal weights and a 200-parcel version of the atlas are robustness variants. The area under the curve of parcel or
 network $k$ is
 
-$$ \text{AUC}_{s,k} = \sum_{t=1}^{T_s-1} \frac{B_{s,k}(t) + B_{s,k}(t+1)}{2}\,\Delta t, \qquad \Delta t = 1\ \text{s}. \qquad (26) $$
+$$ \text{AUC}_{s,k} = \sum_{t=1}^{T_s-1} \frac{B_{s,k}(t) + B_{s,k}(t+1)}{2}\,\Delta t, \qquad \Delta t = 1\ \text{s}. \qquad (16) $$
 
 **Contrasts.** For a metric $m$ and unit $u$, the three contrasts are the paired differences
 
-$$ \Delta^{S-T}_u = m_{u,S} - m_{u,T}, \qquad \Delta^{U-T}_u = m_{u,U} - m_{u,T}, \qquad \Delta^{S-U}_u = m_{u,S} - m_{u,U}, \qquad (21\text{–}23) $$
+$$ \Delta^{S-T}_u = m_{u,S} - m_{u,T}, \qquad \Delta^{U-T}_u = m_{u,U} - m_{u,T}, \qquad \Delta^{S-U}_u = m_{u,S} - m_{u,U}, \qquad (17\text{–}19) $$
 
-estimated jointly by eq. 3, in which the S–U contrast is $\beta_1 - \beta_2$. The cluster bootstrap draws 2,000
+estimated jointly by eq. 1, in which the S–U contrast is $\beta_1 - \beta_2$. The cluster bootstrap draws 2,000
 resamples of the 30 units and gives percentile 95% intervals. P-values computed from the bootstrap standard error are
 adjusted by the Benjamini–Hochberg procedure across the seven networks within each metric and contrast, and across all
 1,200 tests of the parcel maps. The mixed model
 
-$$ y_{ucn} = \mu + \beta_c + \delta\, d_u + \theta_{g(u)} + a_u + \varepsilon_{ucn}, \qquad a_u \sim \mathcal{N}\left(0, \sigma^2_a\right), \qquad (4) $$
+$$ y_{ucn} = \mu + \beta_c + \delta\, d_u + \theta_{g(u)} + a_u + \varepsilon_{ucn}, \qquad a_u \sim \mathcal{N}\left(0, \sigma^2_a\right), \qquad (20) $$
 
 has $y_{ucn}$ the AUC of network $n$ centred on that network's mean, $d_u$ the unit's difficulty, $\theta_{g(u)}$ the
 effect of its domain and $a_u$ a unit random intercept, and is estimated by restricted maximum likelihood. Difficulty
-and domain are constant within a unit, so the unit effects of eq. 3 absorb them; eq. 4 is the model in which they
+and domain are constant within a unit, so the unit effects of eq. 1 absorb them; eq. 20 is the model in which they
 can be estimated.
 
 **Representational geometry.** With $\bar b_{u,c}$ the pattern of parcel responses to unit $u$ in condition $c$,
 averaged over the reading window, the dissimilarity of two units is
 
-$$ D^{c}_{uu'} = 1 - \operatorname{corr}\left(\bar b_{u,c},\, \bar b_{u',c}\right). \qquad (31) $$
+$$ D^{c}_{uu'} = 1 - \operatorname{corr}\left(\bar b_{u,c},\, \bar b_{u',c}\right). \qquad (21) $$
 
 Two conditions are compared by the Spearman correlation of the upper triangles of their 30 × 30 matrices, and the
 permutation test exchanges condition labels within units 1,000 times.
@@ -296,10 +296,10 @@ Table: **Table C1.** Parameters of the simulated learner
 | `population.state_sd` | $\sigma$ | 0.1 | 0.15 | 0.2 | Assumption |
 | `population.stratum_k_shift` |  |  | −0.2 / 0.0 / 0.2 |  | Assumption |
 | `population.stratum_m_shift` |  |  | −0.1 / 0.0 / 0.1 |  | Assumption |
-| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 7) |
+| `population.mu_alpha` | $\mu_\alpha$ | −2.6 | −2.3 | −2 | Assumption; below its published range (Table 6) |
 | `population.sigma_alpha` | $\sigma_\alpha$ | 0.25 | 0.4 | 0.55 | Assumption |
 | `population.a_delta` | $a_\delta$ |  | 2 |  | Assumption |
-| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 7) |
+| `population.b_delta` | $b_\delta$ | 120 | 80 | 50 | Assumption; below its published range (Table 6) |
 | `population.theta_slope` | $\tau$ | 3 | 4 | 5 | Assumption |
 | `population.confidence_bias_sd` |  | 0.05 | 0.1 | 0.15 | Assumption |
 | `population.speed_sigma` |  |  | 0.25 |  | Assumption |
@@ -308,7 +308,7 @@ Table: **Table C1.** Parameters of the simulated learner
 | `curriculum.far_b_delta` |  |  | 1.2 |  | Assumption |
 | `response.rho` | $\rho$ | 0.7 | 1 | 1.3 | Assumption |
 | `response.kappa` | $\kappa$ | 0.5 | 0.8 | 1.1 | Assumption |
-| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 7) |
+| `response.omega` | $\omega$ | 1.5 | 2.5 | 3.5 | Assumption; consistent with its published range (Table 6) |
 | `response.request_intercept` |  |  | −1 |  | Assumption |
 | `response.request_dependence_slope` |  |  | 2 |  | Assumption |
 | `response.request_ability_slope` |  |  | 0.5 |  | Assumption |
@@ -327,7 +327,7 @@ Table: **Table C1.** Parameters of the simulated learner
 | `effectiveness.coverage_default` |  |  | 1 |  | Assumption |
 | `effectiveness.correctness_default` |  |  | 1 |  | Assumption |
 | `updates.m_decay_scale` |  |  | 1 |  | Assumption |
-| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 7) |
+| `updates.eta_M` | $\eta_M$ | 0.01 | 0.015 | 0.025 | Assumption; no comparable published value (Table 6) |
 | `updates.eta_C` | $\eta_C$ | 0.01 | 0.015 | 0.025 | Assumption |
 | `updates.eta_R` | $\eta_R$ | 0.003 | 0.005 | 0.008 | Assumption |
 | `updates.eta_O` | $\eta_O$ | 0.003 | 0.005 | 0.008 | Assumption |
@@ -356,26 +356,26 @@ behavioural assumption. Source: own elaboration (`config/default.yaml`, `outputs
 
 ### C.2 Proxies
 
-Every input to eq. 2 and 8–13 is computed from what happened in the episode; none is tunable. Table C2 defines them, with
+Every input to eq. 3–6 and 25–27 is computed from what happened in the episode; none is tunable. Table C2 defines them, with
 $k$ the number of hints or tutor turns received (0 to 3).
 
 Table: **Table C2.** Observable proxies of an episode
 
 | Proxy | Definition | Enters |
 |------------------|--------------------------------------------------------------|--------------------|
-| Attempt | Answers given before any answer was provided, divided by 4 | $E$ (eq. 8) |
-| Retrieval | 1 if the first answer was correct, 0.5 otherwise | $E$, $M$ (eq. 8 and 11) |
-| Generation | $1 - k/3$, or 0 if the answer was provided | $E$ (eq. 8) |
-| Answer | 1 if the worked or complete solution was shown | $E$ (eq. 8) |
-| Offloading | $1 -$ generation | $R$ (eq. 12) |
-| Correction | 1 if a first error was corrected by a later answer before any answer was provided | $M$ (eq. 11) |
-| Transfer | 1 if the near-transfer answer was correct | $R$ (eq. 12) |
-| Support | $k/3$, or 1 if the answer was provided | $D$ (eq. 10) |
-| Withdrawal | $1 -$ (help turns available under the support policy)$/3$ | $D$ (eq. 10) |
-| Success | 1 if the first answer was correct | $D$ (eq. 10) |
-| Adaptation | 0.35, 0.90 or 0.20 for the protocol that ran if $k > 0$, and 0 otherwise | $F$ (eq. 2) |
-| Mismatch | $\min(1, \lvert b_u - \theta_i \rvert / 3)$ | $F$ (eq. 2) |
-| Correctness, coverage | Fixed at 1 | $F$ (eq. 2) |
+| Attempt | Answers given before any answer was provided, divided by 4 | $E$ (eq. 3) |
+| Retrieval | 1 if the first answer was correct, 0.5 otherwise | $E$, $M$ (eq. 3 and 25) |
+| Generation | $1 - k/3$, or 0 if the answer was provided | $E$ (eq. 3) |
+| Answer | 1 if the worked or complete solution was shown | $E$ (eq. 3) |
+| Offloading | $1 -$ generation | $R$ (eq. 26) |
+| Correction | 1 if a first error was corrected by a later answer before any answer was provided | $M$ (eq. 25) |
+| Transfer | 1 if the near-transfer answer was correct | $R$ (eq. 26) |
+| Support | $k/3$, or 1 if the answer was provided | $D$ (eq. 6) |
+| Withdrawal | $1 -$ (help turns available under the support policy)$/3$ | $D$ (eq. 6) |
+| Success | 1 if the first answer was correct | $D$ (eq. 6) |
+| Adaptation | 0.35, 0.90 or 0.20 for the protocol that ran if $k > 0$, and 0 otherwise | $F$ (eq. 4) |
+| Mismatch | $\min(1, \lvert b_u - \theta_i \rvert / 3)$ | $F$ (eq. 4) |
+| Correctness, coverage | Fixed at 1 | $F$ (eq. 4) |
 
 *Source: own elaboration; definitions as implemented in `src/neurotutorsim/episode.py`.*
 
@@ -390,7 +390,7 @@ outputs.
 Three results shaped the design. First, on the arithmetic of these problems the model chose the correct option with
 probability 0.35, within a band of 0.34 to 0.38 across prompt formats, against 1/3 for guessing, and the probability
 did not respond to the competence stated in the learner's record (a change of +0.004, standard error 0.007).
-Correctness is therefore drawn from eq. 1 and 7. Second, its confidence ratings rose with the strength of the record
+Correctness is therefore drawn from eq. 2 and 24. Second, its confidence ratings rose with the strength of the record
 (+0.866, standard error 0.022, with the same sign in all 11 units probed) but not with whether the option just
 pressed was correct (+0.039, standard error 0.130, the same sign in 6 of the 11), so that confidence in the hybrid
 engine measures the record, as Section 3.4 states. Third, its choice of approach did respond to the record: a record
@@ -410,9 +410,9 @@ model's tendency to repeat the choices a transcript shows, so the prompt carries
 are drawn within three prior-knowledge strata $g(i)$, low, medium and high, with shares 0.30, 0.50 and 0.20, from a
 multivariate normal distribution truncated to the unit cube, and each learner has a learning and a forgetting rate,
 
-$$ \mathbf{s}_i(0) \sim \mathcal{N}_{[0,1]^5}\left(\boldsymbol{\mu} + \boldsymbol{\Delta}_{g(i)},\ \sigma^2 \boldsymbol{\Sigma}\right), \qquad (5) $$
+$$ \mathbf{s}_i(0) \sim \mathcal{N}_{[0,1]^5}\left(\boldsymbol{\mu} + \boldsymbol{\Delta}_{g(i)},\ \sigma^2 \boldsymbol{\Sigma}\right), \qquad (22) $$
 
-$$ \alpha_i \sim \operatorname{LogNormal}\left(\mu_\alpha, \sigma_\alpha^2\right), \qquad \delta_i \sim \operatorname{Beta}\left(a_\delta, b_\delta\right), \qquad (6) $$
+$$ \alpha_i \sim \operatorname{LogNormal}\left(\mu_\alpha, \sigma_\alpha^2\right), \qquad \delta_i \sim \operatorname{Beta}\left(a_\delta, b_\delta\right), \qquad (23) $$
 
 where the stratum shifts $\boldsymbol{\Delta}_g$ move the means of knowledge and memory and the correlation matrix
 $\boldsymbol{\Sigma}$ makes knowledge, memory and reasoning covary positively with one another and negatively with
@@ -422,20 +422,20 @@ units and then the first ten again.
 **Responses.** Ability is $\theta_i = \tau (K_i - 0.5)$, and $b_u$ is linear in the unit's difficulty score. After
 support of depth $h$, which is $k/3$ after $k$ hints or tutor turns and 1 after the complete solution,
 
-$$ P(Y = 1 \mid h) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i + \omega h\right). \qquad (7) $$
+$$ P(Y = 1 \mid h) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i + \omega h\right). \qquad (24) $$
 
 Near- and far-transfer items are harder by 0.5 and 1.2 logits. A wrong answer is the documented misconception with
 probability 0.67 and the other distractor otherwise.
 
 **Updates of memory, reasoning and calibration.** With the proxies of Table C2,
 
-$$ M' = (1 - \delta_i)\, M + \eta_M\,\text{retrieval} + \eta_C\,\text{correction}, \qquad (11) $$
+$$ M' = (1 - \delta_i)\, M + \eta_M\,\text{retrieval} + \eta_C\,\text{correction}, \qquad (25) $$
 
-$$ R' = R + \eta_R\, E\,\text{transfer} - \eta_O\,\text{offloading}, \qquad (12) $$
+$$ R' = R + \eta_R\, E\,\text{transfer} - \eta_O\,\text{offloading}, \qquad (26) $$
 
-$$ C = 1 - \frac{1}{n} \sum_{j=1}^{n} \left(c_j - y_j\right)^2, \qquad (13) $$
+$$ C = 1 - \frac{1}{n} \sum_{j=1}^{n} \left(c_j - y_j\right)^2, \qquad (27) $$
 
-each clipped to $[0,1]$, as are eq. 9 and 10. $C$ is one minus the Brier score of the confidence ratings $c_j$,
+each clipped to $[0,1]$, as are eq. 5 and 6. $C$ is one minus the Brier score of the confidence ratings $c_j$,
 rescaled to $[0,1]$, against correctness $y_j$ over all rated answers so far.
 
 **Engines.** The logistic engine rates confidence as the probability of being correct plus a learner-specific bias and
@@ -446,7 +446,7 @@ model. Centaur was fine-tuned on more than 10 million choices by more than 60,00
 instruction, the current episode, a summary of the learner's record (problems solved on the first try, hints
 requested, recent form, experience with the concept and, in the free-choice arm, how often each approach was followed
 by a correct transfer answer) and the three previous episodes. The initial state reaches the prompt as the record of
-20 prior problems whose counts eq. 1 and the help-request model imply. Each choice is sampled from the model's
+20 prior problems whose counts eq. 2 and the help-request model imply. Each choice is sampled from the model's
 probabilities over the response keys with the learner's random-number stream, and option letters and order are drawn
 afresh in every episode. In the hybrid run none of the 909 scaffolding turns of the tutor stated the answer and 728 of
 them (80%) asked a question, while the substitution tutor stated the answer in 539 of its 589 messages. Centaur and the
@@ -458,7 +458,7 @@ every case, with option probabilities within a median total-variation distance o
 ran 40 learners in all four arms for 30 episodes (4,800 episodes) and 80 further learners in the free-choice arm alone
 (4,800 episodes). Checkpoints follow the 10th and 20th episodes and the end of each run. Retention uses items last
 practised at least ten episodes earlier, and the support gap is accuracy with one hint minus unaided accuracy
-(eq. 32).
+(eq. 28).
 
 ## Appendix D. The ten-year simulation and its validation
 
@@ -493,7 +493,7 @@ reruns with one mediator held. Source: own elaboration (`data/processed/phase5/*
 
 Figure E7 (Appendix E) summarises the first-year trajectories with a model of first-attempt correctness,
 
-$$ \operatorname{logit} P\left(Y_{it} = 1\right) = \beta_0 + f_c(t) + \beta_1\,\text{stratum}_i + \beta_2\,\text{domain}_u + \beta_3\,\text{difficulty}_u, \qquad (33) $$
+$$ \operatorname{logit} P\left(Y_{it} = 1\right) = \beta_0 + f_c(t) + \beta_1\,\text{stratum}_i + \beta_2\,\text{domain}_u + \beta_3\,\text{difficulty}_u, \qquad (29) $$
 
 where $f_c(t)$ is a B-spline in the episode with five degrees of freedom, specific to scenario $c$. It is estimated as
 a population-averaged logistic model with learner-clustered standard errors [@liang1986] on the first 500 learners
@@ -544,7 +544,7 @@ Table: **Table D3.** Negative controls and their outcomes
 | Unwinsorised standardised responses | Main run re-evaluated | Change small against the condition contrast | Median ratio of the change to the contrast 0.02 | Yes |
 | Sign flips of the paired differences | 1,000 flips within learner; year-10 unaided accuracy, far transfer and retention | Null contrast centred at 0 | Largest absolute null mean 5.4 × 10⁻⁵ (null standard deviation up to 0.0049) | Yes |
 
-*A ratio compares the change a control produces with the substantive contrast it is set against, network by network; the post hoc rows re-evaluate the stored main run without rerunning it. The criteria that act on these outcomes are F2 and F5 (Table 9). Source: own elaboration (`outputs/tables/table6_negative_controls.csv`).*
+*A ratio compares the change a control produces with the substantive contrast it is set against, network by network; the post hoc rows re-evaluate the stored main run without rerunning it. The criteria that act on these outcomes are F2 and F5 (Table 8). Source: own elaboration (`outputs/tables/table6_negative_controls.csv`).*
 
 ### D.3 Dimensions of the specification curve
 
@@ -552,11 +552,11 @@ Table: **Table D4.** Dimensions, levels and plausibility ranks of the specificat
 
 | Dimension | Levels (rank) | Evaluation |
 |---------------------|----------------------------------------------------------------|----------------------|
-| Update form | Bounded (1); literal eq. 10, 11 and 12 (3) | Rerun |
+| Update form | Bounded (1); literal eq. 6, 25 and 26 (3) | Rerun |
 | Forgetting | Break at 0.25 of the term rate (1); at 0.1 (2); at 1.0 (2); per episode, no breaks (3) | Rerun |
 | Exposure | Three episodes a week (1); one (2); five (2) | Rerun |
 | Effort function | Drawn (1); fixed at the low values (2); fixed at the high values (2) | Rerun |
-| Adaptation | 0.35, 0.90, 0.20 as in Table 5 (1); halved, 0.42, 0.69, 0.34 (2); none, 0.48 for all (3) | Rerun; added after the first results |
+| Adaptation | 0.35, 0.90, 0.20 as in Table 3 (1); halved, 0.42, 0.69, 0.34 (2); none, 0.48 for all (3) | Rerun; added after the first results |
 | Reading speed | 220 words per minute (1); 180 (2); 260 (2) | Post hoc |
 | Network weights | Surface area (1); equal (2) | Post hoc |
 | Parcellation | 400 parcels (1); 200 parcels (2) | Post hoc; added after the first results |
@@ -605,10 +605,10 @@ Table: **Table D5.** Inputs, outputs, assumptions and validation of each compone
 
 | Component | Inputs | Outputs | Key assumptions | Validation |
 |--------------|------------------|------------------|------------------|------------------|
-| Corpus (Phase I) | 30 unit records on 15 concepts in four MBA domains | 90 lesson texts; 210 control texts; matching features | Semantic coverage reported, not entered into eq. 2 | Answer and distractor validators; section and leakage checks; duration caliper; balance table |
-| Encoding model (Phase II) | Lesson text; word timing of eq. 28 at 220 words per minute (180, 260) | Predicted BOLD response per vertex; 400 parcels; 7 networks; metrics of eq. 26–27 | Text input only; fixed lesson texts, never the live tutor turns | Official example runs end to end; determinism within $10^{-3}$; shuffled, reworded and incorrect-text controls |
-| Simulated learner (Phase III) | Population of eq. 5–6; observable history | Choices, correctness, confidence, proxies, states of eq. 2 and 8–13 | Every parameter an assumption; Centaur makes choices only | Engine comparison; checkpoints; automated guard against latent states in prompts |
-| Plasticity (Phase IV) | $Z$ of eq. 34; per-episode effort, prediction error, resolution, retrieval, offloading | Model-implied state per parcel and network (eq. 14 and 35–38) | The state is not a brain state; half-life, weights and rate assumed | Zero-plasticity null; permuted-response and permuted-condition controls |
+| Corpus (Phase I) | 30 unit records on 15 concepts in four MBA domains | 90 lesson texts; 210 control texts; matching features | Semantic coverage reported, not entered into eq. 4 | Answer and distractor validators; section and leakage checks; duration caliper; balance table |
+| Encoding model (Phase II) | Lesson text; word timing of eq. 13 at 220 words per minute (180, 260) | Predicted BOLD response per vertex; 400 parcels; 7 networks; metrics of eq. 12 and 16 | Text input only; fixed lesson texts, never the live tutor turns | Official example runs end to end; determinism within $10^{-3}$; shuffled, reworded and incorrect-text controls |
+| Simulated learner (Phase III) | Population of eq. 22–23; observable history | Choices, correctness, confidence, proxies, states of eq. 3–6 and 25–27 | Every parameter an assumption; Centaur makes choices only | Engine comparison; checkpoints; automated guard against latent states in prompts |
+| Plasticity (Phase IV) | $Z$ of eq. 30; per-episode effort, prediction error, resolution, retrieval, offloading | Model-implied state per parcel and network (eq. 7 and 31–34) | The state is not a brain state; half-life, weights and rate assumed | Zero-plasticity null; permuted-response and permuted-condition controls |
 | Ten-year scenarios (Phase V) | Triangular parameter draws; six scenarios; school calendar | States and test outcomes at years 1, 5 and 10; SC, PrSup, $G$, $d$ | Bounded updates; forgetting per week with breaks; the two free-choice rules | Checks of Table D2; mirror equivalence; common-random-number null |
 
 *Source: own elaboration (`outputs/tables/table2_components.csv`, rewritten).*
@@ -618,17 +618,17 @@ Table: **Table D5.** Inputs, outputs, assumptions and validation of each compone
 **Phase IV input and mechanisms.** The response to text $s$ in parcel $p$ enters as its area under the curve
 standardised across the 90 texts,
 
-$$ Z_{s,p} = \frac{\text{AUC}_{s,p} - \overline{\text{AUC}}_{p}}{\operatorname{sd}_{p}\left(\text{AUC}\right)}, \qquad (34) $$
+$$ Z_{s,p} = \frac{\text{AUC}_{s,p} - \overline{\text{AUC}}_{p}}{\operatorname{sd}_{p}\left(\text{AUC}\right)}, \qquad (30) $$
 
 winsorised at the 1st and 99th percentiles of all 36,000 values. It is the response to the whole text of the protocol
 that ran, including sections that the learner reached only after an error or not at all. Mechanism A adds the text's
 pattern in proportion to effort,
 
-$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta\, E_{it}\, \mathbf{Z}_{s_t}. \qquad (35) $$
+$$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta\, E_{it}\, \mathbf{Z}_{s_t}. \qquad (31) $$
 
 Mechanisms B and C keep this form and replace effort by another weight: the error of the first answer,
-$\text{PE}_{it} = \lvert Y_{it} - P(Y_{it} = 1) \rvert$ (eq. 36), counted only when the learner then resolved it
-without being given the answer (eq. 37), and effort times retrieval (eq. 38). In mechanism D (eq. 14),
+$\text{PE}_{it} = \lvert Y_{it} - P(Y_{it} = 1) \rvert$ (eq. 32), counted only when the learner then resolved it
+without being given the answer (eq. 33), and effort times retrieval (eq. 34). In mechanism D (eq. 7),
 $\lambda_A = \lambda_{PE} = \lambda_R = 1/3$ and $\lambda_O = 1/3$ (0 and 2/3 in the low and high settings). The
 decay follows from a half-life of 20 weeks (8 and 52 weeks in the other settings), which at three episodes a week
 gives $\delta_N = 1 - 0.5^{1/60} \approx 0.011$. Because the contrasts are standardised, $\eta = 1$ fixes only the
@@ -639,9 +639,9 @@ $\mathbf{Z}$; only the decay acts inside the recursion.
 **Phase IV outcomes.** Concentration is the share of $\lvert \mathbf{N} \rvert$ held by the top quarter of parcels.
 Representational differentiation is
 
-$$ \text{Diff}_i = \overline{D}^{\,\text{between}}_i - \overline{D}^{\,\text{within}}_i, \qquad (39) $$
+$$ \text{Diff}_i = \overline{D}^{\,\text{between}}_i - \overline{D}^{\,\text{within}}_i, \qquad (35) $$
 
-the mean dissimilarity (eq. 31) between the state patterns of units that teach different concepts minus that between
+the mean dissimilarity (eq. 21) between the state patterns of units that teach different concepts minus that between
 units teaching the same concept. Integration is the mean absolute covariance between network states across episodes,
 and the efficiency proxy, unaided accuracy per unit of control-network state, is computed only when accuracy exceeds
 0.40.
@@ -651,11 +651,11 @@ reference loop within four standard errors (automated test). The yearly rise in 
 logits, and the per-episode forgetting rate is rescaled so that forgetting per week does not depend on exposure. The
 bounded updates are
 
-$$ M' = M + \left(\eta_M\,\text{retrieval} + \eta_C\,\text{correction}\right)(1 - M) - \delta_i M, \qquad (11') $$
+$$ M' = M + \left(\eta_M\,\text{retrieval} + \eta_C\,\text{correction}\right)(1 - M) - \delta_i M, \qquad (25') $$
 
-$$ R' = R + \eta_R\, E\,\text{transfer}\,(1 - R) - \eta_O\,\text{offloading}\; R, \qquad (12') $$
+$$ R' = R + \eta_R\, E\,\text{transfer}\,(1 - R) - \eta_O\,\text{offloading}\; R, \qquad (26') $$
 
-$$ D' = D + \eta_D\,\text{support}\,(1 - D) - \eta_F\,\text{success}\; D. \qquad (10') $$
+$$ D' = D + \eta_D\,\text{support}\,(1 - D) - \eta_F\,\text{success}\; D. \qquad (6') $$
 
 **The fitted choice rule.** The rule is a conditional logit over the three approaches whose inputs are the share of
 each approach among the last three choices, the rate at which each was followed by a correct transfer answer, whether
@@ -667,16 +667,16 @@ all 6,000, and each parameter draw uses one bootstrap replicate of the fit.
 **Monte Carlo design and outcomes.** In each draw $b$ every parameter with a low, medium and high value in Table C1 or Table D6
 is drawn from a triangular distribution with its mode at the medium value and its bounds at the other two,
 
-$$ \Theta^{(b)} \sim p(\Theta), \qquad Y^{(b)} = \text{Simulate}\left(\text{scenario}, \Theta^{(b)}, \text{seed}_b\right), \qquad (40) $$
+$$ \Theta^{(b)} \sim p(\Theta), \qquad Y^{(b)} = \text{Simulate}\left(\text{scenario}, \Theta^{(b)}, \text{seed}_b\right), \qquad (36) $$
 
 and a central draw sets every parameter to its medium value. The random numbers are indexed by draw, episode and
 learner but not by scenario. Being expected rather than sampled, the test outcomes are not comparable with the
 checkpoint accuracies of Phase III. The probability of superiority is
-$\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 18), pooled over draws, with ties counted as
-not superior and their share reported beside it. The weights of eq. 16 are 0.25 each in the main specification, and
+$\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 37), pooled over draws, with ties counted as
+not superior and their share reported beside it. The weights of eq. 9 are 0.25 each in the main specification, and
 the neutrality threshold $\varepsilon = 0.02$ has 0.01 and 0.05 as variants. The neural contrast of network $n$ is
 
-$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}, \qquad (17) $$
+$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}, \qquad (38) $$
 
 computed per draw under mechanism D.
 
@@ -713,20 +713,20 @@ $o \in \{0, 0.5, 1\}$ and $f = 0$, 147 cells in all. Tipping points are located 
 scaffolding-without-fading scenario, varying one of $e$, $o$, $f$ or a multiplier of all forgetting rates (0.25 to 4,
 applied to both arms). In each draw the tipping point is the first value at which $G$ changes sign,
 
-$$ x^{*} = \inf\left\{x : \operatorname{sign} G(x) \neq \operatorname{sign} G(x_0)\right\}, \qquad (19) $$
+$$ x^{*} = \inf\left\{x : \operatorname{sign} G(x) \neq \operatorname{sign} G(x_0)\right\}, \qquad (39) $$
 
 with $x_0$ the start of the line, interpolated linearly and summarised by its median, its simulation intervals and the
 share of draws without a sign change. The neural diagram crosses the half-life of the neural state (4 to 104 weeks)
-with the offloading weight $\lambda_O$ of eq. 14.
+with the offloading weight $\lambda_O$ of eq. 7.
 
 **Mechanism decomposition.** A held effort or effectiveness replaces the learner's own value in the knowledge update
 only; a held dependence enters the decision rules; the text's predicted response is exchanged post hoc for the
 traditional one. A mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$, and the contributions need
 not sum to one.
 
-**Variance decomposition.** Eq. 20 apportions the variance of a year-10 outcome among its sources,
+**Variance decomposition.** Eq. 40 apportions the variance of a year-10 outcome among its sources,
 
-$$ \operatorname{Var}(Y) = V_{\text{scenario}} + V_{\text{parameters}} + V_{\text{learner}} + V_{\text{behaviour}} + V_{\text{plasticity}} + V_{\text{stimulus}} + V_{\text{residual}}. \qquad (20) $$
+$$ \operatorname{Var}(Y) = V_{\text{scenario}} + V_{\text{parameters}} + V_{\text{learner}} + V_{\text{behaviour}} + V_{\text{plasticity}} + V_{\text{stimulus}} + V_{\text{residual}}. \qquad (40) $$
 
 The first four components come from a nested analysis of variance by the method of moments [@searle1992] over
 scenarios, draws, learners and replicates, using three runs that share parameters and learners and differ only in the
@@ -798,7 +798,7 @@ of 300 learners (`outputs/tables/fig7b_neural_diagram.csv`).*
 
 ![](../outputs/figures/fig5b_trajectory_model_v_main.png)
 
-*Appendix D.1, eq. 33. Source: own elaboration; model-implied output of the central draw of the Phase V main run,
+*Appendix D.1, eq. 29. Source: own elaboration; model-implied output of the central draw of the Phase V main run,
 500 learners in their first school year (`outputs/tables/fig5b_trajectory_model_v_main.csv`,
 `tableS_trajectory_model_v_main.csv`).*
 
@@ -824,7 +824,7 @@ Table: **Table E1.** Phase III: paired contrasts at the final checkpoint of the 
 *Mean paired difference over 1,667 simulated learners after the 40th episode, with its bootstrap 95% interval; medium
 parameter setting, logistic engine, so the free-choice arm follows the assumed rule. S scaffolding, U substitution, F
 free choice, T traditional instruction. Accuracies are unaided and computed with support removed; calibration measures
-consistency between confidence and correctness (eq. 13). Source: own elaboration; model-implied output of the Phase
+consistency between confidence and correctness (eq. 27). Source: own elaboration; model-implied output of the Phase
 III population run (`outputs/tables/tableS_phase3_outcomes.csv`).*
 
 Table: **Table E2.** Net advantage $G$ after one, five and ten school years
@@ -837,7 +837,7 @@ Table: **Table E2.** Net advantage $G$ after one, five and ten school years
 | Free choice, assumed rule | −0.012 [−0.018, −0.008] | −0.020 [−0.036, −0.010] | −0.032 [−0.057, −0.012] |
 | Free choice, fitted rule | −0.023 [−0.030, −0.018] | −0.044 [−0.057, −0.030] | −0.059 [−0.071, −0.035] |
 
-*Median across 500 parameter draws of $G$ (eq. 16, equal weights), with the 95% simulation interval. Source: own
+*Median across 500 parameter draws of $G$ (eq. 9, equal weights), with the 95% simulation interval. Source: own
 elaboration; model-implied output of the Phase V main run (`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
 
 Table: **Table E3.** Year-10 scenario contrasts in the four states of the simulated learner
@@ -850,8 +850,8 @@ Table: **Table E3.** Year-10 scenario contrasts in the four states of the simula
 | Free choice, assumed rule | −0.018 [−0.047, −0.004] | −0.048 [−0.071, −0.023] | −0.018 [−0.044, −0.005] | 0.042 [0.015, 0.064] |
 | Free choice, fitted rule | −0.029 [−0.044, −0.015] | −0.100 [−0.116, −0.067] | −0.025 [−0.042, −0.013] | 0.078 [0.043, 0.092] |
 
-*Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 15), with the 95%
-simulation interval across draws. A negative contrast in dependence favours the AI scenario, and $G$ (Table 11)
+*Median across 500 parameter draws of the mean paired difference from traditional instruction (eq. 8), with the 95%
+simulation interval across draws. A negative contrast in dependence favours the AI scenario, and $G$ (Table 10)
 subtracts it. Source: own elaboration; model-implied output of the Phase V main run
 (`outputs/tables/table5_scenario_contrasts_v_main.csv`).*
 
@@ -879,7 +879,7 @@ sum to 1. Computed from the medians of the full and the held contrast over 50 pa
 own elaboration; model-implied output of the Phase V mechanism run
 (`outputs/tables/tableS_mechanism_decomposition.csv`).*
 
-Table: **Table E5.** Variance decomposition of the year-10 outcomes (eq. 20)
+Table: **Table E5.** Variance decomposition of the year-10 outcomes (eq. 40)
 
 | Source of variance | Net advantage $G$ | Control-network contrast $d$ |
 |---|---|---|
@@ -909,7 +909,7 @@ Table: **Table E6.** Year-10 neural contrasts $d$ by network (exploratory)
 | Free choice, assumed rule | −1.0 | −2.4 | −4.5 | −4.2 | 1.2 | −3.5 | 3.6 |
 | Free choice, fitted rule | 0.9 | −0.6 | −3.7 | −3.1 | 1.9 | −2.6 | 3.3 |
 
-*Median across 500 parameter draws of the standardised paired difference $d$ (eq. 17) between the AI scenario and
+*Median across 500 parameter draws of the standardised paired difference $d$ (eq. 38) between the AI scenario and
 traditional instruction, under plasticity mechanism D. $d$ measures how consistently learners differ, not by how much,
 and its sign depends on analysis choices (Section 4.7). Source: own elaboration; model-implied output of the Phase V
 main run (`outputs/tables/table5_neural_d_v_main.csv`).*
@@ -1020,54 +1020,54 @@ Table: **Table F3.** Data files and the columns the data dictionary documents
 ### F.5 Equation numbers in the report and in the code
 
 The code, its comments and its output tables number the equations in the order of the original design, which
-differs from the order in which this report first mentions them. Table F4 gives the correspondence.
+differs from the order in which this report prints them. Table F4 gives the correspondence.
 
 Table: **Table F4.** Equation numbers in the report and in the code
 
 | Report | Code | Defines |
 |---|---|---|
-| 1 | 17 | Response model |
-| 2 | 20 | Effectiveness |
-| 3 | 13 | Condition contrasts with unit effects |
-| 4 | 42 | Mixed model with a unit intercept |
-| 5 | 15 | Initial state of the population |
-| 6 | 16 | Learning and forgetting rates |
-| 7 | 18 | Response model after support |
-| 8 | 19 | Effort |
-| 9 | 21 | Knowledge update |
-| 10 | 25 | Dependence update |
-| 10′ | 25′ | Dependence update, bounded form of Phase V |
-| 11 | 22 | Memory update |
-| 11′ | 22′ | Memory update, bounded form of Phase V |
-| 12 | 23 | Reasoning update |
-| 12′ | 23′ | Reasoning update, bounded form of Phase V |
-| 13 | 24 | Calibration |
-| 14 | 33 | Accumulation, mechanism D (main) |
-| 15 | 37 | Scenario contrast |
-| 16 | 39 | Net advantage $G$ |
-| 17 | 44 | Neural contrast $d$ |
-| 18 | 38 | Probability of superiority |
-| 19 | 40 | Tipping point |
-| 20 | 41 | Variance decomposition |
-| 21 | 10 | Contrast S − T |
-| 22 | 11 | Contrast U − T |
-| 23 | 12 | Contrast S − U |
-| 24 | 1 | Matching features of a text |
-| 25 | 3 | Standardised mean difference |
-| 26 | 8 | Area under the curve |
-| 27 | 9 | Spatial entropy |
-| 28 | 4 | Word onset at a fixed reading rate |
-| 29 | 6 | Parcel average of the predicted response |
-| 30 | 7 | Network average, weighted by parcel area |
-| 31 | 14 | Representational dissimilarity |
-| 32 | 26 | Support gap |
-| 33 | 43 | Trajectory model of the first year |
-| 34 | 28 | Standardised response pattern |
-| 35 | 29 | Accumulation, mechanism A |
-| 36 | 30 | Prediction error of the first answer |
-| 37 | 31 | Accumulation, mechanism B |
-| 38 | 32 | Accumulation, mechanism C |
-| 39 | 34 | Representational differentiation |
-| 40 | 35 | Monte Carlo draw |
+| 1 | 13 | Condition contrasts with unit effects |
+| 2 | 17 | Response model |
+| 3 | 19 | Effort |
+| 4 | 20 | Effectiveness |
+| 5 | 21 | Knowledge update |
+| 6 | 25 | Dependence update |
+| 6′ | 25′ | Dependence update, bounded form of Phase V |
+| 7 | 33 | Accumulation, mechanism D (main) |
+| 8 | 37 | Scenario contrast |
+| 9 | 39 | Net advantage $G$ |
+| 10 | 1 | Matching features of a text |
+| 11 | 3 | Standardised mean difference |
+| 12 | 9 | Spatial entropy |
+| 13 | 4 | Word onset at a fixed reading rate |
+| 14 | 6 | Parcel average of the predicted response |
+| 15 | 7 | Network average, weighted by parcel area |
+| 16 | 8 | Area under the curve |
+| 17 | 10 | Contrast S − T |
+| 18 | 11 | Contrast U − T |
+| 19 | 12 | Contrast S − U |
+| 20 | 42 | Mixed model with a unit intercept |
+| 21 | 14 | Representational dissimilarity |
+| 22 | 15 | Initial state of the population |
+| 23 | 16 | Learning and forgetting rates |
+| 24 | 18 | Response model after support |
+| 25 | 22 | Memory update |
+| 25′ | 22′ | Memory update, bounded form of Phase V |
+| 26 | 23 | Reasoning update |
+| 26′ | 23′ | Reasoning update, bounded form of Phase V |
+| 27 | 24 | Calibration |
+| 28 | 26 | Support gap |
+| 29 | 43 | Trajectory model of the first year |
+| 30 | 28 | Standardised response pattern |
+| 31 | 29 | Accumulation, mechanism A |
+| 32 | 30 | Prediction error of the first answer |
+| 33 | 31 | Accumulation, mechanism B |
+| 34 | 32 | Accumulation, mechanism C |
+| 35 | 34 | Representational differentiation |
+| 36 | 35 | Monte Carlo draw |
+| 37 | 38 | Probability of superiority |
+| 38 | 44 | Neural contrast $d$ |
+| 39 | 40 | Tipping point |
+| 40 | 41 | Variance decomposition |
 
 *Primed equations are the bounded updates of Phase V. Source: own elaboration.*
