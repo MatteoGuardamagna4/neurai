@@ -29,7 +29,7 @@ subsample a language model of human choice makes their behavioural choices. A Mo
 them over ten school years under six scenarios, varying the modelling choices jointly in 648 specifications. Three
 model-implied results follow. Substitution is harmful in every specification, because a provided answer lowers the
 effort on which learning depends, and supplying the answer in about one AI episode in ten is enough to turn
-scaffolding negative. Scaffolding that withdraws support as the learner succeeds stays ahead of traditional
+scaffolding without withdrawal negative. Scaffolding that withdraws support as the learner succeeds stays ahead of traditional
 instruction in every specification. Scaffolding without withdrawal is ahead only because adaptive instruction is
 assumed to be more effective per episode: when the three regimes share one adaptation value, its advantage is exactly
 zero. The predicted cortical contrasts that survive matching and rewording are few, and the model-implied neural
@@ -132,8 +132,7 @@ own elaboration; model-implied output of the Phase V main run and the specificat
 Four conclusions follow, each a statement about the model.
 
 First, supplying answers is harmful in every specification. The deficit is derived rather than assumed: a provided
-answer lowers the effort the learner invests, and effort multiplies the gain in knowledge. In the model, a scaffolding
-tutor that instead supplies the answer in about one AI episode in ten already falls below traditional instruction. The
+answer lowers the effort the learner invests, and effort multiplies the gain in knowledge. In the model, a scaffolding tutor that never withdraws its support but supplies the answer in about one AI episode in ten already falls below traditional instruction. The
 simulated learner learns more slowly and forgets faster than the published evidence supports, so its knowledge settles
 at 0.59 of mastery rather than the 0.96 that the midpoints of the published ranges imply. Differences in effort weigh
 more in that regime, so the size of the deficit is an upper bound and its direction is the claim.

@@ -161,22 +161,38 @@ probabilità di dare la risposta $o$ (7 × 7 × 3 = 147 protocolli, 100 draw × 
   con a = 1), ma non lo annulla mai: il resto passa da offloading e dipendenza.
 - Senza risposte ($o$ = 0) tutte le celle sono neutre; con $o$ = 0.5 o 1 tutte dannose.
 - Il tipping point: basta circa 1 episodio AI su 10 che dà la risposta ($o$ = 0.097, intervallo 0.058–0.144) per
-  portare lo scaffolding sotto la tradizionale. Nessuno scenario con nome può dirlo: $o$ vi vale solo 0 o 1, ed $e$
-  sempre 0.
+  portare lo scaffolding senza fading sotto la tradizionale. Nessuno scenario con nome può dirlo: $o$ vi vale solo 0
+  o 1, ed $e$ sempre 0.
 - Differenza col free choice: lì la miscela di protocolli la sceglie il learner in base al suo stato (selezione);
   nella mappa la miscela è casuale, quindi isola la "dose" di risposte.
 
 **Cautela.** È una conseguenza delle assunzioni (ricevere la risposta toglie sforzo, aumenta offloading e dipendenza),
 non un'osservazione; e l'effetto dell'adaptation a $o$ = 0 è assunto per costruzione.
 
+**Se chiedono della soglia "uno su dieci".** Due precisazioni da avere pronte.
+- *Dipende dall'adaptation assunta.* La linea parte dallo scaffolding senza fading ($a$ = 0.90) e fa salire solo $o$.
+  A $o$ = 0 la $G$ vale +0.015, e quel vantaggio è tutto adaptation (0.90 contro 0.35): la soglia è la dose di
+  risposte che basta ad annullare un vantaggio assunto. Con adaptation uguale $G$ parte da 0 esatto, e la soglia
+  scenderebbe verso 0 (deduzione, non simulata). Il fading non è mai stato combinato con $o$ > 0.
+- *Negativo non vuol dire dannoso.* A $o$ ≈ 0.1 la $G$ è ≈ 0, quindi neutra; la soglia di "harmful" (−0.02) si
+  supera tra $o$ = 0.2 e 0.3 (a 0.3 il 99% dei draw è sotto −0.02). Per questo §6.3 dice "loses its advantage" a uno
+  su dieci e "harmful" solo a metà degli episodi, dove lo mostra il diagramma di fase.
+
+| $o$ | 0 | 0.1 | 0.2 | 0.3 | 0.5 |
+|---|---|---|---|---|---|
+| $G$ mediana all'anno 10 | +0.015 | −0.0005 | −0.016 | −0.033 | −0.072 |
+
 **Come dirlo (EN).** "The named scenarios are two corners of the map, and they differ in two things at once:
 substitution supplies the answer and is also less adaptive. The map separates the two. A substitution protocol with
 maximal adaptation is still clearly harmful, while a tutor that never supplies answers is neutral whatever its
-adaptation. Within the model, what decides the sign is whether the AI hands out answers, and about one AI episode in
-ten is enough to tip scaffolding below traditional instruction."
+adaptation. Within the model, what decides the sign is whether the AI hands out answers. How many answers it takes
+depends on the adaptation we assumed: with our values, about one AI episode in ten cancels the advantage of
+scaffolding without fading, and half of the episodes make it clearly harmful whatever the adaptation."
 
-**Dove.** Report: §4.4 e Figura 6, §3.7 (Tabella 8). Codice: `frontier_scenarios` in
-`src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`.
+**Dove.** Report: §4.4 e Figura 6, §3.7 (Tabella 8), §5.2, §6.3. Codice: `frontier_scenarios` in
+`src/neurotutorsim/longitudinal.py`. Dati: `outputs/tables/fig7a_phase_diagram.csv`, `tableS_tipping_points.csv`; la
+tabella per valore di $o$ è ricalcolata da `data/processed/phase5/v_tipping/simulation_draws` (righe `line_o_*`,
+contrasto $G$, anno 10) e non è in nessuna tabella del report.
 
 ---
 

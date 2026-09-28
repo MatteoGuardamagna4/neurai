@@ -32,8 +32,9 @@ measured responses become available.
 
 Three implications follow, each conditional on the model.
 
-First, measure answer supply before anything else. In the model, a tutor that gives the answer in more than about one
-AI episode in ten is harmful whatever else it does well. The frequency with which a tool gives answers away is
+First, measure answer supply before anything else. In the model, a scaffolding tutor that gives the answer in more
+than about one AI episode in ten loses its advantage over traditional instruction, and one that gives it in half of
+its episodes is harmful whatever its adaptation. The frequency with which a tool gives answers away is
 therefore the first property to establish in any pilot.
 
 Second, do not take the advantage of adaptive tutoring for granted. Whether an AI tutor that scaffolds without fading

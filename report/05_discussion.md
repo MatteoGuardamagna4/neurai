@@ -49,7 +49,8 @@ parameter draws and behavioural randomness add little (Section 4.6). Among the m
 adaptation constant decides whether scaffolding without fading differs from traditional instruction at all. The
 update form decides how large the benefit of rapid fading is. The choice rule decides how far free choice drifts
 towards substitution. Beyond adaptation, only the frequency with which answers are supplied reverses a direction:
-about one AI episode in ten is enough to turn scaffolding negative (Section 4.4)<!--MG: da dove viene questa claim-->. The rate of forgetting, the effort
+with the assumed adaptation values, supplying the answer in about one AI episode in ten is enough to turn scaffolding
+without fading negative (Section 4.4)<!--MG: da dove viene questa claim-->. The rate of forgetting, the effort
 retained when an answer is given and the pace of fading do not.
 
 The learner engine matters less than might be expected. Delegating the behavioural choices to Centaur changed how
@@ -70,13 +71,10 @@ for a provided answer encodes cognitive offloading [@risko2016] and the benefit 
 @puntambekar2005]. What the model adds is not these directions but their joint consequence over ten years, the
 conditions under which they reverse, and a measure of how much each assumption matters.
 
-Recent field studies point the same way. In a field experiment with nearly 1,000 high-school mathematics students,
-unrestricted access to a chat assistant raised performance during practice but lowered it once access was removed,
-while a version with pedagogical safeguards largely avoided the loss [@bastani2025]. In a randomised trial, an AI
-tutor built on research-based pedagogy produced larger learning gains, in less time, than an active-learning class
-[@kestin2025]. These findings agree with the model's central distinction between supplying answers and scaffolding.
-They do not test the model: they concern other populations, subjects and time horizons, and none measures the ten-year
-quantities projected here.<!--MG:mi sembra che di questi esperimenti si sia parlato di gia in altre sezioni del report, controlla e in caso evita di essere 
+The studies reviewed in Section 2.3 point the same way: answer-giving assistants lowered performance once access was
+removed, while tools designed to guide avoided the loss or produced larger gains than an active-learning class
+[@bastani2025; @kestin2025]. They do not test the model: they concern other populations, subjects and time horizons,
+and none measures the ten-year quantities projected here.<!--MG:mi sembra che di questi esperimenti si sia parlato di gia in altre sezioni del report, controlla e in caso evita di essere 
 ripetitivo quindi taglia eccessi -->
 
 The magnitudes are not comparable. The simulated learner closes a smaller share of its gap to mastery per episode,
@@ -92,7 +90,7 @@ Table: **Table 15.** Limitations and their consequences
 
 | Limitation | Consequence for the results | What would address it |
 |--------------------|------------------------------------------|------------------------------------|
-| Thirty units in one domain, drafted with the aid of language models | Unit-level inferences rest on 30 clusters; other subjects and human-written only material are untested | More units, other domains, human-written texts |
+| Thirty units in one domain, drafted with the aid of language models | Unit-level inferences rest on 30 clusters; other subjects and wholly human-written material are untested | More units, other domains, human-written texts |
 | Scaffolding texts have no worked solution | The surviving predicted cortical contrasts cannot be attributed to scaffolding as such | Versions that differ only in instructional voice |
 | Content screened for contradictions only | The prose may contain unsupported claims that no check has caught | A validated screen or an expert review |
 | Predicted response of an average adult to text alone | Not a measurement; rewording moves most contrasts | Measured responses in a sample of students |

@@ -167,8 +167,8 @@ instruction, and retained effort barely moves it. With $o = 0.5$ or $o = 1$ all 
 adaptation and retained effort. Along the tipping
 lines, $G$ keeps its sign over the whole range of retained effort, of fading and of the forgetting multiplier, in every
 draw. It turns negative as substitution is mixed into the AI episodes, at $o = 0.097$ (95% interval 0.058 to 0.144):
-in the model, once about one AI episode in ten gives the answer instead of scaffolding, the scaffolding scenario falls
-below traditional instruction. Within the model, then, whether the protocol supplies answers decides whether it is
+in the model, once about one AI episode in ten gives the answer instead of scaffolding, scaffolding without fading
+falls below traditional instruction. Within the model, then, whether the protocol supplies answers decides whether it is
 harmful, and its adaptation decides only on which side of zero a protocol that never supplies them falls.
 <!--MG: QUELLO che ho capito di questo paragrafo è che si sono provate a fare diverse run di 10 anni con un protocollo
 ai cambiando le caratteristiche di questo protocollo in ogni run. non capisco come mai sono divisi in tre modelli-->
