@@ -6,44 +6,35 @@ The 30 units cover seven concepts in managerial accounting (among them break-eve
 relevant cost), four in corporate finance (net present value, payback period, return on investment and the weighted
 average cost of capital), two in pricing (markup versus margin and price elasticity) and two in marketing analytics
 (customer lifetime value and customer-acquisition-cost payback). Nine concepts carry one prerequisite link. Difficulty
-ranges from 1 to 4 on a five-point scale, and target completion times from five to eight minutes. The explanation of
-every lesson text has 250 to 400 words. In unit `npv_001`, for example, a project costs EUR 100,000 and returns
-EUR 72,000 at the end of each of two years at a required return of 20%: the answer is EUR 10,000, the misconception of
-summing undiscounted cash flows yields EUR 44,000, and discounting the two-year total once yields EUR 20,000.
+ranges from 1 to 4 on a five-point scale, target completion times from five to eight minutes, and every explanation
+has 250 to 400 words.
 
 ### A.1 Matching features and equivalence tests
 
-Each lesson text $s$ is described by a vector of nine observable, non-pedagogical features,
+Each lesson text $s$ is described by the nine features of Section 3.2.3, with equations (counted as equality signs),
+the duration at 220 words per minute and lexical diversity as the type–token ratio,
 
-$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right), \qquad (10) $$
+$$ x_s = \left(x_{s,1}, \dots, x_{s,9}\right). \qquad (10) $$
 
-the numbers of words, characters, sentences, equations (counted as equality signs) and worked examples, the
-Flesch–Kincaid grade [@kincaid1975], the duration at 220 words per minute, the type–token ratio and the semantic
-coverage of Section 3.2.4. Balance on feature $k$ between an AI condition $A$ and the traditional condition $T$ is the
-standardised mean difference
+Balance on feature $k$ between an AI condition $A$ and the traditional condition $T$ is the standardised mean difference
 
 $$ \text{SMD}_k = \frac{\bar{x}_{k,A} - \bar{x}_{k,T}}{\sqrt{\left(s^2_{k,A} + s^2_{k,T}\right)/2}}, \qquad (11) $$
 
-against the target $|\text{SMD}| < 0.10$ [@austin2009]. Matching is exact on unit, concept, domain, difficulty,
-modality and answer correctness, and caliper-based on duration: every AI version lies within 10% of its traditional
+against the target $|\text{SMD}| < 0.10$ [@austin2009]. In duration every AI version lies within 10% of its traditional
 counterpart, with a maximum deviation of 7.9%. Each AI version shares a median of 82% of its sentences (range 79–84%)
 verbatim with the traditional text.
 
-The two sources of imbalance named in Section 3.2.3 have the following size. Texts vary little across units (the
-standard deviation of word count is about 44 words), so the scaffolding texts' mean excess of 17.6 words, 3.3% of the
-traditional mean, registers as an SMD of 0.41; duration (0.41), sentence count (0.46), lexical diversity (0.52) and
-semantic coverage (0.35) exceed the target in the same comparison. The scaffolding texts contain on average 3.5 fewer
-equations (SMD −1.76 against traditional, −1.79 against substitution). Because duration is a fixed multiple of word
-count, the covariate block of the cortical analysis spans two dimensions rather than three.
+The standard deviation of word count across units is about 44 words, so the scaffolding texts' mean excess of 17.6
+words, 3.3% of the traditional mean, registers as an SMD of 0.41; they also carry 3.5 fewer equations on average.
+Because duration is a fixed multiple of word count, the covariate block of eq. 1 spans two dimensions rather than
+three.
 
-Table A1 complements Figure 2 with the paired two one-sided tests (TOST) of Section 3.2.3. For each feature and pair
-of conditions, the test asks whether the mean paired difference over the 30 units lies within ±0.10 pooled standard
-deviations; a small *p* supports equivalence at that margin. The tests are descriptive diagnostics: with 30 units and
-little variation across them, a large *p* reflects low power as much as imbalance, and a small *p* does not establish
-that two sets of texts are interchangeable. Apart from example count, which is identical by construction and for
-which the margin is therefore zero, equivalence at the 0.05 level is supported in two of the remaining 24 comparisons:
-character count between scaffolding and traditional (*p* = 0.042) and equation count between substitution and
-traditional (*p* < 0.001).
+Table A1 complements Figure 2 with paired two one-sided tests (TOST): for each feature and pair of conditions, the test
+asks whether the mean paired difference over the 30 units lies within ±0.10 pooled standard deviations, and a small
+*p* supports equivalence; with 30 units and little variation across them, a large *p* reflects low power as much as
+imbalance. Apart from example count, identical by construction, equivalence at the 0.05 level is supported in two of
+the remaining 24 comparisons: character count between scaffolding and traditional (*p* = 0.042) and equation count
+between substitution and traditional (*p* < 0.001).
 
 Table: **Table A1.** Standardised mean differences and paired equivalence tests, by feature and pair of conditions
 
@@ -64,16 +55,15 @@ texts (`outputs/tables/corpus_balance.csv`).*
 
 ### A.2 Semantic coverage, its manual review and the duplicate screen
 
-Semantic coverage is the cosine similarity between sentence embeddings (the `all-mpnet-base-v2` model of the
-Sentence-Transformers framework [@reimers2019]) of a text's explanation and the unit's reference worked solution. The
-acceptance threshold of 0.50 was fixed before any similarity was computed. All 90 primary texts exceed it (minimum
-0.53; condition means 0.68 to 0.70), as do all 210 control texts (minimum 0.52). Near duplication across units was
-screened by the Jaccard similarity of word 5-gram sets [@broder1997] over all 435 pairs of traditional texts, with a
-threshold of 0.50 fixed before scoring; no pair was flagged.
+Semantic coverage is the cosine similarity between the sentence embeddings (`all-mpnet-base-v2` [@reimers2019]) of a
+text's explanation and of the unit's reference worked solution, against an acceptance threshold of 0.50 fixed before
+any similarity was computed. All 90 primary texts exceed it (minimum 0.53; condition means 0.68 to 0.70), as do all
+210 control texts (minimum 0.52). The duplicate screen compared the word 5-gram sets of texts by Jaccard similarity
+[@broder1997] over all 435 pairs of traditional texts, with a threshold of 0.50 fixed before scoring; no pair was
+flagged.
 
-The nine primary texts in the lowest decile of semantic coverage (Section 3.2.4) are listed in Table A2. All exceed
-the acceptance threshold of 0.50. The review asked whether each explanation teaches the method that its unit's
-reference worked solution applies, irrespective of wording.
+The nine primary texts in the lowest decile of semantic coverage are listed in Table A2; all exceed the threshold of
+0.50.
 
 Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
 
@@ -92,77 +82,46 @@ Table: **Table A2.** Primary texts in the lowest decile of semantic coverage
 *Cosine similarity between the text's explanation and the unit's reference worked solution (`all-mpnet-base-v2`).
 Source: own elaboration (`outputs/tables/tableS_semantic_coverage_review.csv`).*
 
-Two features of the list bear on what the review could find. First, the scores are not extreme: averaged over the three conditions, unit coverage runs from 0.573
-(`pbp_002`) to 0.786 (`dol_002`), so the lowest decile sits inside a narrow band well above the threshold of 0.50.
-Second, six of the nine texts belong to two units, `pbp_002` and `ltv_002`, each appearing in all three conditions,
-which locates whatever depresses the score in the unit rather than in an individual lesson. Five surface features
-were tested as explanations of the ordering and none accounts for it: over the 30 units, coverage is uncorrelated
-with the length of the reference worked solution (*r* = +0.30, *p* = 0.11) and with its density of numerals
-(*r* = +0.27, *p* = 0.16); over the 90 texts, it is uncorrelated with the length of the explanation (*r* = +0.13,
-*p* = 0.22), with its density of numerals (*r* = +0.05, *p* = 0.65) and with its equation count (*r* = −0.06,
-*p* = 0.59), where length is counted in words and density as numerals per word. The first two also point the opposite way to the conjecture that a terse numeric solution depresses
-similarity. What remains is the vocabulary a lesson happens to share with its reference solution, which is a
-property of the measure rather than of the instruction: the threshold screens for topical relatedness and does not
-establish that a lesson covers the method its reference solution applies. Reading the texts is therefore the only
-way to settle the question.
+Two features of the list bear on what the review could find. The scores lie in a narrow band well above the threshold
+of 0.50: averaged over the three conditions, unit coverage runs from 0.573 (`pbp_002`) to 0.786 (`dol_002`). And six
+of the nine texts belong to two units, `pbp_002` and `ltv_002`, each in all three conditions, which locates the low
+score in the unit rather than in a lesson. No surface feature accounts for the ordering (all *p* > 0.10): neither the
+length and numeral density of the reference worked solution, over the 30 units, nor the length, numeral density and
+equation count of the explanation, over the 90 texts. What remains is the vocabulary a lesson shares with its
+reference solution, a property of the measure rather than of the instruction.
 
-Each of the nine texts was read against its unit's reference worked solution with one question: could a student who
-had read only the explanation carry out the steps of that solution? For all nine the answer is yes. Each explanation
-states the formula its reference solution applies and names the documented misconception as the error to avoid. The
-three texts of a unit share all but three sentences of their explanation (Section 3.2.2), which is why `pbp_002` and
-`ltv_002` appear in all three conditions. The reading was done once, by the author, who helped write the units and
-knew the scores, so it is not an independent check: it establishes that the method is present in each text, not how
-effectively the text teaches it.
+The author read each of the nine texts against its reference worked solution, asking whether a student who had read
+only the explanation could carry out the steps of that solution. Each explanation states the formula the solution
+applies and names the documented misconception as the error to avoid. The author helped write the units and knew the
+scores, so the reading establishes that the method is present in each text, not how well it is taught.
 
 ### A.3 Construction and validation of the contradiction check
 
-The contradiction check of Section 3.2.4 was specified as a screen that routes texts to manual review, never as an
-acceptance criterion, and its output was used only after the check had been shown to detect texts known to be wrong.
-Every reply was cached with the text and prompt that produced it, so that a change of prompt invalidates earlier
-verdicts rather than reusing them, and a reply that could not be parsed was queued for review rather than passed.
+Every reply of the judge, the language model of Section 3.2.4, was cached with the text and prompt that produced it,
+so that a changed prompt invalidates earlier verdicts, and a reply that could not be parsed was queued for review
+rather than passed.
 
-**First version.** The judge model (Qwen2.5-3B-Instruct [@qwen2024], served locally) received each text with the
-unit's reference answer and was asked the three questions (contradiction, unsupported assertion, causal claim) in
-one prompt, in abstract form. It answered "no" to every question for all 90 primary texts. Applied to the 30
-incorrect-but-fluent texts, it also answered "no" in every case, including a text stating 2,400 units where the
-reference answer given in the same prompt was 6,000. A screen that never fires cannot distinguish a clean corpus from
-a failure to detect, so these verdicts were discarded.
+**First version.** The judge received each text with the unit's reference answer and was asked the three questions in
+one prompt, in abstract form. It answered "no" to every question for all 90 primary texts and for the 30
+incorrect-but-fluent texts, including a text stating 2,400 units where the reference answer given in the same prompt
+was 6,000. These verdicts were discarded.
 
-**Second version.** Two changes were made, each tested before the full pass. First, the contradiction question was
-posed as extraction followed by comparison: the judge reports the final numerical answer the text arrives at and
-whether it matches the reference. On a probe of four incorrect and four correct texts it classified all eight
-correctly. Second, the check was made condition-aware. The scaffolding texts contain no final answer by construction;
-asked anyway, the judge read off another number (for `be_001`, the misconception's 2,400 units quoted in a warning),
-and all six scaffolding texts in the probe were returned as contradictions, against none in the other two
-conditions. The check is therefore recorded as not applicable to scaffolding texts, neither as a pass nor as a
-failure. The unsupported-assertion and causal-claim questions were posed in a separate prompt that supplies the
-unit's documented misconception, so that a text warning against the misconception is not read as asserting it.
+**Second version.** The contradiction question was reposed as extraction followed by comparison: the judge reports the
+final numerical answer of the text and whether it matches the reference. Scaffolding texts have no final answer, and
+the judge read off another number instead (for `be_001`, the misconception's 2,400 units quoted in a warning), so the
+check is recorded as not applicable to them. The other two questions were posed in a separate prompt that supplies the
+unit's documented misconception, so that a warning against it is not read as asserting it.
 
-**A validation set for the other two questions.** The corpus holds texts known to state a wrong answer, which is
-what validates the contradiction check, but none known to contain an unsupported assertion or an unlicensed causal
-claim. Ninety were therefore written: for each of the 30 units, its traditional lesson with one sentence appended,
-of one of three kinds. An *unsupported* sentence asserts a quantity or fact about the problem's scenario that the
-unit never states and that cannot be derived from it, such as "The hotel also expects the new kitchen to cut its
-energy bill by EUR 2,000 a year." A *causal* sentence asserts a relation the material does not license, such as
-"A shorter payback period causes equipment to break down less often." A *background* sentence states standard domain
-knowledge that a lesson may legitimately assert, such as "Depreciation is an accounting allocation of a cost that
-has already been paid, not a payment made in the year it is charged." The third kind is the negative control, and it
-matters because the one primary the judge ever flagged was flagged for a sentence of exactly that character. Each
-probe is its primary text plus that one sentence, checked mechanically, so a verdict is attributable to the sentence
-and to nothing else.
+**A validation set for the other two questions.** No text in the corpus was known to contain an unsupported assertion
+or an unlicensed causal claim. Ninety were therefore written: for each of the 30 units, its traditional lesson with one
+sentence appended, stating either a fact the unit never gives (for example, an energy saving of EUR 2,000 a year), a
+causal relation the material does not license, or standard background knowledge, the negative control.
 
-**Result.** Table A3 reports both blocks. The contradiction check performs as Section 3.2.4 states. The other two
-questions flagged none of the 90 probes: neither the 30 carrying an unsupported assertion nor the 30 carrying an
-unlicensed causal claim, a sensitivity of 0.00 in each case. Their perfect specificity on the background probes is
-vacuous, since they flag nothing at all. As posed, the two questions are therefore not merely unvalidated but
-inoperative, and the single primary they had flagged is withdrawn as a finding. The pattern repeats that of the
-discarded first version, and the cause is plausibly the same: asked in the abstract whether a text contains a fault
-of a stated kind, this model answers no. The contradiction check works because it was reposed as a concrete task,
-reading off the final answer and comparing it; reposing these two in the same way is the obvious next step, which
-this study did not take. The one text flagged by the unvalidated questions (`npv_002`, scaffolding) was returned
-with an affirmative verdict and no reason. A check of its worked example, reference answer and leakage against the
-unit record found no error, and the author, reading the whole text for any statement that the unit does not support
-or that is false, found none. The flag was therefore a false positive, and the text was not changed.
+**Result.** Table A3 reports both blocks. The two questions flagged none of the 90 probes: neither the 30 carrying an
+unsupported assertion nor the 30 carrying an unlicensed causal claim, a sensitivity of 0.00 in each case, so they are
+recorded as invalid. The one primary they had flagged (`npv_002`, scaffolding, returned without a reason) was checked
+against its unit record and read in full by the author; no error or unsupported statement was found, and the text was
+not changed. Reposing the two questions as concrete tasks, as was done for the contradiction check, is left open.
 
 Table: **Table A3.** The content screen: what was validated, and what each check found
 
@@ -189,17 +148,16 @@ TRIBE v2 was installed from its public repository at commit `af58661` (the main 
 checkpoint (`facebook/tribev2`) was verified against the SHA-256 hash published on the model hub. The released
 configuration was kept except for the batch size, the number of data-loading workers and the precision of the text
 encoder (16-bit floating point). Text features come from Llama-3.2-3B at relative depths 0.5, 0.75 and 1.0 of the
-network, sampled at 2 Hz, and the network that maps them onto the cortical surface has 177.2 million parameters. The
-run used one NVIDIA L4 GPU in Google Colab: 2.6 hours for the 90 primaries at 220 words per minute, less than 0.1
-hours for the other two reading speeds, which reuse the cached text features, 5.1 hours for the 180 shuffled
-controls and 5.4 hours for the 210 written controls of Section 3.2.5.
+network, sampled at 2 Hz, and the network that maps them onto the cortical surface has 177.2 million parameters. On
+one NVIDIA L4 GPU the run took 2.6 hours for the 90 primaries at 220 words per minute, less than 0.1 hours for the
+other two reading speeds, which reuse the cached text features, 5.1 hours for the 180 shuffled controls and 5.4 hours
+for the 210 written controls.
 
-Three checks accompanied the run. First, before any lesson text, the text example distributed with the model was
-run through the pipeline and returned a finite prediction of 26 time points by 20,484 vertices; the release provides
-no reference output, so the check establishes that the installed pipeline runs end to end, not that it reproduces
-published values. Second, one text (`be_001`, traditional) was predicted twice, and the two predictions differ by at
-most 7.1 × 10⁻⁴ at any vertex and second, an effect of the reduced precision. Third, every word of every text reached
-the model at all three reading speeds, and no prediction failed.
+Three checks accompanied the run. The example distributed with the model returned a finite prediction of 26 time
+points by 20,484 vertices; the release provides no reference output, so this shows that the pipeline runs end to end,
+not that it reproduces published values. One text (`be_001`, traditional), predicted twice, differed by at most
+7.1 × 10⁻⁴ at any vertex and second, an effect of the reduced precision. And every word of every text reached the
+model at all three reading speeds, and no prediction failed.
 
 ### B.2 Metric definitions
 
@@ -227,8 +185,8 @@ and equals 1 when that part is spread evenly over the parcels and 0 when it is c
 
 ### B.3 Timing, aggregation, contrasts and controls
 
-**Timing.** In the released pipeline, the onsets of words presented as text come from synthesised speech. Here each
-text is read at a fixed rate of $r$ words per minute, so that its $j$-th word has onset
+**Timing.** In place of the synthesised-speech onsets of the released pipeline, each text is read at a fixed rate of
+$r$ words per minute, so that its $j$-th word has onset
 
 $$ t_j = \frac{60\,(j-1)}{r} \qquad (13) $$
 
@@ -243,34 +201,31 @@ $$ B_{s,p}(t) = \frac{1}{|V_p|} \sum_{v \in V_p} B_{s,v}(t), \qquad (14) $$
 
 $$ B_{s,n}(t) = \frac{\sum_{p \in n} a_p\, B_{s,p}(t)}{\sum_{p \in n} a_p}. \qquad (15) $$
 
-Equal weights and a 200-parcel version of the atlas are robustness variants. The area under the curve of parcel or
-network $k$ is
+The area under the curve of parcel or network $k$ is
 
 $$ \text{AUC}_{s,k} = \sum_{t=1}^{T_s-1} \frac{B_{s,k}(t) + B_{s,k}(t+1)}{2}\,\Delta t, \qquad \Delta t = 1\ \text{s}. \qquad (16) $$
 
-**Contrasts.** For a metric $m$ and unit $u$, the three contrasts are the paired differences
+**Contrasts.** For a metric $m$ and unit $u$, the three contrasts of eq. 1 are the paired differences
 
 $$ \Delta^{S-T}_u = m_{u,S} - m_{u,T}, \qquad \Delta^{U-T}_u = m_{u,U} - m_{u,T}, \qquad \Delta^{S-U}_u = m_{u,S} - m_{u,U}, \qquad (17\text{–}19) $$
 
-estimated jointly by eq. 1, in which the S–U contrast is $\beta_1 - \beta_2$. The cluster bootstrap draws 2,000
-resamples of the 30 units and gives percentile 95% intervals. P-values computed from the bootstrap standard error are
-adjusted by the Benjamini–Hochberg procedure across the seven networks within each metric and contrast, and across all
-1,200 tests of the parcel maps. The mixed model
+with the S–U contrast estimated as $\beta_1 - \beta_2$. The cluster bootstrap draws 2,000 resamples of the 30 units and
+gives percentile 95% intervals; p-values from the bootstrap standard error are adjusted by the Benjamini–Hochberg
+procedure across the seven networks within each metric and contrast, and across all 1,200 tests of the parcel maps.
+The mixed model
 
 $$ y_{ucn} = \mu + \beta_c + \delta\, d_u + \theta_{g(u)} + a_u + \varepsilon_{ucn}, \qquad a_u \sim \mathcal{N}\left(0, \sigma^2_a\right), \qquad (20) $$
 
 has $y_{ucn}$ the AUC of network $n$ centred on that network's mean, $d_u$ the unit's difficulty, $\theta_{g(u)}$ the
-effect of its domain and $a_u$ a unit random intercept, and is estimated by restricted maximum likelihood. Difficulty
-and domain are constant within a unit, so the unit effects of eq. 1 absorb them; eq. 20 is the model in which they
-can be estimated.
+effect of its domain and $a_u$ a unit random intercept, and is estimated by restricted maximum likelihood.
 
 **Representational geometry.** With $\bar b_{u,c}$ the pattern of parcel responses to unit $u$ in condition $c$,
 averaged over the reading window, the dissimilarity of two units is
 
 $$ D^{c}_{uu'} = 1 - \operatorname{corr}\left(\bar b_{u,c},\, \bar b_{u',c}\right). \qquad (21) $$
 
-Two conditions are compared by the Spearman correlation of the upper triangles of their 30 × 30 matrices, and the
-permutation test exchanges condition labels within units 1,000 times.
+Conditions are compared by the Spearman correlation of the upper triangles of their 30 × 30 matrices, and the
+permutation test is repeated 1,000 times.
 
 **Shuffled controls.** Permuting the words within each section changes network AUC by 12.9 on average and permuting
 the sentences by 1.5, where the standard deviation of network AUC across the 90 primaries is about 2.8.
@@ -381,51 +336,40 @@ Table: **Table C2.** Observable proxies of an episode
 
 ### C.3 Development probes of the transcript model
 
-The division of labour in the hybrid engine rests on probes run against the locally served model during development.
-Most presented versions of the same prompt that differ in one element and compared
-the model's probabilities over the response keys. The call logs are kept with the run logs, but the probe analysis is
-not part of the frozen output pipeline, so the values below are development measurements rather than reproducible
-outputs.
+The probes behind Section 2.1 presented versions of one prompt that differ in a single element and compared the
+model's probabilities over the response keys. Their call logs are kept, but the probes are not part of the frozen
+output pipeline, so Table C3 reports development measurements rather than reproducible outputs.
 
-Three results shaped the design. First, on the arithmetic of these problems the model chose the correct option with
-probability 0.35, within a band of 0.34 to 0.38 across prompt formats, against 1/3 for guessing, and the probability
-did not respond to the competence stated in the learner's record (a change of +0.004, standard error 0.007).
-Correctness is therefore drawn from eq. 2 and 24. Second, its confidence ratings rose with the strength of the record
-(+0.866, standard error 0.022, with the same sign in all 11 units probed) but not with whether the option just
-pressed was correct (+0.039, standard error 0.130, the same sign in 6 of the 11), so that confidence in the hybrid
-engine measures the record, as Section 3.4 states. Third, its choice of approach did respond to the record: a record
-describing a struggling rather than a coping learner changed the probability of choosing traditional instruction by
-−0.187, scaffolding by +0.102 and substitution by +0.085 (standard errors 0.012 to 0.017), with the same sign in all
-11 units.
+Table: **Table C3.** Development probes of the transcript model
 
-Two further observations fixed the form of the prompt. The choice followed the payoff of each approach more closely
-when the record stated the payoff first (+0.149, against +0.068 for the same facts ordered by frequency; standard
-errors 0.018 and 0.008), which is the phrasing used. And a longer history diluted the record: with eight past
-episodes in the prompt the effect of the payoff on the choice fell from +0.053 to +0.009, consistent with the
-model's tendency to repeat the choices a transcript shows, so the prompt carries three.
+| Probe | What was varied | Result | Consequence for the design |
+|---|---|---|---|
+| Arithmetic | Prompt format; competence stated in the record | Correct option chosen with probability 0.35, within a band of 0.34 to 0.38, against 1/3 for guessing; no response to competence (a change of +0.004, standard error 0.007) | Correctness drawn from eq. 2 and 24 |
+| Confidence | Strength of the record; correctness of the option just pressed | Rose with the record (+0.866, standard error 0.022, with the same sign in all 11 units probed), not with correctness (+0.039, standard error 0.130, the same sign in 6 of the 11) | Calibration measures the record (Section 3.4) |
+| Choice of approach | A record describing a struggling rather than a coping learner | Probability of choosing traditional instruction changed by −0.187, scaffolding by +0.102 and substitution by +0.085 (standard errors 0.012 to 0.017), with the same sign in all 11 units | Centaur makes the behavioural choices |
+| Wording of the record | Payoff of each approach stated first, or the same facts ordered by frequency | Choice followed the payoff more closely when stated first (+0.149, against +0.068 for the same facts ordered by frequency; standard errors 0.018 and 0.008) | Payoff-first wording |
+| Length of the history | Record alone, or followed by eight past episodes | Record diluted: with eight past episodes in the prompt the effect of the payoff on the choice fell from +0.053 to +0.009 | The prompt carries three past episodes |
+
+*Development measurements on the locally served model; call logs kept with the run logs. Source: own elaboration.*
 
 ### C.4 Further equations and details of the simulated learner
 
-**Population.** The state of learner $i$ is $\mathbf{s}_i = (K_i, M_i, R_i, C_i, D_i) \in [0,1]^5$. Initial states
-are drawn within three prior-knowledge strata $g(i)$, low, medium and high, with shares 0.30, 0.50 and 0.20, from a
-multivariate normal distribution truncated to the unit cube, and each learner has a learning and a forgetting rate,
+**Population.** The state of learner $i$ is $\mathbf{s}_i = (K_i, M_i, R_i, C_i, D_i) \in [0,1]^5$. Within its
+prior-knowledge stratum $g(i)$, each learner draws an initial state, truncated to the unit cube, and a learning and a
+forgetting rate,
 
 $$ \mathbf{s}_i(0) \sim \mathcal{N}_{[0,1]^5}\left(\boldsymbol{\mu} + \boldsymbol{\Delta}_{g(i)},\ \sigma^2 \boldsymbol{\Sigma}\right), \qquad (22) $$
 
 $$ \alpha_i \sim \operatorname{LogNormal}\left(\mu_\alpha, \sigma_\alpha^2\right), \qquad \delta_i \sim \operatorname{Beta}\left(a_\delta, b_\delta\right), \qquad (23) $$
 
-where the stratum shifts $\boldsymbol{\Delta}_g$ move the means of knowledge and memory and the correlation matrix
-$\boldsymbol{\Sigma}$ makes knowledge, memory and reasoning covary positively with one another and negatively with
-dependence. The three assigned arms comprise 5,001 learner-runs. The 40 episodes of a population run cover the 30
-units and then the first ten again.
+where the stratum shifts $\boldsymbol{\Delta}_g$ move the means of knowledge and memory and $\boldsymbol{\Sigma}$ is
+the correlation matrix described in Section 3.4. The three assigned arms comprise 5,001 learner-runs. The 40 episodes
+of a population run cover the 30 units and then the first ten again.
 
 **Responses.** Ability is $\theta_i = \tau (K_i - 0.5)$, and $b_u$ is linear in the unit's difficulty score. After
 support of depth $h$, which is $k/3$ after $k$ hints or tutor turns and 1 after the complete solution,
 
 $$ P(Y = 1 \mid h) = \sigma\left(\theta_i - b_u + \rho R_i + \kappa M_i + \omega h\right). \qquad (24) $$
-
-Near- and far-transfer items are harder by 0.5 and 1.2 logits. A wrong answer is the documented misconception with
-probability 0.67 and the other distractor otherwise.
 
 **Updates of memory, reasoning and calibration.** With the proxies of Table C2,
 
@@ -441,22 +385,19 @@ rescaled to $[0,1]$, against correctness $y_j$ over all rated answers so far.
 **Engines.** The logistic engine rates confidence as the probability of being correct plus a learner-specific bias and
 noise, and in the free-choice arm chooses by a softmax whose logits are $s(D - 0.5)$ for substitution,
 $-s(D - 0.5)$ for traditional instruction and 0 for scaffolding, with $s = 2$ the dependence slope of the help-request
-model. Centaur was fine-tuned on more than 10 million choices by more than 60,000 participants in 160 experiments; its
-8-billion-parameter version was used, quantised to about four bits per weight for serving. Its prompt holds a fixed
-instruction, the current episode, a summary of the learner's record (problems solved on the first try, hints
-requested, recent form, experience with the concept and, in the free-choice arm, how often each approach was followed
-by a correct transfer answer) and the three previous episodes. The initial state reaches the prompt as the record of
-20 prior problems whose counts eq. 2 and the help-request model imply. Each choice is sampled from the model's
-probabilities over the response keys with the learner's random-number stream, and option letters and order are drawn
-afresh in every episode. In the hybrid run none of the 909 scaffolding turns of the tutor stated the answer and 728 of
-them (80%) asked a question, while the substitution tutor stated the answer in 539 of its 589 messages. Centaur and the
-tutor were served from a cloud GPU from episode 3,571 of the hybrid run, behind a proxy that reproduces the local
-prompt format; on 38 prompts captured from the local server the two servers gave the same most probable option in
-every case, with option probabilities within a median total-variation distance of 0.012.
+model. Centaur ran in its 8-billion-parameter version, quantised to about four bits per weight. The record summary in
+its prompt gives problems solved on the first try, hints requested, recent form, experience with the concept and, in the
+free-choice arm, how often each approach was followed by a correct transfer answer; the initial state enters it as the
+record of 20 prior problems whose counts eq. 2 and the help-request model imply. Each choice is sampled from the
+model's probabilities over the response keys with the learner's random-number stream, and option letters and order are
+drawn afresh in every episode. In the hybrid run none of the 909 scaffolding turns of the tutor stated the answer and
+728 of them (80%) asked a question, while the substitution tutor stated the answer in 539 of its 589 messages. From
+episode 3,571 Centaur and the tutor were served from a cloud GPU, behind a proxy that reproduces the local prompt
+format; on 38 prompts captured from the local server the two servers gave the same most probable option in every case,
+with option probabilities within a median total-variation distance of 0.012.
 
-**Runs and checkpoints.** Each parameter setting of the logistic engine comprises 266,720 episodes. The hybrid engine
-ran 40 learners in all four arms for 30 episodes (4,800 episodes) and 80 further learners in the free-choice arm alone
-(4,800 episodes). Checkpoints follow the 10th and 20th episodes and the end of each run. Retention uses items last
+**Runs and checkpoints.** Each parameter setting of the logistic engine comprises 266,720 episodes; the two hybrid runs
+of Table F2 comprise 4,800 each. Checkpoints follow the 10th and 20th episodes and the end of each run. Retention uses items last
 practised at least ten episodes earlier, and the support gap is accuracy with one hint minus unaided accuracy
 (eq. 28).
 
@@ -497,11 +438,10 @@ $$ \operatorname{logit} P\left(Y_{it} = 1\right) = \beta_0 + f_c(t) + \beta_1\,\
 
 where $f_c(t)$ is a B-spline in the episode with five degrees of freedom, specific to scenario $c$. It is estimated as
 a population-averaged logistic model with learner-clustered standard errors [@liang1986] on the first 500 learners
-of the central draw, who are the same learners in every scenario. The curves average the model's predictions over
-one fixed sample of 300 covariate rows, so that they show time and scenario rather than the order of the curriculum,
-and their bands come from 300 draws of the coefficients. The bands reflect behavioural noise within one parameter
-setting, not parameter uncertainty, which is the band of Figure 4 in Section 4.3. No p-values are reported: with simulated data the
-sample size is a choice, and any difference can be made significant.
+of the central draw, the same in every scenario. The curves average the model's predictions over one fixed sample of
+300 covariate rows, so that they show time and scenario rather than curriculum order, and their bands come from 300
+draws of the coefficients: they reflect behavioural noise within one parameter setting, not the parameter uncertainty
+of Figure 4. No p-values are reported, since with simulated data the sample size is a choice.
 
 ### D.2 Behavioural and implementation checks and negative controls
 
@@ -523,9 +463,8 @@ Table: **Table D2.** Checks passed by the one-year pilot before any ten-year res
 
 *Source: own elaboration (`outputs/tables/gate18_checks.csv`).*
 
-Table D3 lists the negative controls of Section 3.8 and their outcomes. Three do not behave as expected, all on the
-predicted cortical side: the slower reading speed, word shuffling and rewording move the predicted responses by more than
-the contrasts they are set against, which is why F2 withholds most cortical claims (Section 4.1).
+Table D3 lists the negative controls of Section 3.8. Three do not behave as expected, all on the predicted cortical
+side: the slower reading speed, word shuffling and rewording (Section 4.1).
 
 Table: **Table D3.** Negative controls and their outcomes
 
@@ -577,27 +516,19 @@ Each is listed with its reason, so that the reader can judge whether it favours 
 1. **F4 judges the median draw.** The share of learners near a bound is taken in the median draw of the worst
    scenario, with the share of draws above 10% listed beside it, rather than in the single most extreme of 500
    draws, which would let one draw decide the verdict.
-2. **F4 names the scenarios it applies to.** A scenario that is bound-driven in its median draw is reported as such
-   without withdrawing the claims of the other scenarios, as F1, F3 and F5 already did; a sign change under uniform
-   draws is added to the verdict rather than replacing it.
-3. **F5 uses the condition-label permutation as the null.** Permuting the predicted responses across units within a
-   condition keeps each condition's mean text profile, so its ratio to the main contrast is close to 1 by
-   construction. It is kept among the controls as a test of unit-specific content but does not enter F5.
-4. **F6 covers both scaffolding scenarios.** The criterion concerns learners after support is removed, which is the
-   rapid-fading scenario, so both scaffolding scenarios are compared with substitution rather than only the one
-   without fading.
+2. **F4 names the scenarios it applies to.** A bound-driven scenario is reported as such without withdrawing the
+   claims of the others, as F1, F3 and F5 already did; a sign change under uniform draws is added to the verdict.
+3. **F5 uses the condition-label permutation as the null.** Permuting predicted responses across units keeps each
+   condition's mean text profile, so its ratio is close to 1 by construction; it stays in Table D3 but not in F5.
+4. **F6 covers both scaffolding scenarios**, not only the one without fading, since it concerns learners after support
+   is removed, which is what rapid fading does.
 5. **The variance decomposition treats scenarios as fixed.** Their component is the population variance of the
    scenario means, which makes the components add up to the total; the residual is below 0.2% of it in absolute
    value.
-6. **F4 is followed by a check of what the near-bound learners contribute.** F4 counts learners near a bound but
-   does not ask whether a contrast depends on them. For the one scenario it flagged, scaffolding with rapid fading,
-   their contribution to $G$ was computed from the stored subsample of the main run, and the update form was compared
-   across the specification curve (Section 4.6, `outputs/tables/tableS_f4_bound_check.csv`). The direction is claimed
-   because it survives without those learners; the size stays unclaimed. The check was added after every result
-   existed and can only favour the rapid-fading result, so it is reported as post hoc.
-7. **The robustness rule was formalised.** A scenario's direction is called robust only when the median $G$ keeps its
-   sign in every specification and no 95% interval includes zero, computed from the curve rather than read from the
-   figure. It was set when the first complete curve existed and is stricter than a reading of the medians alone.
+6. **F4 is followed by a check of the near-bound learners** (Section 4.6). Added after every result existed, it can
+   only favour the rapid-fading result and is reported as post hoc.
+7. **The robustness rule of Section 3.8 was formalised** when the first complete curve existed; it is stricter than a
+   reading of the medians alone.
 
 ### D.5 Components of the pipeline
 
@@ -620,21 +551,18 @@ standardised across the 90 texts,
 
 $$ Z_{s,p} = \frac{\text{AUC}_{s,p} - \overline{\text{AUC}}_{p}}{\operatorname{sd}_{p}\left(\text{AUC}\right)}, \qquad (30) $$
 
-winsorised at the 1st and 99th percentiles of all 36,000 values. It is the response to the whole text of the protocol
-that ran, including sections that the learner reached only after an error or not at all. Mechanism A adds the text's
-pattern in proportion to effort,
+winsorised at the 1st and 99th percentiles of all 36,000 values. Mechanism A adds the text's pattern in proportion to
+effort,
 
 $$ \mathbf{N}_i(t) = \left(1 - \delta_N\right) \mathbf{N}_i(t-1) + \eta\, E_{it}\, \mathbf{Z}_{s_t}. \qquad (31) $$
 
 Mechanisms B and C keep this form and replace effort by another weight: the error of the first answer,
 $\text{PE}_{it} = \lvert Y_{it} - P(Y_{it} = 1) \rvert$ (eq. 32), counted only when the learner then resolved it
-without being given the answer (eq. 33), and effort times retrieval (eq. 34). In mechanism D (eq. 7),
-$\lambda_A = \lambda_{PE} = \lambda_R = 1/3$ and $\lambda_O = 1/3$ (0 and 2/3 in the low and high settings). The
-decay follows from a half-life of 20 weeks (8 and 52 weeks in the other settings), which at three episodes a week
-gives $\delta_N = 1 - 0.5^{1/60} \approx 0.011$. Because the contrasts are standardised, $\eta = 1$ fixes only the
-scale, and $\eta = 0$ serves as the control in which no plasticity occurs. Each learner carries five decayed sums per
-text, one for each behavioural input, and the state under any mechanism is a weighted projection of those sums onto
-$\mathbf{Z}$; only the decay acts inside the recursion.
+without being given the answer (eq. 33), and effort times retrieval (eq. 34). The decay follows from a half-life of
+20 weeks, which at three episodes a week gives $\delta_N = 1 - 0.5^{1/60} \approx 0.011$. Because the contrasts are
+standardised, $\eta = 1$ fixes only the scale, and $\eta = 0$ is the zero-plasticity control. Each learner carries five
+decayed sums per text, one for each behavioural input, and the state under any mechanism is a weighted projection of
+those sums onto $\mathbf{Z}$.
 
 **Phase IV outcomes.** Concentration is the share of $\lvert \mathbf{N} \rvert$ held by the top quarter of parcels.
 Representational differentiation is
@@ -647,9 +575,8 @@ and the efficiency proxy, unaided accuracy per unit of control-network state, is
 0.40.
 
 **Phase V implementation.** The vectorised implementation must reproduce the state means and per-episode rates of the
-reference loop within four standard errors (automated test). The yearly rise in difficulty is drawn between 0 and 0.2
-logits, and the per-episode forgetting rate is rescaled so that forgetting per week does not depend on exposure. The
-bounded updates are
+reference loop within four standard errors (automated test), and the per-episode forgetting rate is rescaled so that
+forgetting per week does not depend on exposure. The bounded updates are
 
 $$ M' = M + \left(\eta_M\,\text{retrieval} + \eta_C\,\text{correction}\right)(1 - M) - \delta_i M, \qquad (25') $$
 
@@ -664,21 +591,18 @@ of the hybrid run, it predicted the 4,800 decisions of the separate free-choice 
 against 1.080 for constant shares, and matched Centaur's most probable choice in 70% of them. It was then refitted on
 all 6,000, and each parameter draw uses one bootstrap replicate of the fit.
 
-**Monte Carlo design and outcomes.** In each draw $b$ every parameter with a low, medium and high value in Table C1 or Table D6
-is drawn from a triangular distribution with its mode at the medium value and its bounds at the other two,
+**Monte Carlo design and outcomes.** In each draw $b$, the parameters of Tables C1 and D6 that have a low, medium and
+high value are drawn from triangular distributions (Section 3.7),
 
 $$ \Theta^{(b)} \sim p(\Theta), \qquad Y^{(b)} = \text{Simulate}\left(\text{scenario}, \Theta^{(b)}, \text{seed}_b\right), \qquad (36) $$
 
-and a central draw sets every parameter to its medium value. The random numbers are indexed by draw, episode and
-learner but not by scenario. Being expected rather than sampled, the test outcomes are not comparable with the
-checkpoint accuracies of Phase III. The probability of superiority is
-$\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 37), pooled over draws, with ties counted as
-not superior and their share reported beside it. The weights of eq. 9 are 0.25 each in the main specification, and
-the neutrality threshold $\varepsilon = 0.02$ has 0.01 and 0.05 as variants. The neural contrast of network $n$ is
+and a central draw sets every parameter to its medium value. Being expected rather than sampled, the test outcomes are
+not comparable with the checkpoint accuracies of Phase III. The probability of superiority is
+$\text{PrSup}_Y(t) = \Pr(Y^{\text{AI}}_{i,t} > Y^{\text{T}}_{i,t})$ (eq. 37), pooled over draws, with the share of
+ties reported beside it. The neutrality threshold $\varepsilon = 0.02$ of $G$ has 0.01 and 0.05 as variants. The
+neural contrast of network $n$, computed per draw under mechanism D, is
 
-$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}, \qquad (38) $$
-
-computed per draw under mechanism D.
+$$ d_{n,t} = \frac{\operatorname{mean}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}{\operatorname{sd}_i\left(N^{\text{AI}}_{i,t,n} - N^{\text{T}}_{i,t,n}\right)}. \qquad (38) $$
 
 Table D6 lists the parameters of Phases IV and V.
 
@@ -721,10 +645,9 @@ with the offloading weight $\lambda_O$ of eq. 7.
 
 **Mechanism decomposition.** A held effort or effectiveness replaces the learner's own value in the knowledge update
 only; a held dependence enters the decision rules; the text's predicted response is exchanged post hoc for the
-traditional one. A mediator's contribution is $1 - \text{SC}_{\text{held}} / \text{SC}$, and the contributions need
-not sum to one.
+traditional one.
 
-**Variance decomposition.** Eq. 40 apportions the variance of a year-10 outcome among its sources,
+**Variance decomposition.** The variance of a year-10 outcome is apportioned as
 
 $$ \operatorname{Var}(Y) = V_{\text{scenario}} + V_{\text{parameters}} + V_{\text{learner}} + V_{\text{behaviour}} + V_{\text{plasticity}} + V_{\text{stimulus}} + V_{\text{residual}}. \qquad (40) $$
 
@@ -872,10 +795,9 @@ Table: **Table E4.** Mechanism decomposition of the year-10 contrasts
 | Free choice, assumed rule | Effectiveness | −0.21 | −0.12 | −0.03 | −0.14 | −0.12 |
 | Free choice, assumed rule | Dependence | 0.27 | 0.18 | 0.15 | 0.20 | 0.21 |
 
-*Share of the scenario contrast that disappears when one channel is held, for each learner and episode, at its value
-under traditional instruction: $1 - \text{SC}_{\text{held}} / \text{SC}$ (Section 3.7, Appendix D.6). 1 means the
-whole contrast passes through the channel; values outside 0 to 1 signal interacting channels, and the shares need not
-sum to 1. Computed from the medians of the full and the held contrast over 50 parameter draws of 500 learners. Source:
+*Contribution $1 - \text{SC}_{\text{held}} / \text{SC}$ of a channel held, for each learner and episode, at its value
+under traditional instruction (Table 7); the shares need not sum to 1. Computed from the medians of the full and the
+held contrast over 50 parameter draws of 500 learners. Source:
 own elaboration; model-implied output of the Phase V mechanism run
 (`outputs/tables/tableS_mechanism_decomposition.csv`).*
 
@@ -910,33 +832,24 @@ Table: **Table E6.** Year-10 neural contrasts $d$ by network (exploratory)
 | Free choice, fitted rule | 0.9 | −0.6 | −3.7 | −3.1 | 1.9 | −2.6 | 3.3 |
 
 *Median across 500 parameter draws of the standardised paired difference $d$ (eq. 38) between the AI scenario and
-traditional instruction, under plasticity mechanism D. $d$ measures how consistently learners differ, not by how much,
-and its sign depends on analysis choices (Section 4.7). Source: own elaboration; model-implied output of the Phase V
+traditional instruction, under plasticity mechanism D (Section 4.7). Source: own elaboration; model-implied output of the Phase V
 main run (`outputs/tables/table5_neural_d_v_main.csv`).*
 
 ## Appendix F. Reproducibility and data
 
 ### F.1 Availability
 
-The code, the corpus, the run records and the output tables are held in the public repository
-<https://github.com/MatteoGuardamagna4/neurai>. The code is released under the MIT licence, and the corpus, the
-outputs and the predicted cortical responses under CC BY-NC 4.0. The predicted responses, 931 files and 8.70 GB, are
-too large for the repository. A checksum manifest in the repository (`data/tribe/MANIFEST.sha256`) identifies each of
-those files, and a 14 MB bundle of the files the analysis reads is attached to release `report-2026-09-30`. Unpacked
-into a fresh copy of the repository, the bundle suffices to rebuild every table and figure. The vertex-level
-predictions and the predictions for the shuffled controls are identified by the manifest only, since the analysis
+The repository <https://github.com/MatteoGuardamagna4/neurai> holds the code, corpus, run records and output tables
+under the licences of Section 3.9. The predicted cortical responses, 931 files and 8.70 GB, are too large for it: a
+checksum manifest (`data/tribe/MANIFEST.sha256`) identifies each file, and the 14 MB bundle attached to release
+`report-2026-09-30`, unpacked into a fresh copy of the repository, suffices to rebuild every table and figure. The
+vertex-level predictions and those for the shuffled controls are identified by the manifest only, since the analysis
 reads them through aggregated tables.
-
-Runs are append-only and resumable: an interrupted run continues under its own configuration, a changed configuration
-is refused, and nothing is overwritten. The logistic-engine runs and the ten-year runs derive every random number from
-their recorded seeds (Section 3.9). Runs with the hybrid engine are not bitwise reproducible, because the served
-model's scores vary slightly with the state of its cache; they are reproduced from their call logs, which are kept.
 
 ### F.2 Rebuilding the results
 
 Table F1 lists the steps in the order in which they were run. Module commands are run as
-`uv run python -m neurotutorsim.<module>`, and the PowerShell scripts call them in the same way. Only the
-encoding-model runs and the Centaur runs used a cloud GPU (Section 3.9).
+`uv run python -m neurotutorsim.<module>`, and the PowerShell scripts call them in the same way.
 
 Table: **Table F1.** The steps that rebuild the results
 
@@ -963,8 +876,7 @@ Table: **Table F1.** The steps that rebuild the results
 
 Each run is stored under its tag: the encoding-model runs under `data/tribe/<tag>/`, the Phase III runs under
 `data/processed/<tag>/` with their logs under `outputs/logs/<tag>/`, and the Phase V runs under
-`data/processed/phase5/<tag>/`. The record of every Phase III and Phase V run holds its configuration hash, seeds,
-package versions and wall time. Table F2 maps the tags to the runs this report analyses. Other tags on disk, such as
+`data/processed/phase5/<tag>/`. Table F2 maps the tags to the runs this report analyses; other tags on disk, such as
 pilots and superseded runs, are kept as records and are not analysed.
 
 Table: **Table F2.** The run tags analysed in this report
@@ -994,7 +906,7 @@ Each Phase III run keeps its episodes in an append-only record (`episodes.jsonl`
 files of the run. The data dictionary (`outputs/tables/data_dictionary.csv`) gives the name, type and meaning of every
 column of the files in Table F3, and the values of the outcome column of `simulation_draws`: 680 entries in all. The
 table of the post hoc F4 check (`tableS_f4_bound_check.csv`) was written after the dictionary and is not in it;
-Appendix D.4 describes it.
+Section 4.6 describes it.
 
 Table: **Table F3.** Data files and the columns the data dictionary documents
 

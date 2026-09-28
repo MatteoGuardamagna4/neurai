@@ -236,7 +236,9 @@ and ranks, the rules changed after the first results, the components table); E. 
 year-10 states, $G$ by year, mechanism decomposition, variance decomposition, neural $d$, generated from the output
 CSVs and cited from §4); F. Reproducibility and data (**drafted** 2026-09-25: availability, Table F1 rebuild steps,
 Table F2 run tags, Table F3 data files; the full dictionary stays in `outputs/tables/data_dictionary.csv`, which
-lacks `tableS_f4_bound_check.csv`).
+lacks `tableS_f4_bound_check.csv`). **Trimmed 2026-09-28** (author: much of it repeated the body): prose that restated
+§3-4 was cut or reduced to a pointer, every equation and exhibit kept, so nothing is renumbered; the C.3 probes became
+Table C3, and the ledger entries of the cut sentences were removed.
 
 Body tables after the first-mention renumbering (2026-09-25): Table 1 research questions (§5.5, cited in §1.2);
 Table 2 data generated (§3.1); Table 3 seven networks (§3.3, cited in §2.2); Table 4 strands of the literature
