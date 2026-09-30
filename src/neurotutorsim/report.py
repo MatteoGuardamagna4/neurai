@@ -634,30 +634,38 @@ def figure5(plt, weekly: pd.DataFrame, levels: pd.DataFrame, out: Path, name: st
     return save(fig, out, f"fig5_trajectories_{name}"), pd.DataFrame(rows)
 
 
+FIG6_HALF = 0.2  # Figure 6's x window; substitution's tail runs past it, so the share beyond is printed at the edge
+
+
 def figure6(plt, hist: pd.DataFrame, table5: pd.DataFrame, out: Path, name: str, year: int) -> list[Path]:
     """Learner-level paired differences (AI minus traditional, pooled over draws) per scenario and headline outcome at
-    one year, with the median across draws of each draw's mean and its 90% simulation interval."""
+    one year, with the median across draws of each draw's mean and its 90% simulation interval, on a fixed
+    +-FIG6_HALF window. A panel with at least 0.5% of its learners beyond an edge (bin midpoint outside) prints
+    that share at the edge."""
     h = hist[hist["year"] == year]
     scen = [s for s in SCENARIO_COLOR if s in set(h["scenario"]) and s != "traditional"]
     outs = [o for o in HEADLINE if o in set(h["outcome"])]
     fig, axes = plt.subplots(len(outs), len(scen), figsize=(2.6 * len(scen), 1.9 * len(outs)), squeeze=False, sharey="row")
     for i, o in enumerate(outs):
         g_all = h[h["outcome"] == o]
-        nz = g_all[g_all["count"] > 0]
-        lo_x, hi_x = (nz["bin_low"].min(), nz["bin_high"].max()) if len(nz) else (-0.1, 0.1)
-        half = max(abs(lo_x), abs(hi_x), 1e-3)
         for j, s in enumerate(scen):
             ax = axes[i, j]
             g = g_all[g_all["scenario"] == s].sort_values("bin")
-            total = g["count"].sum()
-            ax.bar(g["bin_low"], g["count"] / max(total, 1), width=g["bin_high"] - g["bin_low"], align="edge",
+            total = max(g["count"].sum(), 1)
+            ax.bar(g["bin_low"], g["count"] / total, width=g["bin_high"] - g["bin_low"], align="edge",
                    color=SCENARIO_COLOR[s], lw=0)
             t = table5[(table5["scenario"] == s) & (table5["outcome"] == o) & (table5["year"] == year)]
             if len(t):
                 ax.axvspan(t["lo90"].iloc[0], t["hi90"].iloc[0], color=INK2, alpha=0.10, lw=0)
                 ax.axvline(t["median"].iloc[0], color=INK, lw=1.2)
             ax.axvline(0, color=AXIS, lw=0.8)
-            ax.set_xlim(-half, half)
+            ax.set_xlim(-FIG6_HALF, FIG6_HALF)
+            mid = (g["bin_low"] + g["bin_high"]) / 2
+            for share, x, ha, fmt in ((g.loc[mid < -FIG6_HALF, "count"].sum() / total, 0.03, "left", "← {:.0%}"),
+                                      (g.loc[mid > FIG6_HALF, "count"].sum() / total, 0.97, "right", "{:.0%} →")):
+                if share >= 0.005:
+                    ax.text(x, 0.95, fmt.format(share), transform=ax.transAxes, ha=ha, va="top", fontsize=7.5, color=INK2,
+                            zorder=5, bbox=dict(boxstyle="round,pad=0.2", facecolor=SURFACE, edgecolor="none", alpha=0.9))
             ax.grid(axis="x", visible=False)
             if i == 0:
                 ax.set_title(SCENARIO_LABEL[s], fontsize=8.5)
@@ -667,7 +675,9 @@ def figure6(plt, hist: pd.DataFrame, table5: pd.DataFrame, out: Path, name: str,
     fig.suptitle(f"Year-{year} scenario contrasts: learner-level paired differences vs traditional "
                  f"(bars), median across draws (line) and 90% simulation interval (band)", x=0.01, ha="left",
                  fontsize=10, fontweight="bold", color=INK)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.975))
+    fig.text(0.01, 0.962, f"Axis cut at ±{FIG6_HALF:g}; where learners fall beyond it, their share is printed at that edge "
+             "(← below, → above).", ha="left", va="top", fontsize=8, color=INK2)
     return save(fig, out, f"fig6_distributions_{name}")
 
 
